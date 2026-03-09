@@ -9,7 +9,7 @@ Roguelite meets career discovery. SUNOD is a 2D mobile roguelite where high scho
 ## TO-DO-s
 - [x] Implement actual user authentication
 - [ ] New different score system on each quest
-- [ ] asdasdasd Model
+- [ ] Model Implementation
 
 
 ## About the Game
@@ -67,7 +67,7 @@ SUNOD/
 ## Local Telemetry Server
 
 This game uses telemetry and login system to track player sessions and career data.  
-The backend: **[sunod-telemetry](https://github.com/Hansynily/sunod-telemetry)**
+The backend: **[sunod-game-server](https://github.com/Hansynily/sunod-game-server)**
 
 Clone and run the telemetry server locally before hitting Play in the editor, or career tracking and login will not function.
 
@@ -81,7 +81,7 @@ Refer to the telemetry repo's README for setup instructions.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/sunod-game/sunod.git
+   git clone https://github.com/Hansynily/sunod-game.git
    cd sunod
    ```
 
@@ -106,13 +106,14 @@ Refer to the telemetry repo's README for setup instructions.
 
 ## Contributing
 
-1. Branch off `demo` for new features: `git checkout -b feature/your-feature`
+1. Branch off `main` for new features: `git checkout -b feature/your-feature`
 3. Please keep commits focused and descriptive
-3. Open a pull request against `demo` with a clear description of changes
+3. Open a pull request against `main` with a clear description of changes
 
 ---
 
 ## License
 
 This project is a thesis research project. All rights reserved by the Team Bravo unless otherwise stated.
+
 
