@@ -1,16 +1,13 @@
-DEFAULT BRANCH 
+Run with (important!): [Sunod Game Server](https://github.com/Hansynily/sunod-game-server)
+
 # SUNOD - Students Unlocking New Occupational Directions
-
-
-<img width="512" height="358" alt="SUNOD" src="https://github.com/user-attachments/assets/93b5f9fc-2c08-44ad-8c09-8f0598216500" />
-
 
 
 Roguelite meets career discovery. SUNOD is a 2D mobile roguelite where high school and college students explore a modern-fantasy world, collect magic skills, and face exam-style evaluations. Each run reveals insights about which career paths actually fit them.
 
 ---
 ## TO-DO-s
-- [ ] Implement actual user authentication
+- [x] Implement actual user authentication
 - [ ] New different score system on each quest
 - [ ] asdasdasd Model
 
@@ -118,3 +115,4 @@ Refer to the telemetry repo's README for setup instructions.
 ## License
 
 This project is a thesis research project. All rights reserved by the Team Bravo unless otherwise stated.
+
