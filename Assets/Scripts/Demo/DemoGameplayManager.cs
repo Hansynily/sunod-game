@@ -54,6 +54,7 @@ namespace SunodGame.Demo
         private readonly List<PawPrintData> _pawPrints = new();
         private readonly List<GameObject> _planDots = new();
 
+        private DemoSceneReferences _sceneReferences;
         private AudioSource _audioSource;
         private AudioClip _mimicClip;
         private Transform _player;

@@ -138,12 +138,7 @@ namespace SunodGame.Demo
         {
             if (_objectiveText == null) return;
 
-            string collectPart = $"Collect skills: {_collectedSkillCount}/3 minimum";
-            string catPart = _collectedSkillCount >= 3
-                ? "Objective: Find and approach the cat."
-                : "Objective: Unlock more skills first.";
-
-            _objectiveText.text = $"{collectPart}\n{catPart}";
+            _objectiveText.text = "Objective: Find and approach the cat.";
         }
 
         private void ShowToast(string message)

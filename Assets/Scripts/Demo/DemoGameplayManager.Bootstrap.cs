@@ -88,13 +88,11 @@ namespace SunodGame.Demo
 
             if (_useChallengeSession)
                 UnlockChallengeSessionSkills();
-            else
-                SpawnCollectibles();
 
             SpawnCat();
             UpdateObjectiveText();
             if (!_useChallengeSession)
-                ShowToast("Collect at least 3 skills, then find the cat.");
+                ShowToast("Find and approach the cat.");
             _initialized = true;
         }
 

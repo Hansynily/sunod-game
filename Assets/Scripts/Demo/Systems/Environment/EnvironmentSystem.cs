@@ -68,53 +68,5 @@ namespace SunodGame.Demo
             collider.isTrigger = false;
         }
 
-        private void SpawnCollectibles()
-        {
-            Vector3 origin = _player.position;
-            Vector3[] offsets =
-            {
-                new(-2f, 1.8f, 0f),
-                new(-1f, 1.8f, 0f),
-                new(0f, 1.8f, 0f),
-                new(-2f, 0.8f, 0f),
-                new(-1f, 0.8f, 0f),
-                new(0f, 0.8f, 0f),
-            };
-
-            GameObject root = new("SkillCollectibles");
-            if (GetContentParent() != null)
-                root.transform.SetParent(GetContentParent(), false);
-            for (int i = 0; i < SkillLetters.Length; i++)
-            {
-                GameObject collectible = new($"Collect_{SkillLetters[i]}", typeof(SpriteRenderer), typeof(CircleCollider2D), typeof(SkillCollectible));
-                collectible.transform.SetParent(root.transform, false);
-                collectible.transform.position = origin + offsets[i];
-                collectible.transform.localScale = new Vector3(0.45f, 0.45f, 1f);
-
-                SpriteRenderer renderer = collectible.GetComponent<SpriteRenderer>();
-                renderer.sprite = WhiteSprite;
-                renderer.color = SkillColors[i];
-                renderer.sortingOrder = 30;
-
-                CircleCollider2D trigger = collectible.GetComponent<CircleCollider2D>();
-                trigger.isTrigger = true;
-                trigger.radius = 0.45f;
-
-                SkillCollectible script = collectible.GetComponent<SkillCollectible>();
-                script.Configure(i, this);
-
-                GameObject label = new("Label");
-                label.transform.SetParent(collectible.transform, false);
-                label.transform.localPosition = new Vector3(0f, 0f, -0.1f);
-                TextMesh text = label.AddComponent<TextMesh>();
-                text.text = SkillLetters[i];
-                text.characterSize = 0.12f;
-                text.fontSize = 80;
-                text.anchor = TextAnchor.MiddleCenter;
-                text.alignment = TextAlignment.Center;
-                text.color = Color.black;
-                label.GetComponent<MeshRenderer>().sortingOrder = 31;
-            }
-        }
     }
 }

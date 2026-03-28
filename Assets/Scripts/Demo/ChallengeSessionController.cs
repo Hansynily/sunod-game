@@ -126,6 +126,7 @@ namespace SunodGame.Demo
         private readonly Image[] _starImages = new Image[3];
 
         private ChallengeSessionPhase _state;
+        private ChallengeSceneReferences _sceneReferences;
         private TMP_Text _roundCounterText;
         private TMP_Text _roundObjectiveText;
         private TMP_Text _debugText;
@@ -133,6 +134,8 @@ namespace SunodGame.Demo
         private TMP_Text _nextRoundButtonLabel;
         private Transform _challengeHudRoot;
         private Transform _controlsCanvas;
+        private Color _filledStarColor = FilledStarColor;
+        private Color _emptyStarColor = EmptyStarColor;
         private string _sessionId = string.Empty;
         private string _startedAtIso = string.Empty;
         private float _debugTextHideAt = -1f;

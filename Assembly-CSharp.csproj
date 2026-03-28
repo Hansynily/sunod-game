@@ -56,6 +56,7 @@
     <Compile Include="Assets\Scripts\Skills\Realistic\BuildSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollection.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.SceneBinding.cs" />
+    <Compile Include="Assets\Scripts\Demo\DemoSceneReferences.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillPickup.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\ScriptableObjects\Charm.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Input.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
     <Compile Include="Assets\Scripts\Core\AuthManager.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Results.cs" />
+    <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
     <Compile Include="Assets\Scripts\QuestData.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\CharmSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />

@@ -162,16 +162,6 @@ namespace SunodGame.Demo
             if (_winShown || _cat == null || _player == null) return;
 
             float dist = Vector2.Distance(_player.position, _cat.transform.position);
-            if (_collectedSkillCount < 3)
-            {
-                if (dist <= 1.2f && Time.time >= _nextRequirementToastAt)
-                {
-                    ShowToast("Collect at least 3 skills first.");
-                    _nextRequirementToastAt = Time.time + 1.5f;
-                }
-                return;
-            }
-
             if (_catState == CatState.Fleeing) return;
             if (dist > 1.2f) return;
 

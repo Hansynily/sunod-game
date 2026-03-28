@@ -38,6 +38,10 @@ namespace SunodGame.Demo
             if (!scene.IsValid() || scene.name != DemoSceneName)
                 return false;
 
+            ChallengeSceneReferences sceneReferences = FindSceneReferences(scene);
+            if (sceneReferences != null && sceneReferences.HasShellReferences())
+                return true;
+
             return FindSceneObjectByName(ChallengeHudName, scene) != null &&
                    FindSceneObjectByName(ChallengeRootNames[0], scene) != null;
         }

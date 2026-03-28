@@ -13,28 +13,53 @@ namespace SunodGame.Demo
         private void ResolveSceneReferences()
         {
             Scene activeScene = SceneManager.GetActiveScene();
+            _sceneReferences = FindSceneReferences(activeScene);
 
-            _challengeHudRoot = FindSceneObjectByName(ChallengeHudName, activeScene)?.transform;
-            _controlsCanvas = FindSceneObjectByName(ControlsCanvasName, activeScene)?.transform;
-
-            _roundCounterText = FindSceneObjectByName(RoundCounterName, activeScene)?.GetComponent<TMP_Text>();
-            _roundObjectiveText = FindSceneObjectByName(RoundObjectiveName, activeScene)?.GetComponent<TMP_Text>();
-            _debugText = FindSceneObjectByName(DebugTextName, activeScene)?.GetComponent<TMP_Text>();
-
-            GameObject starsDisplay = FindSceneObjectByName(StarsDisplayName, activeScene);
-            if (starsDisplay != null)
+            if (_sceneReferences != null)
             {
-                _starImages[0] = FindChildImage(starsDisplay.transform, "Star_1");
-                _starImages[1] = FindChildImage(starsDisplay.transform, "Star_2");
-                _starImages[2] = FindChildImage(starsDisplay.transform, "Star_3");
+                _challengeHudRoot = _sceneReferences.ChallengeHudRoot;
+                _controlsCanvas = _sceneReferences.ControlsCanvas;
+                _roundCounterText = _sceneReferences.RoundCounterText;
+                _roundObjectiveText = _sceneReferences.RoundObjectiveText;
+                _debugText = _sceneReferences.DebugText;
+                _nextRoundButton = _sceneReferences.NextRoundButton;
+                _nextRoundButtonLabel = _sceneReferences.NextRoundButtonLabel;
+                _filledStarColor = _sceneReferences.FilledStarColor;
+                _emptyStarColor = _sceneReferences.EmptyStarColor;
+
+                Image[] starImages = _sceneReferences.StarImages;
+                for (int i = 0; i < _starImages.Length; i++)
+                    _starImages[i] = starImages != null && i < starImages.Length ? starImages[i] : null;
+
+                if (_nextRoundButton != null && _nextRoundButtonLabel == null)
+                    _nextRoundButtonLabel = _nextRoundButton.GetComponentInChildren<TMP_Text>(true);
+            }
+            else
+            {
+                _challengeHudRoot = FindSceneObjectByName(ChallengeHudName, activeScene)?.transform;
+                _controlsCanvas = FindSceneObjectByName(ControlsCanvasName, activeScene)?.transform;
+
+                _roundCounterText = FindSceneObjectByName(RoundCounterName, activeScene)?.GetComponent<TMP_Text>();
+                _roundObjectiveText = FindSceneObjectByName(RoundObjectiveName, activeScene)?.GetComponent<TMP_Text>();
+                _debugText = FindSceneObjectByName(DebugTextName, activeScene)?.GetComponent<TMP_Text>();
+
+                GameObject starsDisplay = FindSceneObjectByName(StarsDisplayName, activeScene);
+                if (starsDisplay != null)
+                {
+                    _starImages[0] = FindChildImage(starsDisplay.transform, "Star_1");
+                    _starImages[1] = FindChildImage(starsDisplay.transform, "Star_2");
+                    _starImages[2] = FindChildImage(starsDisplay.transform, "Star_3");
+                }
+
+                _nextRoundButton = FindSceneObjectByName(NextRoundButtonName, activeScene)?.GetComponent<Button>();
+                if (_nextRoundButton != null)
+                    _nextRoundButtonLabel = _nextRoundButton.GetComponentInChildren<TMP_Text>(true);
             }
 
-            _nextRoundButton = FindSceneObjectByName(NextRoundButtonName, activeScene)?.GetComponent<Button>();
             if (_nextRoundButton != null)
             {
                 _nextRoundButton.onClick.RemoveListener(HandleNextRoundClicked);
                 _nextRoundButton.onClick.AddListener(HandleNextRoundClicked);
-                _nextRoundButtonLabel = _nextRoundButton.GetComponentInChildren<TMP_Text>(true);
             }
         }
 
@@ -53,7 +78,11 @@ namespace SunodGame.Demo
             Scene activeScene = SceneManager.GetActiveScene();
             for (int i = 0; i < ChallengeIds.Length; i++)
             {
-                GameObject contentRoot = FindSceneObjectByName(ChallengeRootNames[i], activeScene);
+                GameObject contentRoot = _sceneReferences != null &&
+                                         _sceneReferences.ChallengeRoots != null &&
+                                         i < _sceneReferences.ChallengeRoots.Length
+                    ? _sceneReferences.ChallengeRoots[i]
+                    : FindSceneObjectByName(ChallengeRootNames[i], activeScene);
                 _definitions.Add(new ChallengeDefinition(ChallengeIds[i], ChallengeTags[i], contentRoot, defaultThresholds));
             }
         }
@@ -81,12 +110,12 @@ namespace SunodGame.Demo
                 return;
             }
 
+            OnScreenButton[] skillButtons = _sceneReferences?.SkillButtons;
             for (int i = 0; i < 6; i++)
             {
-                GameObject existing = FindSceneObjectByName($"Skill{i}", activeScene);
-                if (existing == null) continue;
-
-                OnScreenButton onScreenButton = existing.GetComponent<OnScreenButton>();
+                OnScreenButton onScreenButton = skillButtons != null && i < skillButtons.Length
+                    ? skillButtons[i]
+                    : FindSceneObjectByName($"Skill{i}", activeScene)?.GetComponent<OnScreenButton>();
                 if (onScreenButton == null)
                     Debug.LogWarning($"[ChallengeSession] Existing skill button 'Skill{i}' is missing an OnScreenButton component.");
             }
@@ -176,8 +205,27 @@ namespace SunodGame.Demo
             for (int i = 0; i < _starImages.Length; i++)
             {
                 if (_starImages[i] == null) continue;
-                _starImages[i].color = i < starsEarned ? FilledStarColor : EmptyStarColor;
+                _starImages[i].color = i < starsEarned ? _filledStarColor : _emptyStarColor;
             }
+        }
+
+        private static ChallengeSceneReferences FindSceneReferences(Scene scene)
+        {
+            ChallengeSceneReferences[] references = FindObjectsByType<ChallengeSceneReferences>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
+
+            for (int i = 0; i < references.Length; i++)
+            {
+                ChallengeSceneReferences current = references[i];
+                if (current == null || current.gameObject == null) continue;
+                if (!current.gameObject.scene.IsValid()) continue;
+                if (current.gameObject.scene.handle != scene.handle) continue;
+                return current;
+            }
+
+            return null;
         }
 
         private static GameObject FindSceneObjectByName(string objectName, Scene scene)

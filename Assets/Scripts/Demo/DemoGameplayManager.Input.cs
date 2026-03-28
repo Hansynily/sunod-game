@@ -1,8 +1,8 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.OnScreen;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace SunodGame.Demo
@@ -11,58 +11,64 @@ namespace SunodGame.Demo
     {
         private void SetupSkillButtons()
         {
-            OnScreenButton[] buttons = FindObjectsByType<OnScreenButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (OnScreenButton button in buttons)
-            {
-                int slot = SlotFromControlPath(button.controlPath);
-                if (slot < 0 || slot > 3) continue;
+            Scene activeScene = SceneManager.GetActiveScene();
+            _sceneReferences = FindSceneReferences(activeScene);
 
-                _slotButtons[slot] = button;
-                _slotButtonImages[slot] = button.GetComponent<Image>();
-                _slotButtonLabels[slot] = GetOrCreateButtonLabel(button.transform as RectTransform);
-                button.gameObject.SetActive(false);
+            if (_sceneReferences == null)
+            {
+                Debug.LogError("[DemoGameplay] DemoSceneReferences not found. Demo skill buttons must be bound from the scene.");
+                return;
+            }
+
+            if (!_sceneReferences.HasDemoSkillReferences())
+            {
+                Debug.LogError("[DemoGameplay] DemoSceneReferences is missing one or more demo skill button references.");
             }
 
             for (int i = 0; i < 4; i++)
             {
+                OnScreenButton button = _sceneReferences.DemoSkillButtons != null && i < _sceneReferences.DemoSkillButtons.Length
+                    ? _sceneReferences.DemoSkillButtons[i]
+                    : null;
+                TMP_Text label = _sceneReferences.DemoSkillLabels != null && i < _sceneReferences.DemoSkillLabels.Length
+                    ? _sceneReferences.DemoSkillLabels[i]
+                    : null;
+
+                _slotButtons[i] = button;
+                _slotButtonImages[i] = button != null ? button.GetComponent<Image>() : null;
+                _slotButtonLabels[i] = label;
+
+                if (button != null)
+                    button.gameObject.SetActive(false);
+
                 if (_slotButtons[i] == null)
                     Debug.LogWarning($"[DemoGameplay] Missing on-screen button for Skill{i}.");
+
+                if (_slotButtonLabels[i] == null)
+                    Debug.LogWarning($"[DemoGameplay] Missing label reference for Skill{i}.");
+
+                if (_slotButtonImages[i] == null)
+                    Debug.LogWarning($"[DemoGameplay] Skill{i} is missing an Image component.");
             }
         }
 
-        private static int SlotFromControlPath(string controlPath)
+        private static DemoSceneReferences FindSceneReferences(Scene scene)
         {
-            if (string.IsNullOrWhiteSpace(controlPath)) return -1;
-            if (controlPath.Contains("numpad0", StringComparison.OrdinalIgnoreCase)) return 0;
-            if (controlPath.Contains("numpad1", StringComparison.OrdinalIgnoreCase)) return 1;
-            if (controlPath.Contains("numpad2", StringComparison.OrdinalIgnoreCase)) return 2;
-            if (controlPath.Contains("numpad3", StringComparison.OrdinalIgnoreCase)) return 3;
-            return -1;
-        }
+            DemoSceneReferences[] references = FindObjectsByType<DemoSceneReferences>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
 
-        private TMP_Text GetOrCreateButtonLabel(RectTransform buttonRect)
-        {
-            if (buttonRect == null) return null;
+            for (int i = 0; i < references.Length; i++)
+            {
+                DemoSceneReferences current = references[i];
+                if (current == null || current.gameObject == null) continue;
+                if (!current.gameObject.scene.IsValid()) continue;
+                if (current.gameObject.scene.handle != scene.handle) continue;
+                return current;
+            }
 
-            TMP_Text existing = buttonRect.GetComponentInChildren<TMP_Text>(true);
-            if (existing != null) return existing;
-
-            GameObject labelGo = new("SkillLabel", typeof(RectTransform));
-            labelGo.transform.SetParent(buttonRect, false);
-
-            RectTransform rect = labelGo.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 1f);
-            rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.anchoredPosition = new Vector2(0f, 18f);
-            rect.sizeDelta = new Vector2(120f, 24f);
-
-            var label = labelGo.AddComponent<TextMeshProUGUI>();
-            label.fontSize = 12;
-            label.alignment = TextAlignmentOptions.Center;
-            label.color = Color.white;
-            label.text = string.Empty;
-            label.raycastTarget = false;
-            return label;
+            return null;
         }
 
         private void SetupInputActions()
