@@ -33,9 +33,5 @@ namespace SunodGame.Core
 
             SceneManager.LoadScene(sceneName);
         }
-
-        /// Reload
-        public static void Reload()
-            => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

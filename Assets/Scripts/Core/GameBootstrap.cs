@@ -6,7 +6,18 @@ namespace Sunod
 {
     public class GameBootstrap : MonoBehaviour
     {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void BootstrapBeforeSceneLoad()
+        {
+            EnsureCoreServices();
+        }
+
         void Awake()
+        {
+            EnsureCoreServices();
+        }
+
+        private static void EnsureCoreServices()
         {
             if (FindFirstObjectByType<TelemetryManager>() != null) return;
 

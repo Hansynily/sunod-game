@@ -16,6 +16,8 @@ namespace SunodGame.Demo
             if (_cat == null) return;
 
             GameObject paw = new("PawPrint", typeof(SpriteRenderer));
+            if (GetContentParent() != null)
+                paw.transform.SetParent(GetContentParent(), true);
             paw.transform.position = _cat.transform.position + new Vector3(0f, -0.2f, 0f);
             paw.transform.localScale = new Vector3(0.16f, 0.16f, 1f);
 

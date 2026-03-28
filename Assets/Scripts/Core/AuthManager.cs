@@ -72,12 +72,6 @@ namespace SunodGame.Core
             ));
         }
 
-        public void Logout()
-        {
-            TelemetryManager.Instance?.TagSessionEnd();
-            SessionState.Instance?.ClearUser();
-        }
-
         private bool ValidateUsername(string username, Action<string> onError)
         {
             if (!string.IsNullOrWhiteSpace(username)) return true;

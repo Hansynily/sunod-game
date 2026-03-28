@@ -14,6 +14,8 @@ namespace SunodGame.Demo
             _worldBounds = Rect.MinMaxRect(worldMinX, start.y - 4.5f, worldMaxX, start.y + 4.5f);
 
             GameObject envRoot = new("DemoEnvironment");
+            if (GetContentParent() != null)
+                envRoot.transform.SetParent(GetContentParent(), false);
 
             GameObject riverVisual = CreateWorldRect("RiverVisual", envRoot.transform, _riverCenter, new Vector2(RiverWidth, 8f), new Color(0.2f, 0.45f, 0.9f, 0.35f));
             riverVisual.GetComponent<SpriteRenderer>().sortingOrder = 5;
@@ -80,6 +82,8 @@ namespace SunodGame.Demo
             };
 
             GameObject root = new("SkillCollectibles");
+            if (GetContentParent() != null)
+                root.transform.SetParent(GetContentParent(), false);
             for (int i = 0; i < SkillLetters.Length; i++)
             {
                 GameObject collectible = new($"Collect_{SkillLetters[i]}", typeof(SpriteRenderer), typeof(CircleCollider2D), typeof(SkillCollectible));

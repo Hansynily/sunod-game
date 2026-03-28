@@ -1,4 +1,5 @@
 using TMPro;
+using SunodGame.Core;
 using UnityEngine;
 using UnityEngine.InputSystem.OnScreen;
 using UnityEngine.UI;
@@ -73,6 +74,14 @@ namespace SunodGame.Demo
             int skillIndex = _slotSkillIndex[slot];
             if (skillIndex < 0) return;
 
+            TriggerSkill(skillIndex);
+        }
+
+        public void TriggerSkill(int skillIndex)
+        {
+            if (!_initialized) return;
+            if (skillIndex < 0 || skillIndex >= SkillLetters.Length) return;
+
             RegisterSkillUse(skillIndex);
 
             switch (skillIndex)
@@ -92,6 +101,12 @@ namespace SunodGame.Demo
                 case 4:
                     UseCharm();
                     break;
+                case 5:
+                    _planUnlocked = true;
+                    _nextPlanUpdateAt = 0f;
+                    UpdatePlanIndicator();
+                    ShowToast("Plan used.");
+                    break;
             }
         }
 
@@ -100,6 +115,9 @@ namespace SunodGame.Demo
             _skillUseCount[skillIndex]++;
             if (_firstUseOrder[skillIndex] == int.MaxValue)
                 _firstUseOrder[skillIndex] = _nextUseOrder++;
+
+            if (ChallengeSessionController.Instance != null)
+                ChallengeSessionController.Instance.RecordSkillUse((RiasecCode)skillIndex);
         }
 
         private void UpdateSkillButtonVisuals()

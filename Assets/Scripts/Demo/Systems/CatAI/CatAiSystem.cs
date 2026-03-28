@@ -15,6 +15,9 @@ namespace SunodGame.Demo
                 _cat = new GameObject("Cat", typeof(SpriteRenderer), typeof(CircleCollider2D), typeof(Rigidbody2D));
             }
 
+            if (GetContentParent() != null)
+                _cat.transform.SetParent(GetContentParent(), true);
+
             _cat.transform.position = catSpawn;
 
             _catRenderer = _cat.GetComponent<SpriteRenderer>();
@@ -173,10 +176,15 @@ namespace SunodGame.Demo
             if (dist > 1.2f) return;
 
             _winShown = true;
+            if (_useChallengeSession)
+            {
+                ChallengeSessionController.Instance?.CompleteActiveRound(true);
+                return;
+            }
+
             _catFrozenUntil = Time.time + 999f;
             var playerController = _player.GetComponent<PlayerController>();
             if (playerController != null) playerController.enabled = false;
-
             if (_winPanel != null) _winPanel.SetActive(true);
             ShowToast("You found the cat!");
         }

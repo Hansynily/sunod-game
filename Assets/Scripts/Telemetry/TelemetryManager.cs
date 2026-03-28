@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Text;
+using SunodGame.Core;
+using SunodGame.Models;
 using UnityEngine;
 using UnityEngine.Networking;
-using SunodGame.Models;
-using SunodGame.Core;
 
 namespace SunodGame.Telemetry
 {
@@ -20,6 +20,7 @@ namespace SunodGame.Telemetry
         [Header("Debug")]
         [SerializeField] private bool bypassApiCalls = false;
         [SerializeField] private string bypassMessage = "Debug bypass enabled. No API request sent.";
+        [SerializeField] private int requestTimeoutSeconds = 10;
 
         void Awake()
         {
@@ -28,8 +29,7 @@ namespace SunodGame.Telemetry
             DontDestroyOnLoad(gameObject);
         }
 
-        //  PRIMARY  —  POST /api/telemetry/quest-attempt
-
+        // Legacy per-quest telemetry endpoint. Kept for compatibility outside the active demo flow.
         public void SubmitQuestAttempt(QuestAttemptTelemetryIn payload,
                                         Action<QuestAttemptTelemetryOut> onSuccess = null,
                                         Action<string>                   onError   = null)
@@ -53,11 +53,10 @@ namespace SunodGame.Telemetry
                 };
 
                 Debug.LogWarning("[Telemetry] API bypass is enabled. Returning simulated success.");
-                (onSuccess ?? ((r) => Debug.Log($"[Telemetry] Quest submitted → {r.message}"))).Invoke(simulated);
+                (onSuccess ?? ((r) => Debug.Log($"[Telemetry] Quest submitted -> {r.message}"))).Invoke(simulated);
                 return;
             }
 
-            // Build JSON manually
             var skillsJson = new StringBuilder();
             skillsJson.Append("[");
             for (int i = 0; i < payload.selected_skills.Count; i++)
@@ -81,8 +80,52 @@ namespace SunodGame.Telemetry
             StartCoroutine(PostJson(
                 "/api/telemetry/quest-attempt",
                 json,
-                onSuccess ?? ((r) => Debug.Log($"[Telemetry] Quest submitted → {r.message}")),
-                onError   ?? ((e) => Debug.LogWarning($"[Telemetry] Quest error: {e}"))
+                onSuccess ?? ((r) => Debug.Log($"[Telemetry] Quest submitted -> {r.message}")),
+                onError ?? ((e) => Debug.LogWarning($"[Telemetry] Quest error: {e}"))
+            ));
+        }
+
+        public void SubmitRunComplete(RunSummaryTelemetryPayload payload,
+                                        Action<RunSummaryTelemetryOut> onSuccess = null,
+                                        Action<string>                 onError   = null)
+        {
+            string fallbackPlayerId = UnityEngine.SystemInfo.deviceUniqueIdentifier;
+            string fallbackUsername = "DemoPlayer";
+
+            if (string.IsNullOrWhiteSpace(payload.player_id))
+            {
+                payload.player_id = SessionState.Instance != null
+                    ? SessionState.Instance.PlayerId
+                    : fallbackPlayerId;
+            }
+
+            if (string.IsNullOrWhiteSpace(payload.username))
+            {
+                payload.username = SessionState.Instance != null && !string.IsNullOrWhiteSpace(SessionState.Instance.Username)
+                    ? SessionState.Instance.Username
+                    : fallbackUsername;
+            }
+
+            if (string.IsNullOrWhiteSpace(payload.scene_version))
+                payload.scene_version = "single_room_v1";
+
+            if (payload.rounds == null)
+                payload.rounds = new System.Collections.Generic.List<ChallengeRoundTelemetryPayload>();
+
+            if (IsBypassEnabled())
+            {
+                string message = $"{bypassMessage} Local rubric fallback will be used.";
+                Debug.LogWarning("[Telemetry] API bypass is enabled. Skipping run summary request.");
+                (onError ?? ((e) => Debug.LogWarning($"[Telemetry] Run summary bypassed -> {e}"))).Invoke(message);
+                return;
+            }
+
+            string json = JsonUtility.ToJson(payload);
+            StartCoroutine(PostJson(
+                "/api/telemetry/run-complete",
+                json,
+                onSuccess ?? ((r) => Debug.Log($"[Telemetry] Run summary submitted -> {r.message}")),
+                onError ?? ((e) => Debug.LogWarning($"[Telemetry] Run summary error: {e}"))
             ));
         }
 
@@ -96,30 +139,25 @@ namespace SunodGame.Telemetry
 #endif
         }
 
-        //  CONVENIENCE WRAPPERS  (local logging only)
-
+        // Convenience wrappers for local logging only.
         public void TagSessionStart() =>
-            Debug.Log($"[Telemetry] session_start → player:{SessionState.Instance?.PlayerId}");
+            Debug.Log($"[Telemetry] session_start -> player:{SessionState.Instance?.PlayerId}");
 
         public void TagSessionEnd() =>
-            Debug.Log($"[Telemetry] session_end → player:{SessionState.Instance?.PlayerId}");
+            Debug.Log($"[Telemetry] session_end -> player:{SessionState.Instance?.PlayerId}");
 
         public void TagButtonClick(string buttonName) =>
-            Debug.Log($"[Telemetry] button_click → {buttonName}");
-
-        public void TagLevelEvent(string levelName, string eventName) =>
-            Debug.Log($"[Telemetry] level_event → {levelName} : {eventName}");
-
-        //  HTTP HELPERS
+            Debug.Log($"[Telemetry] button_click -> {buttonName}");
 
         private IEnumerator PostJson<TRes>(string path, string json,
                                             Action<TRes>   onSuccess,
                                             Action<string> onError)
         {
             using var req = new UnityWebRequest(baseUrl + path, "POST");
-            req.uploadHandler   = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
+            req.timeout = Mathf.Max(1, requestTimeoutSeconds);
 
             yield return req.SendWebRequest();
 
@@ -130,8 +168,20 @@ namespace SunodGame.Telemetry
             }
             else
             {
-                onError?.Invoke($"{req.responseCode}: {req.downloadHandler.text}");
+                onError?.Invoke(BuildErrorMessage(req));
             }
+        }
+
+        private static string BuildErrorMessage(UnityWebRequest req)
+        {
+            string responseText = req.downloadHandler?.text ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(responseText))
+                return $"{req.responseCode}: {responseText}";
+
+            if (!string.IsNullOrWhiteSpace(req.error))
+                return req.error;
+
+            return $"Request failed with result {req.result}.";
         }
     }
 }

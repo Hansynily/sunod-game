@@ -1,3 +1,4 @@
+// LEGACY-PARKED: Not good for demo. Only use when on non-demo phase.
 using UnityEngine;
 
 public class SkillController : MonoBehaviour
@@ -6,16 +7,33 @@ public class SkillController : MonoBehaviour
 
     public void AssignSkillToSlot(SkillData skill, int index)
     {
+        if (index < 0 || index >= quickAccessSlots.Length)
+            return;
+
         quickAccessSlots[index] = skill;
     }
 
     public void ActivateSlot(int index)
     {
-        quickAccessSlots[index].Activate(gameObject);
+        if (index < 0 || index >= quickAccessSlots.Length)
+            return;
+
+        SkillData skill = quickAccessSlots[index];
+        if (skill == null)
+            return;
+
+        skill.Activate(gameObject);
     }
 
     public void DeactivateSlot(int index)
     {
-        quickAccessSlots[index].Deactivate(gameObject);
+        if (index < 0 || index >= quickAccessSlots.Length)
+            return;
+
+        SkillData skill = quickAccessSlots[index];
+        if (skill == null)
+            return;
+
+        skill.Deactivate(gameObject);
     }
 }

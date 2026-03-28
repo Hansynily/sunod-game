@@ -9,6 +9,8 @@ namespace SunodGame.Demo
     {
         private void BuildHud()
         {
+            if (_useChallengeSession) return;
+
             GameObject canvasGo = new("DemoHUD", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             Canvas canvas = canvasGo.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;

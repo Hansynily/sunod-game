@@ -1,3 +1,4 @@
+// LEGACY-PARKED: Not good for demo. Only use when on non-demo phase.
 public enum QuestCategory
 {
     Currency,

@@ -21,6 +21,8 @@ namespace SunodGame.Demo
                 float t = i / (float)(dotCount + 1);
                 Vector3 pos = Vector3.Lerp(from, to, t);
                 GameObject dot = new($"PlanDot_{i}", typeof(SpriteRenderer));
+                if (GetContentParent() != null)
+                    dot.transform.SetParent(GetContentParent(), true);
                 dot.transform.position = pos;
                 dot.transform.localScale = new Vector3(0.08f, 0.08f, 1f);
 

@@ -41,6 +41,21 @@ namespace SunodGame.UI
             SetLoading(false);
         }
 
+        void OnDestroy()
+        {
+            if (btn_Login != null)
+                btn_Login.onClick.RemoveListener(OnLoginClicked);
+
+            if (btn_Register != null)
+                btn_Register.onClick.RemoveListener(OnRegisterClicked);
+
+            if (btn_SwitchToRegister != null)
+                btn_SwitchToRegister.onClick.RemoveListener(ShowRegister);
+
+            if (btn_SwitchToLogin != null)
+                btn_SwitchToLogin.onClick.RemoveListener(ShowLogin);
+        }
+
         // TAB SWITCHING
 
         void ShowLogin()

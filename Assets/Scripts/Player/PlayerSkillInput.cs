@@ -15,12 +15,6 @@ public class PlayerSkillInput : MonoBehaviour
     {
         skillController = GetComponent<SkillController>();
 
-        SkillAction0.Enable();
-        SkillAction1.Enable();
-        SkillAction2.Enable();
-        SkillAction3.Enable();
-
-
         SkillAction0.started += ctx => skillController.ActivateSlot(0);
         SkillAction0.canceled += ctx => skillController.DeactivateSlot(0);
 
@@ -32,6 +26,34 @@ public class PlayerSkillInput : MonoBehaviour
 
         SkillAction3.started += ctx => skillController.ActivateSlot(3);
         SkillAction3.canceled += ctx => skillController.DeactivateSlot(3);
+
+        SetActionsEnabled(true);
     }
 
+    void OnEnable()
+    {
+        SetActionsEnabled(true);
+    }
+
+    void OnDisable()
+    {
+        SetActionsEnabled(false);
+    }
+
+    private void SetActionsEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            SkillAction0.Enable();
+            SkillAction1.Enable();
+            SkillAction2.Enable();
+            SkillAction3.Enable();
+            return;
+        }
+
+        SkillAction0.Disable();
+        SkillAction1.Disable();
+        SkillAction2.Disable();
+        SkillAction3.Disable();
+    }
 }

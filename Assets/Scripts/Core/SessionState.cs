@@ -38,11 +38,6 @@ namespace SunodGame.Core
             DontDestroyOnLoad(gameObject);
         }
 
-        public void SetUsername(string username)
-        {
-            SetAuthenticatedUser(username, null);
-        }
-
         public void SetAuthenticatedUser(string username, string playerId)
         {
             Username = string.IsNullOrWhiteSpace(username) ? null : username.Trim();
