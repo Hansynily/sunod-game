@@ -27,6 +27,7 @@ namespace SunodGame.Demo
 
             for (int i = 0; i < 4; i++)
             {
+                int slot = i;
                 OnScreenButton button = _sceneReferences.DemoSkillButtons != null && i < _sceneReferences.DemoSkillButtons.Length
                     ? _sceneReferences.DemoSkillButtons[i]
                     : null;
@@ -39,7 +40,16 @@ namespace SunodGame.Demo
                 _slotButtonLabels[i] = label;
 
                 if (button != null)
+                {
+                    Button clickable = button.GetComponent<Button>();
+                    if (clickable == null)
+                        clickable = button.gameObject.AddComponent<Button>();
+
+                    clickable.transition = Selectable.Transition.None;
+                    clickable.onClick.RemoveAllListeners();
+                    clickable.onClick.AddListener(() => OnSkillPressed(slot));
                     button.gameObject.SetActive(false);
+                }
 
                 if (_slotButtons[i] == null)
                     Debug.LogWarning($"[DemoGameplay] Missing on-screen button for Skill{i}.");

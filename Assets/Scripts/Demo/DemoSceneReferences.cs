@@ -10,8 +10,12 @@ namespace SunodGame.Demo
         [SerializeField] private OnScreenButton[] demoSkillButtons = new OnScreenButton[4];
         [SerializeField] private TMP_Text[] demoSkillLabels = new TMP_Text[4];
 
+        [Header("Demo Skill UI State")]
+        [SerializeField] private float buildUsedAlpha = 0.35f;
+
         public OnScreenButton[] DemoSkillButtons => demoSkillButtons;
         public TMP_Text[] DemoSkillLabels => demoSkillLabels;
+        public float BuildUsedAlpha => buildUsedAlpha;
 
         public bool HasDemoSkillReferences()
         {

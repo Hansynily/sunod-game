@@ -34,9 +34,6 @@ namespace SunodGame.Demo
                     UnlockSlot(3, "Charm", 4);
                     break;
                 case 5:
-                    _planUnlocked = true;
-                    RegisterSkillUse(5);
-                    _nextPlanUpdateAt = 0f;
                     break;
             }
 
@@ -60,9 +57,6 @@ namespace SunodGame.Demo
             if (label != null)
                 label.text = skillName;
 
-            Image image = _slotButtonImages[slot];
-            if (image != null)
-                image.color = SkillColors[skillIndex];
         }
 
         private void OnSkillPressed(int slot)
@@ -102,10 +96,7 @@ namespace SunodGame.Demo
                     UseCharm();
                     break;
                 case 5:
-                    _planUnlocked = true;
-                    _nextPlanUpdateAt = 0f;
-                    UpdatePlanIndicator();
-                    ShowToast("Plan used.");
+                    ShowToast("Plan skill is parked.");
                     break;
             }
         }
@@ -144,7 +135,7 @@ namespace SunodGame.Demo
                 if (skillIndex == 0 && _buildUsed)
                 {
                     label = "Build (Used)";
-                    alpha = 0.35f;
+                    alpha = GetBuildUsedAlpha();
                 }
                 else if (skillIndex == 1 && _trackActive)
                 {
@@ -171,10 +162,18 @@ namespace SunodGame.Demo
 
                 _slotButtonLabels[slot].text = label;
 
-                Color c = SkillColors[Mathf.Clamp(skillIndex, 0, SkillColors.Length - 1)];
+                Color c = _slotButtonImages[slot].color;
                 c.a = alpha;
                 _slotButtonImages[slot].color = c;
             }
+        }
+
+        private float GetBuildUsedAlpha()
+        {
+            if (_sceneReferences != null)
+                return _sceneReferences.BuildUsedAlpha;
+
+            return 0.35f;
         }
     }
 }

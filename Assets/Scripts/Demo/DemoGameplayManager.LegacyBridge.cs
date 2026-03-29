@@ -23,8 +23,6 @@ namespace SunodGame.Demo
                 _collected[i] = true;
 
             _collectedSkillCount = _collected.Length;
-            _planUnlocked = true;
-
             UnlockSlot(0, "Build", 0);
             UnlockSlot(1, "Track", 1);
             UnlockSlot(2, "Mimic", 2);

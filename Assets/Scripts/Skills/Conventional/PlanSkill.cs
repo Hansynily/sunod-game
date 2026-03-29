@@ -6,7 +6,7 @@ namespace SunodGame.Demo
     {
         private void UpdatePlanIndicator()
         {
-            if (!_planUnlocked || _player == null || _cat == null) return;
+            if (!_trackActive || _player == null || _cat == null) return;
             if (Time.time < _nextPlanUpdateAt) return;
 
             _nextPlanUpdateAt = Time.time + 2f;
