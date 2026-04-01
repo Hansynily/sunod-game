@@ -18,6 +18,15 @@ EditorBuildSettings:
     path: Assets/Scenes/DemoPlayScene.unity
     guid: 58a7bb7640c728e42927b9558ae2a042
   - enabled: 1
+    path: Assets/Scenes/Level1_Scene.unity
+    guid: 3f19841b47bc2954bb2ddbb439f190aa
+  - enabled: 1
+    path: Assets/Scenes/Level2_Scene.unity
+    guid: 94fb4059cd49c6e4da12d1aa735b34b8
+  - enabled: 1
+    path: Assets/Scenes/Level3_Scene.unity
+    guid: d8bac007da8e75345ab71f2b85b3a300
+  - enabled: 1
     path: Assets/Scenes/EndScene.unity
     guid: 769bf6ead4ea8b142ba92731bd9fccb4
   - enabled: 0
