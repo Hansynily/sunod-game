@@ -27,7 +27,7 @@ namespace SunodGame.Demo
             public float expiresAt;
         }
 
-        private const string DemoSceneName = "DemoPlayScene";
+        private const string PlaySceneName = "Level1_Scene";
         private const float ToastDuration = 1.5f;
         private const float PawPrintLifetime = 3f;
         private const float PawPrintInterval = 0.5f;

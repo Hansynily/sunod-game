@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\Skills\Enterprising\CharmSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CharmSkill.cs" />
     <Compile Include="Assets\Scripts\vc_StrengthSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="Assets\Scripts\Player\PlayerSkillInput.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.cs" />
     <Compile Include="Assets\Scripts\vc_HintSystem.cs" />
+    <Compile Include="Assets\Scripts\vc_RunCompleteZone.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\HUD\HudSystem.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSlot.cs" />
     <Compile Include="Assets\Scripts\vc_BlockedPathQuest.cs" />
@@ -130,6 +132,7 @@
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
+    <Compile Include="Assets\Scripts\vc_RiasecAdapter.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\CatAI\CatAiSystem.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1342,8 +1345,8 @@
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Flow.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
+    <Reference Include="Unity.Mobile.AndroidLogcat.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Mobile.AndroidLogcat.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
@@ -1352,6 +1355,10 @@
     </Reference>
     <Reference Include="Unity.2D.Tilemap.Extras.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.2D.Tilemap.Extras.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.2D.Tilemap.Extras">

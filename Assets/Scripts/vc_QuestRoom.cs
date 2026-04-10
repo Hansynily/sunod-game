@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -17,6 +18,9 @@ public class vc_QuestRoom : MonoBehaviour
     [SerializeField] private TextMeshProUGUI questDescriptionText;
     [SerializeField] private vc_HintSystem hintSystem;
     [SerializeField] private vc_SkillData[] roomSkills = new vc_SkillData[4];
+    [SerializeField] private string questId;
+    [SerializeField] private string questName;
+    [SerializeField] private string primaryRiasec;
     [SerializeField] private string objectiveText;
     [SerializeField] private string questDescription;
     [SerializeField] private string[] questHints;
@@ -25,6 +29,8 @@ public class vc_QuestRoom : MonoBehaviour
     [SerializeField] private bool isLastQuestInScene = false;
 
     private bool questStarted = false;
+    private bool questResultRecorded = false;
+    private bool isQuestTimerSubscribed = false;
     private vc_IQuestLogic cachedQuestLogic;
     private vc_SkillManager cachedSkillManager;
 
@@ -38,6 +44,11 @@ public class vc_QuestRoom : MonoBehaviour
 
         cachedQuestLogic = questLogic as vc_IQuestLogic;
         cachedSkillManager = FindFirstObjectByType<vc_SkillManager>();
+
+        if (questObjective != null)
+        {
+            questObjective.gameObject.SetActive(false);
+        }
     }
 
     private void Update()
@@ -51,6 +62,11 @@ public class vc_QuestRoom : MonoBehaviour
         {
             OnQuestComplete(); // TEMP TEST - REMOVE
         }
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeFromQuestTimer();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -94,15 +110,11 @@ public class vc_QuestRoom : MonoBehaviour
         }
 
         questStarted = true;
+        questResultRecorded = false;
 
         if (questCounter != null)
         {
             questCounter.text = $"Quest {currentQuestNumber}/{totalQuestsInScene}";
-        }
-
-        if (questObjective != null)
-        {
-            questObjective.text = objectiveText;
         }
 
         if (questDescriptionText != null)
@@ -120,16 +132,86 @@ public class vc_QuestRoom : MonoBehaviour
             nextLevelButton.gameObject.SetActive(false);
         }
 
+        SubscribeToQuestTimer();
+
         if (questTimer != null)
         {
             questTimer.StartQuest();
         }
 
-        if (cachedSkillManager != null && roomSkills != null && roomSkills.Length == 4)
+        if (cachedSkillManager != null && HasConfiguredRoomSkills())
         {
+            cachedSkillManager.ResetUsageCounts();
             cachedSkillManager.LoadSkills(roomSkills);
         }
 
         cachedQuestLogic?.BeginQuest(this, questTimer);
+    }
+
+    private void SubscribeToQuestTimer()
+    {
+        if (questTimer == null || isQuestTimerSubscribed)
+        {
+            return;
+        }
+
+        questTimer.QuestEnded += HandleQuestEnded;
+        isQuestTimerSubscribed = true;
+    }
+
+    private void UnsubscribeFromQuestTimer()
+    {
+        if (questTimer == null || !isQuestTimerSubscribed)
+        {
+            return;
+        }
+
+        questTimer.QuestEnded -= HandleQuestEnded;
+        isQuestTimerSubscribed = false;
+    }
+
+    private void HandleQuestEnded(vc_QuestTimer.QuestCompletionResult result)
+    {
+        if (questResultRecorded)
+        {
+            UnsubscribeFromQuestTimer();
+            return;
+        }
+
+        questResultRecorded = true;
+
+        Dictionary<string, int> usageSummary = cachedSkillManager != null
+            ? cachedSkillManager.GetUsageSummary()
+            : new Dictionary<string, int>();
+
+        vc_SessionTelemetry.Instance?.RecordQuestResult(
+            questId,
+            questName,
+            primaryRiasec,
+            result != null && result.DidPassQuest,
+            result != null ? result.FinalStarsEarnedNormalized : 0,
+            result != null ? result.FinalTimeRemaining : 0f,
+            result != null ? result.TotalTimeSpent : 0f,
+            usageSummary);
+
+        UnsubscribeFromQuestTimer();
+    }
+
+    private bool HasConfiguredRoomSkills()
+    {
+        if (roomSkills == null || roomSkills.Length == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < roomSkills.Length; i++)
+        {
+            if (roomSkills[i] != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

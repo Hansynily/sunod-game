@@ -14,7 +14,7 @@ namespace SunodGame.Core
         public const string SCENE_LOGIN    = "LoginRegisterScene";
         public const string SCENE_MAINMENU = "MainMenu";
         public const string SCENE_CUTSCENE = "Cutscene";
-        public const string SCENE_PLAY     = "DemoPlayScene";
+        public const string SCENE_PLAY     = "Level1_Scene";
         public const string SCENE_END      = "EndScene";
 
         public static void GoToLogin()    => SceneManager.LoadScene(SCENE_LOGIN);

@@ -75,7 +75,7 @@ namespace SunodGame.Demo
     {
         public static ChallengeSessionController Instance { get; private set; }
 
-        private const string DemoSceneName = "DemoPlayScene";
+        private const string PlaySceneName = "Level1_Scene";
         private const string ChallengeHudName = "ChallengeHUD";
         private const string RoundCounterName = "RoundCounter";
         private const string RoundObjectiveName = "RoundObjective";

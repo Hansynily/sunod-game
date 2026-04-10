@@ -119,4 +119,36 @@ namespace SunodGame.Models
         public string career_result;
         public string model_version;
     }
+
+    [Serializable]
+    public class PredictionRequestPayload
+    {
+        public float[] features;
+    }
+
+    [Serializable]
+    public class PredictionResponsePayload
+    {
+        public int predicted_cluster;
+    }
+
+    [Serializable]
+    public class SessionClusterTelemetryPayload
+    {
+        public string player_id;
+        public string session_id;
+        public int predicted_cluster;
+    }
+
+    [Serializable]
+    public class SessionClusterTelemetryOut
+    {
+        public bool success;
+        public string message;
+        public int predicted_cluster;
+        public string holland_code;
+        public string career_family;
+        public string source;
+        public string model_version;
+    }
 }

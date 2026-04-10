@@ -34,7 +34,8 @@ namespace SunodGame.Demo
 
         private static void EnsureManagerForScene(Scene scene)
         {
-            if (scene.name != DemoSceneName) return;
+            if (scene.name != PlaySceneName) return;
+            if (FindSceneReferences(scene) == null) return;
             if (FindAnyObjectByType<DemoGameplayManager>() != null) return;
 
             var go = new GameObject("[Demo Gameplay Manager]");
@@ -43,13 +44,14 @@ namespace SunodGame.Demo
 
         private void Awake()
         {
-            if (SceneManager.GetActiveScene().name != DemoSceneName)
+            Scene activeScene = SceneManager.GetActiveScene();
+            if (activeScene.name != PlaySceneName || FindSceneReferences(activeScene) == null)
             {
                 Destroy(gameObject);
                 return;
             }
 
-            _useChallengeSession = ChallengeSessionController.UsesChallengeSessionShell(SceneManager.GetActiveScene());
+            _useChallengeSession = ChallengeSessionController.UsesChallengeSessionShell(activeScene);
             _contentRoot = _useChallengeSession
                 ? GameObject.Find("Challenge_01")?.transform
                 : null;

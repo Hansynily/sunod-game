@@ -35,7 +35,7 @@ namespace SunodGame.Demo
 
         internal static bool UsesChallengeSessionShell(Scene scene)
         {
-            if (!scene.IsValid() || scene.name != DemoSceneName)
+            if (!scene.IsValid() || scene.name != PlaySceneName)
                 return false;
 
             ChallengeSceneReferences sceneReferences = FindSceneReferences(scene);

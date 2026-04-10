@@ -20,8 +20,8 @@ public class vc_HintSystem : MonoBehaviour
 
         if (hintButton != null)
         {
-            hintButton.onClick.RemoveListener(ToggleHint);
-            hintButton.onClick.AddListener(ToggleHint);
+            hintButton.onClick.RemoveListener(HandleHintButtonPressed);
+            hintButton.onClick.AddListener(HandleHintButtonPressed);
         }
     }
 
@@ -29,6 +29,16 @@ public class vc_HintSystem : MonoBehaviour
     {
         hints = newHints;
         currentHintIndex = 0;
+
+        if (hintPanel != null)
+        {
+            hintPanel.SetActive(false);
+        }
+
+        if (hintText != null)
+        {
+            hintText.text = string.Empty;
+        }
     }
 
     public void NextHint()
@@ -38,23 +48,24 @@ public class vc_HintSystem : MonoBehaviour
             return;
         }
 
-        currentHintIndex = Mathf.Min(currentHintIndex + 1, hints.Length - 1);
+        currentHintIndex = (currentHintIndex + 1) % hints.Length;
         hintText.text = hints[currentHintIndex];
     }
 
-    private void ToggleHint()
+    private void HandleHintButtonPressed()
     {
-        if (hintPanel == null)
+        if (hintPanel == null || hintText == null || hints == null || hints.Length == 0)
         {
             return;
         }
 
-        bool isActive = hintPanel.activeSelf;
-        hintPanel.SetActive(!isActive);
-
-        if (!isActive && hintText != null && hints != null && hints.Length > 0)
+        if (!hintPanel.activeSelf)
         {
+            hintPanel.SetActive(true);
             hintText.text = hints[currentHintIndex];
+            return;
         }
+
+        NextHint();
     }
 }

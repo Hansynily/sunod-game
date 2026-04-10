@@ -10,12 +10,42 @@ namespace SunodGame.Telemetry
 {
     public class TelemetryManager : MonoBehaviour
     {
+        private const string BackendUrlPrefKey = "sunod.backend.url";
+        private const string BackendModePrefKey = "sunod.backend.mode";
+        public const string BackendModeRailway = "Railway";
+        public const string BackendModeCustom = "Custom";
+
         public static TelemetryManager Instance { get; private set; }
 
         [Header("Backend")]
-        [SerializeField] private string baseUrl = "http://localhost:8000";
+        [SerializeField] private string railwayBaseUrl = "";
+        [SerializeField] private string editorLocalBaseUrl = "http://localhost:8000";
+        [SerializeField] private string localBaseUrl = "http://192.168.1.107:8000";
 
-        public string BaseUrl => baseUrl;
+        public string BaseUrl => ResolveConfiguredBaseUrl();
+
+        public string CurrentBackendMode
+        {
+            get
+            {
+                string savedMode = PlayerPrefs.GetString(BackendModePrefKey, string.Empty);
+                if (savedMode == BackendModeCustom)
+                    return BackendModeCustom;
+
+                if (savedMode == "Local")
+                    return BackendModeCustom;
+
+                return BackendModeRailway;
+            }
+        }
+
+        private string ActiveBaseUrl => string.IsNullOrWhiteSpace(BaseUrl)
+            ? string.Empty
+            : BaseUrl.TrimEnd('/');
+
+        public string RailwayPresetUrl => NormalizeUrl(railwayBaseUrl);
+
+        public string DevelopmentFallbackUrl => NormalizeUrl(Application.isEditor ? editorLocalBaseUrl : localBaseUrl);
 
         [Header("Debug")]
         [SerializeField] private bool bypassApiCalls = false;
@@ -27,6 +57,42 @@ namespace SunodGame.Telemetry
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
+
+        public bool TryUseRailwayBackend(string overrideUrl, out string resolvedUrl, out string errorMessage)
+        {
+            resolvedUrl = NormalizeUrl(overrideUrl);
+            if (string.IsNullOrWhiteSpace(resolvedUrl))
+                resolvedUrl = RailwayPresetUrl;
+
+            if (string.IsNullOrWhiteSpace(resolvedUrl))
+            {
+                errorMessage = "Railway URL is not configured yet.";
+                return false;
+            }
+
+            SaveBackendSelection(resolvedUrl, BackendModeRailway);
+            errorMessage = null;
+            return true;
+        }
+
+        public bool TryUseRailwayBackend(out string resolvedUrl, out string errorMessage)
+        {
+            return TryUseRailwayBackend(string.Empty, out resolvedUrl, out errorMessage);
+        }
+
+        public bool TryUseCustomBackend(string customUrl, out string resolvedUrl, out string errorMessage)
+        {
+            resolvedUrl = NormalizeUrl(customUrl);
+            if (!IsValidBackendUrl(resolvedUrl))
+            {
+                errorMessage = "Enter a valid http:// or https:// backend URL.";
+                return false;
+            }
+
+            SaveBackendSelection(resolvedUrl, BackendModeCustom);
+            errorMessage = null;
+            return true;
         }
 
         // Legacy per-quest telemetry endpoint. Kept for compatibility outside the active demo flow.
@@ -153,7 +219,10 @@ namespace SunodGame.Telemetry
                                             Action<TRes>   onSuccess,
                                             Action<string> onError)
         {
-            using var req = new UnityWebRequest(baseUrl + path, "POST");
+            string requestUrl = ActiveBaseUrl + path;
+            Debug.Log($"[Telemetry] POST {requestUrl}");
+
+            using var req = new UnityWebRequest(requestUrl, "POST");
             req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
@@ -163,11 +232,13 @@ namespace SunodGame.Telemetry
 
             if (req.result == UnityWebRequest.Result.Success)
             {
+                Debug.Log($"[Telemetry] Response: {req.downloadHandler.text}");
                 TRes result = JsonUtility.FromJson<TRes>(req.downloadHandler.text);
                 onSuccess?.Invoke(result);
             }
             else
             {
+                Debug.LogWarning($"[Telemetry] Request failed: {req.responseCode} | {req.error} | {req.downloadHandler?.text}");
                 onError?.Invoke(BuildErrorMessage(req));
             }
         }
@@ -182,6 +253,44 @@ namespace SunodGame.Telemetry
                 return req.error;
 
             return $"Request failed with result {req.result}.";
+        }
+
+        private string ResolveConfiguredBaseUrl()
+        {
+            string savedUrl = NormalizeUrl(PlayerPrefs.GetString(BackendUrlPrefKey, string.Empty));
+            if (!string.IsNullOrWhiteSpace(savedUrl))
+                return savedUrl;
+
+            string defaultRailwayUrl = RailwayPresetUrl;
+            if (!string.IsNullOrWhiteSpace(defaultRailwayUrl))
+                return defaultRailwayUrl;
+
+            return DevelopmentFallbackUrl;
+        }
+
+        private void SaveBackendSelection(string url, string mode)
+        {
+            PlayerPrefs.SetString(BackendUrlPrefKey, NormalizeUrl(url));
+            PlayerPrefs.SetString(BackendModePrefKey, mode);
+            PlayerPrefs.Save();
+        }
+
+        private static string NormalizeUrl(string url)
+        {
+            return string.IsNullOrWhiteSpace(url)
+                ? string.Empty
+                : url.Trim().TrimEnd('/');
+        }
+
+        private static bool IsValidBackendUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return false;
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+                return false;
+
+            return uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
         }
     }
 }

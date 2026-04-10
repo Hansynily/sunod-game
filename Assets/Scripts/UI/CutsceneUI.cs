@@ -27,6 +27,7 @@ namespace SunodGame.UI
 
         private void OnSkipClicked()
         {
+            vc_SessionTelemetry.Instance?.StartSession();
             SceneLoader.GoToPlay();
         }
     }

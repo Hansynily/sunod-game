@@ -53,6 +53,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
             {
                 friendNPC.FollowTarget(playerTransform);
                 charmActive = true;
+                ShowFloatingMessage("Your friend now follows you.");
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5,6 +6,25 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class vc_QuestTimer : MonoBehaviour
 {
+    public sealed class QuestCompletionResult
+    {
+        public QuestCompletionResult(int finalStarsEarned, int finalStarsEarnedNormalized, bool didPassQuest, float finalTimeRemaining, float totalTimeSpent)
+        {
+            FinalStarsEarned = finalStarsEarned;
+            FinalStarsEarnedNormalized = finalStarsEarnedNormalized;
+            DidPassQuest = didPassQuest;
+            FinalTimeRemaining = finalTimeRemaining;
+            TotalTimeSpent = totalTimeSpent;
+        }
+
+        public int FinalStarsEarned { get; }
+        public int FinalStarsEarnedNormalized { get; }
+        public bool DidPassQuest { get; }
+        public bool DidFailQuest => !DidPassQuest;
+        public float FinalTimeRemaining { get; }
+        public float TotalTimeSpent { get; }
+    }
+
     [SerializeField] private float totalTime = 30f;
     [SerializeField] private Image[] starImages = new Image[5];
     [SerializeField] private Sprite starFilled;
@@ -16,7 +36,16 @@ public class vc_QuestTimer : MonoBehaviour
     private float timeRemaining;
     private bool isRunning = false;
     private bool isComplete = false;
-    private TMP_Text runtimeDebugText;
+
+    public int FinalStarsEarned { get; private set; }
+    public int FinalStarsEarnedNormalized { get; private set; }
+    public bool DidPassQuest { get; private set; }
+    public bool DidFailQuest => isComplete && !DidPassQuest;
+    public float FinalTimeRemaining { get; private set; }
+    public float TotalTimeSpent { get; private set; }
+    public QuestCompletionResult FinalResult { get; private set; }
+
+    public event Action<QuestCompletionResult> QuestEnded;
 
     private void Awake()
     {
@@ -28,6 +57,7 @@ public class vc_QuestTimer : MonoBehaviour
         timeRemaining = Mathf.Max(0f, totalTime);
         isRunning = true;
         isComplete = false;
+        ResetFinalState();
         UpdateDisplayedStars();
         UpdateDebugText();
     }
@@ -65,8 +95,10 @@ public class vc_QuestTimer : MonoBehaviour
 
         int stars = GetStarCountForTimeRemaining();
         SetStarsForCount(stars);
+        StoreFinalResult(true, stars, timeRemaining);
 
         UpdateDebugText($"Quest complete | Time left: {timeRemaining:F1}s | Stars: {stars}/5");
+        QuestEnded?.Invoke(FinalResult);
     }
 
     public float GetTimeRemaining()
@@ -84,7 +116,9 @@ public class vc_QuestTimer : MonoBehaviour
         isRunning = false;
         isComplete = true;
         SetAllStars(false);
+        StoreFinalResult(false, 0, 0f);
         UpdateDebugText("Quest failed | Time left: 0.0s | Stars: 0/5");
+        QuestEnded?.Invoke(FinalResult);
         Debug.Log("Quest failed");
     }
 
@@ -166,6 +200,41 @@ public class vc_QuestTimer : MonoBehaviour
         return timeRemaining > 0f ? 1 : 0;
     }
 
+    private void ResetFinalState()
+    {
+        FinalStarsEarned = 0;
+        FinalStarsEarnedNormalized = 0;
+        DidPassQuest = false;
+        FinalTimeRemaining = 0f;
+        TotalTimeSpent = 0f;
+        FinalResult = null;
+    }
+
+    private void StoreFinalResult(bool didPassQuest, int finalStarsEarned, float finalTimeRemaining)
+    {
+        FinalStarsEarned = Mathf.Clamp(finalStarsEarned, 0, 5);
+        FinalStarsEarnedNormalized = NormalizeStarsToThreeStar(FinalStarsEarned);
+        DidPassQuest = didPassQuest;
+        FinalTimeRemaining = Mathf.Max(0f, finalTimeRemaining);
+        TotalTimeSpent = Mathf.Max(0f, totalTime - FinalTimeRemaining);
+        FinalResult = new QuestCompletionResult(
+            FinalStarsEarned,
+            FinalStarsEarnedNormalized,
+            DidPassQuest,
+            FinalTimeRemaining,
+            TotalTimeSpent);
+    }
+
+    private static int NormalizeStarsToThreeStar(int fiveStarCount)
+    {
+        if (fiveStarCount <= 0)
+        {
+            return 0;
+        }
+
+        return Mathf.Clamp(Mathf.RoundToInt((fiveStarCount / 5f) * 3f), 0, 3);
+    }
+
     private void UpdateDebugText(string overrideMessage = null)
     {
         TMP_Text targetText = GetActiveDebugText();
@@ -182,18 +251,9 @@ public class vc_QuestTimer : MonoBehaviour
     private TMP_Text GetActiveDebugText()
     {
         EnsureDebugTextReference();
-
-        if (debugText != null && debugText.gameObject.activeInHierarchy)
-        {
-            return debugText;
-        }
-
-        if (runtimeDebugText == null)
-        {
-            runtimeDebugText = CreateRuntimeDebugText();
-        }
-
-        return runtimeDebugText;
+        return debugText != null && debugText.gameObject.activeInHierarchy
+            ? debugText
+            : null;
     }
 
     private void EnsureDebugTextReference()
@@ -207,7 +267,7 @@ public class vc_QuestTimer : MonoBehaviour
         for (int i = 0; i < textObjects.Length; i++)
         {
             TMP_Text candidate = textObjects[i];
-            if (candidate == null || candidate.name != "DebugText")
+            if (candidate == null || (candidate.name != "QuestInfo" && candidate.name != "DebugText"))
             {
                 continue;
             }
@@ -220,40 +280,5 @@ public class vc_QuestTimer : MonoBehaviour
             debugText = candidate;
             return;
         }
-    }
-
-    private TMP_Text CreateRuntimeDebugText()
-    {
-        Canvas canvas = FindFirstObjectByType<Canvas>();
-        if (canvas == null)
-        {
-            GameObject canvasObject = new("QuestTimerCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvas = canvasObject.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 1000;
-
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080f, 1920f);
-            scaler.matchWidthOrHeight = 0.5f;
-        }
-
-        GameObject textObject = new("QuestTimerDebugText_Auto", typeof(RectTransform));
-        textObject.transform.SetParent(canvas.transform, false);
-
-        RectTransform rect = textObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 1f);
-        rect.anchorMax = new Vector2(0.5f, 1f);
-        rect.pivot = new Vector2(0.5f, 1f);
-        rect.anchoredPosition = new Vector2(0f, -140f);
-        rect.sizeDelta = new Vector2(700f, 80f);
-
-        TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
-        text.fontSize = 32f;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = Color.white;
-        text.raycastTarget = false;
-
-        return text;
     }
 }

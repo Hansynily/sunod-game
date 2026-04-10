@@ -14,6 +14,7 @@ namespace SunodGame.Core
 
         [Header("Backend")]
         [SerializeField] private string baseUrl = "http://localhost:8000";
+        [SerializeField] private int requestTimeoutSeconds = 15;
 
         void Awake()
         {
@@ -93,19 +94,25 @@ namespace SunodGame.Core
                                      Action onSuccess,
                                      Action<string> onError)
         {
-            using var req = new UnityWebRequest(GetBaseUrl() + path, UnityWebRequest.kHttpVerbPOST);
+            string requestUrl = GetBaseUrl() + path;
+            Debug.Log($"[Auth] POST {requestUrl}");
+
+            using var req = new UnityWebRequest(requestUrl, UnityWebRequest.kHttpVerbPOST);
             req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
+            req.timeout = Mathf.Max(1, requestTimeoutSeconds);
 
             yield return req.SendWebRequest();
 
             if (req.result != UnityWebRequest.Result.Success)
             {
+                Debug.LogWarning($"[Auth] Request failed: {req.responseCode} | {req.error} | {req.downloadHandler?.text}");
                 onError?.Invoke(ExtractError(req.responseCode, req.downloadHandler.text));
                 yield break;
             }
 
+            Debug.Log($"[Auth] Response: {req.downloadHandler.text}");
             AuthResponse auth = JsonUtility.FromJson<AuthResponse>(req.downloadHandler.text);
             if (auth == null ||
                 string.IsNullOrWhiteSpace(auth.username) ||
