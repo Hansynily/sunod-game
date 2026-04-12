@@ -18,7 +18,7 @@ namespace SunodGame.Telemetry
         public static TelemetryManager Instance { get; private set; }
 
         [Header("Backend")]
-        [SerializeField] private string railwayBaseUrl = "";
+        [SerializeField] private string railwayBaseUrl = "http://sunodserver.duckdns.org:8000";
         [SerializeField] private string editorLocalBaseUrl = "http://localhost:8000";
         [SerializeField] private string localBaseUrl = "http://192.168.1.107:8000";
 
