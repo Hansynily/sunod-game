@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Globalization;
 using SunodGame.Core;
+using SunodGame.Models;
 using SunodGame.Telemetry;
 
 namespace SunodGame.UI
@@ -23,7 +26,11 @@ namespace SunodGame.UI
         [SerializeField] private TMP_Text       txt_ErrorLogin;
 
         [Header("Register Panel")]
+        [SerializeField] private TMP_InputField registerNameInput;
+        [SerializeField] private TMP_InputField registerBirthdateInput;
+        [SerializeField] private TMP_Dropdown   registerGenderDropdown;
         [SerializeField] private TMP_InputField registerUsernameInput;
+        [SerializeField] private TMP_InputField registerEmailInput;
         [SerializeField] private TMP_InputField registerPasswordInput;
         [SerializeField] private Button         btn_Register;
         [SerializeField] private Button         btn_SwitchToLogin;
@@ -31,6 +38,8 @@ namespace SunodGame.UI
 
         [Header("Shared")]
         [SerializeField] private TMP_Text txt_Loading;
+        [SerializeField] private GameObject devBackendControlsRoot;
+        [SerializeField] private bool showDeveloperBackendControls = false;
 
         private GameObject panelBackendSettings;
         private TMP_InputField inputBackendUrl;
@@ -46,6 +55,7 @@ namespace SunodGame.UI
 
         void Start()
         {
+            ResolveSceneReferences();
             ShowLogin();
 
             btn_Login.onClick.AddListener(OnLoginClicked);
@@ -53,7 +63,7 @@ namespace SunodGame.UI
             btn_SwitchToRegister.onClick.AddListener(ShowRegister);
             btn_SwitchToLogin.onClick.AddListener(ShowLogin);
 
-            BindBackendSettingsUi();
+            ApplyDeveloperBackendVisibility();
             SetLoading(false);
         }
 
@@ -120,21 +130,27 @@ namespace SunodGame.UI
                 return;
             }
 
+            if (AuthManager.Instance == null)
+            {
+                ShowError(txt_ErrorLogin, "Auth manager is unavailable.");
+                return;
+            }
+
             string username = usernameInput.text;
             string password = loginPasswordInput.text;
 
             SetLoading(true);
             AuthManager.Instance.Login(username,
                 password,
-                onSuccess: () =>
+                onResolved: (auth) =>
                 {
                     SetLoading(false);
-                    SceneLoader.GoToMainMenu();
+                    HandleLoginResolved(auth);
                 },
                 onError: (err) =>
                 {
                     SetLoading(false);
-                    ShowError(txt_ErrorLogin, $"Login failed: {err}");
+                    ShowError(txt_ErrorLogin, err);
                 });
         }
 
@@ -143,27 +159,72 @@ namespace SunodGame.UI
         void OnRegisterClicked()
         {
             ClearErrors();
-            if (registerUsernameInput == null || registerPasswordInput == null)
+            if (registerNameInput == null ||
+                registerBirthdateInput == null ||
+                registerGenderDropdown == null ||
+                registerUsernameInput == null ||
+                registerPasswordInput == null ||
+                registerEmailInput == null)
             {
                 ShowError(txt_ErrorRegister, "Register UI refs are missing.");
                 return;
             }
 
+            if (AuthManager.Instance == null)
+            {
+                ShowError(txt_ErrorRegister, "Auth manager is unavailable.");
+                return;
+            }
+
+            string name = registerNameInput.text;
+            string birthdate = registerBirthdateInput.text;
+            string gender = NormalizeGenderSelection();
             string username = registerUsernameInput.text;
+            string email = registerEmailInput.text;
             string password = registerPasswordInput.text;
 
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ShowError(txt_ErrorRegister, "Enter your full name.");
+                return;
+            }
+
+            if (!LooksLikeBirthdate(birthdate))
+            {
+                ShowError(txt_ErrorRegister, "Enter birthdate as YYYY-MM-DD.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(gender))
+            {
+                ShowError(txt_ErrorRegister, "Select a gender option.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(email) || !LooksLikeEmail(email))
+            {
+                ShowError(txt_ErrorRegister, "Enter a valid email address.");
+                return;
+            }
+
             SetLoading(true);
-            AuthManager.Instance.Register(username,
+            AuthManager.Instance.Register(name,
+                birthdate,
+                gender,
+                username,
                 password,
-                onSuccess: () =>
+                email,
+                onResolved: (auth) =>
                 {
                     SetLoading(false);
-                    SceneLoader.GoToMainMenu();
+                    ShowError(
+                        txt_ErrorRegister,
+                        GetAuthMessage(auth, "Account created. Wait for admin approval."));
                 },
                 onError: (err) =>
                 {
                     SetLoading(false);
-                    ShowError(txt_ErrorRegister, $"Register failed: {err}");
+                    ShowError(txt_ErrorRegister, err);
                 });
         }
 
@@ -189,6 +250,106 @@ namespace SunodGame.UI
             if (btn_Register != null) btn_Register.interactable = !isLoading;
             if (btn_SwitchToRegister != null) btn_SwitchToRegister.interactable = !isLoading;
             if (btn_SwitchToLogin != null) btn_SwitchToLogin.interactable = !isLoading;
+        }
+
+        void ResolveSceneReferences()
+        {
+            registerNameInput ??= FindSceneComponent<TMP_InputField>("Input_RegisterName");
+            registerBirthdateInput ??= FindSceneComponent<TMP_InputField>("Input_RegisterBirthdate");
+            registerGenderDropdown ??= FindSceneComponent<TMP_Dropdown>("Dropdown_RegisterGender");
+            registerEmailInput ??= FindSceneComponent<TMP_InputField>("Input_RegisterEmail");
+            devBackendControlsRoot ??= FindSceneObject("DEV_BackendControls");
+        }
+
+        void ApplyDeveloperBackendVisibility()
+        {
+            if (devBackendControlsRoot != null)
+                devBackendControlsRoot.SetActive(showDeveloperBackendControls);
+
+            if (!showDeveloperBackendControls)
+                return;
+
+            BindBackendSettingsUi();
+        }
+
+        void HandleLoginResolved(AuthResponse auth)
+        {
+            if (auth == null)
+            {
+                ShowError(txt_ErrorLogin, "Backend auth response could not be read.");
+                return;
+            }
+
+            if (!auth.can_login)
+            {
+                ShowError(txt_ErrorLogin, GetAuthMessage(auth, "This account cannot log in yet."));
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(auth.username) || string.IsNullOrWhiteSpace(auth.player_id))
+            {
+                ShowError(txt_ErrorLogin, "Backend auth response is missing some ids.");
+                return;
+            }
+
+            SessionState.Instance?.SetAuthenticatedUser(
+                auth.username,
+                auth.player_id,
+                auth.access_token,
+                auth.name,
+                auth.birthdate,
+                auth.gender,
+                auth.tutorial_completed);
+            TelemetryManager.Instance?.TagSessionStart();
+            SceneLoader.GoToMainMenu();
+        }
+
+        string GetAuthMessage(AuthResponse auth, string fallback)
+        {
+            if (auth != null && !string.IsNullOrWhiteSpace(auth.message))
+                return auth.message;
+
+            return fallback;
+        }
+
+        bool LooksLikeEmail(string email)
+        {
+            string normalized = email?.Trim();
+            return !string.IsNullOrWhiteSpace(normalized) && normalized.Contains("@");
+        }
+
+        bool LooksLikeBirthdate(string birthdate)
+        {
+            string normalized = birthdate?.Trim();
+            if (string.IsNullOrWhiteSpace(normalized))
+                return false;
+
+            return DateTime.TryParseExact(
+                normalized,
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out _);
+        }
+
+        string NormalizeGenderSelection()
+        {
+            if (registerGenderDropdown == null || registerGenderDropdown.options == null || registerGenderDropdown.options.Count == 0)
+                return null;
+
+            int selectedIndex = registerGenderDropdown.value;
+            if (selectedIndex < 0 || selectedIndex >= registerGenderDropdown.options.Count)
+                return null;
+
+            string label = registerGenderDropdown.options[selectedIndex].text?.Trim();
+            return label switch
+            {
+                "Male" => "male",
+                "Female" => "female",
+                "Other" => "other",
+                "Prefer not to say" => "prefer_not_to_say",
+                _ => null,
+            };
         }
 
         void BindBackendSettingsUi()

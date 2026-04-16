@@ -141,6 +141,8 @@ namespace SunodGame.Demo
         private float _debugTextHideAt = -1f;
         private float _sessionStartTime;
         private float _roundStartTime;
+        private bool _externallyPaused;
+        private float _pauseStartedAtUnscaled;
         private int _currentRoundIndex = -1;
         private int _currentRetryCount;
         private bool _initialized;

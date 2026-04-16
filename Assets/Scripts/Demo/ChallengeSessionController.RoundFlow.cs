@@ -8,6 +8,7 @@ namespace SunodGame.Demo
     {
         public void RecordSkillUse(RiasecCode riasecCode)
         {
+            if (_externallyPaused) return;
             if (_state != ChallengeSessionPhase.RoundActive) return;
 
             int index = (int)riasecCode;
@@ -20,17 +21,20 @@ namespace SunodGame.Demo
 
         public void RegisterRetry()
         {
+            if (_externallyPaused) return;
             if (_state != ChallengeSessionPhase.RoundActive) return;
             _currentRetryCount++;
         }
 
         public void CompleteActiveRound(bool solved)
         {
+            if (_externallyPaused) return;
             CompleteActiveRoundWithRetryCount(solved, _currentRetryCount, autoAdvance: false);
         }
 
         public void CompleteActiveRoundWithRetryCount(bool solved, int retryCount, bool autoAdvance = false)
         {
+            if (_externallyPaused) return;
             if (_state != ChallengeSessionPhase.RoundActive) return;
             if (_currentRoundIndex < 0 || _currentRoundIndex >= _definitions.Count) return;
 
@@ -115,6 +119,7 @@ namespace SunodGame.Demo
 
         private void CompleteSession()
         {
+            if (_externallyPaused) return;
             EnterState(ChallengeSessionPhase.SessionComplete);
             StoreSessionSummary();
             SubmitRunSummaryAndLoadEndScene();
@@ -122,6 +127,7 @@ namespace SunodGame.Demo
 
         private void HandleNextRoundClicked()
         {
+            if (_externallyPaused) return;
             if (_state != ChallengeSessionPhase.RoundResult) return;
             AdvanceToNextRound();
         }

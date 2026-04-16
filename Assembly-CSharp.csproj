@@ -67,7 +67,9 @@
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Input.cs" />
     <Compile Include="Assets\Scripts\vc_DoorController.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController.cs" />
+    <Compile Include="Assets\Scripts\vc_TutorialTrigger.cs" />
     <Compile Include="Assets\Scripts\Core\LocalRubricFallback.cs" />
+    <Compile Include="Assets\Scripts\vc_Level0TutorialController.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
     <Compile Include="Assets\Scripts\QuestData.cs" />
+    <Compile Include="Assets\Scripts\vc_PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\CharmSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CharmSkill.cs" />
     <Compile Include="Assets\Scripts\vc_StrengthSkill.cs" />
@@ -122,6 +125,7 @@
     <Compile Include="Assets\Scripts\vc_DirectionalArrow.cs" />
     <Compile Include="Assets\Scripts\vc_XrayEffect.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Bootstrap.cs" />
+    <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Pause.cs" />
     <Compile Include="Assets\Scripts\vc_FallenSparrowQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />

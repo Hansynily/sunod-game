@@ -143,6 +143,7 @@ namespace SunodGame.Demo
 
         private void HandleSkillPressed(int skillIndex)
         {
+            if (_externallyPaused) return;
             if (_state != ChallengeSessionPhase.RoundActive) return;
             if (skillIndex < 0 || skillIndex >= 6) return;
 

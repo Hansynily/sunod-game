@@ -88,6 +88,16 @@ public class vc_SessionTelemetry : MonoBehaviour
         Debug.Log($"[Telemetry] Session started. ID: {SessionId}");
     }
 
+    public void CancelCurrentSession()
+    {
+        questRecords.Clear();
+        SessionId = string.Empty;
+        SessionStartUtc = default;
+        PredictedCluster = -1;
+        RefreshPlayerIdentity();
+        Debug.Log("[Telemetry] Session canceled.");
+    }
+
     public void RecordQuestResult(string questId, string questName, string primaryRiasec, bool completed, int starsEarned, float finalTimeRemainingSeconds, float timeSpentSeconds, IDictionary<string, int> skillUsageCounts)
     {
         EnsureSessionStarted();

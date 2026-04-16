@@ -15,12 +15,14 @@ namespace SunodGame.Core
         public const string SCENE_MAINMENU = "MainMenu";
         public const string SCENE_CUTSCENE = "Cutscene";
         public const string SCENE_PLAY     = "Level1_Scene";
+        public const string SCENE_TUTORIAL = "Level0_Tutorial";
         public const string SCENE_END      = "EndScene";
 
         public static void GoToLogin()    => SceneManager.LoadScene(SCENE_LOGIN);
         public static void GoToMainMenu() => SceneManager.LoadScene(SCENE_MAINMENU);
         public static void GoToCutscene() => SceneManager.LoadScene(SCENE_CUTSCENE);
         public static void GoToPlay()     => SceneManager.LoadScene(SCENE_PLAY);
+        public static void GoToTutorial() => SceneManager.LoadScene(SCENE_TUTORIAL);
         public static void GoToEnd()      => SceneManager.LoadScene(SCENE_END);
 
         public static void LoadByName(string sceneName)

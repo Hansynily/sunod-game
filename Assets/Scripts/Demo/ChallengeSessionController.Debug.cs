@@ -19,6 +19,7 @@ namespace SunodGame.Demo
 
         private void HandleKeyboardDebugShortcuts()
         {
+            if (_externallyPaused) return;
             if (_state != ChallengeSessionPhase.RoundActive) return;
             if (Keyboard.current == null) return;
 

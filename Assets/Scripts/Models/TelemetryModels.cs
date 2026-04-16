@@ -10,8 +10,12 @@ namespace SunodGame.Models
     [Serializable]
     public class UserCreateRequest
     {
+        public string name;
+        public string birthdate;
+        public string gender;
         public string username;
         public string password;
+        public string email;
     }
 
     [Serializable]
@@ -28,14 +32,36 @@ namespace SunodGame.Models
         public string player_id;
         public string username;
         public string email;
+        public string name;
+        public string birthdate;
+        public string gender;
         public string created_at;
         public string last_login;
+        public string role;
+        public string approval_state;
+        public string email_verification_state;
+        public bool   tutorial_completed;
+        public string tutorial_completed_at;
+        public bool   can_login;
+        public string next_step;
+        public string message;
+        public string access_token;
+        public string token_type;
     }
 
     [Serializable]
     public class ErrorResponse
     {
         public string detail;
+    }
+
+    [Serializable]
+    public class TutorialCompletionResponse
+    {
+        public bool success;
+        public string message;
+        public bool tutorial_completed;
+        public string tutorial_completed_at;
     }
 
     // Legacy per-quest telemetry payloads. The active demo flow now uses run-complete telemetry.

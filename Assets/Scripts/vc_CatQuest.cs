@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -9,11 +10,16 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private vc_CatAISystem catAI;
     [SerializeField] private vc_FloatingMessage floatingMessage;
 
+    public event Action TutorialBuildCompleted;
+    public event Action TutorialCharmStarted;
+    public event Action TutorialQuestCompleted;
+
     private vc_QuestRoom activeQuestRoom;
     private bool questStarted = false;
     private bool buildDone = false;
     private bool charmDone = false;
     private bool charmActive = false;
+    private bool tutorialMode = false;
 
     private void Awake()
     {
@@ -32,13 +38,17 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
             return;
         }
 
-        activeQuestRoom = questRoom;
-        questStarted = true;
-        buildDone = false;
-        charmDone = false;
-        charmActive = false;
-        SetBridgeBuiltState(false);
-        SubscribeToSkillManager();
+        StartQuest(questRoom, false);
+    }
+
+    public void BeginTutorialQuest()
+    {
+        if (questStarted)
+        {
+            return;
+        }
+
+        StartQuest(null, true);
     }
 
     private void Update()
@@ -55,6 +65,14 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         ShowFloatingMessage("Cat rescued!");
         Debug.Log("Charm complete");
         activeQuestRoom?.OnQuestComplete();
+
+        if (tutorialMode)
+        {
+            TutorialQuestCompleted?.Invoke();
+        }
+
+        activeQuestRoom = null;
+        tutorialMode = false;
 
         if (catAI != null)
         {
@@ -98,6 +116,18 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         }
     }
 
+    private void StartQuest(vc_QuestRoom questRoom, bool isTutorialQuest)
+    {
+        activeQuestRoom = questRoom;
+        tutorialMode = isTutorialQuest;
+        questStarted = true;
+        buildDone = false;
+        charmDone = false;
+        charmActive = false;
+        SetBridgeBuiltState(false);
+        SubscribeToSkillManager();
+    }
+
     private void UseBuildSkill()
     {
         if (buildDone)
@@ -109,6 +139,11 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         SetBridgeBuiltState(true);
         ShowFloatingMessage("Bridge built!");
         Debug.Log("Build complete");
+
+        if (tutorialMode)
+        {
+            TutorialBuildCompleted?.Invoke();
+        }
     }
 
     private void UseCharmSkill()
@@ -124,6 +159,11 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         }
 
         charmActive = true;
+
+        if (tutorialMode)
+        {
+            TutorialCharmStarted?.Invoke();
+        }
     }
 
     private void SetBridgeBuiltState(bool built)

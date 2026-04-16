@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using SunodGame.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -104,6 +105,11 @@ public class vc_QuestRoom : MonoBehaviour
 
     private void TryStartQuest(Collider2D other)
     {
+        if (SceneManager.GetActiveScene().name == SceneLoader.SCENE_TUTORIAL)
+        {
+            return;
+        }
+
         if (questStarted || other == null || !other.CompareTag("Player"))
         {
             return;

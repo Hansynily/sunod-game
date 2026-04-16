@@ -57,6 +57,7 @@ namespace SunodGame.Telemetry
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            Debug.Log($"[Telemetry] Active backend -> {BaseUrl}");
         }
 
         public bool TryUseRailwayBackend(string overrideUrl, out string resolvedUrl, out string errorMessage)
@@ -258,8 +259,25 @@ namespace SunodGame.Telemetry
         private string ResolveConfiguredBaseUrl()
         {
             string savedUrl = NormalizeUrl(PlayerPrefs.GetString(BackendUrlPrefKey, string.Empty));
+            string savedMode = PlayerPrefs.GetString(BackendModePrefKey, string.Empty);
             if (!string.IsNullOrWhiteSpace(savedUrl))
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (savedMode == BackendModeRailway)
+                {
+                    string developmentUrl = DevelopmentFallbackUrl;
+                    if (!string.IsNullOrWhiteSpace(developmentUrl))
+                        return developmentUrl;
+                }
+#endif
                 return savedUrl;
+            }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            string defaultDevelopmentUrl = DevelopmentFallbackUrl;
+            if (!string.IsNullOrWhiteSpace(defaultDevelopmentUrl))
+                return defaultDevelopmentUrl;
+#endif
 
             string defaultRailwayUrl = RailwayPresetUrl;
             if (!string.IsNullOrWhiteSpace(defaultRailwayUrl))
