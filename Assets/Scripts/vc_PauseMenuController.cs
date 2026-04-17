@@ -165,23 +165,25 @@ public class vc_PauseMenuController : MonoBehaviour
         {
             ShowMainPauseMenu();
             HideExitConfirm();
+            Canvas.ForceUpdateCanvases();
             return;
         }
 
         _pauseOpen = true;
-        Time.timeScale = 0f;
         ShowMainPauseMenu();
         HideExitConfirm();
+        Canvas.ForceUpdateCanvases();
+        Time.timeScale = 0f;
         ChallengeSessionController.Instance?.SetExternalPause(true);
     }
 
     private void ClosePauseMenu()
     {
         _pauseOpen = false;
-        Time.timeScale = 1f;
         HideMainPauseMenu();
         HideExitConfirm();
         ChallengeSessionController.Instance?.SetExternalPause(false);
+        Time.timeScale = 1f;
     }
 
     private void HandlePauseResumeClicked()
@@ -282,7 +284,9 @@ public class vc_PauseMenuController : MonoBehaviour
 
     private static bool IsRealRunSceneName(string sceneName)
     {
-        return sceneName == SceneLoader.SCENE_PLAY;
+        return sceneName == SceneLoader.SCENE_PLAY
+            || sceneName == "Level2_Scene"
+            || sceneName == "Level3_Scene";
     }
 
     private static bool IsTutorialScene()
