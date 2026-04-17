@@ -31,6 +31,11 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
             safeRouteHighlight.SetActive(false);
         }
 
+        if (wetFloor != null)
+        {
+            wetFloor.SetActive(false);
+        }
+
         SubscribeToSkillManager();
     }
 
@@ -65,6 +70,11 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
             sosUsed = true;
             ShowFloatingMessage("Janitor is on the way!");
 
+            if (wetFloor != null)
+            {
+                wetFloor.SetActive(true);
+            }
+
             if (janitorNPCObject != null)
             {
                 janitorNPCObject.SetActive(true);
@@ -91,11 +101,6 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
         yield return new WaitUntil(janitorNPC.HasReachedDestination);
         ShowFloatingMessage("Floor is being cleaned...");
         yield return new WaitForSeconds(2f);
-
-        if (wetFloor != null)
-        {
-            wetFloor.SetActive(false);
-        }
 
         CompleteQuest();
     }
