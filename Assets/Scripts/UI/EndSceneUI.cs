@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -161,11 +162,18 @@ namespace SunodGame.UI
 
         private string BuildEndTitle(ClusterInfo clusterInfo)
         {
-            if (!string.IsNullOrWhiteSpace(GameSessionData.careerFamily))
-                return $"You leaned toward {GameSessionData.careerFamily}";
+            if (IsUnmappedCareerResult(GameSessionData.careerResult))
+            {
+                string neutralTitle = BuildNeutralClusterTitle();
+                if (!string.IsNullOrWhiteSpace(neutralTitle))
+                    return $"You leaned toward {neutralTitle}";
+            }
 
             if (!string.IsNullOrWhiteSpace(GameSessionData.careerResult))
-                return GameSessionData.careerResult;
+                return $"You leaned toward {GameSessionData.careerResult}";
+
+            if (!string.IsNullOrWhiteSpace(GameSessionData.careerFamily))
+                return $"You leaned toward {GameSessionData.careerFamily}";
 
             if (!string.IsNullOrWhiteSpace(clusterInfo.Label))
                 return $"You leaned toward {clusterInfo.Label}";
@@ -197,6 +205,25 @@ namespace SunodGame.UI
             return builder.ToString().TrimEnd();
         }
 
+        private static bool IsUnmappedCareerResult(string value)
+        {
+            return string.Equals(
+                value?.Trim(),
+                "Specific career not yet mapped",
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string BuildNeutralClusterTitle()
+        {
+            if (GameSessionData.predictedCluster < 0)
+                return string.Empty;
+
+            if (GameSessionData.predictedCareerCluster >= 0)
+                return $"Career Cluster {GameSessionData.predictedCareerCluster} in Cluster {GameSessionData.predictedCluster}";
+
+            return $"Cluster {GameSessionData.predictedCluster}";
+        }
+
         private string BuildRiasecExplanation(ClusterInfo clusterInfo)
         {
             string[] topLetters = GetTopRiasecLetters(GameSessionData.riasecScores, 3);
@@ -214,11 +241,17 @@ namespace SunodGame.UI
             builder.Append(". ");
             builder.Append(BuildPatternMeaning(topLetters));
 
-            if (!string.IsNullOrWhiteSpace(clusterInfo.Label) && clusterInfo.ExampleCareers != null && clusterInfo.ExampleCareers.Length > 0)
+            string[] exampleCareers = GameSessionData.predictedClusterExampleCareers;
+            if (exampleCareers == null || exampleCareers.Length == 0)
+            {
+                exampleCareers = clusterInfo.ExampleCareers;
+            }
+
+            if (exampleCareers != null && exampleCareers.Length > 0)
             {
                 builder.Append("\n");
                 builder.Append("Example careers: ");
-                builder.Append(string.Join(", ", clusterInfo.ExampleCareers));
+                builder.Append(string.Join(", ", exampleCareers));
             }
 
             if (IsFallbackSource(GameSessionData.result_source) && !string.IsNullOrWhiteSpace(GameSessionData.backendMessage))

@@ -156,6 +156,14 @@ namespace SunodGame.Models
     public class PredictionResponsePayload
     {
         public int predicted_cluster;
+        public int career_cluster;
+        public string career_result;
+        public string cluster_label;
+        public string career_family;
+        public string cluster_holland_code;
+        public string[] cluster_example_careers;
+        public string source;
+        public string model_version;
     }
 
     [Serializable]
@@ -164,6 +172,8 @@ namespace SunodGame.Models
         public string player_id;
         public string session_id;
         public int predicted_cluster;
+        public int career_cluster;
+        public string career_result;
     }
 
     [Serializable]
@@ -172,8 +182,12 @@ namespace SunodGame.Models
         public bool success;
         public string message;
         public int predicted_cluster;
+        public int career_cluster;
+        public string career_result;
         public string holland_code;
         public string career_family;
+        public string cluster_label;
+        public string[] cluster_example_careers;
         public string source;
         public string model_version;
     }

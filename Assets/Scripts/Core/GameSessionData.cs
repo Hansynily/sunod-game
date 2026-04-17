@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SunodGame.Models;
 
@@ -30,6 +31,15 @@ namespace SunodGame.Core
         public static string backendMessage = "";
         public static RiasecScoresDto riasecScores;
         public static RunSummaryTelemetryOut runSummaryTelemetry;
+        public static int predictedCluster = -1;
+        public static int predictedCareerCluster = -1;
+        public static string predictedCareerResult = string.Empty;
+        public static string predictedCareerFamily = string.Empty;
+        public static string predictedClusterLabel = string.Empty;
+        public static string predictedClusterHollandCode = string.Empty;
+        public static string predictedSource = string.Empty;
+        public static string predictedModelVersion = string.Empty;
+        public static string[] predictedClusterExampleCareers = Array.Empty<string>();
 
         static GameSessionData()
         {
@@ -54,6 +64,7 @@ namespace SunodGame.Core
             backendMessage = string.Empty;
             riasecScores = null;
             runSummaryTelemetry = null;
+            ClearPredictionTelemetry();
         }
 
         public static void ClearRunSummaryTelemetry()
@@ -66,6 +77,20 @@ namespace SunodGame.Core
             backendMessage = string.Empty;
             riasecScores = null;
             runSummaryTelemetry = null;
+            ClearPredictionTelemetry();
+        }
+
+        public static void ClearPredictionTelemetry()
+        {
+            predictedCluster = -1;
+            predictedCareerCluster = -1;
+            predictedCareerResult = string.Empty;
+            predictedCareerFamily = string.Empty;
+            predictedClusterLabel = string.Empty;
+            predictedClusterHollandCode = string.Empty;
+            predictedSource = string.Empty;
+            predictedModelVersion = string.Empty;
+            predictedClusterExampleCareers = Array.Empty<string>();
         }
 
         public static void ApplyRunSummaryTelemetry(RunSummaryTelemetryOut summary)
@@ -86,6 +111,97 @@ namespace SunodGame.Core
 
             if (!string.IsNullOrWhiteSpace(summary.source))
                 result_source = summary.source;
+        }
+
+        public static void ApplySessionMetrics(
+            string sessionId,
+            DateTime sessionStartUtc,
+            float totalTimeSeconds,
+            int roundsAttemptedValue,
+            int roundsClearedValue,
+            int totalStarsValue)
+        {
+            session_id = sessionId ?? string.Empty;
+            started_at = sessionStartUtc == default ? string.Empty : sessionStartUtc.ToString("o");
+            total_time_seconds = Math.Max(0f, totalTimeSeconds);
+            rounds_attempted = Math.Max(0, roundsAttemptedValue);
+            rounds_cleared = Math.Max(0, roundsClearedValue);
+            total_stars = Math.Max(0, totalStarsValue);
+        }
+
+        public static void ApplyClusterPredictionTelemetry(PredictionResponsePayload prediction)
+        {
+            if (prediction == null)
+            {
+                ClearPredictionTelemetry();
+                return;
+            }
+
+            ApplyClusterPredictionCore(
+                prediction.predicted_cluster,
+                prediction.career_cluster,
+                prediction.career_result,
+                prediction.career_family,
+                prediction.cluster_label,
+                prediction.cluster_holland_code,
+                prediction.source,
+                prediction.model_version,
+                prediction.cluster_example_careers
+            );
+        }
+
+        public static void ApplyClusterPredictionTelemetry(SessionClusterTelemetryOut telemetry)
+        {
+            if (telemetry == null)
+            {
+                ClearPredictionTelemetry();
+                return;
+            }
+
+            ApplyClusterPredictionCore(
+                telemetry.predicted_cluster,
+                telemetry.career_cluster,
+                telemetry.career_result,
+                telemetry.career_family,
+                telemetry.cluster_label,
+                telemetry.holland_code,
+                telemetry.source,
+                telemetry.model_version,
+                telemetry.cluster_example_careers
+            );
+        }
+
+        private static void ApplyClusterPredictionCore(
+            int cluster,
+            int careerCluster,
+            string careerResultValue,
+            string careerFamilyValue,
+            string clusterLabelValue,
+            string clusterHollandCodeValue,
+            string sourceValue,
+            string modelVersionValue,
+            string[] exampleCareers)
+        {
+            predictedCluster = cluster;
+            predictedCareerCluster = careerCluster;
+            predictedCareerResult = careerResultValue ?? string.Empty;
+            predictedCareerFamily = careerFamilyValue ?? string.Empty;
+            predictedClusterLabel = clusterLabelValue ?? string.Empty;
+            predictedClusterHollandCode = clusterHollandCodeValue ?? string.Empty;
+            predictedSource = sourceValue ?? string.Empty;
+            predictedModelVersion = modelVersionValue ?? string.Empty;
+            predictedClusterExampleCareers = exampleCareers ?? Array.Empty<string>();
+
+            if (!string.IsNullOrWhiteSpace(careerResultValue))
+                careerResult = careerResultValue;
+            else if (!string.IsNullOrWhiteSpace(clusterLabelValue))
+                careerResult = clusterLabelValue;
+
+            if (!string.IsNullOrWhiteSpace(careerFamilyValue))
+                careerFamily = careerFamilyValue;
+
+            if (!string.IsNullOrWhiteSpace(sourceValue))
+                result_source = sourceValue;
         }
     }
 }

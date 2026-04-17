@@ -48,6 +48,13 @@ public class vc_SessionTelemetry : MonoBehaviour
     public string Username { get; private set; }
     public DateTime SessionStartUtc { get; private set; }
     public int PredictedCluster { get; private set; } = -1;
+    public int PredictedCareerCluster { get; private set; } = -1;
+    public string PredictedCareerResult { get; private set; } = string.Empty;
+    public string PredictedClusterLabel { get; private set; } = string.Empty;
+    public string PredictedCareerFamily { get; private set; } = string.Empty;
+    public string PredictedClusterHollandCode { get; private set; } = string.Empty;
+    public string PredictedSource { get; private set; } = string.Empty;
+    public string PredictedModelVersion { get; private set; } = string.Empty;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -85,6 +92,13 @@ public class vc_SessionTelemetry : MonoBehaviour
         SessionStartUtc = DateTime.UtcNow;
         questRecords.Clear();
         PredictedCluster = -1;
+        PredictedCareerCluster = -1;
+        PredictedCareerResult = string.Empty;
+        PredictedClusterLabel = string.Empty;
+        PredictedCareerFamily = string.Empty;
+        PredictedClusterHollandCode = string.Empty;
+        PredictedSource = string.Empty;
+        PredictedModelVersion = string.Empty;
         Debug.Log($"[Telemetry] Session started. ID: {SessionId}");
     }
 
@@ -94,6 +108,13 @@ public class vc_SessionTelemetry : MonoBehaviour
         SessionId = string.Empty;
         SessionStartUtc = default;
         PredictedCluster = -1;
+        PredictedCareerCluster = -1;
+        PredictedCareerResult = string.Empty;
+        PredictedClusterLabel = string.Empty;
+        PredictedCareerFamily = string.Empty;
+        PredictedClusterHollandCode = string.Empty;
+        PredictedSource = string.Empty;
+        PredictedModelVersion = string.Empty;
         RefreshPlayerIdentity();
         Debug.Log("[Telemetry] Session canceled.");
     }
@@ -167,6 +188,13 @@ public class vc_SessionTelemetry : MonoBehaviour
     {
         EnsureSessionStarted();
         PredictedCluster = -1;
+        PredictedCareerCluster = -1;
+        PredictedCareerResult = string.Empty;
+        PredictedClusterLabel = string.Empty;
+        PredictedCareerFamily = string.Empty;
+        PredictedClusterHollandCode = string.Empty;
+        PredictedSource = string.Empty;
+        PredictedModelVersion = string.Empty;
         float[] features = vc_RiasecAdapter.BuildModelInput(GetSessionSummary(), GetAllRecords());
         Debug.Log($"[Adapter] float[48]: {string.Join(", ", features)}");
         string baseUrl = ResolvePredictionBaseUrl();
@@ -206,11 +234,23 @@ public class vc_SessionTelemetry : MonoBehaviour
         }
 
         PredictedCluster = response.predicted_cluster;
-        Debug.Log($"[Predict] Cluster received: {PredictedCluster}");
+        PredictedCareerCluster = response.career_cluster;
+        PredictedCareerResult = response.career_result ?? string.Empty;
+        PredictedClusterLabel = response.cluster_label ?? string.Empty;
+        PredictedCareerFamily = response.career_family ?? string.Empty;
+        PredictedClusterHollandCode = response.cluster_holland_code ?? string.Empty;
+        PredictedSource = response.source ?? string.Empty;
+        PredictedModelVersion = response.model_version ?? string.Empty;
+        GameSessionData.ApplyClusterPredictionTelemetry(response);
+        Debug.Log(
+            $"[Predict] Cluster received: {PredictedCluster} | Career cluster: {PredictedCareerCluster} | Career result: {PredictedCareerResult}"
+        );
         string clusterPersistError = null;
         yield return SubmitPredictedCluster(
             baseUrl,
             PredictedCluster,
+            PredictedCareerCluster,
+            PredictedCareerResult,
             error => clusterPersistError = error);
         if (!string.IsNullOrWhiteSpace(clusterPersistError))
         {
@@ -230,6 +270,15 @@ public class vc_SessionTelemetry : MonoBehaviour
         }
 
         RefreshPlayerIdentity();
+        SessionSummary localSummary = GetSessionSummary();
+        GameSessionData.ApplySessionMetrics(
+            localSummary.sessionId,
+            localSummary.sessionStartUtc,
+            localSummary.totalTimeSpentSeconds,
+            localSummary.totalQuestCount,
+            localSummary.completedQuestCount,
+            localSummary.totalStarsEarned
+        );
 
         bool requestCompleted = false;
         string requestError = null;
@@ -265,7 +314,12 @@ public class vc_SessionTelemetry : MonoBehaviour
             : requestError);
     }
 
-    private IEnumerator SubmitPredictedCluster(string baseUrl, int predictedCluster, Action<string> onError = null)
+    private IEnumerator SubmitPredictedCluster(
+        string baseUrl,
+        int predictedCluster,
+        int careerCluster,
+        string careerResult,
+        Action<string> onError = null)
     {
         RefreshPlayerIdentity();
         SessionSummary summary = GetSessionSummary();
@@ -285,7 +339,9 @@ public class vc_SessionTelemetry : MonoBehaviour
         {
             player_id = summary.playerId,
             session_id = summary.sessionId,
-            predicted_cluster = predictedCluster
+            predicted_cluster = predictedCluster,
+            career_cluster = careerCluster,
+            career_result = careerResult ?? string.Empty
         };
 
         using UnityWebRequest request = new UnityWebRequest(baseUrl + "/api/telemetry/session-cluster", UnityWebRequest.kHttpVerbPOST);
@@ -306,7 +362,10 @@ public class vc_SessionTelemetry : MonoBehaviour
         if (response == null || !response.success)
         {
             onError?.Invoke("Cluster telemetry response was empty or unsuccessful.");
+            yield break;
         }
+
+        GameSessionData.ApplyClusterPredictionTelemetry(response);
     }
 
     private void EnsureSessionStarted()
