@@ -33,6 +33,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
 
         if (directionArrow != null)
         {
+            directionArrow.ClearTarget();
             directionArrow.HideArrow();
         }
 
@@ -77,8 +78,9 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
 
         if (skill is vc_TrackSkill && !trackDone)
         {
-            if (directionArrow != null)
+            if (directionArrow != null && classroomTransform != null)
             {
+                directionArrow.SetTarget(classroomTransform);
                 directionArrow.ShowArrow();
             }
 
@@ -100,6 +102,12 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         UnsubscribeFromSkillManager();
         ShowFloatingMessage("Friend guided to class!");
         Debug.Log("Lost Friend quest complete");
+        if (directionArrow != null)
+        {
+            directionArrow.HideArrow();
+            directionArrow.ClearTarget();
+        }
+
         activeQuestRoom?.OnQuestComplete();
 
         if (friendNPC != null)

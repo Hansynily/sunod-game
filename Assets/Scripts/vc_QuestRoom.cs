@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using SunodGame.Core;
@@ -10,6 +11,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(BoxCollider2D))]
 public class vc_QuestRoom : MonoBehaviour
 {
+    public event Action<vc_QuestRoom> QuestStarted;
+    public event Action<vc_QuestRoom> QuestCompleted;
+
     [SerializeField] private vc_QuestTimer questTimer;
     [SerializeField] private vc_DoorController exitDoor;
     [SerializeField] private MonoBehaviour questLogic;
@@ -31,6 +35,7 @@ public class vc_QuestRoom : MonoBehaviour
 
     private bool questStarted = false;
     private bool questResultRecorded = false;
+    private bool questCompletionNotified = false;
     private bool isQuestTimerSubscribed = false;
     private vc_IQuestLogic cachedQuestLogic;
     private vc_SkillManager cachedSkillManager;
@@ -82,6 +87,13 @@ public class vc_QuestRoom : MonoBehaviour
 
     public void OnQuestComplete()
     {
+        if (questCompletionNotified)
+        {
+            return;
+        }
+
+        questCompletionNotified = true;
+
         if (questTimer != null)
         {
             questTimer.CompleteQuest();
@@ -96,6 +108,8 @@ public class vc_QuestRoom : MonoBehaviour
         {
             nextLevelButton.gameObject.SetActive(true);
         }
+
+        QuestCompleted?.Invoke(this);
     }
 
     public void LoadNextScene(string sceneName)
@@ -117,6 +131,9 @@ public class vc_QuestRoom : MonoBehaviour
 
         questStarted = true;
         questResultRecorded = false;
+        questCompletionNotified = false;
+
+        QuestStarted?.Invoke(this);
 
         if (questCounter != null)
         {
@@ -220,4 +237,11 @@ public class vc_QuestRoom : MonoBehaviour
 
         return false;
     }
+
+    public string QuestId => questId;
+    public string QuestName => questName;
+    public bool IsLastQuestInScene => isLastQuestInScene;
+    public int CurrentQuestNumber => currentQuestNumber;
+    public int TotalQuestsInScene => totalQuestsInScene;
+    public Button NextLevelButton => nextLevelButton;
 }

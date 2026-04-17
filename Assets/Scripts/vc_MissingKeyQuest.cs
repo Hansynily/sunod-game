@@ -168,6 +168,11 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = false;
         UnsubscribeFromSkillManager();
 
+        if (frontDoor != null)
+        {
+            frontDoor.SetActive(false);
+        }
+
         if (frontDoorCollider != null)
         {
             frontDoorCollider.enabled = false;

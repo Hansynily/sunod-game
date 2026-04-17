@@ -80,6 +80,7 @@
     <Compile Include="Assets\Scripts\vc_CatQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Results.cs" />
     <Compile Include="Assets\Scripts\vc_BuildSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_QuestFlowGuide.cs" />
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
