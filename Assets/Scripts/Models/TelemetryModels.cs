@@ -149,6 +149,8 @@ namespace SunodGame.Models
     [Serializable]
     public class PredictionRequestPayload
     {
+        public string player_id;
+        public string session_id;
         public float[] features;
     }
 
@@ -164,6 +166,8 @@ namespace SunodGame.Models
         public string[] cluster_example_careers;
         public string source;
         public string model_version;
+        public string binding_source;
+        public string bundle_key;
     }
 
     [Serializable]
@@ -190,5 +194,7 @@ namespace SunodGame.Models
         public string[] cluster_example_careers;
         public string source;
         public string model_version;
+        public string binding_source;
+        public string bundle_key;
     }
 }

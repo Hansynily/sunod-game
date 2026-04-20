@@ -217,8 +217,9 @@ namespace SunodGame.UI
                 onResolved: (auth) =>
                 {
                     SetLoading(false);
+                    ShowLogin();
                     ShowError(
-                        txt_ErrorRegister,
+                        txt_ErrorLogin,
                         GetAuthMessage(auth, "Account created. Wait for admin approval."));
                 },
                 onError: (err) =>

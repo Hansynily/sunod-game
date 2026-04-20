@@ -187,6 +187,7 @@ public class vc_SessionTelemetry : MonoBehaviour
     public IEnumerator SubmitAndPredict(Action<int> onResult)
     {
         EnsureSessionStarted();
+        SessionSummary summary = GetSessionSummary();
         PredictedCluster = -1;
         PredictedCareerCluster = -1;
         PredictedCareerResult = string.Empty;
@@ -195,7 +196,7 @@ public class vc_SessionTelemetry : MonoBehaviour
         PredictedClusterHollandCode = string.Empty;
         PredictedSource = string.Empty;
         PredictedModelVersion = string.Empty;
-        float[] features = vc_RiasecAdapter.BuildModelInput(GetSessionSummary(), GetAllRecords());
+        float[] features = vc_RiasecAdapter.BuildModelInput(summary, GetAllRecords());
         Debug.Log($"[Adapter] float[48]: {string.Join(", ", features)}");
         string baseUrl = ResolvePredictionBaseUrl();
         if (string.IsNullOrWhiteSpace(baseUrl))
@@ -207,6 +208,8 @@ public class vc_SessionTelemetry : MonoBehaviour
 
         PredictionRequestPayload payload = new PredictionRequestPayload
         {
+            player_id = summary.playerId,
+            session_id = summary.sessionId,
             features = features
         };
 
