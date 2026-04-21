@@ -264,11 +264,10 @@ namespace SunodGame.UI
 
         void ApplyDeveloperBackendVisibility()
         {
-            if (devBackendControlsRoot != null)
-                devBackendControlsRoot.SetActive(showDeveloperBackendControls);
+            bool preserveSceneVisibility = devBackendControlsRoot != null && devBackendControlsRoot.activeSelf;
 
-            if (!showDeveloperBackendControls)
-                return;
+            if (devBackendControlsRoot != null)
+                devBackendControlsRoot.SetActive(showDeveloperBackendControls || preserveSceneVisibility);
 
             BindBackendSettingsUi();
         }
