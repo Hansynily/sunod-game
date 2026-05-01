@@ -125,6 +125,22 @@ public class vc_SkillManager : MonoBehaviour
         }
     }
 
+    public void AssignSkillToSlot(int slotIndex, vc_SkillData data)
+    {
+        if (skillSlots == null || slotIndex < 0 || slotIndex >= skillSlots.Length || skillSlots[slotIndex] == null)
+        {
+            return;
+        }
+
+        vc_PlayerSkill skill = ResolveSkill(data);
+        if (skill == null)
+        {
+            return;
+        }
+
+        skillSlots[slotIndex].AssignSkill(skill);
+    }
+
     public void ResetUsageCounts()
     {
         int slotCount = skillSlots != null ? skillSlots.Length : 0;

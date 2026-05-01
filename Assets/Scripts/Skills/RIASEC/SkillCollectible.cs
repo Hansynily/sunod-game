@@ -16,10 +16,9 @@ namespace SunodGame.Demo
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (manager == null) return;
             if (!collision.CompareTag("Player")) return;
 
-            manager.CollectSkill(skillIndex, gameObject);
+            Destroy(gameObject);
         }
     }
 }

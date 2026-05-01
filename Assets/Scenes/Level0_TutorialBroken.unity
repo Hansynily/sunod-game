@@ -30392,7 +30392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillSlot
   slotIndex: 0
-  assignedSkill: {fileID: 2099004401}
+  assignedSkill: {fileID: 0}
   skillButton: {fileID: 2099003001}
   skillLabel: {fileID: 0}
 --- !u!114 &2099004102
@@ -30408,7 +30408,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillSlot
   slotIndex: 1
-  assignedSkill: {fileID: 2099004402}
+  assignedSkill: {fileID: 0}
   skillButton: {fileID: 2099003002}
   skillLabel: {fileID: 0}
 --- !u!114 &2099004303
@@ -30424,7 +30424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillSlot
   slotIndex: 2
-  assignedSkill: {fileID: 2099004403}
+  assignedSkill: {fileID: 0}
   skillButton: {fileID: 2099003003}
   skillLabel: {fileID: 0}
 --- !u!114 &2099004304
@@ -30440,7 +30440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillSlot
   slotIndex: 3
-  assignedSkill: {fileID: 2099004404}
+  assignedSkill: {fileID: 0}
   skillButton: {fileID: 2099003004}
   skillLabel: {fileID: 0}
 --- !u!114 &2099004401

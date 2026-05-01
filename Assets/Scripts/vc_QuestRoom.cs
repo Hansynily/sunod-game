@@ -22,7 +22,6 @@ public class vc_QuestRoom : MonoBehaviour
     [SerializeField] private TextMeshProUGUI questObjective;
     [SerializeField] private TextMeshProUGUI questDescriptionText;
     [SerializeField] private vc_HintSystem hintSystem;
-    [SerializeField] private vc_SkillData[] roomSkills = new vc_SkillData[4];
     [SerializeField] private string questId;
     [SerializeField] private string questName;
     [SerializeField] private string primaryRiasec;
@@ -162,11 +161,8 @@ public class vc_QuestRoom : MonoBehaviour
             questTimer.StartQuest();
         }
 
-        if (cachedSkillManager != null && HasConfiguredRoomSkills())
-        {
+        if (cachedSkillManager != null)
             cachedSkillManager.ResetUsageCounts();
-            cachedSkillManager.LoadSkills(roomSkills);
-        }
 
         cachedQuestLogic?.BeginQuest(this, questTimer);
     }
@@ -218,24 +214,6 @@ public class vc_QuestRoom : MonoBehaviour
             usageSummary);
 
         UnsubscribeFromQuestTimer();
-    }
-
-    private bool HasConfiguredRoomSkills()
-    {
-        if (roomSkills == null || roomSkills.Length == 0)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < roomSkills.Length; i++)
-        {
-            if (roomSkills[i] != null)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public string QuestId => questId;

@@ -8,57 +8,6 @@ namespace SunodGame.Demo
 {
     public partial class DemoGameplayManager
     {
-        public void CollectSkill(int skillIndex, GameObject collectible)
-        {
-            if (skillIndex < 0 || skillIndex >= _collected.Length) return;
-            if (_collected[skillIndex]) return;
-
-            _collected[skillIndex] = true;
-            _collectedSkillCount++;
-
-            switch (skillIndex)
-            {
-                case 0:
-                    UnlockSlot(0, "Build", 0);
-                    break;
-                case 1:
-                    UnlockSlot(1, "Track", 1);
-                    break;
-                case 2:
-                    UnlockSlot(2, "Mimic", 2);
-                    break;
-                case 3:
-                    UnlockSlot(3, "Bond", 3);
-                    break;
-                case 4:
-                    UnlockSlot(3, "Charm", 4);
-                    break;
-                case 5:
-                    break;
-            }
-
-            if (collectible != null)
-                Destroy(collectible);
-
-            ShowToast($"Skill Acquired: {SkillLetters[skillIndex]}");
-            UpdateObjectiveText();
-        }
-
-        private void UnlockSlot(int slot, string skillName, int skillIndex)
-        {
-            _slotUnlocked[slot] = true;
-            _slotSkillIndex[slot] = skillIndex;
-
-            OnScreenButton button = _slotButtons[slot];
-            if (button != null)
-                button.gameObject.SetActive(true);
-
-            TMP_Text label = _slotButtonLabels[slot];
-            if (label != null)
-                label.text = skillName;
-
-        }
-
         private void OnSkillPressed(int slot)
         {
             if (!_initialized) return;

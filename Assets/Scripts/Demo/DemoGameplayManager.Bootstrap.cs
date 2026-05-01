@@ -88,9 +88,6 @@ namespace SunodGame.Demo
             BuildHud();
             BuildEnvironment();
 
-            if (_useChallengeSession)
-                UnlockChallengeSessionSkills();
-
             SpawnCat();
             UpdateObjectiveText();
             if (!_useChallengeSession)

@@ -91,6 +91,7 @@
     <Compile Include="Assets\Scripts\vc_StrengthSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_SkillPickup.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
     <Compile Include="Assets\Scripts\Telemetry\TelemetryManager.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
     <Compile Include="Assets\Scripts\Skills\Conventional\PlanSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_SkillSpawner.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerSkillInput.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.cs" />
     <Compile Include="Assets\Scripts\vc_HintSystem.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="Assets\Scripts\vc_LockpickSkill.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Telemetry.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.LegacyBridge.cs" />
+    <Compile Include="Assets\Scripts\vc_PlayerInventory.cs" />
     <Compile Include="Assets\Scripts\NPCs\NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.RoundFlow.cs" />
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
@@ -119,6 +122,7 @@
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
     <Compile Include="Assets\Scripts\vc_PathSkill.cs" />
     <Compile Include="Assets\Scripts\vc_QuestTimer.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_InventoryUI.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\Environment\EnvironmentSystem.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />

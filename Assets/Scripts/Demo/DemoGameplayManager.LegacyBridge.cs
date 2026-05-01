@@ -17,18 +17,6 @@ namespace SunodGame.Demo
             SceneLoader.GoToEnd();
         }
 
-        private void UnlockChallengeSessionSkills()
-        {
-            for (int i = 0; i < _collected.Length; i++)
-                _collected[i] = true;
-
-            _collectedSkillCount = _collected.Length;
-            UnlockSlot(0, "Build", 0);
-            UnlockSlot(1, "Track", 1);
-            UnlockSlot(2, "Mimic", 2);
-            UnlockSlot(3, "Bond", 3);
-        }
-
         private Transform GetContentParent()
         {
             return _contentRoot;
