@@ -1,11 +1,20 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class vc_SkillSpawner : MonoBehaviour
 {
+    public static vc_SkillSpawner Instance { get; private set; }
+
     [SerializeField] private GameObject pickupPrefab;
     [SerializeField] private vc_SkillData[] skillPool;
     [SerializeField] private Transform[] spawnPoints;
+
+    private void Awake()
+    {
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
+    }
 
     private bool _hasSpawned;
 
@@ -70,6 +79,13 @@ public class vc_SkillSpawner : MonoBehaviour
         }
 
         _hasSpawned = true;
+    }
+
+    public void SetSpawnPoints(List<Transform> points)
+    {
+        spawnPoints = points.ToArray();
+        _hasSpawned = false;
+        SpawnPickups();
     }
 
     private static vc_SkillData[] ShuffleSkillPool(vc_SkillData[] source)

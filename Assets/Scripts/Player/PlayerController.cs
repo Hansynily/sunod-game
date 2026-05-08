@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using SunodGame.Core;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -56,5 +57,17 @@ public class PlayerController : MonoBehaviour
 
         followCamera.position = transform.position + cameraOffset;
         followCamera.rotation = Quaternion.identity;
+
+        if (vc_RoomSlot.Current == null) return;
+
+        Bounds b = vc_RoomSlot.Current.RoomBounds;
+        Camera cam = followCamera.GetComponent<Camera>();
+        float halfH = cam.orthographicSize;
+        float halfW = halfH * cam.aspect;
+
+        Vector3 pos = followCamera.position;
+        pos.x = Mathf.Clamp(pos.x, b.min.x + halfW, b.max.x - halfW);
+        pos.y = Mathf.Clamp(pos.y, b.min.y + halfH, b.max.y - halfH);
+        followCamera.position = pos;
     }
 }

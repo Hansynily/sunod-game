@@ -60,6 +60,7 @@
     <Compile Include="Assets\Scripts\vc_SOSSkill.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.SceneBinding.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoSceneReferences.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_SceneBootstrapper.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMessage.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillPickup.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\ScriptableObjects\Charm.cs" />
@@ -92,9 +93,11 @@
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickup.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_RoomSlot.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
     <Compile Include="Assets\Scripts\Telemetry\TelemetryManager.cs" />
     <Compile Include="Assets\Scripts\Skills\Realistic\ScriptableObjects\Giant.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_FloorLoader.cs" />
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
     <Compile Include="Assets\Scripts\Skills\Conventional\PlanSkill.cs" />
@@ -134,12 +137,14 @@
     <Compile Include="Assets\Scripts\vc_FallenSparrowQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_FloorExit.cs" />
     <Compile Include="Assets\Scripts\vc_MoldingSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
     <Compile Include="Assets\Scripts\vc_RiasecAdapter.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\CatAI\CatAiSystem.cs" />
