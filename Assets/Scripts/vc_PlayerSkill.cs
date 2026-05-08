@@ -7,6 +7,11 @@ public abstract class vc_PlayerSkill : MonoBehaviour
 
     public vc_SkillData SkillData => skillData;
 
+    public void Initialize(vc_SkillData data)
+    {
+        skillData = data;
+    }
+
     public virtual void UseSkill()
     {
     }

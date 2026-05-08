@@ -123,6 +123,7 @@
     <Compile Include="Assets\Scripts\vc_PathSkill.cs" />
     <Compile Include="Assets\Scripts\vc_QuestTimer.cs" />
     <Compile Include="Assets\Scripts\UI\vc_InventoryUI.cs" />
+    <Compile Include="Assets\Scripts\vc_SkillPickupPopup.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\Environment\EnvironmentSystem.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />

@@ -123,11 +123,13 @@ public class vc_InventoryUI : MonoBehaviour
 
     private void RefreshCards()
     {
-        for (int i = 0; i < _spawnedCards.Count; i++)
+        if (gridSkillCards != null)
         {
-            if (_spawnedCards[i] != null)
+            for (int i = gridSkillCards.childCount - 1; i >= 0; i--)
             {
-                Destroy(_spawnedCards[i]);
+                Transform child = gridSkillCards.GetChild(i);
+                child.SetParent(null);
+                Destroy(child.gameObject);
             }
         }
 

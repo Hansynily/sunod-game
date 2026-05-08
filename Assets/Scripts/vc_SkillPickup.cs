@@ -13,24 +13,21 @@ public class vc_SkillPickup : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag != "Player")
+        if (!other.CompareTag("Player")) return;
+        if (skillData == null) return;
+        if (vc_PlayerInventory.Instance.HasSkill(skillData)) return;
+
+        if (vc_SkillPickupPopup.Instance == null)
         {
+            vc_PlayerInventory.Instance.AddSkill(skillData);
+            Destroy(gameObject);
             return;
         }
 
-        if (skillData == null)
+        vc_SkillPickupPopup.Instance.Show(skillData, () =>
         {
-            return;
-        }
-
-        vc_PlayerInventory.Instance.AddSkill(skillData);
-
-        vc_FloatingMessage msg = FindFirstObjectByType<vc_FloatingMessage>();
-        if (msg != null)
-        {
-            msg.Show("Skill " + skillData.skillName + " added to inventory");
-        }
-
-        Destroy(gameObject);
+            vc_PlayerInventory.Instance.AddSkill(skillData);
+            Destroy(gameObject);
+        });
     }
 }

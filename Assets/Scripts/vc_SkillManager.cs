@@ -7,7 +7,7 @@ public class vc_SkillManager : MonoBehaviour
 {
     [SerializeField] private vc_SkillSlot[] skillSlots = new vc_SkillSlot[4];
 
-    private int[] usageCount = new int[4];
+    private int[] usageCount;
 
     public event Action<int, vc_PlayerSkill> SkillUsed;
 
@@ -173,31 +173,42 @@ public class vc_SkillManager : MonoBehaviour
         SkillUsed?.Invoke(index, assignedSkill);
     }
 
+    private static readonly Dictionary<string, Type> SkillTypeCache = new Dictionary<string, Type>();
+
     private vc_PlayerSkill ResolveSkill(vc_SkillData skillData)
     {
         if (skillData == null)
+            return null;
+
+        vc_PlayerSkill[] existing = GetComponentsInChildren<vc_PlayerSkill>(true);
+        for (int i = 0; i < existing.Length; i++)
         {
+            if (existing[i] != null && existing[i].SkillData == skillData)
+                return existing[i];
+        }
+
+        string typeName = $"vc_{skillData.skillName}Skill";
+        if (!SkillTypeCache.TryGetValue(typeName, out Type skillType))
+        {
+            foreach (System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                skillType = assembly.GetType(typeName);
+                if (skillType != null)
+                    break;
+            }
+            SkillTypeCache[typeName] = skillType;
+        }
+
+        if (skillType == null || !typeof(vc_PlayerSkill).IsAssignableFrom(skillType))
+        {
+            Debug.LogWarning($"[vc_SkillManager] No skill class found matching '{typeName}'. Skill name must match class name convention vc_{{Name}}Skill.");
             return null;
         }
 
-        vc_PlayerSkill[] availableSkills = GetComponents<vc_PlayerSkill>();
-        for (int i = 0; i < availableSkills.Length; i++)
-        {
-            if (availableSkills[i] != null && availableSkills[i].SkillData == skillData)
-            {
-                return availableSkills[i];
-            }
-        }
-
-        availableSkills = GetComponentsInChildren<vc_PlayerSkill>(true);
-        for (int i = 0; i < availableSkills.Length; i++)
-        {
-            if (availableSkills[i] != null && availableSkills[i].SkillData == skillData)
-            {
-                return availableSkills[i];
-            }
-        }
-
-        return null;
+        GameObject skillObject = new GameObject(skillData.skillName);
+        skillObject.transform.SetParent(transform);
+        vc_PlayerSkill newSkill = (vc_PlayerSkill)skillObject.AddComponent(skillType);
+        newSkill.Initialize(skillData);
+        return newSkill;
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using TMPro;
 using SunodGame.Core;
 using SunodGame.Telemetry;
@@ -8,8 +10,9 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class vc_Level0TutorialController : MonoBehaviour
 {
+    private enum TutorialStep { Intro, Explore, Equip, Build, Charm, Wait, Complete }
+
     [SerializeField] private GameObject gateToSkillsRoom;
-    [SerializeField] private GameObject markerMoveTarget;
     [SerializeField] private GameObject panelTutorialComplete;
     [SerializeField] private Button btnTutorialBackToMenu;
     [SerializeField] private TMP_Text questObjectiveText;
@@ -19,11 +22,20 @@ public class vc_Level0TutorialController : MonoBehaviour
     [SerializeField] private vc_CatQuest catQuest;
     [SerializeField] private vc_SkillSlot skillBuild;
     [SerializeField] private vc_SkillSlot skillCharm;
+    [SerializeField] private GameObject panelDialog;
+    [SerializeField] private TMP_Text textDialogTitle;
+    [SerializeField] private TMP_Text textDialogBody;
+    [SerializeField] private TMP_Text textCompletionSummary;
+    [SerializeField] private Button btnInventory;
 
-    private bool moveStepCompleted;
+    private TutorialStep currentStep;
     private bool tutorialCompleted;
     private bool tutorialCompletionSyncInProgress;
     private bool listenersBound;
+    private PlayerController playerController;
+    private Action pendingDialogConfirm;
+    private Button btnDialog;
+    private int skillsPickedUpCount;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterBootstrap()
@@ -35,9 +47,7 @@ public class vc_Level0TutorialController : MonoBehaviour
     private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name != SceneLoader.SCENE_TUTORIAL)
-        {
             return;
-        }
 
         GameObject tutorialRootObject = FindSceneObject(scene, "TutorialRoot");
         if (tutorialRootObject == null)
@@ -47,9 +57,7 @@ public class vc_Level0TutorialController : MonoBehaviour
         }
 
         if (tutorialRootObject.GetComponent<vc_Level0TutorialController>() == null)
-        {
             tutorialRootObject.AddComponent<vc_Level0TutorialController>();
-        }
     }
 
     private void Awake()
@@ -65,6 +73,17 @@ public class vc_Level0TutorialController : MonoBehaviour
         InitializeTutorial();
     }
 
+    private void Update()
+    {
+        if (currentStep != TutorialStep.Equip)
+            return;
+
+        bool buildReady = skillBuild != null && skillBuild.AssignedSkill != null;
+        bool charmReady = skillCharm != null && skillCharm.AssignedSkill != null;
+        if (buildReady && charmReady)
+            AdvanceToStep(TutorialStep.Build);
+    }
+
     private void OnDestroy()
     {
         if (catQuest != null)
@@ -75,44 +94,75 @@ public class vc_Level0TutorialController : MonoBehaviour
         }
 
         if (btnTutorialBackToMenu != null)
-        {
             btnTutorialBackToMenu.onClick.RemoveListener(OnBackToMenuClicked);
-        }
+
+        if (btnDialog != null)
+            btnDialog.onClick.RemoveListener(OnDialogConfirmClicked);
+
+        if (vc_PlayerInventory.Instance != null)
+            vc_PlayerInventory.Instance.OnSkillAdded -= HandleSkillPickedUp;
 
         listenersBound = false;
     }
 
     public void HandleTriggerEntered(vc_TutorialTriggerType triggerType)
     {
-        if (triggerType != vc_TutorialTriggerType.MoveTarget || moveStepCompleted)
+        // marker removed — no longer used
+    }
+
+    private void AdvanceToStep(TutorialStep step)
+    {
+        currentStep = step;
+
+        switch (step)
         {
-            return;
+            case TutorialStep.Intro:
+                playerController?.MoveAction.Disable();
+                ShowDialog(() => AdvanceToStep(TutorialStep.Explore));
+                break;
+
+            case TutorialStep.Explore:
+                HideDialog();
+                playerController?.MoveAction.Enable();
+                gateToSkillsRoom?.SetActive(false);
+                SetObjectiveText("Head to the next room and pick up both skills.");
+                break;
+
+            case TutorialStep.Equip:
+                SetButtonInteractable(btnInventory, true);
+                SetObjectiveText("Open your inventory and equip both skills to your slots.");
+                break;
+
+            case TutorialStep.Build:
+                SetButtonInteractable(btnInventory, false);
+                SetSkillInteractable(skillBuild, true);
+                SetSkillInteractable(skillCharm, false);
+                SetObjectiveText("Walk to the river and use the Build skill to cross.");
+                catQuest?.BeginTutorialQuest();
+                break;
+
+            case TutorialStep.Charm:
+                SetSkillInteractable(skillCharm, true);
+                SetObjectiveText("Nice! Use Charm to call the cat to you.");
+                break;
+
+            case TutorialStep.Wait:
+                SetObjectiveText("Stay there, the cat is coming to you.");
+                break;
+
+            case TutorialStep.Complete:
+                SetObjectiveText("");
+                if (textCompletionSummary != null)
+                    textCompletionSummary.text = "You used the Build and Charm skills, both tied to the RIASEC tags. The more quests you complete, the clearer your career profile becomes!";
+                SyncTutorialCompletion();
+                break;
         }
-
-        moveStepCompleted = true;
-
-        if (markerMoveTarget != null)
-        {
-            markerMoveTarget.SetActive(false);
-        }
-
-        if (gateToSkillsRoom != null)
-        {
-            gateToSkillsRoom.SetActive(false);
-        }
-
-        SetSkillInteractable(skillBuild, true);
-        SetSkillInteractable(skillCharm, false);
-        SetObjectiveText("Go to the river and press the Build skill button.");
-        catQuest?.BeginTutorialQuest();
     }
 
     private void BindListeners()
     {
         if (listenersBound)
-        {
             return;
-        }
 
         if (catQuest != null)
         {
@@ -138,82 +188,127 @@ public class vc_Level0TutorialController : MonoBehaviour
             Debug.LogWarning("[vc_Level0TutorialController] BTN_TutorialBackToMenu reference is missing.");
         }
 
+        if (btnDialog != null)
+        {
+            btnDialog.onClick.RemoveListener(OnDialogConfirmClicked);
+            btnDialog.onClick.AddListener(OnDialogConfirmClicked);
+        }
+        else
+        {
+            Debug.LogWarning("[vc_Level0TutorialController] Panel_Dialog is missing a Button component.");
+        }
+
+        if (vc_PlayerInventory.Instance != null)
+            vc_PlayerInventory.Instance.OnSkillAdded += HandleSkillPickedUp;
+        else
+            Debug.LogWarning("[vc_Level0TutorialController] vc_PlayerInventory.Instance is not available.");
+
         listenersBound = true;
     }
 
     private void InitializeTutorial()
     {
-        moveStepCompleted = false;
         tutorialCompleted = false;
         tutorialCompletionSyncInProgress = false;
+        skillsPickedUpCount = 0;
 
-        if (markerMoveTarget != null)
-        {
-            markerMoveTarget.SetActive(true);
-        }
+        gateToSkillsRoom?.SetActive(true);
+        panelTutorialComplete?.SetActive(false);
+        hintPanel?.SetActive(false);
+        panelDialog?.SetActive(false);
+        skill2?.SetActive(false);
+        skill3?.SetActive(false);
 
-        if (gateToSkillsRoom != null)
-        {
-            gateToSkillsRoom.SetActive(true);
-        }
-
-        if (panelTutorialComplete != null)
-        {
-            panelTutorialComplete.SetActive(false);
-        }
-
-        if (hintPanel != null)
-        {
-            hintPanel.SetActive(false);
-        }
-
-        if (skillBuild != null)
-        {
-            skillBuild.gameObject.SetActive(true);
-        }
-
-        if (skillCharm != null)
-        {
-            skillCharm.gameObject.SetActive(true);
-        }
-
-        if (skill2 != null)
-        {
-            skill2.SetActive(false);
-        }
-
-        if (skill3 != null)
-        {
-            skill3.SetActive(false);
-        }
+        skillBuild?.gameObject.SetActive(true);
+        skillCharm?.gameObject.SetActive(true);
 
         SetSkillInteractable(skillBuild, false);
         SetSkillInteractable(skillCharm, false);
-        SetObjectiveText("Use the left stick to move to the glowing marker.");
+        SetButtonInteractable(btnInventory, false);
+        HideObjectiveText();
+
+        AdvanceToStep(TutorialStep.Intro);
+    }
+
+    private void HandleSkillPickedUp(vc_SkillData skill)
+    {
+        if (currentStep != TutorialStep.Explore)
+            return;
+
+        skillsPickedUpCount++;
+        StartCoroutine(ShowSkillPickupDialog(skillsPickedUpCount));
+    }
+
+    private IEnumerator ShowSkillPickupDialog(int count)
+    {
+        yield return null;
+        playerController?.MoveAction.Disable();
+
+        if (count == 1)
+        {
+            ShowDialog(
+                "Nice!",
+                "You picked up your first skill. There's one more in the room. Go find it!",
+                () => playerController?.MoveAction.Enable());
+        }
+        else if (count == 2)
+        {
+            ShowDialog(
+                "Save the Cat",
+                "A cat is trapped across the river!\n\nOpen your inventory, assign both skills to your slots. Use Build to make a bridge, then Charm to call the cat to you.",
+                () =>
+                {
+                    playerController?.MoveAction.Enable();
+                    AdvanceToStep(TutorialStep.Equip);
+                });
+        }
+    }
+
+    private void ShowDialog(Action onConfirm)
+    {
+        pendingDialogConfirm = onConfirm;
+        panelDialog?.SetActive(true);
+    }
+
+    private void ShowDialog(string title, string body, Action onConfirm)
+    {
+        if (textDialogTitle != null) textDialogTitle.text = title;
+        if (textDialogBody != null) textDialogBody.text = body;
+        pendingDialogConfirm = onConfirm;
+        panelDialog?.SetActive(true);
+    }
+
+    private void HideDialog()
+    {
+        panelDialog?.SetActive(false);
+        pendingDialogConfirm = null;
+    }
+
+    private void OnDialogConfirmClicked()
+    {
+        Action action = pendingDialogConfirm;
+        pendingDialogConfirm = null;
+        panelDialog?.SetActive(false);
+        action?.Invoke();
     }
 
     private void HandleTutorialBuildCompleted()
     {
-        SetSkillInteractable(skillBuild, true);
-        SetSkillInteractable(skillCharm, true);
-        SetObjectiveText("Nice. Press the Charm skill button to call the cat to you.");
+        AdvanceToStep(TutorialStep.Charm);
     }
 
     private void HandleTutorialCharmStarted()
     {
-        SetObjectiveText("Great. Stay there and wait for the cat to reach you.");
+        AdvanceToStep(TutorialStep.Wait);
     }
 
     private void HandleTutorialQuestCompleted()
     {
         if (tutorialCompleted || tutorialCompletionSyncInProgress)
-        {
             return;
-        }
 
-        SetObjectiveText("Tutorial complete.");
         tutorialCompletionSyncInProgress = true;
-        SyncTutorialCompletion();
+        AdvanceToStep(TutorialStep.Complete);
     }
 
     private void OnBackToMenuClicked()
@@ -226,16 +321,11 @@ public class vc_Level0TutorialController : MonoBehaviour
     {
         GameObject triggerObject = FindSceneObject("Trigger_MoveTarget");
         if (triggerObject == null)
-        {
-            Debug.LogWarning("[vc_Level0TutorialController] Trigger_MoveTarget was not found.");
             return;
-        }
 
         vc_TutorialTrigger tutorialTrigger = triggerObject.GetComponent<vc_TutorialTrigger>();
         if (tutorialTrigger == null)
-        {
             tutorialTrigger = triggerObject.AddComponent<vc_TutorialTrigger>();
-        }
 
         tutorialTrigger.Configure(this, vc_TutorialTriggerType.MoveTarget);
     }
@@ -243,42 +333,68 @@ public class vc_Level0TutorialController : MonoBehaviour
     private void ResolveReferences()
     {
         gateToSkillsRoom ??= FindSceneObject("Gate_ToSkillsRoom");
-        markerMoveTarget ??= FindSceneObject("Marker_MoveTarget");
         panelTutorialComplete ??= FindSceneObject("Panel_TutorialComplete");
         hintPanel ??= FindSceneObject("HintPanel");
         skill2 ??= FindSceneObject("Skill2");
         skill3 ??= FindSceneObject("Skill3");
+        panelDialog ??= FindSceneObject("Panel_Dialog");
 
         btnTutorialBackToMenu ??= FindComponentInScene<Button>("BTN_TutorialBackToMenu");
         questObjectiveText ??= FindComponentInScene<TMP_Text>("QuestObjective");
         catQuest ??= FindComponentInScene<vc_CatQuest>("CatQuest") ?? FindFirstObjectByType<vc_CatQuest>();
         skillBuild ??= FindComponentInScene<vc_SkillSlot>("Skill0");
         skillCharm ??= FindComponentInScene<vc_SkillSlot>("Skill1");
+        playerController ??= FindFirstObjectByType<PlayerController>();
+
+        if (panelDialog != null)
+        {
+            btnDialog ??= panelDialog.GetComponent<Button>();
+            textDialogTitle ??= FindComponentInChild<TMP_Text>(panelDialog, "Text_DialogTitle");
+            textDialogBody ??= FindComponentInChild<TMP_Text>(panelDialog, "Text_DialogBody");
+        }
+
+        if (panelTutorialComplete != null)
+            textCompletionSummary ??= FindComponentInChild<TMP_Text>(panelTutorialComplete, "Text_CompletionSummary");
     }
 
     private void SetObjectiveText(string value)
     {
         if (questObjectiveText == null)
-        {
             return;
-        }
 
         questObjectiveText.gameObject.SetActive(true);
         questObjectiveText.text = value;
     }
 
+    private void HideObjectiveText()
+    {
+        if (questObjectiveText != null)
+            questObjectiveText.gameObject.SetActive(false);
+    }
+
     private static void SetSkillInteractable(vc_SkillSlot skillSlot, bool isInteractable)
     {
         if (skillSlot == null)
-        {
             return;
-        }
 
         Button button = skillSlot.GetComponent<Button>();
         if (button != null)
-        {
             button.interactable = isInteractable;
-        }
+    }
+
+    private static void SetButtonInteractable(Button button, bool isInteractable)
+    {
+        if (button != null)
+            button.interactable = isInteractable;
+    }
+
+    private static T FindComponentInChild<T>(GameObject root, string childName) where T : Component
+    {
+        if (root == null)
+            return null;
+
+        Transform match = FindChildRecursive(root.transform, childName);
+        return match != null ? match.GetComponent<T>() : null;
     }
 
     private static T FindComponentInScene<T>(string objectName) where T : Component
@@ -295,18 +411,14 @@ public class vc_Level0TutorialController : MonoBehaviour
     private static GameObject FindSceneObject(Scene scene, string objectName)
     {
         if (!scene.IsValid())
-        {
             return null;
-        }
 
         GameObject[] rootObjects = scene.GetRootGameObjects();
         for (int i = 0; i < rootObjects.Length; i++)
         {
             Transform match = FindChildRecursive(rootObjects[i].transform, objectName);
             if (match != null)
-            {
                 return match.gameObject;
-            }
         }
 
         return null;
@@ -315,17 +427,13 @@ public class vc_Level0TutorialController : MonoBehaviour
     private static Transform FindChildRecursive(Transform parent, string objectName)
     {
         if (parent.name == objectName)
-        {
             return parent;
-        }
 
         for (int i = 0; i < parent.childCount; i++)
         {
             Transform match = FindChildRecursive(parent.GetChild(i), objectName);
             if (match != null)
-            {
                 return match;
-            }
         }
 
         return null;
@@ -359,14 +467,6 @@ public class vc_Level0TutorialController : MonoBehaviour
     {
         tutorialCompletionSyncInProgress = false;
         tutorialCompleted = true;
-
-        if (panelTutorialComplete != null)
-        {
-            panelTutorialComplete.SetActive(true);
-        }
-        else
-        {
-            Debug.LogWarning("[vc_Level0TutorialController] Panel_TutorialComplete reference is missing.");
-        }
+        panelTutorialComplete?.SetActive(true);
     }
 }

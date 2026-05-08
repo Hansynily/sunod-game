@@ -9,4 +9,6 @@ public class vc_SkillData : ScriptableObject
 
     [TextArea(2, 4)]
     public string description;
+
+    public Sprite icon;
 }

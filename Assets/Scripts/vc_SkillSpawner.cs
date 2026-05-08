@@ -1,19 +1,35 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class vc_SkillSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject pickupPrefab;
-    [SerializeField] private vc_SkillData[] guaranteedPool;
-    [SerializeField] private vc_SkillData[] randomPool;
+    [SerializeField] private vc_SkillData[] skillPool;
     [SerializeField] private Transform[] spawnPoints;
+
+    private bool _hasSpawned;
 
     private void Start()
     {
+        SpawnPickups();
+    }
+
+    public void SpawnPickups()
+    {
+        if (_hasSpawned)
+        {
+            return;
+        }
+
         if (pickupPrefab == null)
         {
             Debug.LogWarning($"[{nameof(vc_SkillSpawner)}] Pickup prefab is not assigned on {name}.");
+            return;
+        }
+
+        if (skillPool == null || skillPool.Length == 0)
+        {
+            Debug.LogWarning($"[{nameof(vc_SkillSpawner)}] Skill pool is empty on {name}.");
             return;
         }
 
@@ -23,59 +39,53 @@ public class vc_SkillSpawner : MonoBehaviour
             return;
         }
 
-        List<vc_SkillData> toSpawn = new List<vc_SkillData>();
+        vc_SkillData[] shuffled = ShuffleSkillPool(skillPool);
+        int spawnCount = Mathf.Min(shuffled.Length, spawnPoints.Length);
 
-        if (guaranteedPool != null)
+        for (int i = 0; i < spawnCount; i++)
         {
-            foreach (vc_SkillData skill in guaranteedPool)
-            {
-                if (skill == null || toSpawn.Contains(skill))
-                {
-                    continue;
-                }
-
-                toSpawn.Add(skill);
-                if (toSpawn.Count >= spawnPoints.Length)
-                {
-                    break;
-                }
-            }
-        }
-
-        if (toSpawn.Count < spawnPoints.Length && randomPool != null)
-        {
-            List<vc_SkillData> randomCandidates = new List<vc_SkillData>();
-            foreach (vc_SkillData skill in randomPool)
-            {
-                if (skill == null || toSpawn.Contains(skill))
-                {
-                    continue;
-                }
-
-                randomCandidates.Add(skill);
-            }
-
-            while (toSpawn.Count < spawnPoints.Length && randomCandidates.Count > 0)
-            {
-                int idx = Random.Range(0, randomCandidates.Count);
-                toSpawn.Add(randomCandidates[idx]);
-                randomCandidates.RemoveAt(idx);
-            }
-        }
-
-        for (int i = 0; i < toSpawn.Count; i++)
-        {
-            if (spawnPoints[i] == null)
+            Transform spawnPoint = spawnPoints[i];
+            if (spawnPoint == null)
             {
                 continue;
             }
 
-            GameObject go = Instantiate(pickupPrefab, spawnPoints[i].position, Quaternion.identity);
-            vc_SkillPickup pickup = go.GetComponent<vc_SkillPickup>();
-            if (pickup != null)
+            vc_SkillData chosen = shuffled[i];
+            if (chosen == null)
             {
-                pickup.SkillData = toSpawn[i];
+                continue;
             }
+
+            GameObject instance = Instantiate(pickupPrefab, spawnPoint.position, Quaternion.identity, spawnPoint);
+            vc_SkillPickup pickup = instance.GetComponent<vc_SkillPickup>();
+
+            if (pickup == null)
+            {
+                Debug.LogWarning($"[{nameof(vc_SkillSpawner)}] Pickup prefab '{pickupPrefab.name}' is missing a vc_SkillPickup component. Destroying instance.");
+                Destroy(instance);
+                continue;
+            }
+
+            pickup.SkillData = chosen;
         }
+
+        _hasSpawned = true;
+    }
+
+    private static vc_SkillData[] ShuffleSkillPool(vc_SkillData[] source)
+    {
+        vc_SkillData[] copy = new vc_SkillData[source.Length];
+        for (int i = 0; i < source.Length; i++)
+        {
+            copy[i] = source[i];
+        }
+
+        for (int i = copy.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (copy[i], copy[j]) = (copy[j], copy[i]);
+        }
+
+        return copy;
     }
 }
