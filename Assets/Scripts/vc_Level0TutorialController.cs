@@ -135,14 +135,14 @@ public class vc_Level0TutorialController : MonoBehaviour
 
             case TutorialStep.Build:
                 SetButtonInteractable(btnInventory, false);
-                SetSkillInteractable(skillBuild, true);
-                SetSkillInteractable(skillCharm, false);
+                SetSlotInteractableBySkillType<vc_BuildSkill>(true);
+                SetSlotInteractableBySkillType<vc_CharmSkill>(false);
                 SetObjectiveText("Walk to the river and use the Build skill to cross.");
                 catQuest?.BeginTutorialQuest();
                 break;
 
             case TutorialStep.Charm:
-                SetSkillInteractable(skillCharm, true);
+                SetSlotInteractableBySkillType<vc_CharmSkill>(true);
                 SetObjectiveText("Nice! Use Charm to call the cat to you.");
                 break;
 
@@ -380,6 +380,23 @@ public class vc_Level0TutorialController : MonoBehaviour
         Button button = skillSlot.GetComponent<Button>();
         if (button != null)
             button.interactable = isInteractable;
+    }
+
+    private void SetSlotInteractableBySkillType<T>(bool isInteractable) where T : vc_PlayerSkill
+    {
+        vc_SkillSlot[] slots = { skillBuild, skillCharm };
+        foreach (vc_SkillSlot slot in slots)
+        {
+            if (slot == null || slot.AssignedSkill == null)
+                continue;
+
+            if (slot.AssignedSkill is T)
+            {
+                Button button = slot.GetComponent<Button>();
+                if (button != null)
+                    button.interactable = isInteractable;
+            }
+        }
     }
 
     private static void SetButtonInteractable(Button button, bool isInteractable)

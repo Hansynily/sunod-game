@@ -87,28 +87,31 @@ public class vc_QuestRoom : MonoBehaviour
     public void OnQuestComplete()
     {
         if (questCompletionNotified)
-        {
             return;
-        }
 
         questCompletionNotified = true;
+        questTimer?.CompleteQuest();
 
-        if (questTimer != null)
+        int stars = questTimer != null ? questTimer.FinalStarsEarned : 5;
+
+        if (vc_QuestDonePopup.Instance != null)
         {
-            questTimer.CompleteQuest();
+            vc_QuestDonePopup.Instance.Show(questName, stars, OnQuestDoneAcknowledged);
         }
-
-        if (exitDoor != null)
+        else
         {
-            exitDoor.Unlock();
-        }
-
-        if (isLastQuestInScene && nextLevelButton != null)
-        {
-            nextLevelButton.gameObject.SetActive(true);
+            OnQuestDoneAcknowledged();
         }
 
         QuestCompleted?.Invoke(this);
+    }
+
+    private void OnQuestDoneAcknowledged()
+    {
+        exitDoor?.Unlock();
+
+        if (isLastQuestInScene && nextLevelButton != null)
+            nextLevelButton.gameObject.SetActive(true);
     }
 
     public void LoadNextScene(string sceneName)
@@ -142,6 +145,12 @@ public class vc_QuestRoom : MonoBehaviour
         if (questDescriptionText != null)
         {
             questDescriptionText.text = questDescription;
+        }
+
+        if (questObjective != null)
+        {
+            questObjective.text = objectiveText;
+            questObjective.gameObject.SetActive(true);
         }
 
         if (hintSystem != null)

@@ -80,7 +80,6 @@
     <Compile Include="Assets\Scripts\vc_CatQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Results.cs" />
     <Compile Include="Assets\Scripts\vc_BuildSkill.cs" />
-    <Compile Include="Assets\Scripts\vc_QuestFlowGuide.cs" />
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
@@ -144,6 +143,7 @@
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
     <Compile Include="Assets\Scripts\vc_RiasecAdapter.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\CatAI\CatAiSystem.cs" />
+    <Compile Include="Assets\Scripts\vc_QuestDonePopup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
