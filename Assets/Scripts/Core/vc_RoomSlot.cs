@@ -7,6 +7,7 @@ namespace SunodGame.Core
     {
         public static vc_RoomSlot Current { get; private set; }
 
+        [SerializeField] public bool acceptsQuest = true;
         public Bounds RoomBounds { get; private set; }
 
         private void Awake()

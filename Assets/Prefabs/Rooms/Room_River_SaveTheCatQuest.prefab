@@ -338,17 +338,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99785dd0848a4afcb4c26847ad4c5d50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
-  exitDoor: {fileID: 0}
   questLogic: {fileID: 3537717057593830231}
-  questId: 
-  questName: 
+  questId: savethecatquest
+  questName: Save The Cat
   primaryRiasec: 
-  objectiveText: 
-  questDescription: 
+  objectiveText: testobjective
+  questDescription: Save The Cat
   questHints: []
-  totalQuestsInScene: 1
-  currentQuestNumber: 1
-  isLastQuestInScene: 0
 --- !u!1 &4859696099360524056
 GameObject:
   m_ObjectHideFlags: 0
@@ -711,11 +707,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 243768541778223181, guid: f483d40df6fcd234ca771ff8492220a7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.71899
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 243768541778223181, guid: f483d40df6fcd234ca771ff8492220a7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.04381
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 243768541778223181, guid: f483d40df6fcd234ca771ff8492220a7, type: 3}
       propertyPath: m_LocalPosition.z

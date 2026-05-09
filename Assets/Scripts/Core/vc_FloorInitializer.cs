@@ -35,7 +35,8 @@ namespace SunodGame.Core
 
             List<vc_RoomSlot> slots = new List<vc_RoomSlot>();
             foreach (GameObject go in scene.GetRootGameObjects())
-                slots.AddRange(go.GetComponentsInChildren<vc_RoomSlot>(true));
+                foreach (vc_RoomSlot slot in go.GetComponentsInChildren<vc_RoomSlot>(true))
+                    if (slot.acceptsQuest) slots.Add(slot);
 
             if (slots.Count == 0)
             {

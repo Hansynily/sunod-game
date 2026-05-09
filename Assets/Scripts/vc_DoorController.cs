@@ -1,9 +1,7 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(BoxCollider2D))]
-[RequireComponent(typeof(SpriteRenderer))]
 public class vc_DoorController : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer doorRenderer;
@@ -38,12 +36,14 @@ public class vc_DoorController : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (Keyboard.current != null && Keyboard.current.uKey.wasPressedThisFrame)
-        {
-            Unlock();
-        }
+        vc_QuestRoom.OnAnyQuestComplete += Unlock;
+    }
+
+    private void OnDisable()
+    {
+        vc_QuestRoom.OnAnyQuestComplete -= Unlock;
     }
 
     private void SetLockedState()

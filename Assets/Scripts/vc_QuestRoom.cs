@@ -7,10 +7,11 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class vc_QuestRoom : MonoBehaviour
 {
+    public static event Action OnAnyQuestComplete;
+
     public event Action<vc_QuestRoom> QuestStarted;
     public event Action<vc_QuestRoom> QuestCompleted;
 
-    [SerializeField] private vc_DoorController exitDoor;
     [SerializeField] private MonoBehaviour questLogic;
     [SerializeField] private string questId;
     [SerializeField] private string questName;
@@ -67,7 +68,7 @@ public class vc_QuestRoom : MonoBehaviour
 
     private void OnQuestDoneAcknowledged()
     {
-        exitDoor?.Unlock();
+        OnAnyQuestComplete?.Invoke();
     }
 
     private void TryStartQuest(Collider2D other)

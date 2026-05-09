@@ -5736,11 +5736,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestTimer
   totalTime: 60
   starImages:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1593376010}
+  - {fileID: 881588458}
+  - {fileID: 1512642667}
+  - {fileID: 1572273045}
+  - {fileID: 940196460}
   starFilled: {fileID: 1011056242421925816, guid: a94cdf1f76fa68549a4225139068b419, type: 3}
   starEmpty: {fileID: -3095886911710049607, guid: 988ccdaafc74c2e4aa8f2529b6b1e1e0, type: 3}
   starFilledColor: {r: 0.9811321, g: 0.7253224, b: 0, a: 1}
