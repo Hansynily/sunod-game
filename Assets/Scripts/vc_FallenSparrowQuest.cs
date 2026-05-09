@@ -37,11 +37,18 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
         sosUsed = false;
         questDone = false;
         healTimer = 0f;
-        vc_QuestHUD.Instance?.HideFeedback();
+        vc_QuestHUD.Instance?.ForceHideFeedback();
 
         if (vetNPCObject != null) vetNPCObject.SetActive(false);
 
         SubscribeToSkillManager();
+
+        vc_QuestHUD.Instance?.ShowQuestInfo(
+            "Quest",
+            "Fallen Sparrow",
+            "A small bird is hurt and needs your help. Treat its injuries.",
+            new[] { "Get close to the bird", "Treat the injured bird" }
+        );
     }
 
     private void Update()
@@ -52,13 +59,14 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
             return;
         }
 
-        if (!charmDone && IsHoldingSkill<vc_CharmSkill>() && _playerTransform != null && birdTransform != null)
+        if (!charmDone && vc_SkillManager.Instance.IsHoldingTag("attract") && _playerTransform != null && birdTransform != null)
         {
             if (Vector3.Distance(_playerTransform.position, birdTransform.position) < charmRange && birdAI != null)
             {
                 birdAI.StartMovingToPlayer();
                 charmDone = true;
                 vc_FloatingMessage.Instance?.Show("The bird is warming up to you...");
+                vc_QuestHUD.Instance?.CheckObjective(0);
             }
         }
 
@@ -69,7 +77,7 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
             return;
         }
 
-        if (!IsHoldingSkill<vc_HealSkill>() || birdAI == null || !birdAI.HasReachedPlayer())
+        if (!vc_SkillManager.Instance.IsHoldingTag("heal") || birdAI == null || !birdAI.HasReachedPlayer())
         {
             healTimer = 0f;
             vc_QuestHUD.Instance?.HideFeedback();
@@ -92,14 +100,17 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone || skill == null) return;
 
-        if (skill is vc_SOSSkill && !sosUsed)
+        bool handled = false;
+        if (skill.SkillData.HasTag("summon") && !sosUsed)
         {
             sosUsed = true;
             vc_FloatingMessage.Instance?.Show("Vet is on the way!");
             if (vetNPCObject != null) vetNPCObject.SetActive(true);
             if (vetNPC != null && birdTransform != null) vetNPC.WalkToPoint(birdTransform.position);
             StartCoroutine(WaitVetThenComplete());
+            handled = true;
         }
+        if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
     private IEnumerator WaitVetThenComplete()
@@ -117,8 +128,9 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
         questDone = true;
         questStarted = false;
         UnsubscribeFromSkillManager();
-        vc_QuestHUD.Instance?.HideFeedback();
+        vc_QuestHUD.Instance?.ForceHideFeedback();
         vc_FloatingMessage.Instance?.Show("The bird is safe!");
+        vc_QuestHUD.Instance?.CheckObjective(1);
         _questRoom?.OnQuestComplete();
     }
 
@@ -135,14 +147,4 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
             vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
     }
 
-    private bool IsHoldingSkill<TSkill>() where TSkill : vc_PlayerSkill
-    {
-        if (vc_SkillManager.Instance == null) return false;
-        for (int i = 0; i < 4; i++)
-        {
-            if (vc_SkillManager.Instance.GetSlotSkill(i) is TSkill && vc_SkillManager.Instance.IsSlotHeld(i))
-                return true;
-        }
-        return false;
-    }
 }

@@ -41,7 +41,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         medicinePickedUp = false;
         medicinePickupGraceTimer = 0f;
         lockpickTimer = 0f;
-        vc_QuestHUD.Instance?.HideFeedback();
+        vc_QuestHUD.Instance?.ForceHideFeedback();
 
         if (catTransform == null)
         {
@@ -52,6 +52,13 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         if (safeCollider != null) safeCollider.enabled = true;
 
         SubscribeToSkillManager();
+
+        vc_QuestHUD.Instance?.ShowQuestInfo(
+            "Quest",
+            "Cat Medicine",
+            "The medicine is locked away. Get it and bring it to the sick cat.",
+            new[] { "Get the medicine from the safe", "Deliver it to the cat" }
+        );
     }
 
     private void Update()
@@ -65,7 +72,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
 
     private void UpdateLockpickProgress()
     {
-        if (!questStarted || questDone || safeOpen || !IsHoldingSkill<vc_LockpickSkill>())
+        if (!questStarted || questDone || safeOpen || !vc_SkillManager.Instance.IsHoldingTag("unlock"))
         {
             lockpickTimer = 0f;
             vc_QuestHUD.Instance?.HideFeedback();
@@ -102,11 +109,14 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone || skill == null) return;
 
-        if (skill is vc_MoldingSkill && !moldingDone)
+        bool handled = false;
+        if (skill.SkillData.HasTag("craft") && !moldingDone)
         {
             moldingDone = true;
             StartCoroutine(ShowMoldPopupThenComplete());
+            handled = true;
         }
+        if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
     private IEnumerator ShowMoldPopupThenComplete()
@@ -124,6 +134,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = false;
         UnsubscribeFromSkillManager();
         if (safeCollider != null) safeCollider.enabled = false;
+        vc_QuestHUD.Instance?.CheckObjective(1);
         _questRoom?.OnQuestComplete();
     }
 
@@ -141,6 +152,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         vc_FloatingMessage.Instance?.Show("You successfully got the medicine!");
         medicinePickedUp = true;
         medicinePickupGraceTimer = 3f;
+        vc_QuestHUD.Instance?.CheckObjective(0);
     }
 
     private void UpdateMedicineDelivery()
@@ -174,14 +186,4 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
             vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
     }
 
-    private bool IsHoldingSkill<TSkill>() where TSkill : vc_PlayerSkill
-    {
-        if (vc_SkillManager.Instance == null) return false;
-        for (int i = 0; i < 4; i++)
-        {
-            if (vc_SkillManager.Instance.GetSlotSkill(i) is TSkill && vc_SkillManager.Instance.IsSlotHeld(i))
-                return true;
-        }
-        return false;
-    }
 }

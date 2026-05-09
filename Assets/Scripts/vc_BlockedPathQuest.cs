@@ -42,13 +42,20 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
         if (hiddenWallCollider != null) hiddenWallCollider.enabled = true;
 
         SubscribeToSkillManager();
+
+        vc_QuestHUD.Instance?.ShowQuestInfo(
+            "Quest",
+            "Blocked Path",
+            "Something is blocking the way. Clear it or find another route.",
+            new[] { "Clear the blockage", "Reach the other side" }
+        );
     }
 
     private void Update()
     {
         if (!questStarted || questDone) return;
 
-        if (!strengthDone && blockingObject != null && _playerTransform != null && IsHoldingSkill<vc_StrengthSkill>())
+        if (!strengthDone && blockingObject != null && _playerTransform != null && vc_SkillManager.Instance.IsHoldingTag("push"))
         {
             if (Vector3.Distance(_playerTransform.position, blockingObject.position) < strengthRange)
             {
@@ -64,6 +71,7 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
 
                 strengthDone = true;
                 vc_FloatingMessage.Instance?.Show("Path cleared!");
+                vc_QuestHUD.Instance?.CheckObjective(0);
             }
         }
 
@@ -74,13 +82,17 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone || skill == null) return;
 
-        if (skill is vc_PathSkill && !pathDone)
+        bool handled = false;
+        if (skill.SkillData.HasTag("navigate") && !pathDone)
         {
             if (hiddenWall != null) hiddenWall.SetActive(false);
             if (hiddenWallCollider != null) hiddenWallCollider.enabled = false;
             vc_FloatingMessage.Instance?.Show("Alternative route found.");
             pathDone = true;
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            handled = true;
         }
+        if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -101,6 +113,7 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = false;
         UnsubscribeFromSkillManager();
         if (blockingCollider != null) blockingCollider.enabled = false;
+        vc_QuestHUD.Instance?.CheckObjective(1);
         _questRoom?.OnQuestComplete();
     }
 
@@ -115,17 +128,6 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (vc_SkillManager.Instance != null)
             vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
-    }
-
-    private bool IsHoldingSkill<TSkill>() where TSkill : vc_PlayerSkill
-    {
-        if (vc_SkillManager.Instance == null) return false;
-        for (int i = 0; i < 4; i++)
-        {
-            if (vc_SkillManager.Instance.GetSlotSkill(i) is TSkill && vc_SkillManager.Instance.IsSlotHeld(i))
-                return true;
-        }
-        return false;
     }
 
     private void TryCompleteAtGoal()

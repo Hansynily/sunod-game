@@ -37,13 +37,20 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         vc_DirectionalArrow.Instance?.HideArrow();
 
         SubscribeToSkillManager();
+
+        vc_QuestHUD.Instance?.ShowQuestInfo(
+            "Quest",
+            "Lost Friend",
+            "Your classmate got lost on the way to class. Help them find their way.",
+            new[] { "Find the path to class", "Guide your friend to class" }
+        );
     }
 
     private void Update()
     {
         if (!questStarted || questDone) return;
 
-        if (!charmActive && IsHoldingSkill<vc_CharmSkill>() && _playerTransform != null && friendTransform != null)
+        if (!charmActive && vc_SkillManager.Instance.IsHoldingTag("attract") && _playerTransform != null && friendTransform != null)
         {
             float dist = Vector3.Distance(_playerTransform.position, friendTransform.position);
             if (dist < charmRange && friendNPC != null)
@@ -64,17 +71,20 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone || skill == null) return;
 
-        if (skill is vc_TrackSkill && !trackDone)
+        bool handled = false;
+        if (skill.SkillData.HasTag("navigate") && !trackDone)
         {
             if (classroomTransform != null)
             {
                 vc_DirectionalArrow.Instance?.SetTarget(classroomTransform);
                 vc_DirectionalArrow.Instance?.ShowArrow();
             }
-
             vc_FloatingMessage.Instance?.Show("Path found!");
             trackDone = true;
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            handled = true;
         }
+        if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
     private void CompleteQuest()
@@ -85,6 +95,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = false;
         UnsubscribeFromSkillManager();
         vc_FloatingMessage.Instance?.Show("Friend guided to class!");
+        vc_QuestHUD.Instance?.CheckObjective(1);
 
         vc_DirectionalArrow.Instance?.HideArrow();
         vc_DirectionalArrow.Instance?.ClearTarget();
@@ -107,14 +118,4 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
             vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
     }
 
-    private bool IsHoldingSkill<TSkill>() where TSkill : vc_PlayerSkill
-    {
-        if (vc_SkillManager.Instance == null) return false;
-        for (int i = 0; i < 4; i++)
-        {
-            if (vc_SkillManager.Instance.GetSlotSkill(i) is TSkill && vc_SkillManager.Instance.IsSlotHeld(i))
-                return true;
-        }
-        return false;
-    }
 }

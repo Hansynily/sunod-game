@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: R
   buttonLabel: Strength
   description: Move heavy objects that block your way.
+  icon: {fileID: 0}
+  capabilityTags:
+  - push

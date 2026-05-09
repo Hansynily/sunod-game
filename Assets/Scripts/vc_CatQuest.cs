@@ -50,6 +50,7 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = false;
         UnsubscribeFromSkillManager();
         vc_FloatingMessage.Instance?.Show("Cat rescued!");
+        vc_QuestHUD.Instance?.CheckObjective(2);
         activeQuestRoom?.OnQuestComplete();
 
         if (tutorialMode) TutorialQuestCompleted?.Invoke();
@@ -64,8 +65,10 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || usedSkill == null) return;
 
-        if (usedSkill is vc_BuildSkill) { UseBuildSkill(); return; }
-        if (usedSkill is vc_CharmSkill) { UseCharmSkill(); }
+        bool handled = false;
+        if (usedSkill.SkillData.HasTag("bridge")) { UseBuildSkill(); handled = true; }
+        else if (usedSkill.SkillData.HasTag("attract")) { UseCharmSkill(); handled = true; }
+        if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
     private void SubscribeToSkillManager()
@@ -91,6 +94,16 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         charmActive = false;
         SetBridgeBuiltState(false);
         SubscribeToSkillManager();
+
+        if (!isTutorialQuest)
+        {
+            vc_QuestHUD.Instance?.ShowQuestInfo(
+                "Quest",
+                "Rescue the Cat",
+                "A cat is trapped across the river. Find a way to reach it and help it get free.",
+                new[] { "Find the path to the cat", "Reach the trapped cat", "Help the cat get free" }
+            );
+        }
     }
 
     private void UseBuildSkill()
@@ -99,6 +112,7 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         buildDone = true;
         SetBridgeBuiltState(true);
         vc_FloatingMessage.Instance?.Show("Bridge built!");
+        vc_QuestHUD.Instance?.CheckObjective(0);
         if (tutorialMode) TutorialBuildCompleted?.Invoke();
     }
 
@@ -107,6 +121,7 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         if (!buildDone || charmDone || charmActive) return;
         catAI?.StartMovingToPlayer();
         charmActive = true;
+        vc_QuestHUD.Instance?.CheckObjective(1);
         if (tutorialMode) TutorialCharmStarted?.Invoke();
     }
 

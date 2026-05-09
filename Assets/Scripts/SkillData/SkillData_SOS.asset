@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: E
   buttonLabel: SOS
   description: Call a friend for immediate assistance with a problem.
+  icon: {fileID: 0}
+  capabilityTags:
+  - summon

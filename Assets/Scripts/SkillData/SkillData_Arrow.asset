@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: C
   buttonLabel: Arrow
   description: Scan your surroundings to highlight a safe detour route on the ground.
+  icon: {fileID: 0}
+  capabilityTags:
+  - navigate

@@ -45,12 +45,19 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         keyPickedUp = false;
         keyPickupGraceTimer = 0f;
         lockpickTimer = 0f;
-        vc_QuestHUD.Instance?.HideFeedback();
+        vc_QuestHUD.Instance?.ForceHideFeedback();
 
         if (friendNPCObject != null) friendNPCObject.SetActive(false);
 
         ResetXrayState();
         SubscribeToSkillManager();
+
+        vc_QuestHUD.Instance?.ShowQuestInfo(
+            "Quest",
+            "Missing Key",
+            "The front door is locked and the key is missing. Find a way inside.",
+            new[] { "Find a way to open the door", "Get inside" }
+        );
     }
 
     private void Update()
@@ -64,7 +71,7 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
 
     private void UpdateLockpickProgress()
     {
-        if (!questStarted || questDone || keyPickedUp || !IsHoldingSkill<vc_LockpickSkill>())
+        if (!questStarted || questDone || keyPickedUp || !vc_SkillManager.Instance.IsHoldingTag("unlock"))
         {
             lockpickTimer = 0f;
             vc_QuestHUD.Instance?.HideFeedback();
@@ -92,6 +99,7 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         {
             lockpickTimer = 0f;
             vc_QuestHUD.Instance?.HideFeedback();
+            vc_QuestHUD.Instance?.CheckObjective(0);
             CompleteQuest();
         }
     }
@@ -100,20 +108,24 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone || skill == null) return;
 
-        if (skill is vc_XraySkill && !xrayDone)
+        bool handled = false;
+        if (skill.SkillData.HasTag("scan") && !xrayDone)
         {
             ActivateXray();
             xrayDone = true;
-            return;
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            handled = true;
         }
-
-        if (skill is vc_SOSSkill && !sosUsed)
+        if (skill.SkillData.HasTag("summon") && !sosUsed)
         {
             sosUsed = true;
+            vc_QuestHUD.Instance?.CheckObjective(0);
             if (friendNPCObject != null) friendNPCObject.SetActive(true);
             if (friendNPC != null && frontDoor != null) friendNPC.WalkToPoint(frontDoor.transform.position);
             StartCoroutine(WaitThenUnlockDoor());
+            handled = true;
         }
+        if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
     private IEnumerator WaitThenUnlockDoor()
@@ -142,6 +154,7 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         if (frontDoor != null) frontDoor.SetActive(false);
         if (frontDoorCollider != null) frontDoorCollider.enabled = false;
 
+        vc_QuestHUD.Instance?.CheckObjective(1);
         _questRoom?.OnQuestComplete();
     }
 
@@ -173,7 +186,7 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
 
         if (Vector2.Distance(_playerTransform.position, keyTransform.position) > pickupRange) return;
 
-        vc_QuestHUD.Instance?.HideFeedback();
+        vc_QuestHUD.Instance?.ForceHideFeedback();
         vc_FloatingMessage.Instance?.Show("Key picked up!");
 
         if (keyObject != null) keyObject.SetActive(false);
@@ -220,14 +233,4 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
             vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
     }
 
-    private bool IsHoldingSkill<TSkill>() where TSkill : vc_PlayerSkill
-    {
-        if (vc_SkillManager.Instance == null) return false;
-        for (int i = 0; i < 4; i++)
-        {
-            if (vc_SkillManager.Instance.GetSlotSkill(i) is TSkill && vc_SkillManager.Instance.IsSlotHeld(i))
-                return true;
-        }
-        return false;
-    }
 }

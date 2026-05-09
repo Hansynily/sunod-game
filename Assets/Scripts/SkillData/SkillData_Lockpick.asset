@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: R
   buttonLabel: Lockpick
   description: Open locked doors or containers without the original key.
+  icon: {fileID: 0}
+  capabilityTags:
+  - unlock

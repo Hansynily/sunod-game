@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: C
   buttonLabel: Path
   description: Identify and reveal an alternative, safer route to your destination
+  icon: {fileID: 0}
+  capabilityTags:
+  - navigate

@@ -141,6 +141,7 @@
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorExit.cs" />
     <Compile Include="Assets\Scripts\vc_MoldingSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_CheckboxItem.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />

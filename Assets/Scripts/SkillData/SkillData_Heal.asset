@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: I
   buttonLabel: Heal
   description: Treat the injuries of others.
+  icon: {fileID: 0}
+  capabilityTags:
+  - heal

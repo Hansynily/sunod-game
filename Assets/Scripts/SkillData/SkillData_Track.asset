@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: C
   buttonLabel: Track
   description: Reveal the direction to your objective.
+  icon: {fileID: 0}
+  capabilityTags:
+  - navigate

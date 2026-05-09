@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: S
   buttonLabel: Charm
   description: Persuade a character to follow you.
+  icon: {fileID: 0}
+  capabilityTags:
+  - attract

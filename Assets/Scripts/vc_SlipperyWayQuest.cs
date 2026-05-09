@@ -33,29 +33,38 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
         if (wetFloor != null) wetFloor.SetActive(false);
 
         SubscribeToSkillManager();
+
+        vc_QuestHUD.Instance?.ShowQuestInfo(
+            "Quest",
+            "Slippery Way",
+            "The hallway floor is slippery and dangerous. Find a safe way through.",
+            new[] { "Find a safe path through" }
+        );
     }
 
     private void HandleSkillUsed(int slotIndex, vc_PlayerSkill skill)
     {
         if (!questStarted || questDone || skill == null) return;
 
-        if (skill is vc_ArrowSkill && !arrowDone)
+        bool handled = false;
+        if (skill.SkillData.HasTag("navigate") && !arrowDone)
         {
             if (safeRouteHighlight != null) safeRouteHighlight.SetActive(true);
             vc_FloatingMessage.Instance?.Show("Safe path found!");
             arrowDone = true;
             StartCoroutine(WaitThenComplete());
-            return;
+            handled = true;
         }
-
-        if (skill is vc_SOSSkill && !sosUsed)
+        if (skill.SkillData.HasTag("summon") && !sosUsed)
         {
             sosUsed = true;
             vc_FloatingMessage.Instance?.Show("Janitor is on the way!");
             if (wetFloor != null) wetFloor.SetActive(true);
             if (janitorNPCObject != null) janitorNPCObject.SetActive(true);
             StartCoroutine(WaitJanitorThenComplete());
+            handled = true;
         }
+        if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
     private IEnumerator WaitThenComplete()
@@ -82,6 +91,7 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = false;
         UnsubscribeFromSkillManager();
         vc_FloatingMessage.Instance?.Show("Path is clear!");
+        vc_QuestHUD.Instance?.CheckObjective(0);
         _questRoom?.OnQuestComplete();
     }
 

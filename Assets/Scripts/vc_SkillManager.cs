@@ -113,6 +113,17 @@ public class vc_SkillManager : MonoBehaviour
         return skillSlot != null ? skillSlot.AssignedSkill : null;
     }
 
+    public bool IsHoldingTag(string tag)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            vc_PlayerSkill skill = GetSlotSkill(i);
+            if (skill != null && IsSlotHeld(i) && skill.SkillData != null && skill.SkillData.HasTag(tag))
+                return true;
+        }
+        return false;
+    }
+
     public void LoadSkills(vc_SkillData[] newSkills)
     {
         if (skillSlots == null || newSkills == null)

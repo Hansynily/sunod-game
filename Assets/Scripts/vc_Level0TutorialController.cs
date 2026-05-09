@@ -139,6 +139,12 @@ public class vc_Level0TutorialController : MonoBehaviour
                 SetSlotInteractableBySkillType<vc_CharmSkill>(false);
                 SetObjectiveText("Walk to the river and use the Build skill to cross.");
                 catQuest?.BeginTutorialQuest();
+                vc_QuestHUD.Instance?.ShowQuestInfo(
+                    "Tutorial Quest 1/2",
+                    "Rescue the Cat",
+                    "A cat is trapped across the river. Find a way to reach it and help it get free.",
+                    new[] { "Find the path to the cat", "Reach the trapped cat", "Help the cat get free" }
+                );
                 break;
 
             case TutorialStep.Charm:
@@ -294,11 +300,13 @@ public class vc_Level0TutorialController : MonoBehaviour
 
     private void HandleTutorialBuildCompleted()
     {
+        vc_QuestHUD.Instance?.CheckObjective(0);
         AdvanceToStep(TutorialStep.Charm);
     }
 
     private void HandleTutorialCharmStarted()
     {
+        vc_QuestHUD.Instance?.CheckObjective(1);
         AdvanceToStep(TutorialStep.Wait);
     }
 
@@ -307,6 +315,7 @@ public class vc_Level0TutorialController : MonoBehaviour
         if (tutorialCompleted || tutorialCompletionSyncInProgress)
             return;
 
+        vc_QuestHUD.Instance?.CheckObjective(2);
         tutorialCompletionSyncInProgress = true;
         AdvanceToStep(TutorialStep.Complete);
     }

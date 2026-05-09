@@ -16,3 +16,6 @@ MonoBehaviour:
   riaSecLetter: A
   buttonLabel: Mold
   description: Create a replica of a key.
+  icon: {fileID: 0}
+  capabilityTags:
+  - craft
