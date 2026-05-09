@@ -44,17 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbe2c492d7c90a547a25d84f459998e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_CatMedicineQuest
-  skillManager: {fileID: 0}
-  playerTransform: {fileID: 0}
   safe: {fileID: 8235412663935476680}
   catTransform: {fileID: 2463328185902377922}
   safeCollider: {fileID: 851062970245002051}
-  questRoom: {fileID: 0}
   lockpickRange: 1.5
   lockpickHoldTime: 5
   medicineDeliveryRange: 1.5
-  lockpickFeedbackText: {fileID: 0}
-  floatingMessage: {fileID: 0}
 --- !u!1 &7264336602304712070
 GameObject:
   m_ObjectHideFlags: 0
@@ -81,7 +76,7 @@ Transform:
   m_GameObject: {fileID: 7264336602304712070}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 14.05876, y: 11.995371, z: 0}
+  m_LocalPosition: {x: 3.4300003, y: -0.39999962, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -173,7 +168,7 @@ Transform:
   m_GameObject: {fileID: 8235412663935476680}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.50876, y: 9.76537, z: 0}
+  m_LocalPosition: {x: -3.12, y: -2.63, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
   m_Children: []
