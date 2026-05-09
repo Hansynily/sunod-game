@@ -33,6 +33,8 @@ public class vc_QuestTimer : MonoBehaviour
     [SerializeField] private Color starEmptyColor = new Color(1f, 1f, 1f, 0.25f);
     [SerializeField] private TMP_Text debugText;
 
+    public static vc_QuestTimer Instance { get; private set; }
+
     private float timeRemaining;
     private bool isRunning = false;
     private bool isComplete = false;
@@ -49,6 +51,8 @@ public class vc_QuestTimer : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
         EnsureDebugTextReference();
     }
 

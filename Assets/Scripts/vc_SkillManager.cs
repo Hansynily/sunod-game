@@ -11,8 +11,13 @@ public class vc_SkillManager : MonoBehaviour
 
     public event Action<int, vc_PlayerSkill> SkillUsed;
 
+    public static vc_SkillManager Instance { get; private set; }
+
     private void Awake()
     {
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
+
         usageCount = new int[skillSlots != null ? skillSlots.Length : 0];
 
         if (skillSlots == null)

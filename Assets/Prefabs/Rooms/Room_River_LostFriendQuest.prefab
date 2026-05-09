@@ -44,14 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d44c8e5f04f38b946aca5126e6423d8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_LostFriendQuest
-  skillManager: {fileID: 0}
-  friendNPC: {fileID: 0}
-  friendTransform: {fileID: 0}
-  directionArrow: {fileID: 0}
-  classroomTransform: {fileID: 0}
+  friendNPC: {fileID: 2997474054907049702}
+  friendTransform: {fileID: 9146529834962386060}
+  classroomTransform: {fileID: 5163314095344861380}
   charmRange: 1.5
-  playerTransform: {fileID: 0}
-  floatingMessage: {fileID: 0}
 --- !u!1 &1571875982083104758
 GameObject:
   m_ObjectHideFlags: 0

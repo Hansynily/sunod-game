@@ -4,63 +4,46 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
 {
-    [SerializeField] private vc_SkillManager skillManager;
     [SerializeField] private GameObject wetFloor;
     [SerializeField] private GameObject safeRouteHighlight;
     [SerializeField] private GameObject janitorNPCObject;
     [SerializeField] private vc_NPCController janitorNPC;
     [SerializeField] private Transform janitorWalkTarget;
-    [SerializeField] private vc_QuestRoom questRoom;
-    [SerializeField] private vc_FloatingMessage floatingMessage;
 
+    private vc_QuestRoom _questRoom;
     private bool questStarted = false;
     private bool arrowDone = false;
     private bool sosUsed = false;
     private bool questDone = false;
-
-    public void BeginQuest(vc_QuestRoom activeQuestRoom, vc_QuestTimer questTimer)
-    {
-        questRoom = activeQuestRoom != null ? activeQuestRoom : questRoom;
-        questStarted = true;
-        arrowDone = false;
-        sosUsed = false;
-        questDone = false;
-
-        if (safeRouteHighlight != null)
-        {
-            safeRouteHighlight.SetActive(false);
-        }
-
-        if (wetFloor != null)
-        {
-            wetFloor.SetActive(false);
-        }
-
-        SubscribeToSkillManager();
-    }
 
     private void OnDestroy()
     {
         UnsubscribeFromSkillManager();
     }
 
+    public void BeginQuest(vc_QuestRoom activeQuestRoom, vc_QuestTimer questTimer)
+    {
+        _questRoom = activeQuestRoom;
+        questStarted = true;
+        arrowDone = false;
+        sosUsed = false;
+        questDone = false;
+
+        if (safeRouteHighlight != null) safeRouteHighlight.SetActive(false);
+        if (wetFloor != null) wetFloor.SetActive(false);
+
+        SubscribeToSkillManager();
+    }
+
     private void HandleSkillUsed(int slotIndex, vc_PlayerSkill skill)
     {
-        if (!questStarted || questDone || skill == null)
-        {
-            return;
-        }
+        if (!questStarted || questDone || skill == null) return;
 
         if (skill is vc_ArrowSkill && !arrowDone)
         {
-            if (safeRouteHighlight != null)
-            {
-                safeRouteHighlight.SetActive(true);
-            }
-
-            ShowFloatingMessage("Safe path found!");
+            if (safeRouteHighlight != null) safeRouteHighlight.SetActive(true);
+            vc_FloatingMessage.Instance?.Show("Safe path found!");
             arrowDone = true;
-            Debug.Log("Safe path found");
             StartCoroutine(WaitThenComplete());
             return;
         }
@@ -68,18 +51,9 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
         if (skill is vc_SOSSkill && !sosUsed)
         {
             sosUsed = true;
-            ShowFloatingMessage("Janitor is on the way!");
-
-            if (wetFloor != null)
-            {
-                wetFloor.SetActive(true);
-            }
-
-            if (janitorNPCObject != null)
-            {
-                janitorNPCObject.SetActive(true);
-            }
-
+            vc_FloatingMessage.Instance?.Show("Janitor is on the way!");
+            if (wetFloor != null) wetFloor.SetActive(true);
+            if (janitorNPCObject != null) janitorNPCObject.SetActive(true);
             StartCoroutine(WaitJanitorThenComplete());
         }
     }
@@ -92,58 +66,35 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
 
     private IEnumerator WaitJanitorThenComplete()
     {
-        if (janitorNPC == null || janitorWalkTarget == null)
-        {
-            yield break;
-        }
-
+        if (janitorNPC == null || janitorWalkTarget == null) yield break;
         janitorNPC.WalkToPoint(janitorWalkTarget.position);
         yield return new WaitUntil(janitorNPC.HasReachedDestination);
-        ShowFloatingMessage("Floor is being cleaned...");
+        vc_FloatingMessage.Instance?.Show("Floor is being cleaned...");
         yield return new WaitForSeconds(2f);
-
         CompleteQuest();
     }
 
     private void CompleteQuest()
     {
-        if (questDone)
-        {
-            return;
-        }
+        if (questDone) return;
 
         questDone = true;
         questStarted = false;
         UnsubscribeFromSkillManager();
-        ShowFloatingMessage("Path is clear!");
-        Debug.Log("Slippery Way quest complete");
-        questRoom?.OnQuestComplete();
+        vc_FloatingMessage.Instance?.Show("Path is clear!");
+        _questRoom?.OnQuestComplete();
     }
 
     private void SubscribeToSkillManager()
     {
-        if (skillManager == null)
-        {
-            return;
-        }
-
-        skillManager.SkillUsed -= HandleSkillUsed;
-        skillManager.SkillUsed += HandleSkillUsed;
+        if (vc_SkillManager.Instance == null) return;
+        vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
+        vc_SkillManager.Instance.SkillUsed += HandleSkillUsed;
     }
 
     private void UnsubscribeFromSkillManager()
     {
-        if (skillManager != null)
-        {
-            skillManager.SkillUsed -= HandleSkillUsed;
-        }
-    }
-
-    private void ShowFloatingMessage(string message)
-    {
-        if (floatingMessage != null)
-        {
-            floatingMessage.Show(message);
-        }
+        if (vc_SkillManager.Instance != null)
+            vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
     }
 }

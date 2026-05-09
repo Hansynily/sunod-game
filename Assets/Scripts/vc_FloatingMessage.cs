@@ -5,10 +5,18 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class vc_FloatingMessage : MonoBehaviour
 {
+    public static vc_FloatingMessage Instance { get; private set; }
+
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private float displayDuration = 2f;
 
     private Coroutine hideRoutine;
+
+    private void Awake()
+    {
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
+    }
 
     public TextMeshProUGUI MessageText => messageText;
     public bool IsShowing => hideRoutine != null && messageText != null && messageText.gameObject.activeSelf;

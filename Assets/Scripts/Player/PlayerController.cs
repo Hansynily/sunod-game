@@ -66,8 +66,15 @@ public class PlayerController : MonoBehaviour
         float halfW = halfH * cam.aspect;
 
         Vector3 pos = followCamera.position;
-        pos.x = Mathf.Clamp(pos.x, b.min.x + halfW, b.max.x - halfW);
-        pos.y = Mathf.Clamp(pos.y, b.min.y + halfH, b.max.y - halfH);
+
+        float minX = b.min.x + halfW;
+        float maxX = b.max.x - halfW;
+        if (minX <= maxX) pos.x = Mathf.Clamp(pos.x, minX, maxX);
+
+        float minY = b.min.y + halfH;
+        float maxY = b.max.y - halfH;
+        if (minY <= maxY) pos.y = Mathf.Clamp(pos.y, minY, maxY);
+
         followCamera.position = pos;
     }
 }

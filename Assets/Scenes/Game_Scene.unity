@@ -6417,6 +6417,7 @@ GameObject:
   - component: {fileID: 1421303678}
   - component: {fileID: 2100000001}
   - component: {fileID: 2100000002}
+  - component: {fileID: 2100000003}
   m_Layer: 5
   m_Name: ChallengeHUD UI
   m_TagString: Untagged
@@ -7621,6 +7622,67 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1642698420
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1642698421}
+  - component: {fileID: 1642698422}
+  m_Layer: 0
+  m_Name: 'FloorInitializer '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1642698421
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642698420}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12.30949, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1642698422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642698420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6860bb4a6ebc62e4eaa0f3561f806fbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_FloorInitializer
+  floors:
+  - sceneName: Level1_Scene
+    questPrefabs:
+    - {fileID: 6441233813146342226, guid: 7abdace285e98624085ce342b2303c65, type: 3}
+    - {fileID: 3508368966515316259, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
+    shuffle: 1
+  - sceneName: Level2_Scene
+    questPrefabs:
+    - {fileID: 0}
+    - {fileID: 0}
+    shuffle: 1
+  - sceneName: Level3_Scene
+    questPrefabs:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    shuffle: 1
 --- !u!1 &1666350770
 GameObject:
   m_ObjectHideFlags: 0
@@ -8332,6 +8394,7 @@ GameObject:
   - component: {fileID: 1894999687}
   - component: {fileID: 1894999686}
   - component: {fileID: 1894999685}
+  - component: {fileID: 1894999688}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -8413,6 +8476,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1894999688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1894999684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!1 &1952752716
 GameObject:
   m_ObjectHideFlags: 0
@@ -9133,6 +9240,23 @@ MonoBehaviour:
   skillCardPrefab: {fileID: 5071985132998795015, guid: e219a2cc79935244fa08a02c5e48a1e2, type: 3}
   btnOpen: {fileID: 1584273325}
   btnClose: {fileID: 681086609}
+--- !u!114 &2100000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421303677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3c0ca5bb7d738b4790c6320d23f9a07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_QuestHUD
+  questCounter: {fileID: 61081739}
+  questObjective: {fileID: 656155477}
+  questDescriptionText: {fileID: 1421142231}
+  feedbackText: {fileID: 741925322}
+  hintSystem: {fileID: 0}
 --- !u!1 &2106244823
 GameObject:
   m_ObjectHideFlags: 0
@@ -9498,3 +9622,4 @@ SceneRoots:
   - {fileID: 924427595}
   - {fileID: 1044715979}
   - {fileID: 485648027}
+  - {fileID: 1642698421}

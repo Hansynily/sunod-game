@@ -130,10 +130,12 @@
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_FloorInitializer.cs" />
     <Compile Include="Assets\Scripts\vc_DirectionalArrow.cs" />
     <Compile Include="Assets\Scripts\vc_XrayEffect.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Bootstrap.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Pause.cs" />
+    <Compile Include="Assets\Scripts\vc_QuestHUD.cs" />
     <Compile Include="Assets\Scripts\vc_FallenSparrowQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />

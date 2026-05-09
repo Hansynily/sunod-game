@@ -6,9 +6,7 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
 {
     [SerializeField] private GameObject bridge;
     [SerializeField] private GameObject bridgeBlocker;
-    [SerializeField] private vc_SkillManager skillManager;
     [SerializeField] private vc_CatAISystem catAI;
-    [SerializeField] private vc_FloatingMessage floatingMessage;
 
     public event Action TutorialBuildCompleted;
     public event Action TutorialCharmStarted;
@@ -33,87 +31,54 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
 
     public void BeginQuest(vc_QuestRoom questRoom, vc_QuestTimer questTimer)
     {
-        if (questStarted)
-        {
-            return;
-        }
-
+        if (questStarted) return;
         StartQuest(questRoom, false);
     }
 
     public void BeginTutorialQuest()
     {
-        if (questStarted)
-        {
-            return;
-        }
-
+        if (questStarted) return;
         StartQuest(null, true);
     }
 
     private void Update()
     {
-        if (!questStarted || !charmActive || charmDone || catAI == null || !catAI.HasReachedPlayer())
-        {
-            return;
-        }
+        if (!questStarted || !charmActive || charmDone || catAI == null || !catAI.HasReachedPlayer()) return;
 
         charmDone = true;
         charmActive = false;
         questStarted = false;
         UnsubscribeFromSkillManager();
-        ShowFloatingMessage("Cat rescued!");
-        Debug.Log("Charm complete");
+        vc_FloatingMessage.Instance?.Show("Cat rescued!");
         activeQuestRoom?.OnQuestComplete();
 
-        if (tutorialMode)
-        {
-            TutorialQuestCompleted?.Invoke();
-        }
+        if (tutorialMode) TutorialQuestCompleted?.Invoke();
 
         activeQuestRoom = null;
         tutorialMode = false;
 
-        if (catAI != null)
-        {
-            Destroy(catAI.gameObject);
-        }
+        if (catAI != null) Destroy(catAI.gameObject);
     }
 
     private void HandleSkillUsed(int slotIndex, vc_PlayerSkill usedSkill)
     {
-        if (!questStarted || usedSkill == null)
-        {
-            return;
-        }
+        if (!questStarted || usedSkill == null) return;
 
-        if (usedSkill is vc_BuildSkill)
-        {
-            UseBuildSkill();
-            return;
-        }
-
-        if (usedSkill is vc_CharmSkill)
-        {
-            UseCharmSkill();
-        }
+        if (usedSkill is vc_BuildSkill) { UseBuildSkill(); return; }
+        if (usedSkill is vc_CharmSkill) { UseCharmSkill(); }
     }
 
     private void SubscribeToSkillManager()
     {
-        if (skillManager != null)
-        {
-            skillManager.SkillUsed -= HandleSkillUsed;
-            skillManager.SkillUsed += HandleSkillUsed;
-        }
+        if (vc_SkillManager.Instance == null) return;
+        vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
+        vc_SkillManager.Instance.SkillUsed += HandleSkillUsed;
     }
 
     private void UnsubscribeFromSkillManager()
     {
-        if (skillManager != null)
-        {
-            skillManager.SkillUsed -= HandleSkillUsed;
-        }
+        if (vc_SkillManager.Instance != null)
+            vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
     }
 
     private void StartQuest(vc_QuestRoom questRoom, bool isTutorialQuest)
@@ -130,60 +95,24 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
 
     private void UseBuildSkill()
     {
-        if (buildDone)
-        {
-            return;
-        }
-
+        if (buildDone) return;
         buildDone = true;
         SetBridgeBuiltState(true);
-        ShowFloatingMessage("Bridge built!");
-        Debug.Log("Build complete");
-
-        if (tutorialMode)
-        {
-            TutorialBuildCompleted?.Invoke();
-        }
+        vc_FloatingMessage.Instance?.Show("Bridge built!");
+        if (tutorialMode) TutorialBuildCompleted?.Invoke();
     }
 
     private void UseCharmSkill()
     {
-        if (!buildDone || charmDone || charmActive)
-        {
-            return;
-        }
-
-        if (catAI != null)
-        {
-            catAI.StartMovingToPlayer();
-        }
-
+        if (!buildDone || charmDone || charmActive) return;
+        catAI?.StartMovingToPlayer();
         charmActive = true;
-
-        if (tutorialMode)
-        {
-            TutorialCharmStarted?.Invoke();
-        }
+        if (tutorialMode) TutorialCharmStarted?.Invoke();
     }
 
     private void SetBridgeBuiltState(bool built)
     {
-        if (bridge != null)
-        {
-            bridge.SetActive(built);
-        }
-
-        if (bridgeBlocker != null)
-        {
-            bridgeBlocker.SetActive(!built);
-        }
-    }
-
-    private void ShowFloatingMessage(string message)
-    {
-        if (floatingMessage != null)
-        {
-            floatingMessage.Show(message);
-        }
+        if (bridge != null) bridge.SetActive(built);
+        if (bridgeBlocker != null) bridgeBlocker.SetActive(!built);
     }
 }

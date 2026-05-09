@@ -12,8 +12,13 @@ public class vc_DirectionalArrow : MonoBehaviour
     private bool isActive = false;
     private SpriteRenderer arrowSpriteRenderer;
 
+    public static vc_DirectionalArrow Instance { get; private set; }
+
     private void Awake()
     {
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
+
         if (arrowVisual != null)
         {
             arrowSpriteRenderer = arrowVisual.GetComponent<SpriteRenderer>();

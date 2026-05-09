@@ -57,6 +57,9 @@ namespace SunodGame.Core
 
         private void OnFloorLoaded(Scene scene)
         {
+            // InitializeFloor must run first — room prefabs are instantiated here,
+            // and spawn points live inside those prefabs.
+            vc_FloorInitializer.Instance?.InitializeFloor(scene);
             TeleportPlayerToSpawn(scene);
             RegisterSpawnPoints(scene);
         }
@@ -92,7 +95,21 @@ namespace SunodGame.Core
         private static GameObject FindInScene(Scene scene, string goName)
         {
             foreach (GameObject go in scene.GetRootGameObjects())
-                if (go.name == goName) return go;
+            {
+                GameObject result = FindRecursive(go, goName);
+                if (result != null) return result;
+            }
+            return null;
+        }
+
+        private static GameObject FindRecursive(GameObject go, string goName)
+        {
+            if (go.name == goName) return go;
+            foreach (Transform child in go.transform)
+            {
+                GameObject result = FindRecursive(child.gameObject, goName);
+                if (result != null) return result;
+            }
             return null;
         }
     }

@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using SunodGame.Core;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(BoxCollider2D))]
@@ -14,59 +10,27 @@ public class vc_QuestRoom : MonoBehaviour
     public event Action<vc_QuestRoom> QuestStarted;
     public event Action<vc_QuestRoom> QuestCompleted;
 
-    [SerializeField] private vc_QuestTimer questTimer;
     [SerializeField] private vc_DoorController exitDoor;
     [SerializeField] private MonoBehaviour questLogic;
-    [SerializeField] private Button nextLevelButton;
-    [SerializeField] private TextMeshProUGUI questCounter;
-    [SerializeField] private TextMeshProUGUI questObjective;
-    [SerializeField] private TextMeshProUGUI questDescriptionText;
-    [SerializeField] private vc_HintSystem hintSystem;
     [SerializeField] private string questId;
     [SerializeField] private string questName;
     [SerializeField] private string primaryRiasec;
     [SerializeField] private string objectiveText;
     [SerializeField] private string questDescription;
     [SerializeField] private string[] questHints;
-    [SerializeField] private int totalQuestsInScene = 1;
-    [SerializeField] private int currentQuestNumber = 1;
-    [SerializeField] private bool isLastQuestInScene = false;
 
     private bool questStarted = false;
     private bool questResultRecorded = false;
     private bool questCompletionNotified = false;
     private bool isQuestTimerSubscribed = false;
     private vc_IQuestLogic cachedQuestLogic;
-    private vc_SkillManager cachedSkillManager;
 
     private void Awake()
     {
         BoxCollider2D triggerCollider = GetComponent<BoxCollider2D>();
-        if (triggerCollider != null)
-        {
-            triggerCollider.isTrigger = true;
-        }
+        if (triggerCollider != null) triggerCollider.isTrigger = true;
 
         cachedQuestLogic = questLogic as vc_IQuestLogic;
-        cachedSkillManager = FindFirstObjectByType<vc_SkillManager>();
-
-        if (questObjective != null)
-        {
-            questObjective.gameObject.SetActive(false);
-        }
-    }
-
-    private void Update()
-    {
-        if (!questStarted)
-        {
-            return;
-        }
-
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            OnQuestComplete(); // TEMP TEST - REMOVE
-        }
     }
 
     private void OnDestroy()
@@ -86,22 +50,17 @@ public class vc_QuestRoom : MonoBehaviour
 
     public void OnQuestComplete()
     {
-        if (questCompletionNotified)
-            return;
+        if (questCompletionNotified) return;
 
         questCompletionNotified = true;
-        questTimer?.CompleteQuest();
+        vc_QuestTimer.Instance?.CompleteQuest();
 
-        int stars = questTimer != null ? questTimer.FinalStarsEarned : 5;
+        int stars = vc_QuestTimer.Instance != null ? vc_QuestTimer.Instance.FinalStarsEarned : 5;
 
         if (vc_QuestDonePopup.Instance != null)
-        {
             vc_QuestDonePopup.Instance.Show(questName, stars, OnQuestDoneAcknowledged);
-        }
         else
-        {
             OnQuestDoneAcknowledged();
-        }
 
         QuestCompleted?.Invoke(this);
     }
@@ -109,27 +68,12 @@ public class vc_QuestRoom : MonoBehaviour
     private void OnQuestDoneAcknowledged()
     {
         exitDoor?.Unlock();
-
-        if (isLastQuestInScene && nextLevelButton != null)
-            nextLevelButton.gameObject.SetActive(true);
-    }
-
-    public void LoadNextScene(string sceneName)
-    {
-        SceneManager.LoadScene(sceneName);
     }
 
     private void TryStartQuest(Collider2D other)
     {
-        if (SceneManager.GetActiveScene().name == SceneLoader.SCENE_TUTORIAL)
-        {
-            return;
-        }
-
-        if (questStarted || other == null || !other.CompareTag("Player"))
-        {
-            return;
-        }
+        if (SceneLoader.SCENE_TUTORIAL == UnityEngine.SceneManagement.SceneManager.GetActiveScene().name) return;
+        if (questStarted || other == null || !other.CompareTag("Player")) return;
 
         questStarted = true;
         questResultRecorded = false;
@@ -137,85 +81,43 @@ public class vc_QuestRoom : MonoBehaviour
 
         QuestStarted?.Invoke(this);
 
-        if (questCounter != null)
-        {
-            questCounter.text = $"Quest {currentQuestNumber}/{totalQuestsInScene}";
-        }
-
-        if (questDescriptionText != null)
-        {
-            questDescriptionText.text = questDescription;
-        }
-
-        if (questObjective != null)
-        {
-            questObjective.text = objectiveText;
-            questObjective.gameObject.SetActive(true);
-        }
-
-        if (hintSystem != null)
-        {
-            hintSystem.SetHints(questHints);
-        }
-
-        if (nextLevelButton != null)
-        {
-            nextLevelButton.gameObject.SetActive(false);
-        }
+        vc_QuestHUD.Instance?.SetDescription(questDescription);
+        vc_QuestHUD.Instance?.SetObjective(objectiveText);
+        vc_QuestHUD.Instance?.SetHints(questHints);
 
         SubscribeToQuestTimer();
+        vc_QuestTimer.Instance?.StartQuest();
+        vc_SkillManager.Instance?.ResetUsageCounts();
 
-        if (questTimer != null)
-        {
-            questTimer.StartQuest();
-        }
-
-        if (cachedSkillManager != null)
-            cachedSkillManager.ResetUsageCounts();
-
-        cachedQuestLogic?.BeginQuest(this, questTimer);
+        cachedQuestLogic?.BeginQuest(this, vc_QuestTimer.Instance);
     }
 
     private void SubscribeToQuestTimer()
     {
-        if (questTimer == null || isQuestTimerSubscribed)
-        {
-            return;
-        }
-
-        questTimer.QuestEnded += HandleQuestEnded;
+        if (vc_QuestTimer.Instance == null || isQuestTimerSubscribed) return;
+        vc_QuestTimer.Instance.QuestEnded += HandleQuestEnded;
         isQuestTimerSubscribed = true;
     }
 
     private void UnsubscribeFromQuestTimer()
     {
-        if (questTimer == null || !isQuestTimerSubscribed)
-        {
-            return;
-        }
-
-        questTimer.QuestEnded -= HandleQuestEnded;
+        if (vc_QuestTimer.Instance == null || !isQuestTimerSubscribed) return;
+        vc_QuestTimer.Instance.QuestEnded -= HandleQuestEnded;
         isQuestTimerSubscribed = false;
     }
 
     private void HandleQuestEnded(vc_QuestTimer.QuestCompletionResult result)
     {
-        if (questResultRecorded)
-        {
-            UnsubscribeFromQuestTimer();
-            return;
-        }
+        if (questResultRecorded) { UnsubscribeFromQuestTimer(); return; }
 
         questResultRecorded = true;
 
-        Dictionary<string, int> usageSummary = cachedSkillManager != null
-            ? cachedSkillManager.GetUsageSummary()
+        Dictionary<string, int> usageSummary = vc_SkillManager.Instance != null
+            ? vc_SkillManager.Instance.GetUsageSummary()
             : new Dictionary<string, int>();
 
         vc_SessionTelemetry.Instance?.RecordQuestResult(
-            questId,
-            questName,
-            primaryRiasec,
+            questId, questName, primaryRiasec,
             result != null && result.DidPassQuest,
             result != null ? result.FinalStarsEarnedNormalized : 0,
             result != null ? result.FinalTimeRemaining : 0f,
@@ -227,8 +129,4 @@ public class vc_QuestRoom : MonoBehaviour
 
     public string QuestId => questId;
     public string QuestName => questName;
-    public bool IsLastQuestInScene => isLastQuestInScene;
-    public int CurrentQuestNumber => currentQuestNumber;
-    public int TotalQuestsInScene => totalQuestsInScene;
-    public Button NextLevelButton => nextLevelButton;
 }
