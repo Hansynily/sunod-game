@@ -14,6 +14,8 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private float lockpickRange = 1.5f;
     [SerializeField] private float lockpickHoldTime = 5f;
     [SerializeField] private vc_XrayEffect xrayEffect;
+    [SerializeField] private vc_FloatingMarker mainMarker_Door;
+    [SerializeField] private vc_FloatingMarker poiMarker_KeySpot;
 
     private Transform _playerTransform;
     private vc_QuestRoom _questRoom;
@@ -56,7 +58,7 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
             "Quest",
             "Missing Key",
             "The front door is locked and the key is missing. Find a way inside.",
-            new[] { "Find a way to open the door", "Get inside" }
+            new[] { "Get past the locked front door", "Get inside" }
         );
     }
 
@@ -155,11 +157,14 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         if (frontDoorCollider != null) frontDoorCollider.enabled = false;
 
         vc_QuestHUD.Instance?.CheckObjective(1);
+        mainMarker_Door?.Hide();
+        poiMarker_KeySpot?.Hide();
         _questRoom?.OnQuestComplete();
     }
 
     private void ActivateXray()
     {
+        poiMarker_KeySpot?.Hide();
         if (xrayEffect != null) { xrayEffect.ActivateXray(); return; }
         SetXrayAlpha(0.25f);
         if (key != null) key.SetActive(true);

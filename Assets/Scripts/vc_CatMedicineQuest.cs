@@ -10,6 +10,8 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private float lockpickRange = 1.5f;
     [SerializeField] private float lockpickHoldTime = 5f;
     [SerializeField] private float medicineDeliveryRange = 1.5f;
+    [SerializeField] private vc_FloatingMarker mainMarker_Safe;
+    [SerializeField] private vc_FloatingMarker mainMarker_Cat;
 
     private Transform _playerTransform;
     private vc_QuestRoom _questRoom;
@@ -57,7 +59,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
             "Quest",
             "Cat Medicine",
             "The medicine is locked away. Get it and bring it to the sick cat.",
-            new[] { "Get the medicine from the safe", "Deliver it to the cat" }
+            new[] { "Crack open the locked safe", "Bring the medicine to the sick cat" }
         );
     }
 
@@ -135,6 +137,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         UnsubscribeFromSkillManager();
         if (safeCollider != null) safeCollider.enabled = false;
         vc_QuestHUD.Instance?.CheckObjective(1);
+        mainMarker_Cat?.Hide();
         _questRoom?.OnQuestComplete();
     }
 
@@ -169,6 +172,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (safeOpen) return;
         safeOpen = true;
+        mainMarker_Safe?.Hide();
         if (safeCollider != null) safeCollider.enabled = false;
         vc_FloatingMessage.Instance?.Show("Safe opened!");
     }

@@ -86,6 +86,9 @@ public class vc_QuestRoom : MonoBehaviour
         vc_QuestHUD.Instance?.SetObjective(objectiveText);
         vc_QuestHUD.Instance?.SetHints(questHints);
 
+        vc_SkillZone.ResetCounter();
+        vc_SkillManager.Instance?.SetSkillsInteractable(false);
+
         SubscribeToQuestTimer();
         vc_QuestTimer.Instance?.StartQuest();
         vc_SkillManager.Instance?.ResetUsageCounts();

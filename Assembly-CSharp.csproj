@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scripts\Core\vc_SceneBootstrapper.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMessage.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillPickup.cs" />
+    <Compile Include="Assets\Scripts\vc_SkillZone.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\ScriptableObjects\Charm.cs" />
     <Compile Include="Assets\Scripts\vc_HealSkill.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Input.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
+    <Compile Include="Assets\Scripts\vc_CheatUnlockAll.cs" />
     <Compile Include="Assets\Scripts\QuestData.cs" />
     <Compile Include="Assets\Scripts\vc_PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\CharmSkill.cs" />
@@ -122,6 +124,7 @@
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
     <Compile Include="Assets\Scripts\vc_MissingKeyQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_TestHarness.cs" />
     <Compile Include="Assets\Scripts\vc_PathSkill.cs" />
     <Compile Include="Assets\Scripts\vc_QuestTimer.cs" />
     <Compile Include="Assets\Scripts\UI\vc_InventoryUI.cs" />
@@ -134,8 +137,8 @@
     <Compile Include="Assets\Scripts\vc_DirectionalArrow.cs" />
     <Compile Include="Assets\Scripts\vc_XrayEffect.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Bootstrap.cs" />
-    <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Pause.cs" />
     <Compile Include="Assets\Scripts\vc_QuestHUD.cs" />
+    <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Pause.cs" />
     <Compile Include="Assets\Scripts\vc_FallenSparrowQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
@@ -144,6 +147,7 @@
     <Compile Include="Assets\Scripts\vc_CheckboxItem.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
+    <Compile Include="Assets\Scripts\vc_FloatingMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />

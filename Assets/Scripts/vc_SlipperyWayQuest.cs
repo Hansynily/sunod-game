@@ -9,6 +9,9 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private GameObject janitorNPCObject;
     [SerializeField] private vc_NPCController janitorNPC;
     [SerializeField] private Transform janitorWalkTarget;
+    [SerializeField] private vc_FloatingMarker mainMarker_Exit;
+    [SerializeField] private vc_FloatingMarker poiMarker_Hazard;
+    [SerializeField] private vc_FloatingMarker poiMarker_Janitor;
 
     private vc_QuestRoom _questRoom;
     private bool questStarted = false;
@@ -38,7 +41,7 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
             "Quest",
             "Slippery Way",
             "The hallway floor is slippery and dangerous. Find a safe way through.",
-            new[] { "Find a safe path through" }
+            new[] { "Find the safe route, or call for cleanup", "Get to the end of the hallway" }
         );
     }
 
@@ -52,12 +55,17 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
             if (safeRouteHighlight != null) safeRouteHighlight.SetActive(true);
             vc_FloatingMessage.Instance?.Show("Safe path found!");
             arrowDone = true;
+            poiMarker_Hazard?.Hide();
+            vc_QuestHUD.Instance?.CheckObjective(0);
             StartCoroutine(WaitThenComplete());
             handled = true;
         }
         if (skill.SkillData.HasTag("summon") && !sosUsed)
         {
             sosUsed = true;
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            poiMarker_Janitor?.Hide();
+            poiMarker_Hazard?.Hide();
             vc_FloatingMessage.Instance?.Show("Janitor is on the way!");
             if (wetFloor != null) wetFloor.SetActive(true);
             if (janitorNPCObject != null) janitorNPCObject.SetActive(true);
@@ -91,7 +99,8 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = false;
         UnsubscribeFromSkillManager();
         vc_FloatingMessage.Instance?.Show("Path is clear!");
-        vc_QuestHUD.Instance?.CheckObjective(0);
+        vc_QuestHUD.Instance?.CheckObjective(1);
+        mainMarker_Exit?.Hide();
         _questRoom?.OnQuestComplete();
     }
 

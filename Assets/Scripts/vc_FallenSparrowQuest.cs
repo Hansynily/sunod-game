@@ -10,6 +10,8 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private vc_NPCController vetNPC;
     [SerializeField] private float charmRange = 1.5f;
     [SerializeField] private float healHoldTime = 5f;
+    [SerializeField] private vc_FloatingMarker mainMarker_Bird;
+    [SerializeField] private vc_FloatingMarker poiMarker_VetSpot;
 
     private Transform _playerTransform;
     private vc_QuestRoom _questRoom;
@@ -47,7 +49,7 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
             "Quest",
             "Fallen Sparrow",
             "A small bird is hurt and needs your help. Treat its injuries.",
-            new[] { "Get close to the bird", "Treat the injured bird" }
+            new[] { "Calm the bird, or call for help", "Tend to its injuries" }
         );
     }
 
@@ -104,6 +106,8 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
         if (skill.SkillData.HasTag("summon") && !sosUsed)
         {
             sosUsed = true;
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            poiMarker_VetSpot?.Hide();
             vc_FloatingMessage.Instance?.Show("Vet is on the way!");
             if (vetNPCObject != null) vetNPCObject.SetActive(true);
             if (vetNPC != null && birdTransform != null) vetNPC.WalkToPoint(birdTransform.position);
@@ -131,6 +135,8 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
         vc_QuestHUD.Instance?.ForceHideFeedback();
         vc_FloatingMessage.Instance?.Show("The bird is safe!");
         vc_QuestHUD.Instance?.CheckObjective(1);
+        mainMarker_Bird?.Hide();
+        poiMarker_VetSpot?.Hide();
         _questRoom?.OnQuestComplete();
     }
 

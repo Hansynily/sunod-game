@@ -7,6 +7,8 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private Transform friendTransform;
     [SerializeField] private Transform classroomTransform;
     [SerializeField] private float charmRange = 1.5f;
+    [SerializeField] private vc_FloatingMarker mainMarker_Friend;
+    [SerializeField] private vc_FloatingMarker mainMarker_Classroom;
 
     private Transform _playerTransform;
     private vc_QuestRoom activeQuestRoom;
@@ -42,7 +44,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
             "Quest",
             "Lost Friend",
             "Your classmate got lost on the way to class. Help them find their way.",
-            new[] { "Find the path to class", "Guide your friend to class" }
+            new[] { "Find the route to class", "Convince your friend to follow you" }
         );
     }
 
@@ -100,6 +102,8 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         vc_DirectionalArrow.Instance?.HideArrow();
         vc_DirectionalArrow.Instance?.ClearTarget();
 
+        mainMarker_Friend?.Hide();
+        mainMarker_Classroom?.Hide();
         activeQuestRoom?.OnQuestComplete();
 
         if (friendNPC != null) Destroy(friendNPC.gameObject);

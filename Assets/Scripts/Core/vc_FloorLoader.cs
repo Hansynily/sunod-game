@@ -35,6 +35,12 @@ namespace SunodGame.Core
                 }
             }
 
+            // Test/design scene mode: active scene is not Game_Scene and not MainMenu
+            // (e.g. RoomDesign_Temp). vc_TestHarness handles setup — skip auto floor load.
+            string activeScene = SceneManager.GetActiveScene().name;
+            if (activeScene != SceneLoader.SCENE_GAME && activeScene != SceneLoader.SCENE_MAINMENU)
+                return;
+
             // Normal game flow: Game_Scene was loaded first, now load the starting floor.
             StartCoroutine(LoadFloorRoutine(startingFloor));
         }

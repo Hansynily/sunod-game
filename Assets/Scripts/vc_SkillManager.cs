@@ -124,6 +124,20 @@ public class vc_SkillManager : MonoBehaviour
         return false;
     }
 
+    public void SetSkillsInteractable(bool value)
+    {
+        if (skillSlots == null) return;
+
+        for (int i = 0; i < skillSlots.Length; i++)
+        {
+            if (skillSlots[i] == null) continue;
+
+            UnityEngine.UI.Button button = skillSlots[i].GetComponent<UnityEngine.UI.Button>();
+            if (button != null)
+                button.interactable = value;
+        }
+    }
+
     public void LoadSkills(vc_SkillData[] newSkills)
     {
         if (skillSlots == null || newSkills == null)

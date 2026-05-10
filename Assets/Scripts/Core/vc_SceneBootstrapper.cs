@@ -5,7 +5,7 @@ namespace SunodGame.Core
 {
     public static class vc_SceneBootstrapper
     {
-        private static readonly string[] FloorScenes = { "Level1_Scene", "Level2_Scene", "Level3_Scene" };
+        private static readonly string[] FloorScenes = { "Level1_Scene", "Level2_Scene", "Level3_Scene", "RoomDesign_Temp" };
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void EnsureGameSceneLoaded()

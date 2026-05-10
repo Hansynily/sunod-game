@@ -7,6 +7,7 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private GameObject bridge;
     [SerializeField] private GameObject bridgeBlocker;
     [SerializeField] private vc_CatAISystem catAI;
+    [SerializeField] private vc_FloatingMarker mainMarker_Cat;
 
     public event Action TutorialBuildCompleted;
     public event Action TutorialCharmStarted;
@@ -48,9 +49,10 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         charmDone = true;
         charmActive = false;
         questStarted = false;
+        mainMarker_Cat?.Hide();
         UnsubscribeFromSkillManager();
         vc_FloatingMessage.Instance?.Show("Cat rescued!");
-        vc_QuestHUD.Instance?.CheckObjective(2);
+        vc_QuestHUD.Instance?.CheckObjective(1);
         activeQuestRoom?.OnQuestComplete();
 
         if (tutorialMode) TutorialQuestCompleted?.Invoke();
@@ -100,8 +102,8 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
             vc_QuestHUD.Instance?.ShowQuestInfo(
                 "Quest",
                 "Rescue the Cat",
-                "A cat is trapped across the river. Find a way to reach it and help it get free.",
-                new[] { "Find the path to the cat", "Reach the trapped cat", "Help the cat get free" }
+                "A cat is on the other side of the river. Find a way across and get it to come back to you.",
+                new[] { "Cross the river", "Befriend the cat" }
             );
         }
     }
@@ -121,7 +123,6 @@ public class vc_CatQuest : MonoBehaviour, vc_IQuestLogic
         if (!buildDone || charmDone || charmActive) return;
         catAI?.StartMovingToPlayer();
         charmActive = true;
-        vc_QuestHUD.Instance?.CheckObjective(1);
         if (tutorialMode) TutorialCharmStarted?.Invoke();
     }
 

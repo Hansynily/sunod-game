@@ -11,6 +11,9 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private BoxCollider2D hiddenWallCollider;
     [SerializeField] private float strengthRange = 1.5f;
     [SerializeField] private Vector3 crateDropPosition = new(5.15f, 6.522f, 0f);
+    [SerializeField] private vc_FloatingMarker mainMarker_Blockage;
+    [SerializeField] private vc_FloatingMarker poiMarker_AltRoute;
+    [SerializeField] private vc_FloatingMarker mainMarker_Goal;
 
     private Transform _playerTransform;
     private vc_QuestRoom _questRoom;
@@ -47,7 +50,7 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
             "Quest",
             "Blocked Path",
             "Something is blocking the way. Clear it or find another route.",
-            new[] { "Clear the blockage", "Reach the other side" }
+            new[] { "Find a way past the blockage", "Get to the other side" }
         );
     }
 
@@ -70,6 +73,7 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
                 }
 
                 strengthDone = true;
+                mainMarker_Blockage?.Hide();
                 vc_FloatingMessage.Instance?.Show("Path cleared!");
                 vc_QuestHUD.Instance?.CheckObjective(0);
             }
@@ -89,6 +93,8 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
             if (hiddenWallCollider != null) hiddenWallCollider.enabled = false;
             vc_FloatingMessage.Instance?.Show("Alternative route found.");
             pathDone = true;
+            poiMarker_AltRoute?.Hide();
+            mainMarker_Blockage?.Hide();
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
@@ -114,6 +120,7 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
         UnsubscribeFromSkillManager();
         if (blockingCollider != null) blockingCollider.enabled = false;
         vc_QuestHUD.Instance?.CheckObjective(1);
+        mainMarker_Goal?.Hide();
         _questRoom?.OnQuestComplete();
     }
 
