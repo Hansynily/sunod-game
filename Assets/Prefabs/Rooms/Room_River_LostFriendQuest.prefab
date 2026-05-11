@@ -653,6 +653,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: primaryRiasec
+      value: S
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questDescription
       value: Your friend just transferred to the school and has no idea where anything
         is. Class is about to start in a few minutes and they are standing confused

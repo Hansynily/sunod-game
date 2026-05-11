@@ -650,7 +650,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2479991762247903533, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
       propertyPath: m_Name
-      value: Prefab_MainMarker
+      value: mainMarker_Cat
       objectReference: {fileID: 0}
     - target: {fileID: 6498533406844489946, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
       propertyPath: m_SortingOrder
@@ -767,6 +767,10 @@ PrefabInstance:
       propertyPath: questLogic
       value: 
       objectReference: {fileID: 3537717057593830231}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: primaryRiasec
+      value: R
+      objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

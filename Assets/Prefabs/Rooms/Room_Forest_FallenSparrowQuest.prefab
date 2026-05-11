@@ -44,17 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4634d30ef47448a46b512d3aea1a4053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_FallenSparrowQuest
-  skillManager: {fileID: 0}
-  playerTransform: {fileID: 0}
   birdAI: {fileID: 5666851892132600531}
   birdTransform: {fileID: 7173921876056559606}
   vetNPCObject: {fileID: 8247099958768781431}
   vetNPC: {fileID: 5040065231987016700}
-  questRoom: {fileID: 0}
   charmRange: 1.5
   healHoldTime: 5
-  healFeedbackText: {fileID: 0}
-  floatingMessage: {fileID: 0}
+  mainMarker_Bird: {fileID: 6498677725408063100}
+  poiMarker_VetSpot: {fileID: 0}
 --- !u!1 &3992432646147588814
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,7 +83,8 @@ Transform:
   m_LocalPosition: {x: -2.78, y: -1.48, z: 0}
   m_LocalScale: {x: 0.07120231, y: 0.07120231, z: 0.07120231}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 5645262983263935219}
   m_Father: {fileID: 2494664721169388202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7236369190073879425
@@ -188,7 +186,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_CatAISystem
   moveSpeed: 1.5
-  target: {fileID: 0}
 --- !u!1 &8247099958768781431
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,6 +356,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5070205011583152194}
+    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8014547956142802310}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
 --- !u!4 &2494664721169388202 stripped
@@ -366,3 +366,178 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
   m_PrefabInstance: {fileID: 2449076847571055335}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2783659123312373314
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2494664721169388202}
+    m_Modifications:
+    - target: {fileID: 117847549305033849, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_Name
+      value: QuestTrigger
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questId
+      value: fallensparrowquest
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questName
+      value: Fallen Sparrow Quest
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questLogic
+      value: 
+      objectReference: {fileID: 3593213208766460056}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: objectiveText
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: primaryRiasec
+      value: S
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questDescription
+      value: Help save the fallen sparrow
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+--- !u!4 &8014547956142802310 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+  m_PrefabInstance: {fileID: 2783659123312373314}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6140637795258143208
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7173921876056559606}
+    m_Modifications:
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2479991762247903533, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+      propertyPath: m_Name
+      value: mainMarker_Bird
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+--- !u!4 &5645262983263935219 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1977059687910656795, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+  m_PrefabInstance: {fileID: 6140637795258143208}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6498677725408063100 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1087651745133494164, guid: 029b8b75daead0a4294d756d9e412eb0, type: 3}
+  m_PrefabInstance: {fileID: 6140637795258143208}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30038a84c6fdc114e93a5c12fedff373, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_FloatingMarker

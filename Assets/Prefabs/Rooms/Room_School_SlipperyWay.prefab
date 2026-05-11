@@ -288,14 +288,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f7c9282cc3d5a840a534d79a746611a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SlipperyWayQuest
-  skillManager: {fileID: 0}
   wetFloor: {fileID: 761641401955866460}
   safeRouteHighlight: {fileID: 6286335459987620797}
   janitorNPCObject: {fileID: 3480296995908407002}
   janitorNPC: {fileID: 4544171065784274096}
   janitorWalkTarget: {fileID: 1132422268436127735}
-  questRoom: {fileID: 0}
-  floatingMessage: {fileID: 0}
+  mainMarker_Exit: {fileID: 0}
+  poiMarker_Hazard: {fileID: 0}
+  poiMarker_Janitor: {fileID: 0}
 --- !u!1 &6286335459987620797
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,10 +454,95 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: d56f012db4824c1409e3532517a5ed46, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1132422268436127735}
+    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: d56f012db4824c1409e3532517a5ed46, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9037859830640648950}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d56f012db4824c1409e3532517a5ed46, type: 3}
 --- !u!4 &1075479324550543030 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 243768541778223181, guid: d56f012db4824c1409e3532517a5ed46, type: 3}
   m_PrefabInstance: {fileID: 976951871829153531}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3815677532044069170
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1075479324550543030}
+    m_Modifications:
+    - target: {fileID: 117847549305033849, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_Name
+      value: QuestTrigger
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questId
+      value: slipperywayquest
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questName
+      value: Slippery Way Quest
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questLogic
+      value: 
+      objectReference: {fileID: 4465629956570486563}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: primaryRiasec
+      value: C
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questDescription
+      value: Find the safest path or call someone
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+--- !u!4 &9037859830640648950 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+  m_PrefabInstance: {fileID: 3815677532044069170}
   m_PrefabAsset: {fileID: 0}
