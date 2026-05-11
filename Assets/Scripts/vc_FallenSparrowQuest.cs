@@ -114,6 +114,8 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
             StartCoroutine(WaitVetThenComplete());
             handled = true;
         }
+        // attract and heal are hold-based in Update — pressing them is valid, no immediate event effect
+        if (skill.SkillData.HasTag("attract") || skill.SkillData.HasTag("heal")) handled = true;
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 

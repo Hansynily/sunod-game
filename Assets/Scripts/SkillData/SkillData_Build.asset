@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: Build
   riaSecLetter: R
   buttonLabel: Build
-  description: Place a sturdy plank to create a bridge across obstacles.
+  description: Place a path across obstacles.
   icon: {fileID: 0}
   capabilityTags:
   - bridge
+  - build

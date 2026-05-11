@@ -98,6 +98,8 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
+        // push is hold-based in Update — pressing the skill button is valid, no immediate event effect
+        if (skill.SkillData.HasTag("push")) handled = true;
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 

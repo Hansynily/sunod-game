@@ -86,6 +86,8 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
+        // attract is hold-based in Update — pressing it is valid, just no immediate event effect
+        if (skill.SkillData.HasTag("attract")) handled = true;
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 
