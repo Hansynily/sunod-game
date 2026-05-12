@@ -133,4 +133,5 @@ public class vc_QuestRoom : MonoBehaviour
 
     public string QuestId => questId;
     public string QuestName => questName;
+    public string PrimaryRiasec => primaryRiasec;
 }

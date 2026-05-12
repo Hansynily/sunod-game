@@ -57,6 +57,8 @@
     <Compile Include="Assets\Scripts\vc_PlayerSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\Realistic\BuildSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollection.cs" />
+    <Compile Include="Assets\Scripts\vc_BarrierSkill.cs" />
+    <Compile Include="Assets\Gif\Ruccho\FangAutoTile\Sample\OnMapPlayerController.cs" />
     <Compile Include="Assets\Scripts\vc_SOSSkill.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.SceneBinding.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoSceneReferences.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="Assets\Scripts\vc_TutorialTrigger.cs" />
     <Compile Include="Assets\Scripts\Core\LocalRubricFallback.cs" />
     <Compile Include="Assets\Scripts\vc_Level0TutorialController.cs" />
+    <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
@@ -83,6 +86,7 @@
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Results.cs" />
     <Compile Include="Assets\Scripts\vc_BuildSkill.cs" />
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_ClubActivityQuest.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
     <Compile Include="Assets\Scripts\vc_CheatUnlockAll.cs" />
@@ -90,6 +94,7 @@
     <Compile Include="Assets\Scripts\vc_PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\CharmSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CharmSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_ConveySkill.cs" />
     <Compile Include="Assets\Scripts\vc_StrengthSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
@@ -97,10 +102,12 @@
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
     <Compile Include="Assets\Scripts\Core\vc_RoomSlot.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
+    <Compile Include="Assets\Scripts\vc_SkillAwardPopup.cs" />
     <Compile Include="Assets\Scripts\Telemetry\TelemetryManager.cs" />
     <Compile Include="Assets\Scripts\Skills\Realistic\ScriptableObjects\Giant.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorLoader.cs" />
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
+    <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
     <Compile Include="Assets\Scripts\Skills\Conventional\PlanSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSpawner.cs" />
@@ -115,7 +122,9 @@
     <Compile Include="Assets\Scripts\Skills\Investigative\ScriptableObjects\Scan.cs" />
     <Compile Include="Assets\Scripts\vc_QuestRoom.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\NPC\vc_NPC_DoAction.cs" />
     <Compile Include="Assets\Scripts\vc_LockpickSkill.cs" />
+    <Compile Include="Assets\Scripts\NPC\vc_NPC_Follow.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Telemetry.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.LegacyBridge.cs" />
     <Compile Include="Assets\Scripts\vc_PlayerInventory.cs" />
@@ -123,6 +132,7 @@
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.RoundFlow.cs" />
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
     <Compile Include="Assets\Scripts\vc_MissingKeyQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_MedicalAttentionQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_TestHarness.cs" />
     <Compile Include="Assets\Scripts\vc_PathSkill.cs" />
@@ -132,9 +142,11 @@
     <Compile Include="Assets\Scripts\Demo\Systems\Environment\EnvironmentSystem.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
+    <Compile Include="Assets\Gif\Super_Retro_Collection\Scripts\CharacterAppearance.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorInitializer.cs" />
     <Compile Include="Assets\Scripts\vc_DirectionalArrow.cs" />
+    <Compile Include="Assets\Gif\Super_Retro_Collection\Scripts\PlayerMovement.cs" />
     <Compile Include="Assets\Scripts\vc_XrayEffect.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Bootstrap.cs" />
     <Compile Include="Assets\Scripts\vc_QuestHUD.cs" />
@@ -143,13 +155,17 @@
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorExit.cs" />
+    <Compile Include="Assets\Scripts\NPC\vc_NPC_GoTo.cs" />
     <Compile Include="Assets\Scripts\vc_MoldingSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_HelpSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CheckboxItem.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
+    <Compile Include="Assets\Scripts\vc_CollectSkill.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
+    <Compile Include="Assets\Scripts\vc_SkillSelectionMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
@@ -176,9 +192,11 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\Gif\Ruccho\FangAutoTile\Readme.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\Gif\Ruccho\FangAutoTile\Readme-ja.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Sprite.shader" />
   </ItemGroup>
@@ -723,12 +741,12 @@
       <HintPath>Library\PackageCache\com.unity.visualscripting@191c0d7e3b69\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64\Runtime\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>Library\PackageCache\com.unity.collections@aea9d3bd5e19\Unity.Collections.Tests\System.Runtime.CompilerServices.Unsafe\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="Mono.Cecil">
+      <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Android.Types">
@@ -1505,6 +1523,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Bezi.Editor.csproj" />
+    <ProjectReference Include="FangAutoTile.Editor.csproj" />
+    <ProjectReference Include="FangAutoTile.csproj" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
