@@ -19,22 +19,21 @@ public class vc_InventoryUI : MonoBehaviour
     private readonly List<GameObject> _spawnedCards = new List<GameObject>();
     private bool _initialized;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void InitializeSceneInventoryUIs()
-    {
-        vc_InventoryUI[] inventoryUIs = Resources.FindObjectsOfTypeAll<vc_InventoryUI>();
-        for (int i = 0; i < inventoryUIs.Length; i++)
-        {
-            if (inventoryUIs[i] != null && inventoryUIs[i].gameObject.scene.isLoaded)
-            {
-                inventoryUIs[i].Initialize();
-            }
-        }
-    }
-
     private void Awake()
     {
         Initialize();
+    }
+
+    private void OnEnable()
+    {
+        if (vc_PlayerInventory.Instance != null)
+            vc_PlayerInventory.Instance.OnSkillAdded += OnSkillAdded;
+    }
+
+    private void OnDisable()
+    {
+        if (vc_PlayerInventory.Instance != null)
+            vc_PlayerInventory.Instance.OnSkillAdded -= OnSkillAdded;
     }
 
     private void Initialize()
@@ -74,11 +73,6 @@ public class vc_InventoryUI : MonoBehaviour
                 }
             }
         }
-
-        if (vc_PlayerInventory.Instance != null)
-        {
-            vc_PlayerInventory.Instance.OnSkillAdded += OnSkillAdded;
-        }
     }
 
     private void OnDestroy()
@@ -91,11 +85,6 @@ public class vc_InventoryUI : MonoBehaviour
         if (btnClose != null)
         {
             btnClose.onClick.RemoveListener(ClosePanel);
-        }
-
-        if (vc_PlayerInventory.Instance != null)
-        {
-            vc_PlayerInventory.Instance.OnSkillAdded -= OnSkillAdded;
         }
     }
 

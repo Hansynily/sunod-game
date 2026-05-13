@@ -125,7 +125,7 @@ public class vc_Level0TutorialController : MonoBehaviour
                 HideDialog();
                 playerController?.MoveAction.Enable();
                 gateToSkillsRoom?.SetActive(false);
-                SetObjectiveText("Head to the next room and pick up both skills.");
+                SetObjectiveText("Use the joystick to move and go to the next area to pick up skills.");
                 break;
 
             case TutorialStep.Equip:
@@ -205,9 +205,14 @@ public class vc_Level0TutorialController : MonoBehaviour
         }
 
         if (vc_PlayerInventory.Instance != null)
+        {
+            vc_PlayerInventory.Instance.OnSkillAdded -= HandleSkillPickedUp;
             vc_PlayerInventory.Instance.OnSkillAdded += HandleSkillPickedUp;
+        }
         else
+        {
             Debug.LogWarning("[vc_Level0TutorialController] vc_PlayerInventory.Instance is not available.");
+        }
 
         listenersBound = true;
     }
@@ -348,6 +353,7 @@ public class vc_Level0TutorialController : MonoBehaviour
         panelDialog ??= FindSceneObject("Panel_Dialog");
 
         btnTutorialBackToMenu ??= FindComponentInScene<Button>("BTN_TutorialBackToMenu");
+        btnInventory ??= FindComponentInScene<Button>("Btn_OpenInventory");
         questObjectiveText ??= FindComponentInScene<TMP_Text>("QuestObjective");
         catQuest ??= FindComponentInScene<vc_CatQuest>("CatQuest") ?? FindFirstObjectByType<vc_CatQuest>();
         skillBuild ??= FindComponentInScene<vc_SkillSlot>("Skill0");

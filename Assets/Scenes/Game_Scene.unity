@@ -1039,8 +1039,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294901502
-  m_fontColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    rgba: 4281409820
+  m_fontColor: {r: 0.10980393, g: 0.12941177, b: 0.19215688, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1723,8 +1723,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294901502
-  m_fontColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    rgba: 4281409820
+  m_fontColor: {r: 0.10980393, g: 0.12941177, b: 0.19215688, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2446,8 +2446,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294901502
-  m_fontColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    rgba: 4281409820
+  m_fontColor: {r: 0.10980393, g: 0.12941177, b: 0.19215688, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2694,8 +2694,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294901502
-  m_fontColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    rgba: 4281409820
+  m_fontColor: {r: 0.10980393, g: 0.12941177, b: 0.19215688, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3372,7 +3372,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &583059904
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4911,7 +4911,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -48951355
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 50
   m_MaskInteraction: 0
   m_Sprite: {fileID: 0}
@@ -6180,7 +6180,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1042833489
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6302,6 +6302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillAwardPopup
   panelRoot: {fileID: 1042833488}
+  questObjectivesPanel: {fileID: 0}
   titleText: {fileID: 1414223221}
   cardButtons:
   - {fileID: 21450182}
@@ -6324,9 +6325,9 @@ MonoBehaviour:
   cardDefaultColor: {r: 1, g: 1, b: 1, a: 1}
   cardSelectedColor: {r: 1, g: 0.85, b: 0.2, a: 1}
   cardBackgrounds:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 447427275}
+  - {fileID: 1511305358}
+  - {fileID: 1189468127}
 --- !u!1 &1044715978
 GameObject:
   m_ObjectHideFlags: 0
@@ -7876,8 +7877,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294901502
-  m_fontColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    rgba: 4281409820
+  m_fontColor: {r: 0.10980393, g: 0.12941177, b: 0.19215688, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -9061,8 +9062,8 @@ RectTransform:
   - {fileID: 1584273324}
   - {fileID: 1606788257}
   - {fileID: 420233663}
-  - {fileID: 1042833489}
   - {fileID: 1718540827}
+  - {fileID: 1042833489}
   - {fileID: 348253166}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10565,21 +10566,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_FloorInitializer
   floors:
   - sceneName: Level1_Scene
+    slot0Prefab: {fileID: 4199325092526589879, guid: d56f012db4824c1409e3532517a5ed46, type: 3}
     questPrefabs:
     - {fileID: 6441233813146342226, guid: 7abdace285e98624085ce342b2303c65, type: 3}
-    - {fileID: 3508368966515316259, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-    shuffle: 1
+    - {fileID: 1997946248186148176, guid: dc2e0f787ccf2914d9ecf7bde9ce5c79, type: 3}
+    shuffle: 0
   - sceneName: Level2_Scene
+    slot0Prefab: {fileID: 4199325092526589879, guid: d56f012db4824c1409e3532517a5ed46, type: 3}
     questPrefabs:
-    - {fileID: 0}
-    - {fileID: 0}
-    shuffle: 1
+    - {fileID: 7273213546831215558, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+    - {fileID: 2627421272833283810, guid: 6a8485fec68b7674d9d6b227d321b219, type: 3}
+    shuffle: 0
   - sceneName: Level3_Scene
+    slot0Prefab: {fileID: 4199325092526589879, guid: d56f012db4824c1409e3532517a5ed46, type: 3}
     questPrefabs:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    shuffle: 1
+    - {fileID: 3508368966515316259, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
+    - {fileID: 1852221908060043770, guid: a99b1ee8132c22d43974f2b73212819a, type: 3}
+    shuffle: 0
 --- !u!1 &1659083965
 GameObject:
   m_ObjectHideFlags: 0
@@ -10597,7 +10600,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1659083966
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12212,8 +12215,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294901502
-  m_fontColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
+    rgba: 4281409820
+  m_fontColor: {r: 0.10980393, g: 0.12941177, b: 0.19215688, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -12733,7 +12736,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2023314187
 RectTransform:
   m_ObjectHideFlags: 0

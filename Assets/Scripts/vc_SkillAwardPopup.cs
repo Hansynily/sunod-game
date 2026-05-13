@@ -18,6 +18,7 @@ public class vc_SkillAwardPopup : MonoBehaviour
 
     [Header("Panel Root")]
     [SerializeField] private GameObject panelRoot;
+    [SerializeField] private GameObject questObjectivesPanel;
 
     [Header("Title")]
     [SerializeField] private TMP_Text titleText;
@@ -86,6 +87,9 @@ public class vc_SkillAwardPopup : MonoBehaviour
         if (panelRoot != null)
             panelRoot.SetActive(true);
 
+        if (questObjectivesPanel != null)
+            questObjectivesPanel.SetActive(false);
+
         _playerController?.MoveAction.Disable();
     }
 
@@ -94,6 +98,9 @@ public class vc_SkillAwardPopup : MonoBehaviour
     {
         if (panelRoot != null)
             panelRoot.SetActive(false);
+
+        if (questObjectivesPanel != null)
+            questObjectivesPanel.SetActive(true);
 
         _onConfirm = null;
         _selectedSkill = null;
@@ -151,6 +158,9 @@ public class vc_SkillAwardPopup : MonoBehaviour
 
         if (panelRoot != null)
             panelRoot.SetActive(false);
+
+        if (questObjectivesPanel != null)
+            questObjectivesPanel.SetActive(true);
 
         _playerController?.MoveAction.Enable();
 

@@ -12,7 +12,8 @@ namespace SunodGame.Core
         public class FloorData
         {
             public string sceneName;
-            public GameObject[] questPrefabs;  // inserted into slots 1+, slot 0 is always left empty
+            public GameObject slot0Prefab;     // inserted into slot 0 (first room)
+            public GameObject[] questPrefabs;  // inserted into slots 1+, shuffled
             public bool shuffle = true;
         }
 
@@ -44,8 +45,14 @@ namespace SunodGame.Core
                 return;
             }
 
-            // Slot 0 is always left empty (starting/lobby area)
-            // Quest prefabs go into slots 1+
+            // Slot 0: load the dedicated first-room prefab if assigned
+            if (data.slot0Prefab != null)
+            {
+                GameObject room0 = Instantiate(data.slot0Prefab, slots[0].transform);
+                room0.transform.localPosition = Vector3.zero;
+            }
+
+            // Slots 1+: load quest prefabs
             if (data.questPrefabs == null || data.questPrefabs.Length == 0) return;
 
             GameObject[] pool = new GameObject[data.questPrefabs.Length];

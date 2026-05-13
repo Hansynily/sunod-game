@@ -15,6 +15,7 @@ public class vc_SkillPickup : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         if (skillData == null) return;
+        if (vc_PlayerInventory.Instance == null) return;
         if (vc_PlayerInventory.Instance.HasSkill(skillData)) return;
 
         if (vc_SkillPickupPopup.Instance == null)

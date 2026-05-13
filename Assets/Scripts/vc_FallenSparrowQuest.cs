@@ -72,13 +72,6 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
             }
         }
 
-        if (!charmDone)
-        {
-            healTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
         if (!vc_SkillManager.Instance.IsHoldingTag("heal") || birdAI == null || !birdAI.HasReachedPlayer())
         {
             healTimer = 0f;

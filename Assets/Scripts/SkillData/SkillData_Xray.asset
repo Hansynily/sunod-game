@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
   m_Name: SkillData_Xray
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: X-Ray
+  skillName: Xray
   riaSecLetter: I
   buttonLabel: X-Ray
   description: See through walls or objects to locate hidden items.

@@ -17,11 +17,12 @@ public class vc_PlayerInventory : MonoBehaviour
     {
         if (Instance != null)
         {
-            Destroy(this);
+            Destroy(gameObject);
             return;
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void AddSkill(vc_SkillData skillData)

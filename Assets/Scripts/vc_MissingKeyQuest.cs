@@ -58,7 +58,7 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
             "Quest",
             "Missing Key",
             "The front door is locked and the key is missing. Find a way inside.",
-            new[] { "Get past the locked front door", "Get inside" }
+            new[] { "Find the key or call for help", "Get through the door" }
         );
     }
 
