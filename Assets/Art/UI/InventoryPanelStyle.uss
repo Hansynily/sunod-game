@@ -1,0 +1,537 @@
+/* =================================================================
+   SUNOD — Skill Equip Screen
+   Dark slate base. Orange accent. Ice-blue selection.
+   Bevel borders simulate raised/recessed depth — no flat rectangles.
+   1280x720 landscape.
+   ================================================================= */
+
+/* ---------- BACKDROP ---------- */
+.overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.70);
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---------- OUTER FRAME (raised bevel) ---------- */
+/* light top-left / dark bottom-right = panel lifts off the screen */
+.panel-root {
+    width: 800px;
+    height: 520px;
+    background-color: rgb(38, 38, 50);
+    border-top-color: rgb(72, 72, 92);
+    border-left-color: rgb(72, 72, 92);
+    border-right-color: rgb(6, 6, 8);
+    border-bottom-color: rgb(6, 6, 8);
+    border-width: 4px;
+    padding: 4px;
+}
+
+/* ---------- INNER WELL (inset bevel) ---------- */
+/* dark top-left / light bottom-right = content area is recessed */
+.panel-inner {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: rgb(16, 16, 22);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(58, 58, 76);
+    border-bottom-color: rgb(58, 58, 76);
+    border-width: 2px;
+    padding: 8px;
+}
+
+/* ---------- TOP BAR ---------- */
+.topbar {
+    flex-direction: row;
+    align-items: center;
+    height: 50px;
+    background-color: rgb(20, 20, 28);
+    border-top-color: rgb(52, 52, 68);
+    border-left-color: rgb(52, 52, 68);
+    border-right-color: rgb(6, 6, 8);
+    border-bottom-color: rgb(6, 6, 8);
+    border-width: 2px;
+    padding: 0 10px;
+    margin-bottom: 7px;
+}
+
+.btn-back {
+    background-color: rgb(28, 28, 38);
+    border-top-color: rgb(52, 52, 68);
+    border-left-color: rgb(52, 52, 68);
+    border-right-color: rgb(6, 6, 8);
+    border-bottom-color: rgb(6, 6, 8);
+    border-width: 2px;
+    border-radius: 0;
+    padding: 8px 18px;
+    min-width: 90px;
+    transition-property: background-color;
+    transition-duration: 0.08s;
+}
+.btn-back:hover { background-color: rgb(38, 38, 52); }
+.btn-back:active {
+    background-color: rgb(20, 20, 28);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(52, 52, 68);
+    border-bottom-color: rgb(52, 52, 68);
+}
+
+.btn-back-label {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 12px;
+    color: rgb(200, 196, 185);
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+}
+
+.title-block {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-title {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 18px;
+    color: rgb(230, 110, 30);
+    -unity-text-align: middle-center;
+    letter-spacing: 6px;
+}
+.panel-sub {
+    -unity-font: url("../../TextMesh Pro/Fonts/DotGothic16-Regular.ttf");
+    font-size: 11px;
+    color: rgb(110, 108, 96);
+    -unity-text-align: middle-center;
+    margin-top: 1px;
+}
+
+/* cheat button uses orange border to signal it's a cheat/debug tool */
+.btn-cheat {
+    background-color: rgb(28, 18, 10);
+    border-top-color: rgb(130, 62, 16);
+    border-left-color: rgb(130, 62, 16);
+    border-right-color: rgb(60, 28, 6);
+    border-bottom-color: rgb(60, 28, 6);
+    border-width: 2px;
+    border-radius: 0;
+    padding: 8px 14px;
+    min-width: 110px;
+    transition-property: background-color;
+    transition-duration: 0.08s;
+}
+.btn-cheat:hover { background-color: rgb(44, 28, 14); }
+.btn-cheat:active {
+    background-color: rgb(20, 12, 6);
+    border-top-color: rgb(60, 28, 6);
+    border-left-color: rgb(60, 28, 6);
+    border-right-color: rgb(130, 62, 16);
+    border-bottom-color: rgb(130, 62, 16);
+}
+
+.btn-cheat-label {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 11px;
+    color: rgb(230, 110, 30);
+    -unity-text-align: middle-center;
+}
+
+/* ---------- BODY ---------- */
+.body {
+    flex-grow: 1;
+    flex-direction: row;
+    margin-bottom: 7px;
+}
+
+/* LEFT PANE */
+.left-pane {
+    width: 210px;
+    background-color: rgb(12, 12, 18);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(48, 48, 64);
+    border-bottom-color: rgb(48, 48, 64);
+    border-width: 2px;
+    margin-right: 7px;
+    flex-direction: column;
+}
+
+/* orange left-strip + left-aligned text — not the generic centered box */
+.pane-header {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 11px;
+    color: rgb(222, 220, 210);
+    background-color: rgb(22, 22, 30);
+    -unity-text-align: middle-left;
+    padding: 7px 10px;
+    letter-spacing: 3px;
+    border-left-color: rgb(230, 110, 30);
+    border-left-width: 3px;
+    border-bottom-color: rgb(6, 6, 8);
+    border-bottom-width: 2px;
+}
+
+.cards-scroll {
+    flex-grow: 1;
+    padding: 5px;
+}
+
+/* Skill row — inset bevel so it looks like a recessed button */
+.skill-row {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(18, 18, 26);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(44, 44, 58);
+    border-bottom-color: rgb(44, 44, 58);
+    border-width: 2px;
+    padding: 5px 7px;
+    margin-bottom: 4px;
+    height: 50px;
+    transition-property: background-color;
+    transition-duration: 0.08s;
+}
+.skill-row:hover {
+    background-color: rgb(26, 26, 36);
+}
+/* selected: ice-blue border, raised bevel flips */
+.skill-row.selected {
+    background-color: rgb(14, 30, 42);
+    border-top-color: rgb(20, 80, 115);
+    border-left-color: rgb(20, 80, 115);
+    border-right-color: rgb(55, 185, 235);
+    border-bottom-color: rgb(55, 185, 235);
+    border-width: 2px;
+}
+
+.row-icon-frame {
+    width: 40px;
+    height: 40px;
+    background-color: rgb(8, 8, 12);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(44, 44, 58);
+    border-bottom-color: rgb(44, 44, 58);
+    border-width: 2px;
+    margin-right: 8px;
+}
+.row-icon {
+    position: absolute;
+    top: 2px; left: 2px; right: 2px; bottom: 2px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.row-textblock {
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+}
+.row-name {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 11px;
+    color: rgb(222, 220, 210);
+    -unity-text-align: middle-left;
+    white-space: normal;
+}
+.row-meta {
+    -unity-font: url("../../TextMesh Pro/Fonts/DotGothic16-Regular.ttf");
+    font-size: 11px;
+    color: rgb(110, 108, 96);
+    -unity-text-align: middle-left;
+    margin-top: 2px;
+}
+
+.row-tag {
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+}
+.row-tag-letter {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 12px;
+    color: white;
+    -unity-text-align: middle-center;
+}
+
+/* RIASEC — kept vivid so they read fast */
+.riasec-r { background-color: rgb(200, 55, 40); }
+.riasec-i { background-color: rgb(45, 110, 200); }
+.riasec-a { background-color: rgb(155, 60, 200); }
+.riasec-s { background-color: rgb(45, 165, 60); }
+.riasec-e { background-color: rgb(205, 165, 30); }
+.riasec-c { background-color: rgb(35, 175, 175); }
+
+/* RIGHT PANE */
+.right-pane {
+    flex-grow: 1;
+    background-color: rgb(12, 12, 18);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(48, 48, 64);
+    border-bottom-color: rgb(48, 48, 64);
+    border-width: 2px;
+    padding: 14px 18px;
+    flex-direction: column;
+}
+
+.detail-empty {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+.detail-empty-glyph {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 64px;
+    color: rgb(32, 32, 44);
+}
+.detail-empty-title {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 15px;
+    color: rgb(60, 60, 80);
+    letter-spacing: 4px;
+    margin-top: 10px;
+}
+.detail-empty-sub {
+    -unity-font: url("../../TextMesh Pro/Fonts/DotGothic16-Regular.ttf");
+    font-size: 12px;
+    color: rgb(44, 44, 58);
+    margin-top: 5px;
+}
+
+.detail-filled {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.detail-header {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+/* icon frame: raised bevel — it pops out */
+.detail-icon-frame {
+    width: 80px;
+    height: 80px;
+    background-color: rgb(8, 8, 12);
+    border-top-color: rgb(52, 52, 68);
+    border-left-color: rgb(52, 52, 68);
+    border-right-color: rgb(6, 6, 8);
+    border-bottom-color: rgb(6, 6, 8);
+    border-width: 3px;
+    margin-right: 14px;
+}
+.detail-icon {
+    position: absolute;
+    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.detail-titlebox {
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 2px;
+}
+.detail-name {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 17px;
+    color: rgb(222, 220, 210);
+    letter-spacing: 2px;
+    -unity-text-align: middle-left;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.detail-meta {
+    flex-direction: row;
+    align-items: center;
+}
+
+.detail-tag {
+    flex-direction: row;
+    align-items: center;
+    padding: 3px 10px 3px 6px;
+    margin-right: 10px;
+}
+.detail-tag-letter {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 13px;
+    color: white;
+    margin-right: 5px;
+}
+.detail-tag-name {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 9px;
+    color: white;
+    letter-spacing: 1px;
+}
+
+/* level badge: inset bevel, cool blue-gray */
+.detail-level {
+    -unity-font: url("../../TextMesh Pro/Fonts/DotGothic16-Regular.ttf");
+    font-size: 12px;
+    color: rgb(55, 185, 235);
+    background-color: rgb(10, 26, 36);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(44, 100, 130);
+    border-bottom-color: rgb(44, 100, 130);
+    border-width: 2px;
+    padding: 3px 10px;
+}
+
+/* thin orange line — only used once as divider, so it's meaningful */
+.detail-divider {
+    height: 1px;
+    background-color: rgb(230, 110, 30);
+    margin-bottom: 10px;
+    margin-top: 0;
+    opacity: 0.4;
+}
+
+.detail-section-label {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 9px;
+    color: rgb(110, 108, 96);
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+    margin-top: 8px;
+}
+
+.detail-desc {
+    -unity-font: url("../../TextMesh Pro/Fonts/DotGothic16-Regular.ttf");
+    font-size: 13px;
+    color: rgb(200, 198, 188);
+    white-space: normal;
+    margin-bottom: 4px;
+    -unity-text-align: upper-left;
+}
+
+/* action block: left orange strip, inset bg */
+.detail-action {
+    -unity-font: url("../../TextMesh Pro/Fonts/DotGothic16-Regular.ttf");
+    font-size: 12px;
+    color: rgb(200, 198, 188);
+    background-color: rgb(20, 20, 28);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(230, 110, 30);
+    border-right-color: rgb(44, 44, 58);
+    border-bottom-color: rgb(44, 44, 58);
+    border-top-width: 2px;
+    border-left-width: 3px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    padding: 7px 10px;
+    white-space: normal;
+}
+
+.detail-spacer { flex-grow: 1; }
+
+.detail-hint {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 10px;
+    color: rgb(55, 185, 235);
+    -unity-text-align: middle-center;
+    letter-spacing: 3px;
+    padding-top: 8px;
+    border-top-color: rgb(22, 22, 32);
+    border-top-width: 2px;
+    opacity: 0.75;
+}
+
+/* ---------- EQUIPPED SECTION ---------- */
+/* raised bevel — this footer area lifts above the body */
+.equipped-section {
+    background-color: rgb(20, 20, 28);
+    border-top-color: rgb(52, 52, 68);
+    border-left-color: rgb(52, 52, 68);
+    border-right-color: rgb(6, 6, 8);
+    border-bottom-color: rgb(6, 6, 8);
+    border-width: 2px;
+    padding: 6px 12px 8px 12px;
+    align-items: center;
+}
+
+.equipped-title {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 10px;
+    color: rgb(80, 78, 68);
+    -unity-text-align: middle-center;
+    letter-spacing: 5px;
+    margin-bottom: 6px;
+}
+
+.slots-row {
+    flex-direction: row;
+    justify-content: center;
+}
+
+/* slot: inset bevel — slots are pressed INTO the footer */
+.slot-frame {
+    width: 68px;
+    height: 68px;
+    background-color: rgb(10, 10, 16);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(46, 46, 60);
+    border-bottom-color: rgb(46, 46, 60);
+    border-width: 2px;
+    border-radius: 0;
+    margin-left: 6px;
+    margin-right: 6px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    transition-property: background-color, border-top-color, border-left-color, border-right-color, border-bottom-color;
+    transition-duration: 0.08s;
+}
+/* hover: flips bevel — slot raises toward you */
+.slot-frame:hover {
+    background-color: rgb(20, 20, 30);
+    border-top-color: rgb(46, 46, 60);
+    border-left-color: rgb(46, 46, 60);
+    border-right-color: rgb(6, 6, 8);
+    border-bottom-color: rgb(6, 6, 8);
+}
+.slot-frame:active {
+    background-color: rgb(8, 8, 12);
+    border-top-color: rgb(6, 6, 8);
+    border-left-color: rgb(6, 6, 8);
+    border-right-color: rgb(46, 46, 60);
+    border-bottom-color: rgb(46, 46, 60);
+}
+/* ready: orange border = slot has a skill */
+.slot-frame.ready {
+    background-color: rgb(16, 12, 6);
+    border-top-color: rgb(100, 48, 12);
+    border-left-color: rgb(100, 48, 12);
+    border-right-color: rgb(230, 110, 30);
+    border-bottom-color: rgb(230, 110, 30);
+    border-width: 2px;
+}
+
+.slot-frame-icon {
+    position: absolute;
+    top: 4px; left: 4px; right: 4px; bottom: 20px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+.slot-empty-label {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    font-size: 8px;
+    color: rgb(40, 40, 54);
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+}
+.slot-index {
+    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 9px;
+    color: rgb(60, 58, 50);
+}

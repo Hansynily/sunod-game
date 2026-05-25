@@ -1,0 +1,153 @@
+/* Root */
+.root-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    background-image: url("../Background/PlainA.png");
+    -unity-background-scale-mode: scale-and-crop;
+    align-items: center;
+}
+
+/* Center */
+.center-wrapper {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Panel */
+.result-panel {
+    width: 85%;
+    max-width: 700px;
+    background-color: rgba(22, 32, 58, 0.95);
+    border-color: rgb(201, 151, 59);
+    border-width: 3px;
+    border-radius: 16px;
+    padding: 0 44px 32px 44px;
+    align-items: stretch;
+}
+
+/* Header Badge */
+.panel-header {
+    align-items: center;
+    background-color: rgb(22, 32, 58);
+    border-color: rgb(201, 151, 59);
+    border-width: 3px;
+    border-radius: 12px;
+    margin-top: -22px;
+    margin-left: 100px;
+    margin-right: 100px;
+    padding: 12px 24px;
+    margin-bottom: 24px;
+}
+.header-text {
+    font-size: 24px;
+    color: rgb(245, 210, 120);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* Career Section */
+.career-section {
+    align-items: center;
+    margin-bottom: 12px;
+}
+.recommended-label {
+    font-size: 16px;
+    color: rgb(180, 195, 220);
+    -unity-text-align: middle-center;
+    margin-bottom: 6px;
+}
+.career-name {
+    font-size: 56px;
+    color: rgb(245, 168, 35);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 8px;
+}
+.riasec-note {
+    font-size: 15px;
+    color: rgb(200, 210, 230);
+    -unity-text-align: middle-center;
+}
+
+/* Divider */
+.divider {
+    height: 2px;
+    background-color: rgb(201, 151, 59);
+    opacity: 0.4;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+/* Stats */
+.stats-section {
+    padding: 0 8px;
+}
+.stat-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 16px;
+    min-height: 40px;
+}
+.stat-label {
+    font-size: 18px;
+    color: rgb(200, 215, 235);
+    width: 200px;
+}
+.stat-value {
+    flex-grow: 1;
+    font-size: 18px;
+    color: white;
+    -unity-font-style: bold;
+}
+.stat-gold {
+    color: rgb(245, 200, 60);
+}
+
+/* Action Buttons */
+.action-row {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 36px;
+    width: 100%;
+}
+.action-btn {
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    min-width: 200px;
+    border-color: rgb(201, 151, 59);
+    border-width: 2px;
+    border-radius: 12px;
+    padding: 0 32px;
+    margin-left: 12px;
+    margin-right: 12px;
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+.action-btn-label {
+    font-size: 22px;
+    color: white;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.btn-play-again {
+    background-color: rgb(55, 115, 42);
+}
+.btn-play-again:hover {
+    background-color: rgb(68, 142, 52);
+}
+
+.btn-main-menu {
+    background-color: rgb(38, 54, 88);
+}
+.btn-main-menu:hover {
+    background-color: rgb(52, 72, 112);
+}

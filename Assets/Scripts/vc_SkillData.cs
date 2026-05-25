@@ -14,6 +14,8 @@ public class vc_SkillData : ScriptableObject
 
     public string[] capabilityTags;
 
+    public int level = 1;
+
     public bool HasTag(string tag)
     {
         if (capabilityTags == null || string.IsNullOrEmpty(tag)) return false;

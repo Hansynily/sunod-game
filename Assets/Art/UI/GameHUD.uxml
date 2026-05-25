@@ -1,0 +1,66 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="GameHUDStyle.uss" />
+
+    <ui:VisualElement name="hud-root" class="hud-root" picking-mode="Ignore">
+        <ui:VisualElement class="hud-bar" picking-mode="Ignore">
+
+            <!-- Mini inventory preview: tap to open full inventory -->
+            <ui:Button name="btn-open-inventory" class="inventory-preview-btn">
+                <ui:VisualElement class="preview-grid" picking-mode="Ignore">
+                    <ui:VisualElement name="preview-0" class="preview-circle" picking-mode="Ignore" />
+                    <ui:VisualElement name="preview-1" class="preview-circle" picking-mode="Ignore" />
+                    <ui:VisualElement name="preview-2" class="preview-circle" picking-mode="Ignore" />
+                    <ui:VisualElement name="preview-3" class="preview-circle" picking-mode="Ignore" />
+                    <ui:VisualElement name="preview-4" class="preview-circle" picking-mode="Ignore" />
+                    <ui:VisualElement name="preview-5" class="preview-circle" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:Button>
+
+            <!-- 4 skill slot diamonds -->
+            <ui:VisualElement class="skill-slots-row" picking-mode="Ignore">
+
+                <ui:VisualElement class="slot-wrapper" picking-mode="Ignore">
+                    <ui:Label name="slot-level-0" text="" class="slot-level" picking-mode="Ignore" />
+                    <ui:Button name="slot-btn-0" class="skill-slot-btn">
+                        <ui:VisualElement class="slot-inner" picking-mode="Ignore">
+                            <ui:VisualElement name="slot-icon-0" class="slot-icon" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </ui:Button>
+                    <ui:Label name="slot-name-0" text="" class="slot-name" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="slot-wrapper" picking-mode="Ignore">
+                    <ui:Label name="slot-level-1" text="" class="slot-level" picking-mode="Ignore" />
+                    <ui:Button name="slot-btn-1" class="skill-slot-btn">
+                        <ui:VisualElement class="slot-inner" picking-mode="Ignore">
+                            <ui:VisualElement name="slot-icon-1" class="slot-icon" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </ui:Button>
+                    <ui:Label name="slot-name-1" text="" class="slot-name" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="slot-wrapper" picking-mode="Ignore">
+                    <ui:Label name="slot-level-2" text="" class="slot-level" picking-mode="Ignore" />
+                    <ui:Button name="slot-btn-2" class="skill-slot-btn">
+                        <ui:VisualElement class="slot-inner" picking-mode="Ignore">
+                            <ui:VisualElement name="slot-icon-2" class="slot-icon" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </ui:Button>
+                    <ui:Label name="slot-name-2" text="" class="slot-name" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="slot-wrapper" picking-mode="Ignore">
+                    <ui:Label name="slot-level-3" text="" class="slot-level" picking-mode="Ignore" />
+                    <ui:Button name="slot-btn-3" class="skill-slot-btn">
+                        <ui:VisualElement class="slot-inner" picking-mode="Ignore">
+                            <ui:VisualElement name="slot-icon-3" class="slot-icon" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </ui:Button>
+                    <ui:Label name="slot-name-3" text="" class="slot-name" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

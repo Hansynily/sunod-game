@@ -1,0 +1,59 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="EndSceneStyle.uss" />
+    <ui:VisualElement name="root" class="root-container">
+
+        <ui:VisualElement class="center-wrapper">
+            <ui:VisualElement class="result-panel">
+
+                <ui:VisualElement class="panel-header">
+                    <ui:Label text="Career Result" class="header-text" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="career-section">
+                    <ui:Label text="Recommended Career" class="recommended-label" />
+                    <ui:Label name="lbl-career-name" text="..." class="career-name" />
+                    <ui:Label text="Based on your RIASEC profile." class="riasec-note" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+                <ui:VisualElement class="stats-section">
+
+                    <ui:VisualElement class="stat-row">
+                        <ui:Label text="Holland Code:" class="stat-label" />
+                        <ui:Label name="lbl-holland-code" text="---" class="stat-value stat-gold" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="stat-row">
+                        <ui:Label text="Top Traits:" class="stat-label" />
+                        <ui:Label name="lbl-top-traits" text="---" class="stat-value" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="stat-row">
+                        <ui:Label text="Quests Cleared:" class="stat-label" />
+                        <ui:Label name="lbl-quests" text="--/--" class="stat-value stat-gold" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="stat-row">
+                        <ui:Label text="Stars Earned:" class="stat-label" />
+                        <ui:Label name="lbl-stars" text="--" class="stat-value stat-gold" />
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="action-row">
+            <ui:Button name="btn-play-again" class="action-btn btn-play-again">
+                <ui:Label text="Play Again" class="action-btn-label" />
+            </ui:Button>
+            <ui:Button name="btn-main-menu" class="action-btn btn-main-menu">
+                <ui:Label text="Back to Menu" class="action-btn-label" />
+            </ui:Button>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

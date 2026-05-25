@@ -87,6 +87,9 @@ public class vc_SkillSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         SkillPressed?.Invoke(this);
     }
 
+    public void SetHeld(bool held) => _isHeld = held;
+    public void Activate() => NotifySkillPressed();
+
     public void OnPointerDown(PointerEventData eventData)
     {
         _isHeld = true;

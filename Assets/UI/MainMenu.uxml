@@ -1,0 +1,50 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="root" class="root-container">
+
+        <!-- Logout button — top right -->
+        <ui:Button name="btn-logout" class="btn-logout">
+            <ui:Label text="&#x21A6;" class="btn-logout-icon" />
+            <ui:Label text="Logout" class="btn-logout-label" />
+        </ui:Button>
+
+        <!-- Center menu panel -->
+        <ui:VisualElement class="center-wrapper">
+            <ui:VisualElement class="menu-panel">
+
+                <ui:VisualElement class="title-area">
+                    <ui:Label text="&#x1F33F; SUNOD &#x1F33F;" class="title-text" />
+                    <ui:Label text="&#x2756; Embark. Explore. Discover. &#x2756;" class="subtitle-text" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+                <ui:Button name="btn-tutorial" class="menu-btn btn-tutorial">
+                    <ui:Label text="&#x1F4D6;" class="btn-icon" />
+                    <ui:Label text="Tutorial" class="btn-label" />
+                    <ui:Label text="&#x2756;" class="btn-sparkle" />
+                </ui:Button>
+
+                <ui:Button name="btn-play" class="menu-btn btn-play">
+                    <ui:Label text="&#x2694;" class="btn-icon" />
+                    <ui:Label text="Play" class="btn-label" />
+                    <ui:Label text="&#x2756;" class="btn-sparkle" />
+                </ui:Button>
+
+                <ui:Button name="btn-settings" class="menu-btn btn-settings">
+                    <ui:Label text="&#x2699;" class="btn-icon" />
+                    <ui:Label text="Settings" class="btn-label" />
+                    <ui:Label text="&#x2756;" class="btn-sparkle" />
+                </ui:Button>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Version pill — bottom center -->
+        <ui:VisualElement class="bottom-bar">
+            <ui:VisualElement class="version-pill">
+                <ui:Label text="&#x2600; v1.0.0" class="version-text" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

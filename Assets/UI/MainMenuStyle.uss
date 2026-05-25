@@ -1,0 +1,181 @@
+/* ============================
+   Root Container
+   ============================ */
+.root-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+/* ============================
+   Logout Button (top-right)
+   ============================ */
+.btn-logout {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(22, 32, 58);
+    border-color: rgb(201, 151, 59);
+    border-width: 2px;
+    border-radius: 8px;
+    padding: 8px 18px;
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+.btn-logout:hover {
+    background-color: rgb(45, 62, 100);
+}
+.btn-logout-icon {
+    font-size: 18px;
+    color: rgb(220, 220, 220);
+    margin-right: 8px;
+    -unity-text-align: middle-center;
+}
+.btn-logout-label {
+    font-size: 15px;
+    color: white;
+    -unity-font-style: bold;
+}
+
+/* ============================
+   Center Wrapper
+   ============================ */
+.center-wrapper {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================
+   Menu Panel
+   ============================ */
+.menu-panel {
+    width: 480px;
+    background-color: rgb(22, 32, 58);
+    border-color: rgb(201, 151, 59);
+    border-width: 3px;
+    border-radius: 14px;
+    padding: 32px 40px;
+    align-items: stretch;
+}
+
+/* ============================
+   Title Area
+   ============================ */
+.title-area {
+    align-items: center;
+    margin-bottom: 14px;
+}
+.title-text {
+    font-size: 50px;
+    color: rgb(245, 168, 35);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 8px;
+}
+.subtitle-text {
+    font-size: 13px;
+    color: rgb(168, 184, 210);
+    -unity-text-align: middle-center;
+}
+
+/* ============================
+   Divider
+   ============================ */
+.divider {
+    height: 1px;
+    background-color: rgb(201, 151, 59);
+    opacity: 0.45;
+    margin-top: 10px;
+    margin-bottom: 22px;
+}
+
+/* ============================
+   Menu Buttons — Shared
+   ============================ */
+.menu-btn {
+    flex-direction: row;
+    align-items: center;
+    height: 64px;
+    border-color: rgb(201, 151, 59);
+    border-width: 2px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    padding: 0 18px;
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+.btn-icon {
+    font-size: 24px;
+    color: white;
+    width: 36px;
+    -unity-text-align: middle-center;
+}
+.btn-label {
+    flex-grow: 1;
+    font-size: 22px;
+    color: white;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+.btn-sparkle {
+    font-size: 16px;
+    color: rgb(245, 212, 90);
+    width: 24px;
+    -unity-text-align: middle-center;
+}
+
+/* Tutorial */
+.btn-tutorial {
+    background-color: rgb(38, 54, 88);
+}
+.btn-tutorial:hover {
+    background-color: rgb(52, 72, 112);
+}
+
+/* Play */
+.btn-play {
+    background-color: rgb(55, 115, 42);
+}
+.btn-play:hover {
+    background-color: rgb(68, 142, 52);
+}
+
+/* Settings */
+.btn-settings {
+    background-color: rgb(38, 54, 88);
+    margin-bottom: 0;
+}
+.btn-settings:hover {
+    background-color: rgb(52, 72, 112);
+}
+
+/* ============================
+   Bottom Bar
+   ============================ */
+.bottom-bar {
+    align-items: center;
+    padding-bottom: 24px;
+}
+
+/* ============================
+   Version Pill
+   ============================ */
+.version-pill {
+    background-color: rgb(22, 32, 58);
+    border-color: rgb(201, 151, 59);
+    border-width: 1px;
+    border-radius: 20px;
+    padding: 6px 22px;
+}
+.version-text {
+    font-size: 13px;
+    color: rgb(190, 205, 225);
+    -unity-text-align: middle-center;
+}

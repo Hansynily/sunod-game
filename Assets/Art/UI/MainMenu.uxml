@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="MainMenuStyle.uss" />
+    <ui:VisualElement name="root" class="root-container">
+
+        <ui:Button name="btn-logout" class="btn-logout">
+            <ui:Label text="Logout" class="btn-logout-label" />
+        </ui:Button>
+
+        <ui:VisualElement class="center-wrapper">
+            <ui:VisualElement class="menu-panel">
+
+                <ui:VisualElement class="title-area">
+                    <ui:Label text="SUNOD" class="title-text" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+                <ui:Button name="btn-tutorial" class="menu-btn btn-tutorial">
+                    <ui:Label text="Tutorial" class="btn-label" />
+                </ui:Button>
+
+                <ui:Button name="btn-play" class="menu-btn btn-play">
+                    <ui:Label text="Play" class="btn-label" />
+                </ui:Button>
+
+                <ui:Button name="btn-settings" class="menu-btn btn-settings">
+                    <ui:Label text="Settings" class="btn-label" />
+                </ui:Button>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
