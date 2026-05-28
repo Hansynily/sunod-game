@@ -158,6 +158,13 @@
 }
 
 /* ============================
+   Placeholder Text
+   ============================ */
+.is-placeholder .unity-base-field__input {
+    color: rgba(160, 160, 160, 0.55);
+}
+
+/* ============================
    Error / Loading Labels
    ============================ */
 .error-label {

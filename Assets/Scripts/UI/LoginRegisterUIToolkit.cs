@@ -96,9 +96,13 @@ namespace SunodGame.UI
             _btnPresetCustom  = root.Q<Button>("btn-preset-custom");
             _btnDevBackend    = root.Q<Button>("btn-dev-backend");
 
-            // Password masking
-            if (_inputPassword != null)    _inputPassword.isPasswordField    = true;
-            if (_inputRegPassword != null) _inputRegPassword.isPasswordField = true;
+            // Placeholder + password masking
+            SetupPlaceholder(_inputUsername,    "Username");
+            SetupPlaceholder(_inputPassword,    "Password",          isPassword: true);
+            SetupPlaceholder(_inputRegName,     "Full name...");
+            SetupPlaceholder(_inputRegUsername, "Choose username...");
+            SetupPlaceholder(_inputRegEmail,    "Choose email...");
+            SetupPlaceholder(_inputRegPassword, "Choose password...", isPassword: true);
 
             PopulateDropdowns();
 
@@ -166,8 +170,8 @@ namespace SunodGame.UI
                 return;
             }
 
-            string username = _inputUsername?.value ?? string.Empty;
-            string password = _inputPassword?.value ?? string.Empty;
+            string username = GetFieldValue(_inputUsername);
+            string password = GetFieldValue(_inputPassword);
 
             SetLoading(true);
             AuthManager.Instance.Login(
@@ -216,10 +220,10 @@ namespace SunodGame.UI
                 return;
             }
 
-            string name      = _inputRegName?.value?.Trim()     ?? string.Empty;
-            string username  = _inputRegUsername?.value?.Trim() ?? string.Empty;
-            string email     = _inputRegEmail?.value?.Trim()    ?? string.Empty;
-            string password  = _inputRegPassword?.value?.Trim() ?? string.Empty;
+            string name      = GetFieldValue(_inputRegName).Trim();
+            string username  = GetFieldValue(_inputRegUsername).Trim();
+            string email     = GetFieldValue(_inputRegEmail).Trim();
+            string password  = GetFieldValue(_inputRegPassword).Trim();
             string birthdate = GetBirthdateString();
             string gender    = NormalizeGender();
 
@@ -492,6 +496,51 @@ namespace SunodGame.UI
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out _);
+        }
+
+        // ============================
+        // Placeholder Helpers
+        // ============================
+
+        private static void SetupPlaceholder(TextField field, string placeholder, bool isPassword = false)
+        {
+            if (field == null) return;
+
+            // Treat empty or matching-placeholder value as placeholder state
+            bool showPlaceholder = string.IsNullOrEmpty(field.value) || field.value == placeholder;
+            if (showPlaceholder)
+            {
+                field.value = placeholder;
+                field.AddToClassList("is-placeholder");
+                field.isPasswordField = false;
+            }
+            else if (isPassword)
+            {
+                field.isPasswordField = true;
+            }
+
+            field.RegisterCallback<FocusInEvent>(_ =>
+            {
+                if (!field.ClassListContains("is-placeholder")) return;
+                field.value = string.Empty;
+                field.RemoveFromClassList("is-placeholder");
+                if (isPassword) field.isPasswordField = true;
+            });
+
+            field.RegisterCallback<FocusOutEvent>(_ =>
+            {
+                if (!string.IsNullOrEmpty(field.value)) return;
+                field.value = placeholder;
+                field.AddToClassList("is-placeholder");
+                if (isPassword) field.isPasswordField = false;
+            });
+        }
+
+        // Returns empty string if field is in placeholder state
+        private static string GetFieldValue(TextField field)
+        {
+            if (field == null) return string.Empty;
+            return field.ClassListContains("is-placeholder") ? string.Empty : field.value;
         }
     }
 }

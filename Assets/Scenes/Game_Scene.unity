@@ -7282,7 +7282,7 @@ GameObject:
   - component: {fileID: 1151316974}
   - component: {fileID: 1151316973}
   m_Layer: 0
-  m_Name: BTN_Pause
+  m_Name: BTN_Pause_old
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8294,7 +8294,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1290719437
 Transform:
   m_ObjectHideFlags: 0
@@ -13262,6 +13262,7 @@ MonoBehaviour:
   btnPauseExitYes: {fileID: 72347632}
   btnPauseExitNo: {fileID: 553727691}
   allowEscapeKey: 1
+  hidePauseButton: 1
 --- !u!114 &2100000002
 MonoBehaviour:
   m_ObjectHideFlags: 0

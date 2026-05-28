@@ -19,12 +19,16 @@ public class vc_PauseMenuController : MonoBehaviour
     [SerializeField] private Button btnPauseExitYes;
     [SerializeField] private Button btnPauseExitNo;
     [SerializeField] private bool allowEscapeKey = true;
+    [SerializeField] private bool hidePauseButton = false;
 
     private bool _listenersBound;
     private bool _pauseOpen;
 
     private void Awake()
     {
+        if (hidePauseButton && btnPause != null)
+            btnPause.gameObject.SetActive(false);
+
         if (!IsSupportedScene(SceneManager.GetActiveScene()))
         {
             enabled = false;
