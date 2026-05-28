@@ -506,11 +506,10 @@ namespace SunodGame.UI
         {
             if (field == null) return;
 
-            // Treat empty or matching-placeholder value as placeholder state
             bool showPlaceholder = string.IsNullOrEmpty(field.value) || field.value == placeholder;
             if (showPlaceholder)
             {
-                field.value = placeholder;
+                field.SetValueWithoutNotify(placeholder);
                 field.AddToClassList("is-placeholder");
                 field.isPasswordField = false;
             }
@@ -519,18 +518,20 @@ namespace SunodGame.UI
                 field.isPasswordField = true;
             }
 
-            field.RegisterCallback<FocusInEvent>(_ =>
+            // PointerDownEvent with TrickleDown fires the instant the user taps,
+            // before the inner text element handles focus — more reliable than FocusInEvent.
+            field.RegisterCallback<PointerDownEvent>(_ =>
             {
                 if (!field.ClassListContains("is-placeholder")) return;
-                field.value = string.Empty;
+                field.SetValueWithoutNotify(string.Empty);
                 field.RemoveFromClassList("is-placeholder");
                 if (isPassword) field.isPasswordField = true;
-            });
+            }, TrickleDown.TrickleDown);
 
             field.RegisterCallback<FocusOutEvent>(_ =>
             {
                 if (!string.IsNullOrEmpty(field.value)) return;
-                field.value = placeholder;
+                field.SetValueWithoutNotify(placeholder);
                 field.AddToClassList("is-placeholder");
                 if (isPassword) field.isPasswordField = false;
             });

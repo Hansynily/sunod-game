@@ -9,11 +9,11 @@
             <ui:VisualElement class="card">
                 <ui:VisualElement class="input-row">
                     <ui:Label text="👤" class="input-icon"/>
-                    <ui:TextField name="input-username" label="" placeholder-text="Username" class="input-field"/>
+                    <ui:TextField name="input-username" label="" class="input-field"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="input-row">
                     <ui:Label text="🔒" class="input-icon"/>
-                    <ui:TextField name="input-password" label="" placeholder-text="Password" class="input-field"/>
+                    <ui:TextField name="input-password" label="" class="input-field"/>
                 </ui:VisualElement>
                 <ui:Label name="lbl-error-login" class="error-label hidden"/>
                 <ui:Label name="lbl-loading" text="Loading..." class="loading-label hidden"/>
@@ -32,10 +32,15 @@
             </ui:VisualElement>
             <ui:VisualElement class="card card-wide">
                 <ui:VisualElement class="form-row">
-                    <ui:TextField name="input-reg-name" label="" placeholder-text="Full name..." class="input-field"/>
-                    <ui:TextField name="input-reg-username" label="" placeholder-text="Choose username..." class="input-field"/>
+                    <ui:TextField name="input-reg-name" label="" class="input-field"/>
+                    <ui:TextField name="input-reg-username" label="" class="input-field"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="form-row">
+                    <ui:TextField name="input-reg-email" label="" class="input-field"/>
+                    <ui:TextField name="input-reg-password" label="" class="input-field"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="form-row">
+                    <ui:DropdownField name="dropdown-gender" label="" class="input-field"/>
                     <ui:VisualElement name="date-picker" class="date-picker">
                         <ui:Label text="Birthdate" class="date-picker-label"/>
                         <ui:VisualElement class="date-picker-dropdowns">
@@ -44,11 +49,6 @@
                             <ui:DropdownField name="dp-year" label="" class="dp-segment dp-year"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:TextField name="input-reg-email" label="" placeholder-text="Choose email..." class="input-field"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="form-row">
-                    <ui:DropdownField name="dropdown-gender" label="" class="input-field"/>
-                    <ui:TextField name="input-reg-password" label="" placeholder-text="Choose password..." class="input-field"/>
                 </ui:VisualElement>
                 <ui:Label name="lbl-error-register" class="error-label hidden"/>
                 <ui:VisualElement class="form-row form-btn-row">
@@ -81,7 +81,7 @@
                 </ui:VisualElement>
                 <ui:Label text="Backend URL" class="backend-section-label"/>
                 <ui:VisualElement class="backend-url-row">
-                    <ui:TextField name="input-backend-url" label="" placeholder-text="your-railway-url or http://IP:PORT" class="input-field input-url"/>
+                    <ui:TextField name="input-backend-url" label="" class="input-field input-url"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="backend-footer-row">
                     <ui:Button name="btn-backend-cancel" class="btn-secondary btn-half">
@@ -91,7 +91,7 @@
                         <ui:Label text="Save" class="btn-primary-label"/>
                     </ui:Button>
                 </ui:VisualElement>
-                <ui:Label text="Railway is the default. Use custom IP if Railway doesn’t connect." class="backend-help"/>
+                <ui:Label text="Railway is the default. Use custom IP if Railway doesn't connect." class="backend-help"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:Button name="btn-dev-backend" class="btn-dev hidden">

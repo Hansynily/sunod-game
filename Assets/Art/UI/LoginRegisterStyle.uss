@@ -31,38 +31,38 @@
    ============================ */
 .brand-area {
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 .brand-title {
-    font-size: 84px;
+    font-size: 126px;
     color: rgb(255, 255, 255);
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: middle-center;
-    letter-spacing: 6px;
+    letter-spacing: 9px;
 }
 .brand-divider {
-    font-size: 20px;
+    font-size: 30px;
     color: rgb(201, 151, 59);
     -unity-text-align: middle-center;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 /* ============================
    Card (login)
    ============================ */
 .card {
-    width: 560px;
+    width: 840px;
     background-color: rgb(14, 20, 42);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 14px;
-    padding: 40px 48px;
+    border-width: 3px;
+    border-radius: 21px;
+    padding: 60px 72px;
     align-items: stretch;
 }
 
 /* Card wide (register) */
 .card-wide {
-    width: 860px;
+    width: 1290px;
 }
 
 /* ============================
@@ -73,18 +73,18 @@
     align-items: center;
     background-color: rgb(6, 10, 24);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    margin-bottom: 14px;
-    padding: 4px 12px;
-    height: 56px;
+    border-width: 3px;
+    border-radius: 12px;
+    margin-bottom: 21px;
+    padding: 6px 18px;
+    height: 84px;
 }
 .input-icon {
-    font-size: 22px;
+    font-size: 33px;
     color: rgb(201, 151, 59);
-    width: 36px;
+    width: 54px;
     -unity-text-align: middle-center;
-    margin-right: 8px;
+    margin-right: 12px;
 }
 
 /* ============================
@@ -103,12 +103,12 @@
 .input-field .unity-base-field__input {
     background-color: rgb(6, 10, 24);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 0 14px;
+    border-width: 3px;
+    border-radius: 12px;
+    padding: 0 21px;
     color: white;
-    font-size: 17px;
-    height: 50px;
+    font-size: 26px;
+    height: 75px;
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
 }
 .input-field:focus .unity-base-field__input {
@@ -120,8 +120,8 @@
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     border-radius: 0;
-    font-size: 18px;
-    height: 44px;
+    font-size: 27px;
+    height: 66px;
     color: white;
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
 }
@@ -130,12 +130,12 @@
 .form-row .input-field .unity-base-field__input {
     background-color: rgb(6, 10, 24);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 0 14px;
+    border-width: 3px;
+    border-radius: 12px;
+    padding: 0 21px;
     color: white;
-    font-size: 16px;
-    height: 58px;
+    font-size: 24px;
+    height: 87px;
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
 }
 
@@ -143,24 +143,26 @@
 .input-field .unity-dropdown-field__input {
     background-color: rgb(6, 10, 24);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 0 12px;
+    border-width: 3px;
+    border-radius: 12px;
+    padding: 0 18px;
     color: rgb(180, 180, 180);
-    font-size: 16px;
-    height: 50px;
+    font-size: 24px;
+    height: 75px;
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
 }
 
 /* Dropdown inside form-row matches text field height */
 .form-row .input-field .unity-dropdown-field__input {
-    height: 58px;
+    height: 87px;
 }
 
 /* ============================
    Placeholder Text
    ============================ */
-.is-placeholder .unity-base-field__input {
+.input-field.is-placeholder .unity-base-field__input,
+.input-row .is-placeholder .unity-base-field__input,
+.form-row .is-placeholder .unity-base-field__input {
     color: rgba(160, 160, 160, 0.55);
 }
 
@@ -169,29 +171,29 @@
    ============================ */
 .error-label {
     color: rgb(255, 100, 100);
-    font-size: 14px;
+    font-size: 21px;
     -unity-text-align: middle-center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     white-space: normal;
 }
 .loading-label {
     color: rgb(201, 151, 59);
-    font-size: 15px;
+    font-size: 22px;
     -unity-text-align: middle-center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 /* ============================
    Primary Button (gold)
    ============================ */
 .btn-primary {
-    height: 64px;
+    height: 96px;
     background-color: rgb(230, 170, 30);
     border-color: rgb(180, 120, 10);
-    border-width: 2px;
-    border-radius: 10px;
-    margin-top: 8px;
-    margin-bottom: 12px;
+    border-width: 3px;
+    border-radius: 15px;
+    margin-top: 12px;
+    margin-bottom: 18px;
     align-items: center;
     justify-content: center;
     transition-property: background-color;
@@ -201,7 +203,7 @@
     background-color: rgb(255, 195, 50);
 }
 .btn-primary-label {
-    font-size: 22px;
+    font-size: 33px;
     color: rgb(20, 15, 5);
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: middle-center;
@@ -211,11 +213,11 @@
    Secondary Button (dark + gold border)
    ============================ */
 .btn-secondary {
-    height: 52px;
+    height: 78px;
     background-color: rgb(20, 28, 52);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 10px;
+    border-width: 3px;
+    border-radius: 15px;
     align-items: center;
     justify-content: center;
     transition-property: background-color;
@@ -225,7 +227,7 @@
     background-color: rgb(35, 48, 80);
 }
 .btn-secondary-label {
-    font-size: 16px;
+    font-size: 24px;
     color: rgb(201, 151, 59);
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: middle-center;
@@ -244,65 +246,62 @@
    ============================ */
 .form-row {
     flex-direction: row;
-    align-items: center;
-    margin-bottom: 14px;
+    align-items: flex-end;
+    margin-bottom: 21px;
 }
 .form-row .input-field {
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: 0;
-    margin-left: 7px;
-    margin-right: 7px;
-    height: 58px;
+    margin-left: 10px;
+    margin-right: 10px;
+    height: 87px;
 }
 .form-row .date-picker {
-    margin-left: 7px;
-    margin-right: 7px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .form-btn-row {
-    margin-top: 8px;
+    margin-top: 12px;
 }
 .form-btn-row .btn-half {
-    margin-left: 7px;
-    margin-right: 7px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 /* ============================
    Date Picker
    ============================ */
+/* Birthdate group — transparent, fills its half-cell like a normal field */
 .date-picker {
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: 0;
-    flex-direction: row;
-    align-items: center;
-    background-color: rgb(6, 10, 24);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 0 10px;
-    height: 58px;
+    flex-direction: column;
+    align-items: stretch;
+    background-color: rgba(0, 0, 0, 0);
 }
 .date-picker-label {
-    font-size: 10px;
+    font-size: 18px;
     color: rgb(201, 151, 59);
     -unity-text-align: middle-left;
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    width: 58px;
-    flex-shrink: 0;
-    margin-right: 6px;
     white-space: nowrap;
+    margin-bottom: 8px;
+    margin-left: 4px;
 }
 .date-picker-dropdowns {
     flex-direction: row;
-    align-items: center;
-    flex-grow: 1;
+    align-items: stretch;
+    justify-content: space-between;
 }
+
+/* Each segment fills the row evenly (no bunching) */
 .dp-segment {
-    flex-grow: 0;
-    flex-shrink: 0;
-    width: 48px;
-    margin-right: 5px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    margin-right: 10px;
 }
 .dp-segment .unity-base-field__label {
     display: none;
@@ -310,25 +309,31 @@
     min-width: 0;
 }
 .dp-year {
-    flex-grow: 1;
-    flex-shrink: 1;
-    width: 0;
-    min-width: 80px;
+    flex-grow: 1.4;
     margin-right: 0;
 }
 
-.dp-segment .unity-dropdown-field__input {
-    background-color: rgb(12, 18, 40);
-    border-color: rgb(100, 80, 30);
-    border-width: 1px;
-    border-radius: 6px;
-    color: white;
-    font-size: 13px;
-    height: 40px;
-    padding: 0 6px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+/* Style each dropdown like a real input field */
+.dp-segment .unity-base-field__input,
+.dp-segment .unity-dropdown-field__input,
+.dp-segment .unity-popup-field__input {
+    background-color: rgb(6, 10, 24);
+    border-color: rgb(201, 151, 59);
+    border-width: 3px;
+    border-radius: 12px;
+    height: 87px;
+    padding: 0 12px;
     flex-grow: 1;
     min-width: 0;
+}
+
+/* The selected value text inside the dropdown */
+.dp-segment .unity-base-popup-field__text,
+.dp-segment .unity-text-element {
+    color: white;
+    font-size: 22px;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    -unity-text-align: middle-center;
 }
 
 /* ============================
@@ -342,35 +347,35 @@
     justify-content: center;
 }
 .card-backend {
-    width: 520px;
+    width: 780px;
     background-color: rgb(14, 20, 42);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 14px;
-    padding: 28px 36px;
+    border-width: 3px;
+    border-radius: 21px;
+    padding: 42px 54px;
     align-items: stretch;
 }
 .backend-title {
-    font-size: 22px;
+    font-size: 33px;
     color: white;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 .backend-row {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 .backend-section-label {
-    font-size: 16px;
+    font-size: 24px;
     color: rgb(201, 151, 59);
     -unity-font-style: bold;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 .backend-status {
-    font-size: 13px;
+    font-size: 19px;
     color: rgb(150, 200, 150);
     flex-grow: 1;
     -unity-text-align: middle-right;
@@ -378,18 +383,18 @@
 }
 .backend-preset-row {
     flex-direction: row;
-    margin-bottom: 18px;
+    margin-bottom: 27px;
 }
 .backend-preset-row .btn-preset {
-    margin-right: 12px;
+    margin-right: 18px;
 }
 .btn-preset {
     flex-grow: 1;
-    height: 44px;
+    height: 66px;
     background-color: rgb(28, 38, 68);
     border-color: rgb(100, 80, 40);
-    border-width: 2px;
-    border-radius: 8px;
+    border-width: 3px;
+    border-radius: 12px;
     align-items: center;
     justify-content: center;
 }
@@ -399,44 +404,44 @@
 }
 .btn-preset > .unity-label {
     color: white;
-    font-size: 16px;
+    font-size: 24px;
     -unity-font-style: bold;
 }
 .backend-url-row {
-    margin-bottom: 18px;
+    margin-bottom: 27px;
 }
 .input-url {
     width: 100%;
 }
 .backend-footer-row {
     flex-direction: row;
-    margin-bottom: 14px;
+    margin-bottom: 21px;
 }
 .backend-footer-row .btn-half {
-    margin-left: 7px;
-    margin-right: 7px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .backend-help {
-    font-size: 12px;
+    font-size: 18px;
     color: rgb(130, 145, 170);
     -unity-text-align: middle-center;
     white-space: normal;
 }
 .btn-close {
     position: absolute;
-    top: 16px;
-    left: 16px;
-    height: 36px;
+    top: 24px;
+    left: 24px;
+    height: 54px;
     background-color: rgb(28, 38, 68);
     border-color: rgb(100, 80, 40);
-    border-width: 2px;
-    border-radius: 6px;
-    padding: 0 14px;
+    border-width: 3px;
+    border-radius: 9px;
+    padding: 0 21px;
     align-items: center;
     justify-content: center;
 }
 .btn-close-label {
-    font-size: 14px;
+    font-size: 21px;
     color: rgb(200, 200, 200);
 }
 
@@ -445,18 +450,18 @@
    ============================ */
 .btn-dev {
     position: absolute;
-    bottom: 16px;
-    left: 16px;
-    height: 32px;
+    bottom: 24px;
+    left: 24px;
+    height: 48px;
     background-color: rgba(20, 28, 52, 0.85);
     border-color: rgb(80, 60, 30);
     border-width: 1px;
-    border-radius: 6px;
-    padding: 0 12px;
+    border-radius: 9px;
+    padding: 0 18px;
     align-items: center;
     justify-content: center;
 }
 .btn-dev-label {
-    font-size: 13px;
+    font-size: 19px;
     color: rgb(150, 130, 80);
 }
