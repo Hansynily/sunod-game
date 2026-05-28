@@ -62,9 +62,9 @@ public class vc_RunCompleteZone : MonoBehaviour
             return;
         }
 
-        if (!AreAllLevelThreeQuestsRecorded(telemetry))
+        if (!AreAllQuestsRecorded(telemetry))
         {
-            Debug.LogWarning("[vc_RunCompleteZone] Level 3 is not complete yet. Prediction was skipped.");
+            Debug.LogWarning("[vc_RunCompleteZone] Not all quests are complete yet. Prediction was skipped.");
             return;
         }
 
@@ -114,25 +114,31 @@ public class vc_RunCompleteZone : MonoBehaviour
         LoadEndScene();
     }
 
-    private bool AreAllLevelThreeQuestsRecorded(vc_SessionTelemetry telemetry)
+    private bool AreAllQuestsRecorded(vc_SessionTelemetry telemetry)
     {
-        int recordedLevelThreeQuests = 0;
+        vc_QuestRoom[] rooms = FindObjectsByType<vc_QuestRoom>(
+            FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+
+        if (rooms.Length == 0)
+            return true;
+
+        var recorded = new System.Collections.Generic.HashSet<string>(
+            System.StringComparer.OrdinalIgnoreCase);
+
         IReadOnlyList<vc_SessionTelemetry.QuestRecord> records = telemetry.GetAllRecords();
         for (int i = 0; i < records.Count; i++)
         {
-            vc_SessionTelemetry.QuestRecord record = records[i];
-            if (record == null || string.IsNullOrWhiteSpace(record.questId))
-            {
-                continue;
-            }
-
-            if (record.questId.StartsWith("L3_", System.StringComparison.OrdinalIgnoreCase))
-            {
-                recordedLevelThreeQuests++;
-            }
+            if (records[i] != null && !string.IsNullOrWhiteSpace(records[i].questId))
+                recorded.Add(records[i].questId);
         }
 
-        return recordedLevelThreeQuests >= 3;
+        for (int i = 0; i < rooms.Length; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(rooms[i].QuestId) && !recorded.Contains(rooms[i].QuestId))
+                return false;
+        }
+
+        return true;
     }
 
     private void SetLoadingState(bool isLoading)

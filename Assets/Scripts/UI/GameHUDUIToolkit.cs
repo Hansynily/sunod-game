@@ -8,14 +8,16 @@ namespace SunodGame.UI
     [RequireComponent(typeof(UIDocument))]
     public class GameHUDUIToolkit : MonoBehaviour
     {
-        private readonly Button[]        _slotBtns   = new Button[4];
-        private readonly VisualElement[] _slotIcons  = new VisualElement[4];
-        private readonly Label[]         _slotLevels = new Label[4];
-        private readonly Label[]         _slotNames  = new Label[4];
-        private readonly VisualElement[] _previews   = new VisualElement[6];
+        [SerializeField] private GameObject _uguiSkillBarRoot;
+
+        private readonly Button[]        _slotBtns      = new Button[4];
+        private readonly VisualElement[] _slotIcons    = new VisualElement[4];
+        private readonly Label[]         _slotLevels   = new Label[4];
+        private readonly Label[]         _slotNames    = new Label[4];
+        private readonly Label[]         _slotEmpties  = new Label[4];
+        private readonly VisualElement[] _previews     = new VisualElement[6];
 
         private readonly vc_SkillData[] _cachedSlots = new vc_SkillData[4];
-        private readonly UGUIButton[]   _uguiBtns    = new UGUIButton[4];
 
         private InventoryPanelUIToolkit _inventoryPanel;
         private bool _inventoryEventBound;
@@ -25,15 +27,18 @@ namespace SunodGame.UI
 
         private void OnEnable()
         {
+            _uguiSkillBarRoot?.SetActive(false);
+
             var root = GetComponent<UIDocument>().rootVisualElement;
 
             for (int i = 0; i < 4; i++)
             {
                 int idx = i;
-                _slotBtns[i]   = root.Q<Button>($"slot-btn-{i}");
-                _slotIcons[i]  = root.Q<VisualElement>($"slot-icon-{i}");
-                _slotLevels[i] = root.Q<Label>($"slot-level-{i}");
-                _slotNames[i]  = root.Q<Label>($"slot-name-{i}");
+                _slotBtns[i]     = root.Q<Button>($"slot-btn-{i}");
+                _slotIcons[i]   = root.Q<VisualElement>($"slot-icon-{i}");
+                _slotLevels[i]  = root.Q<Label>($"slot-level-{i}");
+                _slotNames[i]   = root.Q<Label>($"slot-name-{i}");
+                _slotEmpties[i] = root.Q<Label>($"slot-empty-{i}");
 
                 _slotBtns[i]?.RegisterCallback<ClickEvent>(_       => OnSlotClicked(idx));
                 _slotBtns[i]?.RegisterCallback<PointerDownEvent>(_ => OnSlotPointerDown(idx));
@@ -52,9 +57,8 @@ namespace SunodGame.UI
             _inventoryPanel = Object.FindFirstObjectByType<InventoryPanelUIToolkit>();
 
             TryBindInventoryEvent();
-            HideUGUISlotVisuals();
-            RefreshAllSlots();
             RefreshPreviewCircles();
+            RefreshAllSlots();
         }
 
         private void OnDisable()
@@ -77,43 +81,25 @@ namespace SunodGame.UI
         {
             TryBindInventoryEvent();
 
-            if (vc_SkillManager.Instance == null) return;
+            var mgr = vc_SkillManager.Instance;
+            if (mgr == null) return;
 
             for (int i = 0; i < 4; i++)
             {
-                var current = vc_SkillManager.Instance.GetSkillInSlot(i);
+                var current = mgr.GetSkillInSlot(i);
                 if (current != _cachedSlots[i])
                 {
                     _cachedSlots[i] = current;
                     RefreshSlot(i, current);
                 }
 
-                if (_slotBtns[i] != null && _uguiBtns[i] != null)
-                    _slotBtns[i].SetEnabled(_uguiBtns[i].interactable);
-            }
-        }
-
-        private void HideUGUISlotVisuals()
-        {
-            if (vc_SkillManager.Instance == null) return;
-
-            for (int i = 0; i < 4; i++)
-            {
-                var slot = vc_SkillManager.Instance.GetSkillSlot(i);
-                if (slot == null) continue;
-
-                var btn = slot.GetComponent<UGUIButton>();
-                if (btn != null)
+                if (_slotBtns[i] != null)
                 {
-                    btn.interactable = false;
-                    _uguiBtns[i] = btn;
+                    var uguiSlot = mgr.GetSkillSlot(i);
+                    var uguiBtn  = uguiSlot?.GetComponent<UGUIButton>();
+                    if (uguiBtn != null)
+                        _slotBtns[i].SetEnabled(uguiBtn.interactable);
                 }
-
-                foreach (var img in slot.GetComponentsInChildren<UGUIImage>(true))
-                    img.enabled = false;
-
-                foreach (var tmp in slot.GetComponentsInChildren<TMPro.TMP_Text>(true))
-                    tmp.enabled = false;
             }
         }
 
@@ -141,7 +127,10 @@ namespace SunodGame.UI
                 _slotLevels[i].text = data != null ? $"Lv.{data.level}" : string.Empty;
 
             if (_slotNames[i] != null)
-                _slotNames[i].text = data != null ? data.skillName : string.Empty;
+                _slotNames[i].text = data != null ? (data.skillName ?? "—").ToUpper() : string.Empty;
+
+            if (_slotEmpties[i] != null)
+                _slotEmpties[i].style.display = data == null ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private void RefreshPreviewCircles()

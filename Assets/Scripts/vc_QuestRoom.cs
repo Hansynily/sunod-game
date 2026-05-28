@@ -54,6 +54,7 @@ public class vc_QuestRoom : MonoBehaviour
         if (questCompletionNotified) return;
 
         questCompletionNotified = true;
+        Debug.Log($"[QuestRoom] '{questId}' OnQuestComplete called. QuestTimer={(vc_QuestTimer.Instance == null ? "NULL" : "OK")}, subscribed={isQuestTimerSubscribed}");
         vc_QuestTimer.Instance?.CompleteQuest();
 
         int stars = vc_QuestTimer.Instance != null ? vc_QuestTimer.Instance.FinalStarsEarned : 5;
@@ -79,6 +80,8 @@ public class vc_QuestRoom : MonoBehaviour
         questStarted = true;
         questResultRecorded = false;
         questCompletionNotified = false;
+
+        Debug.Log($"[QuestRoom] '{questId}' starting. QuestTimer={(vc_QuestTimer.Instance == null ? "NULL" : "OK")}, QuestLogic={(cachedQuestLogic == null ? "NULL" : cachedQuestLogic.GetType().Name)}");
 
         QuestStarted?.Invoke(this);
 
@@ -112,6 +115,7 @@ public class vc_QuestRoom : MonoBehaviour
 
     private void HandleQuestEnded(vc_QuestTimer.QuestCompletionResult result)
     {
+        Debug.Log($"[QuestRoom] '{questId}' HandleQuestEnded fired. alreadyRecorded={questResultRecorded}, passed={result?.DidPassQuest}");
         if (questResultRecorded) { UnsubscribeFromQuestTimer(); return; }
 
         questResultRecorded = true;

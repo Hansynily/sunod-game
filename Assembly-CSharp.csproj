@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\vc_TutorialTrigger.cs" />
     <Compile Include="Assets\Scripts\Core\LocalRubricFallback.cs" />
     <Compile Include="Assets\Scripts\vc_Level0TutorialController.cs" />
+    <Compile Include="Assets\Scripts\vc_DebugSkipToEnd.cs" />
     <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorInitializer.cs" />
+    <Compile Include="Assets\Scripts\UI\LoginRegisterUIToolkit.cs" />
     <Compile Include="Assets\Scripts\UI\GameHUDUIToolkit.cs" />
     <Compile Include="Assets\Scripts\vc_DirectionalArrow.cs" />
     <Compile Include="Assets\Scripts\vc_XrayEffect.cs" />
@@ -180,11 +182,13 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\Art\UI\MainMenuStyle.uss" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />
+    <None Include="Assets\Art\UI\LoginRegisterStyle.uss" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\Art\UI\GameHUD.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\Art\UI\MainMenu.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\Art\UI\LoginRegister.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Art\UI\EndScene.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
@@ -196,6 +200,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
+    <None Include="Assets\Art\Fonts\DotGothic16\OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\Art\UI\EndSceneStyle.uss" />
@@ -210,6 +215,7 @@
     <None Include="Assets\Gif\Ruccho\FangAutoTile\Readme-ja.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\Art\UI\InventoryPanelStyle.uss" />
+    <None Include="Assets\Art\Fonts\Silkscreen\OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Sprite.shader" />
   </ItemGroup>
   <ItemGroup>

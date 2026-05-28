@@ -32,6 +32,7 @@ public class vc_SkillSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         }
 
         RefreshDisplay();
+        vc_SkillManager.Instance?.RegisterSlot(this);
     }
 
     private void OnDestroy()

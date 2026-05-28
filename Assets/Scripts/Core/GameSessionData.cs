@@ -200,6 +200,9 @@ namespace SunodGame.Core
             if (!string.IsNullOrWhiteSpace(careerFamilyValue))
                 careerFamily = careerFamilyValue;
 
+            if (!string.IsNullOrWhiteSpace(clusterHollandCodeValue) && string.IsNullOrWhiteSpace(hollandCode))
+                hollandCode = clusterHollandCodeValue;
+
             if (!string.IsNullOrWhiteSpace(sourceValue))
                 result_source = sourceValue;
         }

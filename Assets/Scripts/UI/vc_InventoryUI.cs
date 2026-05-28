@@ -14,7 +14,6 @@ public class vc_InventoryUI : MonoBehaviour
     [SerializeField] private Button btnOpen;
     [SerializeField] private Button btnClose;
 
-    private vc_SkillManager _skillManager;
     private vc_SkillData _selectedSkill;
     private readonly List<GameObject> _spawnedCards = new List<GameObject>();
     private bool _initialized;
@@ -49,8 +48,6 @@ public class vc_InventoryUI : MonoBehaviour
         {
             panelRoot = gameObject;
         }
-
-        _skillManager = FindFirstObjectByType<vc_SkillManager>();
 
         if (btnOpen != null)
         {
@@ -168,7 +165,7 @@ public class vc_InventoryUI : MonoBehaviour
                 continue;
             }
 
-            vc_SkillData equipped = _skillManager != null ? _skillManager.GetSkillInSlot(i) : null;
+            vc_SkillData equipped = vc_SkillManager.Instance?.GetSkillInSlot(i);
             slotLabels[i].text = equipped != null ? equipped.skillName : "Empty";
         }
     }
@@ -180,12 +177,12 @@ public class vc_InventoryUI : MonoBehaviour
 
     private void OnSlotTapped(int slotIndex)
     {
-        if (_selectedSkill == null || _skillManager == null)
+        if (_selectedSkill == null || vc_SkillManager.Instance == null)
         {
             return;
         }
 
-        _skillManager.AssignSkillToSlot(slotIndex, _selectedSkill);
+        vc_SkillManager.Instance.AssignSkillToSlot(slotIndex, _selectedSkill);
         _selectedSkill = null;
         RefreshSlotLabels();
     }

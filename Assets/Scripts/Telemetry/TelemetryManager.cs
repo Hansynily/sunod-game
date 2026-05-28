@@ -52,6 +52,14 @@ namespace SunodGame.Telemetry
         [SerializeField] private string bypassMessage = "Debug bypass enabled. No API request sent.";
         [SerializeField] private int requestTimeoutSeconds = 10;
 
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Bootstrap()
+        {
+            if (Instance != null) return;
+            var root = new GameObject("[TelemetryManager]");
+            root.AddComponent<TelemetryManager>();
+        }
+
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -259,25 +267,8 @@ namespace SunodGame.Telemetry
         private string ResolveConfiguredBaseUrl()
         {
             string savedUrl = NormalizeUrl(PlayerPrefs.GetString(BackendUrlPrefKey, string.Empty));
-            string savedMode = PlayerPrefs.GetString(BackendModePrefKey, string.Empty);
             if (!string.IsNullOrWhiteSpace(savedUrl))
-            {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                if (savedMode == BackendModeRailway)
-                {
-                    string developmentUrl = DevelopmentFallbackUrl;
-                    if (!string.IsNullOrWhiteSpace(developmentUrl))
-                        return developmentUrl;
-                }
-#endif
                 return savedUrl;
-            }
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            string defaultDevelopmentUrl = DevelopmentFallbackUrl;
-            if (!string.IsNullOrWhiteSpace(defaultDevelopmentUrl))
-                return defaultDevelopmentUrl;
-#endif
 
             string defaultRailwayUrl = RailwayPresetUrl;
             if (!string.IsNullOrWhiteSpace(defaultRailwayUrl))

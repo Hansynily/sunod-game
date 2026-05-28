@@ -14,41 +14,41 @@
     flex-direction: row;
     align-items: flex-end;
     justify-content: flex-end;
-    padding: 16px 24px;
+    padding: 12px 16px;
 }
 
 /* ============================
    Inventory Preview Button
    ============================ */
 .inventory-preview-btn {
-    background-color: rgba(18, 26, 48, 0.85);
+    background-color: rgba(14, 20, 42, 0.88);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 14px;
-    padding: 10px;
-    margin-right: 14px;
+    border-radius: 12px;
+    padding: 8px;
+    margin-right: 12px;
     align-self: flex-end;
     transition-property: background-color;
     transition-duration: 0.15s;
 }
 .inventory-preview-btn:hover {
-    background-color: rgba(35, 50, 85, 0.95);
+    background-color: rgba(30, 44, 80, 0.95);
 }
 
 .preview-grid {
     flex-direction: row;
     flex-wrap: wrap;
-    width: 196px;
+    width: 156px;
 }
 
 .preview-circle {
-    width: 56px;
-    height: 56px;
-    border-radius: 28px;
-    background-color: rgba(30, 42, 70, 0.9);
-    border-color: rgb(100, 120, 160);
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    background-color: rgba(20, 30, 58, 0.9);
+    border-color: rgb(80, 100, 145);
     border-width: 2px;
-    margin: 4px;
+    margin: 3px;
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -60,63 +60,68 @@
     align-items: flex-end;
 }
 
-/* Wrapper holds diamond + level badge + name */
+/* Holds: slot number → diamond container → slot name */
 .slot-wrapper {
-    width: 150px;
-    height: 172px;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     margin-left: 6px;
 }
 
-/* Level badge — sits above the diamond */
-.slot-level {
-    position: absolute;
-    top: 8px;
-    left: 0;
-    right: 0;
-    font-size: 14px;
-    color: rgb(245, 210, 80);
-    -unity-font-style: bold;
+/* Slot number above each diamond */
+.slot-number {
+    font-size: 11px;
+    color: rgb(201, 151, 59);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: upper-center;
+    margin-bottom: 2px;
 }
 
-/* Diamond tile — rotated 45deg */
+/* Container sized to hold the diamond's full diagonal: 60 × √2 ≈ 85 → 88px */
+.slot-diamond-container {
+    width: 88px;
+    height: 88px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Diamond tile */
 .skill-slot-btn {
     rotate: 45deg;
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     overflow: hidden;
-    background-color: rgb(15, 22, 42);
+    background-color: rgb(10, 16, 34);
     border-color: rgb(180, 145, 55);
-    border-width: 3px;
-    border-radius: 4px;
+    border-width: 2px;
+    border-radius: 3px;
     padding: 0;
     transition-property: background-color, border-color;
-    transition-duration: 0.1s;
+    transition-duration: 0.12s;
 }
 .skill-slot-btn:hover {
-    background-color: rgb(30, 45, 80);
-    border-color: rgb(255, 210, 90);
+    background-color: rgb(25, 38, 72);
+    border-color: rgb(245, 200, 80);
 }
 .skill-slot-btn:active {
-    background-color: rgb(45, 68, 115);
-    border-color: rgb(255, 230, 120);
+    background-color: rgb(40, 60, 100);
+    border-color: rgb(255, 225, 110);
 }
 .skill-slot-btn:disabled {
-    opacity: 0.4;
-    border-color: rgb(70, 70, 70);
+    opacity: 0.35;
+    border-color: rgb(60, 60, 70);
 }
 
-/* Counter-rotate content so icon appears upright */
+/* Counter-rotate so icon and text appear upright */
 .slot-inner {
     rotate: -45deg;
     position: absolute;
-    /* Sized larger than parent so icon fills the full diamond */
-    width: 144px;
-    height: 144px;
-    top: -22px;
-    left: -22px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 .slot-icon {
@@ -128,16 +133,40 @@
     -unity-background-scale-mode: scale-and-crop;
 }
 
-/* Skill name — sits below the diamond */
-.slot-name {
+/* "+" shown when slot is empty */
+.slot-empty-plus {
     position: absolute;
-    bottom: 4px;
+    top: 0;
     left: 0;
     right: 0;
-    -unity-font: url("../../TextMesh Pro/Fonts/Silkscreen-Bold.ttf");
-    font-size: 10px;
-    color: rgb(240, 220, 150);
+    bottom: 0;
+    font-size: 22px;
+    color: rgba(130, 155, 200, 0.55);
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+}
+
+/* Level badge — overlaid at bottom of diamond container */
+.slot-level {
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    font-size: 9px;
+    color: rgb(245, 210, 80);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: lower-center;
+}
+
+/* Skill name below the diamond */
+.slot-name {
+    margin-top: 3px;
+    width: 88px;
+    font-size: 9px;
+    color: rgb(240, 215, 140);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: upper-center;
     white-space: normal;
     overflow: hidden;
+    max-height: 28px;
 }

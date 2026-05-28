@@ -13,6 +13,7 @@ namespace SunodGame.UI
         private readonly VisualElement[] _slotIcons   = new VisualElement[4];
         private readonly VisualElement[] _slotFrames  = new VisualElement[4];
         private readonly Label[]         _slotEmpties = new Label[4];
+        private readonly Label[]         _slotNames   = new Label[4];
 
         // Detail pane elements
         private VisualElement _detailEmpty;
@@ -79,6 +80,7 @@ namespace SunodGame.UI
                 _slotFrames[i]  = root.Q<Button>($"slot-{i}");
                 _slotIcons[i]   = root.Q<VisualElement>($"slot-icon-{i}");
                 _slotEmpties[i] = root.Q<Label>($"slot-empty-{i}");
+                _slotNames[i]   = root.Q<Label>($"slot-name-{i}");
                 _slotFrames[i]?.RegisterCallback<ClickEvent>(_ => OnSlotClicked(idx));
             }
 
@@ -252,6 +254,7 @@ namespace SunodGame.UI
 
         private void OnSlotClicked(int slotIndex)
         {
+            Debug.Log($"[Inventory] OnSlotClicked({slotIndex}) — selectedSkill={_selectedSkill?.skillName ?? "NULL"}, SkillManager={(vc_SkillManager.Instance == null ? "NULL" : "OK")}");
             if (_selectedSkill == null || vc_SkillManager.Instance == null) return;
 
             vc_SkillManager.Instance.AssignSkillToSlot(slotIndex, _selectedSkill);
@@ -281,6 +284,11 @@ namespace SunodGame.UI
                 if (_slotEmpties[i] != null)
                     _slotEmpties[i].style.display =
                         data == null ? DisplayStyle.Flex : DisplayStyle.None;
+
+                if (_slotNames[i] != null)
+                    _slotNames[i].text = data != null
+                        ? (data.skillName ?? "—").ToUpper()
+                        : "——";
             }
         }
 

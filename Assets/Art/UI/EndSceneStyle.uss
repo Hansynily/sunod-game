@@ -47,7 +47,7 @@
 .header-text {
     font-size: 24px;
     color: rgb(245, 210, 120);
-    -unity-font-style: bold;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: middle-center;
 }
 
@@ -65,7 +65,7 @@
 .career-name {
     font-size: 56px;
     color: rgb(245, 168, 35);
-    -unity-font-style: bold;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: middle-center;
     margin-bottom: 8px;
 }
@@ -103,7 +103,7 @@
     flex-grow: 1;
     font-size: 18px;
     color: white;
-    -unity-font-style: bold;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
 }
 .stat-gold {
     color: rgb(245, 200, 60);
@@ -134,7 +134,7 @@
 .action-btn-label {
     font-size: 22px;
     color: white;
-    -unity-font-style: bold;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: middle-center;
 }
 

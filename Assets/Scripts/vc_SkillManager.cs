@@ -87,6 +87,8 @@ public class vc_SkillManager : MonoBehaviour
 
     public vc_SkillSlot GetSkillSlot(int index)
     {
+        EnsureSlotsResolved();
+
         if (skillSlots == null || index < 0 || index >= skillSlots.Length)
         {
             return null;
@@ -157,18 +159,75 @@ public class vc_SkillManager : MonoBehaviour
 
     public void AssignSkillToSlot(int slotIndex, vc_SkillData data)
     {
+        EnsureSlotsResolved();
+
         if (skillSlots == null || slotIndex < 0 || slotIndex >= skillSlots.Length || skillSlots[slotIndex] == null)
         {
+            Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) — slot check failed. skillSlots null={skillSlots == null}, length={skillSlots?.Length}");
             return;
         }
 
         vc_PlayerSkill skill = ResolveSkill(data);
         if (skill == null)
         {
+            Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) — ResolveSkill returned null for '{data?.skillName}'");
             return;
         }
 
+        Debug.Log($"[SkillManager] Assigning '{data.skillName}' to slot {slotIndex}");
         skillSlots[slotIndex].AssignSkill(skill);
+    }
+
+    public void RegisterSlot(vc_SkillSlot slot)
+    {
+        if (slot == null) return;
+        int idx = slot.SlotIndex;
+        if (skillSlots == null || idx < 0 || idx >= skillSlots.Length) return;
+        if (skillSlots[idx] == slot) return;
+
+        if (skillSlots[idx] != null)
+            skillSlots[idx].SkillPressed -= HandleSkillPressed;
+
+        skillSlots[idx] = slot;
+        slot.RefreshDisplay();
+        slot.SkillPressed += HandleSkillPressed;
+    }
+
+    private void EnsureSlotsResolved()
+    {
+        if (skillSlots == null) return;
+
+        bool anyMissing = false;
+        for (int i = 0; i < skillSlots.Length; i++)
+        {
+            if (skillSlots[i] == null) { anyMissing = true; break; }
+        }
+
+        if (!anyMissing) return;
+
+        vc_SkillSlot[] found = FindObjectsByType<vc_SkillSlot>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < found.Length; i++)
+        {
+            RegisterSlot(found[i]);
+        }
+    }
+
+    public void ResetForNewRun()
+    {
+        vc_PlayerSkill[] carriedSkills = GetComponentsInChildren<vc_PlayerSkill>(true);
+        for (int i = 0; i < carriedSkills.Length; i++)
+        {
+            if (carriedSkills[i] != null)
+                Destroy(carriedSkills[i].gameObject);
+        }
+
+        if (skillSlots != null)
+        {
+            for (int i = 0; i < skillSlots.Length; i++)
+                skillSlots[i] = null;
+        }
+
+        ResetUsageCounts();
     }
 
     public void ResetUsageCounts()

@@ -1,16 +1,11 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace SunodGame.Core
 {
-
-
     public static class SceneLoader
     {
-        //FOLLOW AS INDEX e.g. 
-        //INDEX 0 -> LoginRegisterScene
-        //INDEX 1 -> MainMenu
-        //etc..
         public const string SCENE_LOGIN    = "LoginRegisterScene";
         public const string SCENE_MAINMENU = "MainMenu";
         public const string SCENE_CUTSCENE = "Cutscene";
@@ -22,9 +17,14 @@ namespace SunodGame.Core
         public static void GoToLogin()    => SceneManager.LoadScene(SCENE_LOGIN);
         public static void GoToMainMenu() => SceneManager.LoadScene(SCENE_MAINMENU);
         public static void GoToCutscene() => SceneManager.LoadScene(SCENE_CUTSCENE);
-        public static void GoToPlay()     => SceneManager.LoadScene(SCENE_GAME);
         public static void GoToTutorial() => SceneManager.LoadScene(SCENE_TUTORIAL);
         public static void GoToEnd()      => SceneManager.LoadScene(SCENE_END);
+
+        public static void GoToPlay()
+        {
+            ResetForNewRun();
+            SceneManager.LoadScene(SCENE_GAME);
+        }
 
         public static void LoadByName(string sceneName)
         {
@@ -35,6 +35,22 @@ namespace SunodGame.Core
             }
 
             SceneManager.LoadScene(sceneName);
+        }
+
+        private static void ResetForNewRun()
+        {
+            vc_PlayerInventory.Instance?.ClearInventory();
+            vc_SessionTelemetry.Instance?.CancelCurrentSession();
+            vc_SkillManager.Instance?.ResetForNewRun();
+            GameSessionData.Reset();
+
+            // Re-enable any UI components that were hidden during EndScene
+            // (handles DontDestroyOnLoad UIDocuments/Canvases disabled by EndScene)
+            foreach (var doc in Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (!doc.enabled) doc.enabled = true;
+
+            foreach (var canvas in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (!canvas.enabled) canvas.enabled = true;
         }
     }
 }

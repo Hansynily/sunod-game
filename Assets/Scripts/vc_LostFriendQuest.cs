@@ -52,17 +52,6 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone) return;
 
-        if (!charmActive && vc_SkillManager.Instance.IsHoldingTag("attract") && _playerTransform != null && friendTransform != null)
-        {
-            float dist = Vector3.Distance(_playerTransform.position, friendTransform.position);
-            if (dist < charmRange && friendNPC != null)
-            {
-                friendNPC.FollowTarget(_playerTransform);
-                charmActive = true;
-                vc_FloatingMessage.Instance?.Show("Your friend now follows you.");
-            }
-        }
-
         if (!charmActive || friendTransform == null || classroomTransform == null) return;
 
         if (Vector3.Distance(friendTransform.position, classroomTransform.position) < 1.5f)
@@ -86,9 +75,32 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
-        // attract is hold-based in Update — pressing it is valid, just no immediate event effect
-        if (skill.SkillData.HasTag("attract")) handled = true;
+        if (skill.SkillData.HasTag("attract"))
+        {
+            TryCharmFriend();
+            handled = true;
+        }
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
+    }
+
+    private void TryCharmFriend()
+    {
+        if (charmActive) return;
+        if (_playerTransform == null || friendTransform == null) return;
+
+        float dist = Vector3.Distance(_playerTransform.position, friendTransform.position);
+        if (dist >= charmRange)
+        {
+            vc_FloatingMessage.Instance?.Show("Get closer to your friend first.");
+            return;
+        }
+
+        if (friendNPC == null) return;
+
+        friendNPC.FollowTarget(_playerTransform);
+        charmActive = true;
+        vc_FloatingMessage.Instance?.Show("Your friend now follows you.");
+        vc_QuestHUD.Instance?.CheckObjective(1);
     }
 
     private void CompleteQuest()

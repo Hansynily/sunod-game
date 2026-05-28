@@ -23,6 +23,32 @@ namespace SunodGame.UI
         private Button _btnPlayAgain;
         private Button _btnMainMenu;
 
+        private void Start()
+        {
+            DisableCarryoverUI();
+        }
+
+        private void DisableCarryoverUI()
+        {
+            var ownDoc = GetComponent<UIDocument>();
+            foreach (var doc in FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (doc == ownDoc) continue;
+                if (doc.gameObject.scene.name == "DontDestroyOnLoad")
+                    doc.enabled = false;
+                else
+                    doc.gameObject.SetActive(false);
+            }
+
+            foreach (var canvas in FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (canvas.gameObject.scene.name == "DontDestroyOnLoad")
+                    canvas.enabled = false;
+                else
+                    canvas.gameObject.SetActive(false);
+            }
+        }
+
         private void OnEnable()
         {
             var root = GetComponent<UIDocument>().rootVisualElement;
