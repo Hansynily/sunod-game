@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="QuestPanelStyle.uss" />
+
+    <ui:VisualElement name="quest-root" class="quest-root" picking-mode="Ignore">
+
+        <ui:VisualElement name="quest-panel" class="quest-panel">
+
+            <!-- Header row: counter + title + expand chevron -->
+            <ui:VisualElement name="quest-header" class="quest-header">
+                <ui:VisualElement name="quest-header-text" class="quest-header-text" picking-mode="Ignore">
+                    <ui:Label name="quest-counter" text="QUEST" class="quest-counter" picking-mode="Ignore" />
+                    <ui:Label name="quest-title" text="" class="quest-title" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:Button name="quest-expand-btn" class="quest-expand-btn" text="&#x25BC;" />
+            </ui:VisualElement>
+
+            <!-- Current active objective (always visible) -->
+            <ui:VisualElement name="quest-current-row" class="quest-current-row" picking-mode="Ignore">
+                <ui:Label name="quest-arrow" text="&#x25B6;" class="quest-arrow" picking-mode="Ignore" />
+                <ui:Label name="quest-active-label" text="" class="quest-active-label" picking-mode="Ignore" />
+            </ui:VisualElement>
+
+            <!-- Expanded objectives list (hidden by default) -->
+            <ui:VisualElement name="quest-objectives-list" class="quest-objectives-list" />
+
+            <!-- Feedback text (hidden by default) -->
+            <ui:Label name="quest-feedback" text="" class="quest-feedback" picking-mode="Ignore" />
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

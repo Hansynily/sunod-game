@@ -9,7 +9,6 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private Transform pathGoalZone;
     [SerializeField] private GameObject hiddenWall;
     [SerializeField] private BoxCollider2D hiddenWallCollider;
-    [SerializeField] private float strengthRange = 1.5f;
     [SerializeField] private Vector3 crateDropPosition = new(5.15f, 6.522f, 0f);
     [SerializeField] private vc_FloatingMarker mainMarker_Blockage;
     [SerializeField] private vc_FloatingMarker poiMarker_AltRoute;
@@ -58,27 +57,6 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone) return;
 
-        if (!strengthDone && blockingObject != null && _playerTransform != null && vc_SkillManager.Instance.IsHoldingTag("push"))
-        {
-            if (Vector3.Distance(_playerTransform.position, blockingObject.position) < strengthRange)
-            {
-                vc_FloatingMessage.Instance?.Show("Pushing...");
-                blockingObject.localPosition = crateDropPosition;
-
-                if (blockingRb != null)
-                {
-                    blockingRb.position = blockingObject.position;
-                    blockingRb.linearVelocity = Vector2.zero;
-                    blockingRb.angularVelocity = 0f;
-                }
-
-                strengthDone = true;
-                mainMarker_Blockage?.Hide();
-                vc_FloatingMessage.Instance?.Show("Path cleared!");
-                vc_QuestHUD.Instance?.CheckObjective(0);
-            }
-        }
-
         TryCompleteAtGoal();
     }
 
@@ -98,8 +76,24 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
-        // push is hold-based in Update — pressing the skill button is valid, no immediate event effect
-        if (skill.SkillData.HasTag("push")) handled = true;
+        if (skill.SkillData.HasTag("push") && !strengthDone)
+        {
+            if (blockingObject != null)
+            {
+                blockingObject.localPosition = crateDropPosition;
+                if (blockingRb != null)
+                {
+                    blockingRb.position = blockingObject.position;
+                    blockingRb.linearVelocity = Vector2.zero;
+                    blockingRb.angularVelocity = 0f;
+                }
+            }
+            strengthDone = true;
+            mainMarker_Blockage?.Hide();
+            vc_FloatingMessage.Instance?.Show("Path cleared!");
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            handled = true;
+        }
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 

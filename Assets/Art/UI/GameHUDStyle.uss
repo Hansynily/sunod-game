@@ -14,7 +14,7 @@
     flex-direction: row;
     align-items: flex-end;
     justify-content: flex-end;
-    padding: 12px 16px;
+    padding: 16px 20px;
 }
 
 /* ============================
@@ -23,10 +23,10 @@
 .inventory-preview-btn {
     background-color: rgba(14, 20, 42, 0.88);
     border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 12px;
-    padding: 8px;
-    margin-right: 12px;
+    border-width: 3px;
+    border-radius: 18px;
+    padding: 12px;
+    margin-right: 18px;
     align-self: flex-end;
     transition-property: background-color;
     transition-duration: 0.15s;
@@ -38,17 +38,17 @@
 .preview-grid {
     flex-direction: row;
     flex-wrap: wrap;
-    width: 156px;
+    width: 216px;
 }
 
 .preview-circle {
-    width: 44px;
-    height: 44px;
-    border-radius: 22px;
+    width: 62px;
+    height: 62px;
+    border-radius: 31px;
     background-color: rgba(20, 30, 58, 0.9);
     border-color: rgb(80, 100, 145);
     border-width: 2px;
-    margin: 3px;
+    margin: 5px;
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -64,22 +64,22 @@
 .slot-wrapper {
     flex-direction: column;
     align-items: center;
-    margin-left: 6px;
+    margin-left: 10px;
 }
 
 /* Slot number above each diamond */
 .slot-number {
-    font-size: 11px;
+    font-size: 16px;
     color: rgb(201, 151, 59);
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: upper-center;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
-/* Container sized to hold the diamond's full diagonal: 60 × √2 ≈ 85 → 88px */
+/* Container sized to hold the diamond's full diagonal: 80 × √2 ≈ 113 → 116px */
 .slot-diamond-container {
-    width: 88px;
-    height: 88px;
+    width: 116px;
+    height: 116px;
     align-items: center;
     justify-content: center;
     position: relative;
@@ -88,13 +88,13 @@
 /* Diamond tile */
 .skill-slot-btn {
     rotate: 45deg;
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     overflow: hidden;
     background-color: rgb(10, 16, 34);
     border-color: rgb(180, 145, 55);
     border-width: 2px;
-    border-radius: 3px;
+    border-radius: 4px;
     padding: 0;
     transition-property: background-color, border-color;
     transition-duration: 0.12s;
@@ -140,7 +140,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    font-size: 22px;
+    font-size: 30px;
     color: rgba(130, 155, 200, 0.55);
     -unity-text-align: middle-center;
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
@@ -152,7 +152,7 @@
     bottom: 2px;
     left: 0;
     right: 0;
-    font-size: 9px;
+    font-size: 13px;
     color: rgb(245, 210, 80);
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: lower-center;
@@ -160,13 +160,13 @@
 
 /* Skill name below the diamond */
 .slot-name {
-    margin-top: 3px;
-    width: 88px;
-    font-size: 9px;
+    margin-top: 5px;
+    width: 116px;
+    font-size: 13px;
     color: rgb(240, 215, 140);
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     -unity-text-align: upper-center;
     white-space: normal;
     overflow: hidden;
-    max-height: 28px;
+    max-height: 40px;
 }

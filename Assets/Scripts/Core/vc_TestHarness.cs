@@ -22,11 +22,18 @@ public class vc_TestHarness : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // Wait for Game_Scene singletons to finish loading (async additive load)
+        // Wait for Game_Scene singletons to finish loading (async additive load).
+        // Timeout after 5s so colliders are never left permanently disabled in test scenes
+        // where some singletons may be absent.
+        float waitElapsed = 0f;
         yield return new WaitUntil(() =>
-            vc_SkillManager.Instance != null &&
-            vc_QuestHUD.Instance != null &&
-            vc_QuestTimer.Instance != null);
+        {
+            waitElapsed += Time.deltaTime;
+            return waitElapsed >= 5f ||
+                   (vc_SkillManager.Instance != null &&
+                    vc_QuestHUD.Instance != null &&
+                    vc_QuestTimer.Instance != null);
+        });
 
         // Teleport player to spawn point
         PlayerController player = FindFirstObjectByType<PlayerController>();

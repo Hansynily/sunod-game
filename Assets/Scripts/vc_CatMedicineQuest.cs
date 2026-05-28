@@ -7,7 +7,6 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private GameObject safe;
     [SerializeField] private Transform catTransform;
     [SerializeField] private BoxCollider2D safeCollider;
-    [SerializeField] private float lockpickRange = 1.5f;
     [SerializeField] private float lockpickHoldTime = 5f;
     [SerializeField] private float medicineDeliveryRange = 1.5f;
     [SerializeField] private vc_FloatingMarker mainMarker_Safe;
@@ -20,6 +19,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
     private bool moldingDone = false;
     private bool safeOpen = false;
     private bool medicinePickedUp = false;
+    private bool lockpicking = false;
     private float medicinePickupGraceTimer = 0f;
     private float lockpickTimer = 0f;
 
@@ -41,6 +41,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         moldingDone = false;
         safeOpen = false;
         medicinePickedUp = false;
+        lockpicking = false;
         medicinePickupGraceTimer = 0f;
         lockpickTimer = 0f;
         vc_QuestHUD.Instance?.ForceHideFeedback();
@@ -74,22 +75,11 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
 
     private void UpdateLockpickProgress()
     {
-        if (!questStarted || questDone || safeOpen || !vc_SkillManager.Instance.IsHoldingTag("unlock"))
-        {
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
+        if (!lockpicking) return;
 
-        if (_playerTransform == null || safe == null)
+        if (!questStarted || questDone || safeOpen || safe == null)
         {
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
-        if (Vector3.Distance(_playerTransform.position, safe.transform.position) >= lockpickRange)
-        {
+            lockpicking = false;
             lockpickTimer = 0f;
             vc_QuestHUD.Instance?.HideFeedback();
             return;
@@ -101,6 +91,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
 
         if (lockpickTimer >= lockpickHoldTime)
         {
+            lockpicking = false;
             lockpickTimer = 0f;
             vc_QuestHUD.Instance?.HideFeedback();
             OpenSafe();
@@ -116,6 +107,12 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         {
             moldingDone = true;
             StartCoroutine(ShowMoldPopupThenComplete());
+            handled = true;
+        }
+        if (skill.SkillData.HasTag("unlock") && !safeOpen && !lockpicking)
+        {
+            lockpicking = true;
+            lockpickTimer = 0f;
             handled = true;
         }
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");

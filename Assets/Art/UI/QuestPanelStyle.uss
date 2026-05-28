@@ -1,0 +1,152 @@
+/* Quest panel sits top-left, transparent pass-through root */
+.quest-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 30px;
+}
+
+/* Main panel card */
+.quest-panel {
+    background-color: rgba(14, 20, 42, 0.88);
+    border-color: rgb(201, 151, 59);
+    border-width: 4px;
+    border-radius: 20px;
+    padding: 20px 26px;
+    min-width: 450px;
+    max-width: 580px;
+}
+
+/* Header: text block + chevron button */
+.quest-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.quest-header-text {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.quest-counter {
+    font-size: 22px;
+    color: rgb(201, 151, 59);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: upper-left;
+}
+
+.quest-title {
+    font-size: 30px;
+    color: rgb(255, 240, 200);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: upper-left;
+    white-space: normal;
+}
+
+/* Chevron toggle button */
+.quest-expand-btn {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 6px;
+    color: rgb(201, 151, 59);
+    font-size: 26px;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    margin-left: 18px;
+    padding: 4px 8px;
+    align-self: flex-start;
+    transition-property: color;
+    transition-duration: 0.1s;
+}
+.quest-expand-btn:hover {
+    color: rgb(255, 200, 80);
+}
+
+/* Active objective row (always shown) */
+.quest-current-row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 6px;
+}
+
+.quest-arrow {
+    color: rgb(255, 210, 60);
+    font-size: 24px;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    margin-right: 14px;
+    margin-top: 2px;
+}
+
+.quest-active-label {
+    font-size: 24px;
+    color: rgb(230, 230, 230);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    white-space: normal;
+    flex-grow: 1;
+}
+
+/* Divider between current row and expanded list */
+.quest-divider {
+    height: 1px;
+    background-color: rgba(201, 151, 59, 0.35);
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+/* Expanded objectives list */
+.quest-objectives-list {
+    flex-direction: column;
+    margin-top: 12px;
+    display: none;
+}
+
+/* One row per objective */
+.quest-obj-row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+/* Check/bullet icon */
+.quest-obj-check {
+    font-size: 24px;
+    color: rgb(100, 210, 100);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    margin-right: 14px;
+    margin-top: 2px;
+    width: 30px;
+    -unity-text-align: upper-left;
+}
+
+.quest-obj-check--pending {
+    color: rgb(201, 151, 59);
+}
+
+/* Objective label text */
+.quest-obj-text {
+    font-size: 24px;
+    color: rgb(200, 200, 200);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    white-space: normal;
+    flex-grow: 1;
+}
+
+.quest-obj-text--done {
+    color: rgb(90, 90, 90);
+}
+
+/* Feedback toast at bottom of panel */
+.quest-feedback {
+    font-size: 20px;
+    color: rgb(255, 160, 60);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    white-space: normal;
+    margin-top: 14px;
+    display: none;
+}
