@@ -134,6 +134,7 @@
     <Compile Include="Assets\Scripts\NPCs\NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.RoundFlow.cs" />
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_EndRunUI.cs" />
     <Compile Include="Assets\Scripts\vc_MissingKeyQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_MedicalAttentionQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
+    <None Include="Assets\Art\UI\EndRunButton.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\Art\UI\MainMenuStyle.uss" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />

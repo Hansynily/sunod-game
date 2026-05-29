@@ -94,6 +94,12 @@ public class vc_SkillSelectionMarker : MonoBehaviour
                     room.transform.localPosition = Vector3.zero;
                     filter.InitializeFloor(nextRoomSlot.gameObject.scene);
                 }
+                else
+                {
+                    vc_EndRunUI ui = vc_EndRunUI.Instance
+                        ?? FindFirstObjectByType<vc_EndRunUI>();
+                    ui?.Show();
+                }
             }
         }
 
