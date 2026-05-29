@@ -41,6 +41,17 @@ public class vc_PlayerInventory : MonoBehaviour
         return _gatheredSkills.Contains(skillData);
     }
 
+    public bool HasSkillByTag(string tag)
+    {
+        if (string.IsNullOrEmpty(tag)) return false;
+        for (int i = 0; i < _gatheredSkills.Count; i++)
+        {
+            if (_gatheredSkills[i] != null && _gatheredSkills[i].HasTag(tag))
+                return true;
+        }
+        return false;
+    }
+
     public void ClearInventory()
     {
         _gatheredSkills.Clear();

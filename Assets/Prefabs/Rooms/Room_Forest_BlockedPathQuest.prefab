@@ -6333,6 +6333,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 2083016747103605093}
+    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2538412044504095536}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
@@ -6347,9 +6350,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7568237716449645161}
-    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2083016747103605093}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2789356545535550765}
@@ -6466,6 +6466,10 @@ PrefabInstance:
       value: L3_BlockedPath
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: lockType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questName
       value: Blocked Path Quest
       objectReference: {fileID: 0}
@@ -6480,6 +6484,26 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questDescription
       value: Find a way to cross the blockage
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: requiredSkillTag
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: isExposureEligible
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: solvableWithTags.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[0]'
+      value: navigate
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[1]'
+      value: push
       objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x

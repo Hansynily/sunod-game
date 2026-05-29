@@ -81,7 +81,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: -330555038, guid: 4b43433c05459d144b46f3a81b34eaf6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -141,5 +141,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7f47c6c6557d1741b3b3e1816176c5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillSelectionMarker
+  gameSettings: {fileID: 11400000, guid: 6a94d0a981eba9849baeedd9adf70fd9, type: 2}
   skillPool: []
   nextRoomSlot: {fileID: 0}
+  startingKitMode: 0
+  picksRequired: 1

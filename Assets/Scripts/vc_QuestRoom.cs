@@ -7,6 +7,8 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class vc_QuestRoom : MonoBehaviour
 {
+    public enum QuestLockType { None, Soft, Hard }
+
     public static event Action OnAnyQuestComplete;
 
     public event Action<vc_QuestRoom> QuestStarted;
@@ -19,6 +21,15 @@ public class vc_QuestRoom : MonoBehaviour
     [SerializeField] private string objectiveText;
     [SerializeField] private string questDescription;
     [SerializeField] private string[] questHints;
+
+    [Header("Availability")]
+    [SerializeField] private QuestLockType lockType = QuestLockType.None;
+    [SerializeField] private string requiredSkillTag;
+    [SerializeField] private bool isExposureEligible;
+    [Tooltip("ALL of these tags must be in the player's inventory for this quest to surface. Leave empty = universally solvable.")]
+    [SerializeField] private string[] requiredComboTags;
+    [Tooltip("Legacy OR-logic pool. Leave empty unless quest has multiple independent single-skill solutions.")]
+    [SerializeField] private string[] solvableWithTags;
 
     private bool questStarted = false;
     private bool questResultRecorded = false;
@@ -76,6 +87,17 @@ public class vc_QuestRoom : MonoBehaviour
     {
         if (SceneLoader.SCENE_TUTORIAL == UnityEngine.SceneManagement.SceneManager.GetActiveScene().name) return;
         if (questStarted || other == null || !other.CompareTag("Player")) return;
+
+        if (lockType == QuestLockType.Hard)
+        {
+            bool available = vc_QuestAvailabilityFilter.Instance != null
+                && vc_QuestAvailabilityFilter.Instance.IsAvailable(this);
+            if (!available)
+            {
+                vc_FloatingMessage.Instance?.Show("Locked — you don't have the required skill.");
+                return;
+            }
+        }
 
         questStarted = true;
         questResultRecorded = false;
@@ -138,4 +160,9 @@ public class vc_QuestRoom : MonoBehaviour
     public string QuestId => questId;
     public string QuestName => questName;
     public string PrimaryRiasec => primaryRiasec;
+    public QuestLockType LockType => lockType;
+    public string RequiredSkillTag => requiredSkillTag;
+    public bool IsExposureEligible => isExposureEligible;
+    public string[] RequiredComboTags => requiredComboTags;
+    public string[] SolvableWithTags => solvableWithTags;
 }

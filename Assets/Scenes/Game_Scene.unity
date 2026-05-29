@@ -3731,7 +3731,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &644356777
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8004,7 +8004,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 2.8125
+  orthographic size: 4.21875
   m_Depth: 100
   m_CullingMask:
     serializedVersion: 2
@@ -8371,7 +8371,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -45.700005, y: 55.7}
+  m_AnchoredPosition: {x: -45.69995, y: 55.700012}
   m_SizeDelta: {x: 16, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1365103096
@@ -10775,22 +10775,10 @@ MonoBehaviour:
   floors:
   - sceneName: Level1_Scene
     slot0Prefab: {fileID: 4199325092526589879, guid: d3132743338e5ce47a3eeb4405a3d6b6, type: 3}
-    questPrefabs:
-    - {fileID: 6441233813146342226, guid: 7abdace285e98624085ce342b2303c65, type: 3}
-    - {fileID: 1997946248186148176, guid: dc2e0f787ccf2914d9ecf7bde9ce5c79, type: 3}
-    shuffle: 0
   - sceneName: Level2_Scene
     slot0Prefab: {fileID: 4199325092526589879, guid: d3132743338e5ce47a3eeb4405a3d6b6, type: 3}
-    questPrefabs:
-    - {fileID: 7273213546831215558, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
-    - {fileID: 2627421272833283810, guid: 6a8485fec68b7674d9d6b227d321b219, type: 3}
-    shuffle: 0
   - sceneName: Level3_Scene
     slot0Prefab: {fileID: 4199325092526589879, guid: d3132743338e5ce47a3eeb4405a3d6b6, type: 3}
-    questPrefabs:
-    - {fileID: 3508368966515316259, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-    - {fileID: 1852221908060043770, guid: a99b1ee8132c22d43974f2b73212819a, type: 3}
-    shuffle: 0
 --- !u!1 &1659083965
 GameObject:
   m_ObjectHideFlags: 0
@@ -13056,6 +13044,7 @@ GameObject:
   - component: {fileID: 2099004403}
   - component: {fileID: 2099004404}
   - component: {fileID: 2099004405}
+  - component: {fileID: 2099004406}
   m_Layer: 0
   m_Name: SkillManager
   m_TagString: Untagged
@@ -13223,6 +13212,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9ac2cbb090c8784ca920f9609993d92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_PlayerInventory
+--- !u!114 &2099004406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099003500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e77fea883842064fa0bff0f91bd7897, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_QuestAvailabilityFilter
+  gameSettings: {fileID: 11400000, guid: 6a94d0a981eba9849baeedd9adf70fd9, type: 2}
 --- !u!114 &2099005601
 MonoBehaviour:
   m_ObjectHideFlags: 0

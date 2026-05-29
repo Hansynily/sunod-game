@@ -11460,7 +11460,7 @@ PrefabInstance:
     - target: {fileID: 2511732318365057511, guid: 048909b7ed1d862469f0821275d5fdae, type: 3}
       propertyPath: nextRoomSlot
       value: 
-      objectReference: {fileID: 719712401}
+      objectReference: {fileID: 869308503}
     - target: {fileID: 2511732318365057511, guid: 048909b7ed1d862469f0821275d5fdae, type: 3}
       propertyPath: skillPool.Array.size
       value: 3

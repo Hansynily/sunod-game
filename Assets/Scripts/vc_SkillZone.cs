@@ -4,6 +4,10 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class vc_SkillZone : MonoBehaviour
 {
+    // Fires whenever the player steps into any skill zone. Additive — used by the
+    // tutorial to coach the player; the main game ignores it.
+    public static event System.Action PlayerEnteredZone;
+
     private static int _activeZoneCount = 0;
     private bool _playerInside = false;
 
@@ -22,6 +26,8 @@ public class vc_SkillZone : MonoBehaviour
 
         if (_activeZoneCount == 1)
             vc_SkillManager.Instance?.SetSkillsInteractable(true);
+
+        PlayerEnteredZone?.Invoke();
     }
 
     private void OnTriggerExit2D(Collider2D other)

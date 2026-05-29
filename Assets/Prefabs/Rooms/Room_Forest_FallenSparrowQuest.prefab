@@ -380,6 +380,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 8014547956142802310}
+    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1315472622613219307}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
@@ -388,9 +391,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5070205011583152194}
-    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8014547956142802310}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: 0d36dda8e569c574984b3a0ca341bbb0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3996536512774215785}
@@ -436,6 +436,18 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questDescription
       value: Help save the fallen sparrow
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: solvableWithTags.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[0]'
+      value: navigate
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[1]'
+      value: summon
       objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x

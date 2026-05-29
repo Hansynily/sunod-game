@@ -71,9 +71,7 @@
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Input.cs" />
     <Compile Include="Assets\Scripts\vc_DoorController.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController.cs" />
-    <Compile Include="Assets\Scripts\vc_TutorialTrigger.cs" />
     <Compile Include="Assets\Scripts\Core\LocalRubricFallback.cs" />
-    <Compile Include="Assets\Scripts\vc_Level0TutorialController.cs" />
     <Compile Include="Assets\Scripts\vc_DebugSkipToEnd.cs" />
     <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
@@ -88,6 +86,7 @@
     <Compile Include="Assets\Scripts\vc_BuildSkill.cs" />
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ClubActivityQuest.cs" />
+    <Compile Include="Assets\Scripts\vc_GameSettings.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
     <Compile Include="Assets\Scripts\vc_CheatUnlockAll.cs" />
@@ -145,8 +144,10 @@
     <Compile Include="Assets\Scripts\vc_SkillPickupPopup.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\Environment\EnvironmentSystem.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_DialogPanel.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
+    <Compile Include="Assets\Scripts\vc_TutorialAreaTrigger.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorInitializer.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUIToolkit.cs" />
     <Compile Include="Assets\Scripts\UI\GameHUDUIToolkit.cs" />
@@ -160,12 +161,17 @@
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorExit.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_GoTo.cs" />
+    <Compile Include="Assets\Scripts\vc_QuestAvailabilityFilter.cs" />
     <Compile Include="Assets\Scripts\vc_MoldingSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_TutorialQuest.cs" />
+    <Compile Include="Assets\Scripts\vc_TutorialSkillMarker.cs" />
     <Compile Include="Assets\Scripts\vc_HelpSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CheckboxItem.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_TutorialEndScreen.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
     <Compile Include="Assets\Scripts\vc_CollectSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_TutorialFlowController.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
@@ -191,7 +197,9 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\Art\UI\LoginRegister.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\Art\UI\DialogPanel.uss" />
     <None Include="Assets\Art\UI\EndScene.uxml" />
+    <None Include="Assets\Art\UI\DialogPanel.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />

@@ -47,7 +47,6 @@ MonoBehaviour:
   safe: {fileID: 8235412663935476680}
   catTransform: {fileID: 2463328185902377922}
   safeCollider: {fileID: 851062970245002051}
-  lockpickRange: 1.5
   lockpickHoldTime: 5
   medicineDeliveryRange: 1.5
   mainMarker_Safe: {fileID: 457766786943012365}
@@ -518,6 +517,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 8786102913567499894}
+    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5510886454472884567}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
@@ -526,9 +528,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2463328185902377922}
-    - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8786102913567499894}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7885939978443246451}
@@ -570,6 +569,18 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questDescription
       value: Get the medicine for the cat
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: solvableWithTags.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[0]'
+      value: craft
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[1]'
+      value: unlock
       objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x

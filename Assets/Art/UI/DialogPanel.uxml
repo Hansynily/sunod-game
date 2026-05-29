@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="DialogPanel.uss" />
+
+    <!-- Full-screen overlay root; hidden by default, backdrop applied in code -->
+    <ui:VisualElement name="dialog-root" class="dialog-root">
+
+        <!-- Centered card — the "board notice" -->
+        <ui:VisualElement name="dialog-box" class="dialog-box">
+
+            <!-- Optional skill icon; hidden when no sprite is supplied -->
+            <ui:VisualElement name="dialog-icon" class="dialog-icon" />
+
+            <!-- Title row -->
+            <ui:Label name="dialog-title" text="" class="dialog-title" picking-mode="Ignore" />
+
+            <!-- Divider between title and body -->
+            <ui:VisualElement class="dialog-divider" picking-mode="Ignore" />
+
+            <!-- Body copy; wraps across lines -->
+            <ui:Label name="dialog-body" text="" class="dialog-body" picking-mode="Ignore" />
+
+            <!-- Button row -->
+            <ui:VisualElement name="dialog-button-row" class="dialog-button-row">
+                <ui:Button name="dialog-confirm-btn" class="dialog-btn dialog-confirm-btn" text="Continue" />
+                <ui:Button name="dialog-cancel-btn"  class="dialog-btn dialog-cancel-btn"  text="Cancel"   />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

@@ -12,17 +12,24 @@ namespace SunodGame.Core
         public class FloorData
         {
             public string sceneName;
-            public GameObject slot0Prefab;     // inserted into slot 0 (first room)
-            public GameObject[] questPrefabs;  // inserted into slots 1+, shuffled
-            public bool shuffle = true;
+            public GameObject slot0Prefab;
         }
 
         [SerializeField] private FloorData[] floors;
+
+        private Scene _pendingScene;
+        private List<vc_RoomSlot> _pendingSlots;
 
         private void Awake()
         {
             if (Instance != null) { Destroy(gameObject); return; }
             Instance = this;
+        }
+
+        private void OnDestroy()
+        {
+            if (vc_PlayerInventory.Instance != null)
+                vc_PlayerInventory.Instance.OnSkillAdded -= OnFirstSkillAdded;
         }
 
         public void InitializeFloor(Scene scene)
@@ -45,27 +52,78 @@ namespace SunodGame.Core
                 return;
             }
 
-            // Slot 0: load the dedicated first-room prefab if assigned
+            // Slot 0: always place immediately
             if (data.slot0Prefab != null)
             {
                 GameObject room0 = Instantiate(data.slot0Prefab, slots[0].transform);
                 room0.transform.localPosition = Vector3.zero;
             }
 
-            // Slots 1+: load quest prefabs
-            if (data.questPrefabs == null || data.questPrefabs.Length == 0) return;
+            if (slots.Count <= 1) return;
 
-            GameObject[] pool = new GameObject[data.questPrefabs.Length];
-            System.Array.Copy(data.questPrefabs, pool, data.questPrefabs.Length);
-            if (data.shuffle) Shuffle(pool);
+            // Slots 1+: if player already has skills (floors 2+), place now.
+            // On floor 1 first load, player hasn't hit the skill marker yet — defer
+            // until their first skill is picked so the filter has a real inventory to read.
+            bool playerHasSkills = vc_PlayerInventory.Instance != null
+                && vc_PlayerInventory.Instance.GatheredSkills.Count > 0;
 
-            int count = Mathf.Min(slots.Count - 1, pool.Length);
-            for (int i = 0; i < count; i++)
+            if (playerHasSkills)
             {
-                if (pool[i] == null) continue;
-                GameObject room = Instantiate(pool[i], slots[i + 1].transform);
-                room.transform.localPosition = Vector3.zero;
+                PlaceQuestInSlot(slots[1]);
             }
+            else
+            {
+                _pendingScene = scene;
+                _pendingSlots = slots;
+                if (vc_PlayerInventory.Instance != null)
+                    vc_PlayerInventory.Instance.OnSkillAdded += OnFirstSkillAdded;
+                else
+                    Debug.LogWarning("[vc_FloorInitializer] vc_PlayerInventory.Instance is null — quest rooms will not be placed.");
+            }
+        }
+
+        private void OnFirstSkillAdded(vc_SkillData skill)
+        {
+            if (vc_PlayerInventory.Instance != null)
+                vc_PlayerInventory.Instance.OnSkillAdded -= OnFirstSkillAdded;
+
+            // Place only the first quest slot — hallway markers place each subsequent slot
+            // after the player picks a skill in the hallway between quests.
+            if (_pendingSlots != null && _pendingSlots.Count > 1)
+                PlaceQuestInSlot(_pendingSlots[1]);
+
+            _pendingSlots = null;
+        }
+
+        /// <summary>
+        /// Places one quest room into a specific slot. Called by hallway skill markers
+        /// after the player picks a skill, so each room is placed with the player's
+        /// actual inventory at that moment — not all at floor load.
+        /// </summary>
+        public void PlaceQuestInSlot(vc_RoomSlot slot)
+        {
+            if (slot == null) return;
+            if (slot.transform.childCount > 0) return;
+
+            vc_QuestAvailabilityFilter filter = vc_QuestAvailabilityFilter.Instance
+                ?? FindFirstObjectByType<vc_QuestAvailabilityFilter>();
+            GameObject[] pool = filter != null
+                ? filter.DrawQuestsForFloor(1)
+                : System.Array.Empty<GameObject>();
+
+            if (pool.Length == 0)
+            {
+                Debug.LogWarning($"[vc_FloorInitializer] No eligible quest for slot '{slot.name}'.");
+                return;
+            }
+
+            GameObject room = Instantiate(pool[0], slot.transform);
+            room.transform.localPosition = Vector3.zero;
+
+            vc_QuestAvailabilityFilter filterPost = vc_QuestAvailabilityFilter.Instance
+                ?? FindFirstObjectByType<vc_QuestAvailabilityFilter>();
+            filterPost?.InitializeFloor(slot.gameObject.scene);
+            Debug.Log($"[vc_FloorInitializer] Placed quest in slot '{slot.name}'.");
         }
 
         private FloorData GetFloorData(string sceneName)

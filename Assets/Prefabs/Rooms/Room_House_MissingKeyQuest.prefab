@@ -831,6 +831,13 @@ MonoBehaviour:
   objectiveText: 
   questDescription: Find the Missing Key
   questHints: []
+  lockType: 1
+  requiredSkillTag: 
+  isExposureEligible: 0
+  solvableWithTags:
+  - scan
+  - summon
+  - unlock
 --- !u!1 &7442535351901806510
 GameObject:
   m_ObjectHideFlags: 0
@@ -1333,10 +1340,10 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
       insertIndex: 0
-      addedObject: {fileID: 5299299946441484463}
+      addedObject: {fileID: 8226208449230186647}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
       insertIndex: 1
-      addedObject: {fileID: 8226208449230186647}
+      addedObject: {fileID: 5299299946441484463}
     - targetCorrespondingSourceObject: {fileID: 243768541778223181, guid: f6fa465a01a2bbf44ba013dc6e9a7ee1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7240753122398773314}

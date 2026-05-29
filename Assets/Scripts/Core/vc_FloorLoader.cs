@@ -66,6 +66,9 @@ namespace SunodGame.Core
             // InitializeFloor must run first — room prefabs are instantiated here,
             // and spawn points live inside those prefabs.
             vc_FloorInitializer.Instance?.InitializeFloor(scene);
+            // Availability filter must run after FloorInitializer so all vc_QuestRoom
+            // components are present in the scene before the scan.
+            vc_QuestAvailabilityFilter.Instance?.InitializeFloor(scene);
             TeleportPlayerToSpawn(scene);
             RegisterSpawnPoints(scene);
         }
