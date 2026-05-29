@@ -27,7 +27,17 @@ namespace SunodGame.UI
 
         private void OnEnable()
         {
-            _uguiSkillBarRoot?.SetActive(false);
+            // Disable only the UGUI skill slot children — not the whole root,
+            // because Controls UI also hosts the Joystick which must stay active.
+            if (_uguiSkillBarRoot != null)
+            {
+                for (int i = 0; i < _uguiSkillBarRoot.transform.childCount; i++)
+                {
+                    Transform child = _uguiSkillBarRoot.transform.GetChild(i);
+                    if (child.name.StartsWith("Skill", System.StringComparison.OrdinalIgnoreCase))
+                        child.gameObject.SetActive(false);
+                }
+            }
 
             var root = GetComponent<UIDocument>().rootVisualElement;
 

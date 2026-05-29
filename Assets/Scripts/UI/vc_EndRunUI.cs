@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using SunodGame.Core;
@@ -9,6 +10,7 @@ public class vc_EndRunUI : MonoBehaviour
 
     private VisualElement _root;
     private Button _btn;
+    private bool _isSubmitting;
 
     private void Awake()
     {
@@ -30,12 +32,14 @@ public class vc_EndRunUI : MonoBehaviour
 
     private void OnClicked()
     {
+        if (_isSubmitting) return;
+
         vc_DialogPanel dialog = vc_DialogPanel.Instance
             ?? FindFirstObjectByType<vc_DialogPanel>();
 
         if (dialog == null)
         {
-            SceneLoader.GoToEnd();
+            StartCoroutine(SubmitAndGoToEnd());
             return;
         }
 
@@ -45,8 +49,37 @@ public class vc_EndRunUI : MonoBehaviour
             icon:         null,
             confirmLabel: "Yes",
             cancelLabel:  "No",
-            onConfirm:    () => SceneLoader.GoToEnd(),
+            onConfirm:    () => StartCoroutine(SubmitAndGoToEnd()),
             onCancel:     null
         );
+    }
+
+    /// <summary>
+    /// Submits telemetry (run summary + prediction) then loads the EndScene.
+    /// Mirrors the flow used by vc_DebugSkipToEnd so quest data is never lost.
+    /// </summary>
+    private IEnumerator SubmitAndGoToEnd()
+    {
+        _isSubmitting = true;
+        Hide();
+
+        vc_SessionTelemetry telemetry = vc_SessionTelemetry.Instance;
+        if (telemetry == null)
+        {
+            Debug.LogWarning("[vc_EndRunUI] vc_SessionTelemetry unavailable — going to EndScene without submission.");
+            SceneLoader.GoToEnd();
+            yield break;
+        }
+
+        Debug.Log("[vc_EndRunUI] Submitting run summary to backend...");
+        yield return telemetry.SubmitRunSummary(
+            success => Debug.Log("[vc_EndRunUI] Run summary submitted successfully."),
+            error   => Debug.LogWarning($"[vc_EndRunUI] Run summary failed: {error}"));
+
+        yield return telemetry.SubmitAndPredict(
+            cluster => Debug.Log($"[vc_EndRunUI] Prediction done. Cluster={cluster}"));
+
+        Debug.Log("[vc_EndRunUI] Done. Loading EndScene.");
+        SceneLoader.GoToEnd();
     }
 }

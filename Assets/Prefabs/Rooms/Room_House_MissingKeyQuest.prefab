@@ -834,10 +834,10 @@ MonoBehaviour:
   lockType: 1
   requiredSkillTag: 
   isExposureEligible: 0
+  requiredComboTags: []
   solvableWithTags:
   - scan
   - summon
-  - unlock
 --- !u!1 &7442535351901806510
 GameObject:
   m_ObjectHideFlags: 0

@@ -114,6 +114,8 @@ namespace SunodGame.Core
             if (pool.Length == 0)
             {
                 Debug.LogWarning($"[vc_FloorInitializer] No eligible quest for slot '{slot.name}'.");
+                vc_EndRunUI ui = vc_EndRunUI.Instance ?? FindFirstObjectByType<vc_EndRunUI>();
+                ui?.Show();
                 return;
             }
 
