@@ -69,11 +69,11 @@ public class PlayerController : MonoBehaviour
 
         float minX = b.min.x + halfW;
         float maxX = b.max.x - halfW;
-        if (minX <= maxX) pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.x = minX <= maxX ? Mathf.Clamp(pos.x, minX, maxX) : b.center.x;
 
         float minY = b.min.y + halfH;
         float maxY = b.max.y - halfH;
-        if (minY <= maxY) pos.y = Mathf.Clamp(pos.y, minY, maxY);
+        pos.y = minY <= maxY ? Mathf.Clamp(pos.y, minY, maxY) : b.center.y;
 
         followCamera.position = pos;
     }
