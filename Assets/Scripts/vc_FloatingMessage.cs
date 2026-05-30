@@ -18,6 +18,11 @@ public class vc_FloatingMessage : MonoBehaviour
         Instance = this;
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     public TextMeshProUGUI MessageText => messageText;
     public bool IsShowing => hideRoutine != null && messageText != null && messageText.gameObject.activeSelf;
 

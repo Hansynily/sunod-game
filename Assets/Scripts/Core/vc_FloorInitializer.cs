@@ -13,6 +13,7 @@ namespace SunodGame.Core
         {
             public string sceneName;
             public GameObject slot0Prefab;
+            public GameObject hallwayPrefab;
         }
 
         [SerializeField] private FloorData[] floors;
@@ -50,6 +51,21 @@ namespace SunodGame.Core
             {
                 Debug.LogWarning($"[vc_FloorInitializer] No vc_RoomSlot found in {scene.name}.");
                 return;
+            }
+
+            // Place hallway prefabs into all vc_HallwaySlot positions
+            if (data.hallwayPrefab != null)
+            {
+                foreach (GameObject go in scene.GetRootGameObjects())
+                {
+                    foreach (vc_HallwaySlot hallwaySlot in go.GetComponentsInChildren<vc_HallwaySlot>(true))
+                    {
+                        if (hallwaySlot.IsLoaded) continue;
+                        hallwaySlot.MarkLoaded();
+                        GameObject hallway = Instantiate(data.hallwayPrefab, hallwaySlot.transform);
+                        hallway.transform.localPosition = Vector3.zero;
+                    }
+                }
             }
 
             // Slot 0: always place immediately

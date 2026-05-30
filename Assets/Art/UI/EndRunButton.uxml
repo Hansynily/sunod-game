@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="DialogPanel.uss" />
     <ui:VisualElement name="end-run-root" style="position: absolute; bottom: 60px; left: 0; right: 0; align-items: center;">
-        <ui:Button name="end-run-btn" class="dialog-btn dialog-confirm-btn" text="END RUN" />
+        <ui:Button name="end-run-btn" class="dialog-btn dialog-confirm-btn" text="END RUN" style="font-size: 19px; padding: 14px 38px; min-width: 162px; border-radius: 11px;" />
     </ui:VisualElement>
 </ui:UXML>

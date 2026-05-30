@@ -1,0 +1,45 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="PauseMenuStyle.uss" />
+
+    <!--
+        Full-screen root — picking-mode Ignore so the HUD button area
+        is transparent to pointer events when the overlay is closed.
+    -->
+    <ui:VisualElement name="pause-root" class="pause-root" picking-mode="Ignore">
+
+        <!-- ── HUD Pause Button (always visible, top-right) ─────────────── -->
+        <ui:Button name="pause-hud-btn" class="pause-hud-btn" text="||" />
+
+        <!-- ── Full-screen dimmed overlay (hidden by default) ───────────── -->
+        <ui:VisualElement name="pause-overlay" class="pause-overlay">
+
+            <!-- Centered card -->
+            <ui:VisualElement name="pause-box" class="pause-box">
+
+                <!-- Title -->
+                <ui:Label name="pause-title" text="PAUSED" class="pause-title" picking-mode="Ignore" />
+
+                <!-- Gold divider under title -->
+                <ui:VisualElement class="pause-divider" picking-mode="Ignore" />
+
+                <!-- ── Main buttons (Resume / Exit) ───────────────────── -->
+                <ui:VisualElement name="pause-main-btns" class="pause-main-btns">
+                    <ui:Button name="btn-resume" class="pause-btn pause-btn-resume" text="RESUME" />
+                    <ui:Button name="btn-exit"   class="pause-btn pause-btn-exit"   text="QUIT TO MENU" />
+                </ui:VisualElement>
+
+                <!-- ── Exit confirmation (hidden by default) ──────────── -->
+                <ui:VisualElement name="pause-confirm" class="pause-confirm">
+                    <ui:Label name="confirm-body" text="" class="confirm-body" picking-mode="Ignore" />
+                    <ui:VisualElement class="confirm-btn-row">
+                        <ui:Button name="btn-exit-yes" class="pause-btn confirm-btn-yes" text="YES, QUIT" />
+                        <ui:Button name="btn-exit-no"  class="pause-btn confirm-btn-no"  text="NO, BACK" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

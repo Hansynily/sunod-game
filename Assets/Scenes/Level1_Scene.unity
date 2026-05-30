@@ -8688,6 +8688,7 @@ GameObject:
   - component: {fileID: 1028460847}
   - component: {fileID: 1028460846}
   - component: {fileID: 1028460848}
+  - component: {fileID: 1028460849}
   m_Layer: 0
   m_Name: Hallway_1
   m_TagString: Untagged
@@ -8849,6 +8850,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_RoomSlot
   acceptsQuest: 0
+--- !u!114 &1028460849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028460843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8f535972edf628488b294d4b003f51e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_HallwaySlot
 --- !u!1 &1076049557
 GameObject:
   m_ObjectHideFlags: 0
@@ -11567,7 +11580,7 @@ PrefabInstance:
       objectReference: {fileID: 869308503}
     - target: {fileID: 2511732318365057511, guid: 048909b7ed1d862469f0821275d5fdae, type: 3}
       propertyPath: skillPool.Array.size
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2511732318365057511, guid: 048909b7ed1d862469f0821275d5fdae, type: 3}
       propertyPath: 'skillPool.Array.data[0]'
@@ -12486,6 +12499,7 @@ GameObject:
   - component: {fileID: 1546189619}
   - component: {fileID: 1546189618}
   - component: {fileID: 1546189620}
+  - component: {fileID: 1546189621}
   m_Layer: 0
   m_Name: Hallway_0
   m_TagString: Untagged
@@ -12645,6 +12659,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_RoomSlot
   acceptsQuest: 0
+--- !u!114 &1546189621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1546189615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8f535972edf628488b294d4b003f51e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_HallwaySlot
 --- !u!1 &1650411164
 GameObject:
   m_ObjectHideFlags: 0

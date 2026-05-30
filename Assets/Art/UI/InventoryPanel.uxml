@@ -1,140 +1,112 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="InventoryPanelStyle.uss" />
-
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Art/UI/InventoryPanelStyle.uss?fileID=7433441132597879392&amp;guid=6f5a2813901ba3649a5eada09f56c5cd&amp;type=3#InventoryPanelStyle"/>
     <ui:VisualElement name="overlay" class="overlay">
         <ui:VisualElement class="panel-root">
             <ui:VisualElement class="panel-inner">
-
-                <!-- ====== Top bar ====== -->
                 <ui:VisualElement class="topbar">
                     <ui:Button name="btn-back" class="btn-back">
-                        <ui:Label text="&lt; BACK" class="btn-back-label" />
+                        <ui:Label text="&lt; BACK" class="btn-back-label"/>
                     </ui:Button>
                     <ui:VisualElement class="title-block">
-                        <ui:Label text="SKILL EQUIP" class="panel-title" />
+                        <ui:Label text="SKILL EQUIP" class="panel-title"/>
                     </ui:VisualElement>
-                    <ui:Button name="btn-cheat-all" class="btn-cheat">
-                        <ui:Label text="+ ALL" class="btn-cheat-label" />
+                    <ui:Button name="btn-cheat-all" enabled="false" class="btn-cheat">
+                        <ui:Label text="+ ALL" class="btn-cheat-label"/>
                     </ui:Button>
                 </ui:VisualElement>
-
-                <!-- ====== Equipped: 4 diamond slots at top ====== -->
                 <ui:VisualElement class="equipped-section">
-                    <ui:Label text="EQUIPPED" class="equipped-title" />
+                    <ui:Label text="EQUIPPED" class="equipped-title"/>
                     <ui:VisualElement class="slots-row">
-
                         <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="1" class="slot-number" />
+                            <ui:Label text="1" class="slot-number"/>
                             <ui:VisualElement class="slot-diamond-container">
                                 <ui:Button name="slot-0" class="slot-frame">
-                                    <ui:VisualElement class="slot-inner" picking-mode="Ignore">
-                                        <ui:VisualElement name="slot-icon-0" class="slot-frame-icon" picking-mode="Ignore" />
-                                        <ui:Label name="slot-empty-0" text="+" class="slot-empty-label" picking-mode="Ignore" />
+                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                        <ui:VisualElement name="slot-icon-0" picking-mode="Ignore" class="slot-frame-icon"/>
+                                        <ui:Label name="slot-empty-0" text="+" picking-mode="Ignore" class="slot-empty-label"/>
                                     </ui:VisualElement>
                                 </ui:Button>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-0" text="" class="slot-name-label" picking-mode="Ignore" />
+                            <ui:Label name="slot-name-0" text="" picking-mode="Ignore" class="slot-name-label"/>
                         </ui:VisualElement>
-
                         <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="2" class="slot-number" />
+                            <ui:Label text="2" class="slot-number"/>
                             <ui:VisualElement class="slot-diamond-container">
                                 <ui:Button name="slot-1" class="slot-frame">
-                                    <ui:VisualElement class="slot-inner" picking-mode="Ignore">
-                                        <ui:VisualElement name="slot-icon-1" class="slot-frame-icon" picking-mode="Ignore" />
-                                        <ui:Label name="slot-empty-1" text="+" class="slot-empty-label" picking-mode="Ignore" />
+                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                        <ui:VisualElement name="slot-icon-1" picking-mode="Ignore" class="slot-frame-icon"/>
+                                        <ui:Label name="slot-empty-1" text="+" picking-mode="Ignore" class="slot-empty-label"/>
                                     </ui:VisualElement>
                                 </ui:Button>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-1" text="" class="slot-name-label" picking-mode="Ignore" />
+                            <ui:Label name="slot-name-1" text="" picking-mode="Ignore" class="slot-name-label"/>
                         </ui:VisualElement>
-
                         <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="3" class="slot-number" />
+                            <ui:Label text="3" class="slot-number"/>
                             <ui:VisualElement class="slot-diamond-container">
                                 <ui:Button name="slot-2" class="slot-frame">
-                                    <ui:VisualElement class="slot-inner" picking-mode="Ignore">
-                                        <ui:VisualElement name="slot-icon-2" class="slot-frame-icon" picking-mode="Ignore" />
-                                        <ui:Label name="slot-empty-2" text="+" class="slot-empty-label" picking-mode="Ignore" />
+                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                        <ui:VisualElement name="slot-icon-2" picking-mode="Ignore" class="slot-frame-icon"/>
+                                        <ui:Label name="slot-empty-2" text="+" picking-mode="Ignore" class="slot-empty-label"/>
                                     </ui:VisualElement>
                                 </ui:Button>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-2" text="" class="slot-name-label" picking-mode="Ignore" />
+                            <ui:Label name="slot-name-2" text="" picking-mode="Ignore" class="slot-name-label"/>
                         </ui:VisualElement>
-
                         <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="4" class="slot-number" />
+                            <ui:Label text="4" class="slot-number"/>
                             <ui:VisualElement class="slot-diamond-container">
                                 <ui:Button name="slot-3" class="slot-frame">
-                                    <ui:VisualElement class="slot-inner" picking-mode="Ignore">
-                                        <ui:VisualElement name="slot-icon-3" class="slot-frame-icon" picking-mode="Ignore" />
-                                        <ui:Label name="slot-empty-3" text="+" class="slot-empty-label" picking-mode="Ignore" />
+                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                        <ui:VisualElement name="slot-icon-3" picking-mode="Ignore" class="slot-frame-icon"/>
+                                        <ui:Label name="slot-empty-3" text="+" picking-mode="Ignore" class="slot-empty-label"/>
                                     </ui:VisualElement>
                                 </ui:Button>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-3" text="" class="slot-name-label" picking-mode="Ignore" />
+                            <ui:Label name="slot-name-3" text="" picking-mode="Ignore" class="slot-name-label"/>
                         </ui:VisualElement>
-
                     </ui:VisualElement>
                 </ui:VisualElement>
-
-                <!-- Divider between slots and grid -->
-                <ui:VisualElement class="section-divider" />
-
-                <!-- ====== Skill grid ====== -->
+                <ui:VisualElement class="section-divider"/>
                 <ui:VisualElement class="body">
-                    <ui:Label text="GATHERED" class="pane-header" />
-                    <ui:ScrollView name="cards-scroll"
-                                   mode="Vertical"
-                                   horizontal-scroller-visibility="Hidden"
-                                   class="cards-scroll" />
+                    <ui:Label text="GATHERED" class="pane-header"/>
+                    <ui:ScrollView name="cards-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden" class="cards-scroll"/>
                 </ui:VisualElement>
-
-                <!-- ====== Detail pane: full-width at bottom ====== -->
                 <ui:VisualElement name="detail-pane" class="detail-pane">
-
-                    <!-- Empty state -->
                     <ui:VisualElement name="detail-empty" class="detail-empty">
-                        <ui:Label text="SELECT A SKILL" class="detail-empty-title" />
-                        <ui:Label text="tap any skill above to inspect it" class="detail-empty-sub" />
+                        <ui:Label text="SELECT A SKILL" class="detail-empty-title"/>
+                        <ui:Label text="tap any skill above to inspect it" class="detail-empty-sub"/>
                     </ui:VisualElement>
-
-                    <!-- Filled state -->
                     <ui:VisualElement name="detail-filled" class="detail-filled">
                         <ui:VisualElement class="detail-header">
                             <ui:VisualElement name="detail-icon-frame" class="detail-icon-frame">
-                                <ui:VisualElement name="detail-icon" class="detail-icon" />
+                                <ui:VisualElement name="detail-icon" class="detail-icon"/>
                             </ui:VisualElement>
                             <ui:VisualElement class="detail-titlebox">
-                                <ui:Label name="detail-name" text="SKILL NAME" class="detail-name" />
+                                <ui:Label name="detail-name" text="SKILL NAME" class="detail-name"/>
                                 <ui:VisualElement class="detail-meta">
                                     <ui:VisualElement name="detail-tag" class="detail-tag">
-                                        <ui:Label name="detail-tag-letter" text="R" class="detail-tag-letter" />
-                                        <ui:Label name="detail-tag-name" text="REALISTIC" class="detail-tag-name" />
+                                        <ui:Label name="detail-tag-letter" text="R" class="detail-tag-letter"/>
+                                        <ui:Label name="detail-tag-name" text="REALISTIC" class="detail-tag-name"/>
                                     </ui:VisualElement>
-                                    <ui:Label name="detail-level" text="LV. 1" class="detail-level" />
+                                    <ui:Label name="detail-level" text="LV. 1" class="detail-level"/>
                                 </ui:VisualElement>
                             </ui:VisualElement>
                         </ui:VisualElement>
-
-                        <ui:VisualElement class="detail-divider" />
-
+                        <ui:VisualElement class="detail-divider"/>
                         <ui:VisualElement class="detail-body-row">
                             <ui:VisualElement class="detail-desc-block">
-                                <ui:Label text="DESCRIPTION" class="detail-section-label" />
-                                <ui:Label name="detail-desc" text="" class="detail-desc" />
+                                <ui:Label text="DESCRIPTION" class="detail-section-label"/>
+                                <ui:Label name="detail-desc" text="" class="detail-desc"/>
                             </ui:VisualElement>
                             <ui:VisualElement class="detail-action-block">
-                                <ui:Label text="ACTION" class="detail-section-label" />
-                                <ui:Label name="detail-action" text="" class="detail-action" />
+                                <ui:Label text="ACTION" class="detail-section-label"/>
+                                <ui:Label name="detail-action" text="" class="detail-action"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-
-                        <ui:Label text="TAP A SLOT ABOVE TO EQUIP" class="detail-hint" />
+                        <ui:Label text="TAP A SLOT ABOVE TO EQUIP" class="detail-hint"/>
                     </ui:VisualElement>
-
                 </ui:VisualElement>
-
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
