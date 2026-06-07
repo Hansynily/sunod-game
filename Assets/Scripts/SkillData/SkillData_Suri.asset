@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Build
+  m_Name: SkillData_Suri
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: Build
-  riaSecLetter: R
-  buttonLabel: Build
-  description: Place a path across obstacles.
+  skillName: SURI
+  riaSecLetter: I
+  buttonLabel: SURI
+  description: Scan the area to reveal hidden things.
   icon: {fileID: 0}
   capabilityTags:
-  - bridge
-  - build
+  - survey

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Arrow
+  m_Name: SkillData_Gabay
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: Arrow
-  riaSecLetter: C
-  buttonLabel: Arrow
-  description: Scan your surroundings to highlight a safe detour route on the ground.
+  skillName: GABAY
+  riaSecLetter: S
+  buttonLabel: GABAY
+  description: Highlight the path toward an objective.
   icon: {fileID: 0}
   capabilityTags:
-  - navigate
+  - guide

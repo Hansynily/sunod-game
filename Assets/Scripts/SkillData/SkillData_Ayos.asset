@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_SOS
+  m_Name: SkillData_Ayos
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: SOS
-  riaSecLetter: E
-  buttonLabel: SOS
-  description: Call a friend for immediate assistance with a problem.
+  skillName: AYOS
+  riaSecLetter: R
+  buttonLabel: AYOS
+  description: Repair a broken tool or blocked path.
   icon: {fileID: 0}
   capabilityTags:
-  - summon
+  - repair

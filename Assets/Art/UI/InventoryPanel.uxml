@@ -10,7 +10,7 @@
                     <ui:VisualElement class="title-block">
                         <ui:Label text="SKILL EQUIP" class="panel-title"/>
                     </ui:VisualElement>
-                    <ui:Button name="btn-cheat-all" enabled="false" class="btn-cheat">
+                    <ui:Button name="btn-cheat-all" enabled="true" class="btn-cheat">
                         <ui:Label text="+ ALL" class="btn-cheat-label"/>
                     </ui:Button>
                 </ui:VisualElement>

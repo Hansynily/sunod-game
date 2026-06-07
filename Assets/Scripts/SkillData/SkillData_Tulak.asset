@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Path
+  m_Name: SkillData_Tulak
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: Path
-  riaSecLetter: C
-  buttonLabel: Path
-  description: Identify and reveal an alternative, safer route to your destination
+  skillName: TULAK
+  riaSecLetter: R
+  buttonLabel: TULAK
+  description: Push a heavy object out of the way.
   icon: {fileID: 0}
   capabilityTags:
-  - navigate
+  - push

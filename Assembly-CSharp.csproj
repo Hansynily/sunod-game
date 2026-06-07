@@ -91,6 +91,7 @@
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
     <Compile Include="Assets\Scripts\vc_CheatUnlockAll.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUIToolkit.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_GenericQuestEngine.cs" />
     <Compile Include="Assets\Scripts\QuestData.cs" />
     <Compile Include="Assets\Scripts\vc_PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\CharmSkill.cs" />

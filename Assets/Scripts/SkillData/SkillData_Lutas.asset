@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Collect
+  m_Name: SkillData_Lutas
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: Collect
-  riaSecLetter: R
-  buttonLabel: Collect
-  description: Gather materials from the environment.
+  skillName: LUTAS
+  riaSecLetter: I
+  buttonLabel: LUTAS
+  description: Solve a lock or puzzle to open the way.
   icon: {fileID: 0}
   capabilityTags:
-  - collect
+  - unlock

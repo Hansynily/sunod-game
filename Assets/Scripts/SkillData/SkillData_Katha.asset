@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Heal
+  m_Name: SkillData_Katha
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: Heal
-  riaSecLetter: I
-  buttonLabel: Heal
-  description: Treat the injuries of others.
+  skillName: KATHA
+  riaSecLetter: A
+  buttonLabel: KATHA
+  description: Craft and mold materials into a useful item.
   icon: {fileID: 0}
   capabilityTags:
-  - heal
+  - craft

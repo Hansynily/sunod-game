@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Strength
+  m_Name: SkillData_Silip
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: Strength
-  riaSecLetter: R
-  buttonLabel: Strength
-  description: Move heavy objects that block your way.
+  skillName: SILIP
+  riaSecLetter: C
+  buttonLabel: SILIP
+  description: Scan an object to read its requirements.
   icon: {fileID: 0}
   capabilityTags:
-  - push
+  - inspect

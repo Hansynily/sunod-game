@@ -243,6 +243,67 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TestHarness
   spawnPoint: {fileID: 2041630513}
+--- !u!1001 &683913825
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7273213546831215558, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_Name
+      value: Room_School_LostFriendQuest
+      objectReference: {fileID: 0}
+    - target: {fileID: 7273213546831215558, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
 --- !u!1 &917162303
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,63 +523,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 16.320507, y: 16.507343}
   m_EdgeRadius: 0
---- !u!1001 &980759661
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 690404391828845017, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3508368966515316259, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-      propertyPath: m_Name
-      value: Room_House_MissingKeyQuest
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
 --- !u!1 &1267027141
 GameObject:
   m_ObjectHideFlags: 0
@@ -3277,6 +3281,67 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1001 &1789567388
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758584665073474620, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7273213546831215558, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_Name
+      value: Room_School_LostFriendQuest 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7273213546831215558, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d4831f647e054f44f87e035ad202ff13, type: 3}
 --- !u!1 &1927036737
 GameObject:
   m_ObjectHideFlags: 0
@@ -3394,4 +3459,5 @@ SceneRoots:
   - {fileID: 957852971}
   - {fileID: 2041630513}
   - {fileID: 322871464}
-  - {fileID: 980759661}
+  - {fileID: 1789567388}
+  - {fileID: 683913825}

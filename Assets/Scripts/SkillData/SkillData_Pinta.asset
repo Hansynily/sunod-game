@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Help
+  m_Name: SkillData_Pinta
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: Help
-  riaSecLetter: S
-  buttonLabel: Help
-  description: Provide direct assistance to those in need.
+  skillName: PINTA
+  riaSecLetter: A
+  buttonLabel: PINTA
+  description: Apply color to mark or transform an object.
   icon: {fileID: 0}
   capabilityTags:
-  - help
+  - paint
