@@ -42,6 +42,7 @@ namespace SunodGame.Core
             vc_PlayerInventory.Instance?.ClearInventory();
             vc_SessionTelemetry.Instance?.CancelCurrentSession();
             vc_SkillManager.Instance?.ResetForNewRun();
+            vc_SkillZone.ResetCounter();
             GameSessionData.Reset();
 
             // Re-enable any UI components that were hidden during EndScene

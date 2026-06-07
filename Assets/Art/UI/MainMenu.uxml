@@ -2,11 +2,6 @@
     <ui:Style src="MainMenuStyle.uss"/>
     <ui:VisualElement name="root" class="root-container">
 
-        <!-- Logout button — absolute top-right, must be first so stacking order is correct with position:absolute -->
-        <ui:Button name="btn-logout" class="btn-logout">
-            <ui:Label text="Logout" class="btn-logout-label"/>
-        </ui:Button>
-
         <!-- Left panel: brand + nav buttons -->
         <ui:VisualElement class="left-panel">
 
@@ -42,6 +37,11 @@
             <ui:Label name="lbl-username" class="username-label" text=""/>
 
         </ui:VisualElement>
+
+        <!-- Logout button — MUST be last so it renders on top and receives clicks -->
+        <ui:Button name="btn-logout" class="btn-logout">
+            <ui:Label text="Logout" class="btn-logout-label"/>
+        </ui:Button>
 
     </ui:VisualElement>
 </ui:UXML>

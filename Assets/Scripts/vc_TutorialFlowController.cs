@@ -51,6 +51,15 @@ public class vc_TutorialFlowController : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+
+        // Fresh slate on every tutorial entry. The inventory is DontDestroyOnLoad and the
+        // skill-zone gate counter is static, so they survive scene loads. The tutorial is
+        // reached via LoadByName / editor force-play, both of which skip
+        // SceneLoader.ResetForNewRun — so without this a replayed tutorial inherits the
+        // previous run's gathered skills and a desynced zone gate (skills usable anywhere).
+        vc_PlayerInventory.Instance?.ClearInventory();
+        vc_SkillZone.ResetCounter();
+
         _player = FindFirstObjectByType<PlayerController>();
     }
 

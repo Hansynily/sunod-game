@@ -3,16 +3,17 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Tutorial quest: one obstacle, solvable by ANY of the six RIASEC skills, but
-/// each skill resolves it in its own flavor (mirrors vc_SlipperyWayQuest /
-/// vc_CatQuest, keyed off capabilityTags).
+/// Tutorial quest: one obstacle, solvable by ANY skill, but each RIASEC
+/// category resolves it in its own flavor. Keyed off the skill's riaSecLetter
+/// (NOT capabilityTags) so it works with every skill in the pool regardless of
+/// individual tag names.
 ///
-///   bridge/build (R) → obstacle sinks into the ground
-///   scan        (I) → obstacle fades away (saw the hidden gap)
-///   craft       (A) → obstacle squashes flat (reshaped)
-///   navigate    (C) → obstacle slides aside (found the trail)
-///   help        (S) → helper NPC walks in and clears it
-///   persuade    (E) → helper NPC walks in and moves it aside
+///   R (build/repair/push)            → obstacle sinks into the ground
+///   I (survey/unlock/plan)           → obstacle fades away (saw the hidden gap)
+///   A (paint/craft/barrier)          → obstacle squashes flat (reshaped)
+///   C (inspect/collect/direct)       → obstacle slides aside (found the trail)
+///   S (guide/heal/teach)             → helper NPC walks in and clears it
+///   E (command/summon/charm/persuade)→ helper NPC walks in and moves it aside
 ///
 /// Tutorial-only — standalone, does NOT use vc_QuestRoom / vc_IQuestLogic.
 /// </summary>
@@ -74,41 +75,39 @@ public class vc_TutorialQuest : MonoBehaviour
         _active = false;
         UnsubscribeFromSkillManager();
 
-        if (data.HasTag("bridge") || data.HasTag("build"))
+        // Keyed off RIASEC letter so it works with every skill regardless of tag name.
+        string code = (data.riaSecLetter ?? "").Trim().ToUpperInvariant();
+
+        switch (code)
         {
-            vc_FloatingMessage.Instance?.Show("You build a way straight through.");
-            StartCoroutine(ResolveObstacleMotion(Vector3.down * 1.25f, fadeOut: true));
-        }
-        else if (data.HasTag("scan"))
-        {
-            vc_FloatingMessage.Instance?.Show("You see the hidden gap and slip through.");
-            StartCoroutine(ResolveFadeThrough());
-        }
-        else if (data.HasTag("craft"))
-        {
-            vc_FloatingMessage.Instance?.Show("You mold it down out of the way.");
-            StartCoroutine(ResolveSquash());
-        }
-        else if (data.HasTag("navigate"))
-        {
-            vc_FloatingMessage.Instance?.Show("You find the trail around it.");
-            StartCoroutine(ResolveObstacleMotion(Vector3.right * 2f, fadeOut: false));
-        }
-        else if (data.HasTag("help"))
-        {
-            vc_FloatingMessage.Instance?.Show("Together, you clear the way.");
-            StartCoroutine(ResolveWithNpc());
-        }
-        else if (data.HasTag("persuade"))
-        {
-            vc_FloatingMessage.Instance?.Show("You convince them to move it aside.");
-            StartCoroutine(ResolveWithNpc());
-        }
-        else
-        {
-            // Any other skill still solves it (tutorial single-skill rule).
-            vc_FloatingMessage.Instance?.Show("The way is clear.");
-            StartCoroutine(ResolveFadeThrough());
+            case "R": // build / repair / push — force it down out of the way
+                vc_FloatingMessage.Instance?.Show("You force a way straight through.");
+                StartCoroutine(ResolveObstacleMotion(Vector3.down * 1.25f, fadeOut: true));
+                break;
+            case "I": // survey / unlock / plan — spot the hidden gap
+                vc_FloatingMessage.Instance?.Show("You spot the hidden gap and slip through.");
+                StartCoroutine(ResolveFadeThrough());
+                break;
+            case "A": // paint / craft / barrier — reshape it
+                vc_FloatingMessage.Instance?.Show("You mold it down out of the way.");
+                StartCoroutine(ResolveSquash());
+                break;
+            case "C": // inspect / collect / direct — find the trail around
+                vc_FloatingMessage.Instance?.Show("You find the trail around it.");
+                StartCoroutine(ResolveObstacleMotion(Vector3.right * 2f, fadeOut: false));
+                break;
+            case "S": // guide / heal / teach — get help to clear it
+                vc_FloatingMessage.Instance?.Show("Together, you clear the way.");
+                StartCoroutine(ResolveWithNpc());
+                break;
+            case "E": // command / summon / charm / persuade — convince someone to move it
+                vc_FloatingMessage.Instance?.Show("You convince them to move it aside.");
+                StartCoroutine(ResolveWithNpc());
+                break;
+            default: // unknown letter still solves it (tutorial single-skill rule)
+                vc_FloatingMessage.Instance?.Show("The way is clear.");
+                StartCoroutine(ResolveFadeThrough());
+                break;
         }
     }
 
