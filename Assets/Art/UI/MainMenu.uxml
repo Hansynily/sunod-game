@@ -2,20 +2,27 @@
     <ui:Style src="MainMenuStyle.uss"/>
     <ui:VisualElement name="root" class="root-container">
 
-        <!-- Center content -->
-        <ui:VisualElement class="screen-wrapper">
+        <!-- Logout button — absolute top-right, must be first so stacking order is correct with position:absolute -->
+        <ui:Button name="btn-logout" class="btn-logout">
+            <ui:Label text="Logout" class="btn-logout-label"/>
+        </ui:Button>
 
-            <!-- Brand area above card -->
+        <!-- Left panel: brand + nav buttons -->
+        <ui:VisualElement class="left-panel">
+
             <ui:VisualElement class="brand-area">
                 <ui:Label text="SUNOD" class="brand-title"/>
                 <ui:Label text="·—·◆·—·" class="brand-divider"/>
             </ui:VisualElement>
 
-            <!-- Menu card -->
             <ui:VisualElement class="menu-panel">
 
                 <ui:Button name="btn-tutorial" class="menu-btn btn-tutorial">
                     <ui:Label text="Tutorial" class="btn-label"/>
+                </ui:Button>
+
+                <ui:Button name="btn-continue" class="menu-btn btn-continue">
+                    <ui:Label text="Continue" class="btn-label"/>
                 </ui:Button>
 
                 <ui:Button name="btn-play" class="menu-btn btn-play">
@@ -29,10 +36,16 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Logout button — MUST be last so it renders on top and receives clicks -->
-        <ui:Button name="btn-logout" class="btn-logout">
-            <ui:Label text="Logout" class="btn-logout-label"/>
-        </ui:Button>
+        <!-- Right panel: player card + username -->
+        <ui:VisualElement class="right-panel">
+
+            <ui:VisualElement name="player-card" class="player-card">
+                <ui:VisualElement name="player-card-image" class="player-card-image"/>
+            </ui:VisualElement>
+
+            <ui:Label name="lbl-username" class="username-label" text=""/>
+
+        </ui:VisualElement>
 
     </ui:VisualElement>
 </ui:UXML>

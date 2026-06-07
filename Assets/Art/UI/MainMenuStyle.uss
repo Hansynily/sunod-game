@@ -123,3 +123,81 @@
 .btn-settings:hover {
     background-color: rgb(52, 72, 112);
 }
+
+/* ============================
+   Two-column layout
+   ============================ */
+.root-container {
+    flex-direction: row;
+}
+
+.left-panel {
+    width: 50%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 40px;
+}
+
+.right-panel {
+    width: 50%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 40px;
+}
+
+/* ============================
+   Player card
+   ============================ */
+.player-card {
+    width: 320px;
+    height: 420px;
+    background-color: rgba(14, 20, 42, 0.95);
+    border-color: rgb(201, 151, 59);
+    border-width: 4px;
+    border-radius: 18px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.player-card-image {
+    width: 100%;
+    height: 100%;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.username-label {
+    font-size: 30px;
+    color: white;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: middle-center;
+    margin-top: 20px;
+    background-color: rgba(14, 20, 42, 0.9);
+    border-color: rgb(201, 151, 59);
+    border-width: 2px;
+    border-radius: 12px;
+    padding: 14px 36px;
+}
+
+/* ============================
+   Continue button
+   ============================ */
+.btn-continue {
+    background-color: rgb(38, 54, 88);
+}
+.btn-continue:hover {
+    background-color: rgb(52, 72, 112);
+}
+.btn-continue:disabled {
+    background-color: rgba(38, 38, 38, 0.6);
+    border-color: rgba(100, 100, 100, 0.5);
+    opacity: 0.5;
+}
+
+/* menu-panel width override for left layout */
+.menu-panel {
+    width: 100%;
+    max-width: 600px;
+}
