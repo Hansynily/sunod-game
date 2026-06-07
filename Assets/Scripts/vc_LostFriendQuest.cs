@@ -40,7 +40,9 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         vc_DirectionalArrow.Instance?.ClearTarget();
         vc_DirectionalArrow.Instance?.HideArrow();
 
-        // Fall back to the NPC's own transform so the completion check tracks it as it walks.
+        // Auto-wire the NPC refs so a missing Inspector assignment doesn't silently break movement.
+        if (friendNPC == null && friendTransform != null) friendNPC = friendTransform.GetComponent<vc_NPCController>();
+        if (friendNPC == null) friendNPC = GetComponentInChildren<vc_NPCController>(true);
         if (friendTransform == null && friendNPC != null) friendTransform = friendNPC.transform;
 
         SubscribeToSkillManager();

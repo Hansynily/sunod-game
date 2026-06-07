@@ -3582,6 +3582,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Room_Forest_FallenSparrowQuest
       objectReference: {fileID: 0}
+    - target: {fileID: 1997946248186148176, guid: dc2e0f787ccf2914d9ecf7bde9ce5c79, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2494664721169388202, guid: dc2e0f787ccf2914d9ecf7bde9ce5c79, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
