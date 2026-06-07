@@ -43,6 +43,9 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
 
         if (vetNPCObject != null) vetNPCObject.SetActive(false);
 
+        // Fall back to the bird AI's transform so the vet (summon path) has a walk target.
+        if (birdTransform == null && birdAI != null) birdTransform = birdAI.transform;
+
         SubscribeToSkillManager();
 
         vc_QuestHUD.Instance?.ShowQuestInfo(
@@ -53,50 +56,12 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
         );
     }
 
-    private void Update()
-    {
-        if (!questStarted || questDone)
-        {
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
-        if (!charmDone && vc_SkillManager.Instance.IsHoldingTag("attract") && _playerTransform != null && birdTransform != null)
-        {
-            if (Vector3.Distance(_playerTransform.position, birdTransform.position) < charmRange && birdAI != null)
-            {
-                birdAI.StartMovingToPlayer();
-                charmDone = true;
-                vc_FloatingMessage.Instance?.Show("The bird is warming up to you...");
-                vc_QuestHUD.Instance?.CheckObjective(0);
-            }
-        }
-
-        if (!vc_SkillManager.Instance.IsHoldingTag("heal") || birdAI == null || !birdAI.HasReachedPlayer())
-        {
-            healTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
-        healTimer += Time.deltaTime;
-
-        int remaining = Mathf.Max(0, Mathf.CeilToInt(healHoldTime - healTimer) - 1);
-        vc_QuestHUD.Instance?.ShowFeedback($"Treating the bird... {remaining}s");
-
-        if (healTimer >= healHoldTime)
-        {
-            vc_QuestHUD.Instance?.HideFeedback();
-            CompleteQuest();
-        }
-    }
-
     private void HandleSkillUsed(int slotIndex, vc_PlayerSkill skill)
     {
         if (!questStarted || questDone || skill == null) return;
 
         bool handled = false;
-        if (skill.SkillData.HasTag("summon") && !sosUsed)
+        if ((skill.SkillData.HasTag("summon") || skill.SkillData.HasTag("command")) && !sosUsed)
         {
             sosUsed = true;
             vc_QuestHUD.Instance?.CheckObjective(0);
@@ -107,8 +72,14 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
             StartCoroutine(WaitVetThenComplete());
             handled = true;
         }
-        // attract and heal are hold-based in Update — pressing them is valid, no immediate event effect
-        if (skill.SkillData.HasTag("attract") || skill.SkillData.HasTag("heal")) handled = true;
+        // Direct resolve: any one soothing skill treats the bird on press.
+        if (skill.SkillData.HasTag("attract") || skill.SkillData.HasTag("charm") || skill.SkillData.HasTag("heal"))
+        {
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            vc_FloatingMessage.Instance?.Show("You tend to the bird's injuries.");
+            CompleteQuest();
+            handled = true;
+        }
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
     }
 

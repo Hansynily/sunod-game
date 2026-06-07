@@ -21,10 +21,6 @@
                     <ui:Label text="Tutorial" class="btn-label"/>
                 </ui:Button>
 
-                <ui:Button name="btn-continue" class="menu-btn btn-continue">
-                    <ui:Label text="Continue" class="btn-label"/>
-                </ui:Button>
-
                 <ui:Button name="btn-play" class="menu-btn btn-play">
                     <ui:Label text="Play" class="btn-label"/>
                 </ui:Button>

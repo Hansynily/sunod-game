@@ -70,32 +70,6 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
 
         UpdateSafePickup();
         UpdateMedicineDelivery();
-        UpdateLockpickProgress();
-    }
-
-    private void UpdateLockpickProgress()
-    {
-        if (!lockpicking) return;
-
-        if (!questStarted || questDone || safeOpen || safe == null)
-        {
-            lockpicking = false;
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
-        lockpickTimer += Time.deltaTime;
-        int remaining = Mathf.Max(0, Mathf.CeilToInt(lockpickHoldTime - lockpickTimer) - 1);
-        vc_QuestHUD.Instance?.ShowFeedback($"Lockpicking... {remaining}s");
-
-        if (lockpickTimer >= lockpickHoldTime)
-        {
-            lockpicking = false;
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            OpenSafe();
-        }
     }
 
     private void HandleSkillUsed(int slotIndex, vc_PlayerSkill skill)
@@ -103,16 +77,17 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         if (!questStarted || questDone || skill == null) return;
 
         bool handled = false;
-        if (skill.SkillData.HasTag("craft") && !moldingDone)
+        if ((skill.SkillData.HasTag("craft") || skill.SkillData.HasTag("build")
+             || skill.SkillData.HasTag("barrier") || skill.SkillData.HasTag("paint")) && !moldingDone)
         {
             moldingDone = true;
             StartCoroutine(ShowMoldPopupThenComplete());
             handled = true;
         }
-        if (skill.SkillData.HasTag("unlock") && !safeOpen && !lockpicking)
+        // Direct resolve: unlock cracks the safe open on press.
+        if (skill.SkillData.HasTag("unlock") && !safeOpen)
         {
-            lockpicking = true;
-            lockpickTimer = 0f;
+            OpenSafe();
             handled = true;
         }
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");

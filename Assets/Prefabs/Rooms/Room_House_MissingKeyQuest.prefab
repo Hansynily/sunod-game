@@ -831,6 +831,7 @@ MonoBehaviour:
   objectiveText: 
   questDescription: Find the Missing Key
   questHints: []
+  nextQuestId: 
   lockType: 1
   requiredSkillTag: 
   isExposureEligible: 0
@@ -838,6 +839,12 @@ MonoBehaviour:
   solvableWithTags:
   - scan
   - summon
+  - survey
+  - unlock
+  - inspect
+  - map
+  - command
+  - persuade
 --- !u!1 &7442535351901806510
 GameObject:
   m_ObjectHideFlags: 0

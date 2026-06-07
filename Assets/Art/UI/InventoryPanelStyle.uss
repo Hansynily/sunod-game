@@ -15,13 +15,13 @@
 
 /* ---------- OUTER FRAME ---------- */
 .panel-root {
-    width: 96%;
-    max-width: 760px;
-    height: 820px;
+    width: 92%;
+    max-width: 1100px;
+    height: 960px;
     background-color: rgb(10, 14, 30);
     border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    padding: 3px;
+    border-width: 4px;
+    padding: 4px;
 }
 
 /* ---------- INNER WELL ---------- */
@@ -31,30 +31,30 @@
     background-color: rgb(14, 20, 42);
     border-color: rgb(30, 42, 80);
     border-width: 2px;
-    padding: 8px;
+    padding: 12px;
 }
 
 /* ---------- TOP BAR ---------- */
 .topbar {
     flex-direction: row;
     align-items: center;
-    height: 50px;
+    height: 68px;
     flex-shrink: 0;
     background-color: rgb(18, 26, 56);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 6px;
-    padding: 0 10px;
-    margin-bottom: 7px;
+    border-radius: 8px;
+    padding: 0 14px;
+    margin-bottom: 10px;
 }
 
 .btn-back {
     background-color: rgb(38, 54, 88);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 6px;
-    padding: 8px 14px;
-    min-width: 70px;
+    border-radius: 8px;
+    padding: 10px 20px;
+    min-width: 100px;
     transition-property: background-color;
     transition-duration: 0.12s;
 }
@@ -62,7 +62,7 @@
 .btn-back:active { background-color: rgb(26, 38, 68); }
 .btn-back-label {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 12px;
+    font-size: 17px;
     color: rgb(255, 255, 255);
     -unity-text-align: middle-center;
     letter-spacing: 1px;
@@ -75,26 +75,26 @@
 }
 .panel-title {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(245, 168, 35);
     -unity-text-align: middle-center;
-    letter-spacing: 5px;
+    letter-spacing: 6px;
 }
 .panel-sub {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 10px;
+    font-size: 13px;
     color: rgb(140, 110, 58);
     -unity-text-align: middle-center;
-    margin-top: 1px;
+    margin-top: 2px;
 }
 
 .btn-cheat {
     background-color: rgb(38, 54, 88);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 6px;
-    padding: 8px 12px;
-    min-width: 70px;
+    border-radius: 8px;
+    padding: 10px 16px;
+    min-width: 100px;
     transition-property: background-color;
     transition-duration: 0.12s;
 }
@@ -102,7 +102,7 @@
 .btn-cheat:active { background-color: rgb(26, 38, 68); }
 .btn-cheat-label {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 10px;
+    font-size: 14px;
     color: rgb(245, 168, 35);
     -unity-text-align: middle-center;
 }
@@ -121,19 +121,19 @@
 .body {
     flex-grow: 1;
     flex-direction: column;
-    min-height: 220px;
+    min-height: 280px;
 }
 
 .pane-header {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 10px;
+    font-size: 14px;
     color: rgb(245, 168, 35);
     background-color: rgb(18, 26, 56);
     -unity-text-align: middle-left;
-    padding: 6px 10px;
-    letter-spacing: 3px;
+    padding: 8px 14px;
+    letter-spacing: 4px;
     border-left-color: rgb(201, 151, 59);
-    border-left-width: 3px;
+    border-left-width: 4px;
     border-bottom-color: rgb(30, 42, 80);
     border-bottom-width: 2px;
     flex-shrink: 0;
@@ -141,7 +141,7 @@
 
 .cards-scroll {
     flex-grow: 1;
-    padding: 4px;
+    padding: 6px;
     background-color: rgb(12, 18, 38);
 }
 
@@ -150,23 +150,23 @@
 .cards-scroll .unity-scroll-view__content-container {
     flex-wrap: wrap;
     flex-direction: row;
-    padding: 2px;
+    padding: 4px;
     align-content: flex-start;
 }
 
-/* ---------- SKILL CARD (grid item, 4 per row) ---------- */
+/* ---------- SKILL CARD (grid item) ---------- */
 .skill-row {
-    width: 130px;
-    margin: 4px;
-    height: 100px;
+    width: 172px;
+    margin: 6px;
+    height: 132px;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     background-color: rgb(22, 32, 64);
     border-color: rgb(38, 54, 96);
     border-width: 2px;
-    border-radius: 4px;
-    padding: 6px 4px 4px 4px;
+    border-radius: 6px;
+    padding: 8px 6px 6px 6px;
     transition-property: background-color;
     transition-duration: 0.10s;
 }
@@ -180,13 +180,13 @@
 }
 
 .row-icon-frame {
-    width: 56px;
-    height: 56px;
+    width: 72px;
+    height: 72px;
     background-color: rgb(10, 14, 30);
     border-color: rgb(38, 54, 96);
     border-width: 2px;
-    border-radius: 3px;
-    margin-bottom: 4px;
+    border-radius: 4px;
+    margin-bottom: 6px;
 }
 .row-icon {
     position: absolute;
@@ -201,7 +201,7 @@
 }
 .row-name {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 9px;
+    font-size: 12px;
     color: rgb(210, 210, 230);
     -unity-text-align: middle-center;
     white-space: normal;
@@ -213,18 +213,18 @@
 
 /* RIASEC corner badge */
 .row-tag {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 2px;
-    right: 2px;
-    border-radius: 2px;
+    top: 3px;
+    right: 3px;
+    border-radius: 3px;
 }
 .row-tag-letter {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 9px;
+    font-size: 12px;
     color: white;
     -unity-text-align: middle-center;
 }
@@ -242,9 +242,9 @@
     background-color: rgb(18, 26, 56);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 4px;
-    padding: 10px 14px 10px 14px;
-    height: 175px;
+    border-radius: 6px;
+    padding: 14px 18px;
+    height: 220px;
     flex-shrink: 0;
     flex-direction: column;
 }
@@ -258,14 +258,14 @@
 }
 .detail-empty-title {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 12px;
+    font-size: 16px;
     color: rgb(80, 96, 140);
     letter-spacing: 3px;
-    margin-right: 12px;
+    margin-right: 16px;
 }
 .detail-empty-sub {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 11px;
+    font-size: 15px;
     color: rgb(60, 76, 112);
 }
 
@@ -278,22 +278,22 @@
 .detail-header {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .detail-icon-frame {
-    width: 56px;
-    height: 56px;
+    width: 72px;
+    height: 72px;
     background-color: rgb(10, 14, 30);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 4px;
-    margin-right: 12px;
+    border-radius: 5px;
+    margin-right: 16px;
     flex-shrink: 0;
 }
 .detail-icon {
     position: absolute;
-    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    top: 4px; left: 4px; right: 4px; bottom: 4px;
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -304,11 +304,11 @@
 }
 .detail-name {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 13px;
+    font-size: 18px;
     color: rgb(255, 255, 255);
     letter-spacing: 2px;
     white-space: normal;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 .detail-meta {
     flex-direction: row;
@@ -317,50 +317,50 @@
 .detail-tag {
     flex-direction: row;
     align-items: center;
-    padding: 2px 8px 2px 5px;
-    margin-right: 8px;
-    border-radius: 3px;
+    padding: 3px 10px 3px 7px;
+    margin-right: 10px;
+    border-radius: 4px;
 }
 .detail-tag-letter {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 12px;
+    font-size: 16px;
     color: white;
-    margin-right: 4px;
+    margin-right: 5px;
 }
 .detail-tag-name {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 8px;
+    font-size: 11px;
     color: white;
     letter-spacing: 1px;
 }
 .detail-level {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 11px;
+    font-size: 15px;
     color: rgb(245, 168, 35);
     background-color: rgb(10, 14, 30);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 3px;
-    padding: 2px 8px;
+    border-radius: 4px;
+    padding: 3px 10px;
 }
 
 .detail-divider {
     height: 1px;
     background-color: rgb(201, 151, 59);
     opacity: 0.4;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 /* Two-column row for description + action */
 .detail-body-row {
     flex-direction: row;
     flex-grow: 1;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 .detail-desc-block {
     flex-grow: 1;
     flex-direction: column;
-    margin-right: 10px;
+    margin-right: 14px;
 }
 .detail-action-block {
     flex-grow: 1;
@@ -369,21 +369,21 @@
 
 .detail-section-label {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 8px;
+    font-size: 11px;
     color: rgb(140, 110, 58);
     letter-spacing: 3px;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 .detail-desc {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 10px;
+    font-size: 14px;
     color: rgb(210, 210, 230);
     white-space: normal;
     overflow: hidden;
 }
 .detail-action {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 10px;
+    font-size: 14px;
     color: rgb(210, 210, 230);
     background-color: rgb(12, 18, 38);
     border-left-color: rgb(245, 168, 35);
@@ -394,7 +394,7 @@
     border-right-width: 2px;
     border-bottom-color: rgb(30, 42, 80);
     border-bottom-width: 2px;
-    padding: 4px 8px;
+    padding: 5px 10px;
     white-space: normal;
     overflow: hidden;
     flex-grow: 1;
@@ -402,13 +402,13 @@
 
 .detail-hint {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 9px;
+    font-size: 12px;
     color: rgb(245, 168, 35);
     -unity-text-align: middle-center;
     letter-spacing: 3px;
     border-top-color: rgb(30, 42, 80);
     border-top-width: 2px;
-    padding-top: 6px;
+    padding-top: 8px;
     opacity: 0.85;
 }
 
@@ -417,8 +417,8 @@
     background-color: rgb(18, 26, 56);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 4px;
-    padding: 8px 12px 14px 12px;
+    border-radius: 6px;
+    padding: 10px 16px 18px 16px;
     align-items: center;
     margin-bottom: 0;
     flex-shrink: 0;
@@ -426,11 +426,11 @@
 
 .equipped-title {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 10px;
+    font-size: 14px;
     color: rgb(140, 110, 58);
     -unity-text-align: middle-center;
-    letter-spacing: 5px;
-    margin-bottom: 8px;
+    letter-spacing: 6px;
+    margin-bottom: 10px;
 }
 
 .slots-row {
@@ -444,43 +444,43 @@
     align-items: center;
     justify-content: flex-start;
     flex-direction: column;
-    width: 88px;
-    margin-left: 10px;
-    margin-right: 10px;
+    width: 120px;
+    margin-left: 16px;
+    margin-right: 16px;
 }
 
 /* Number badge */
 .slot-number {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 10px;
+    font-size: 14px;
     color: rgb(245, 168, 35);
     -unity-text-align: middle-center;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     background-color: rgb(10, 14, 30);
     border-color: rgb(201, 151, 59);
     border-width: 2px;
-    border-radius: 3px;
-    padding: 2px 8px;
+    border-radius: 4px;
+    padding: 3px 10px;
     letter-spacing: 1px;
 }
 
-/* Container sized to contain the rotated diamond — 54×√2 ≈ 76px, padded to 80px */
+/* Container sized to contain the rotated diamond — 74×√2 ≈ 105px, padded to 110px */
 .slot-diamond-container {
-    width: 80px;
-    height: 80px;
+    width: 110px;
+    height: 110px;
     align-items: center;
     justify-content: center;
 }
 
-/* Diamond: 54×54 rotated 45° fits inside 80×80 container */
+/* Diamond: 74×74 rotated 45° fits inside 110×110 container */
 .slot-frame {
-    width: 54px;
-    height: 54px;
+    width: 74px;
+    height: 74px;
     rotate: 45deg;
     background-color: rgb(22, 32, 64);
     border-color: rgb(38, 54, 96);
     border-width: 3px;
-    border-radius: 3px;
+    border-radius: 4px;
     padding: 0;
     align-items: center;
     justify-content: center;
@@ -510,12 +510,12 @@
 
 .slot-frame-icon {
     position: absolute;
-    top: 4px; left: 4px; right: 4px; bottom: 4px;
+    top: 5px; left: 5px; right: 5px; bottom: 5px;
     -unity-background-scale-mode: scale-to-fit;
 }
 .slot-empty-label {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(50, 68, 110);
     -unity-text-align: middle-center;
 }
@@ -523,11 +523,11 @@
 /* Skill name below the diamond — "——" when empty, skill name when equipped */
 .slot-name-label {
     -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 9px;
+    font-size: 12px;
     color: rgb(245, 168, 35);
     -unity-text-align: middle-center;
-    margin-top: 4px;
+    margin-top: 6px;
     white-space: nowrap;
     overflow: hidden;
-    width: 88px;
+    width: 120px;
 }

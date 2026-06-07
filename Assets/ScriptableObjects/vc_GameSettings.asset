@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: vc_GameSettings
   m_EditorClassIdentifier: Assembly-CSharp::vc_GameSettings
   skills:
-  - {fileID: 11400000, guid: 049f787191ca01b4c8bc604e47fbea59, type: 2}
   - {fileID: 11400000, guid: 16342ed21596ad944b82d19dd7f28266, type: 2}
   - {fileID: 11400000, guid: 0a1b2c3d4e5f60718293a4b5c6d7e8f9, type: 2}
   - {fileID: 11400000, guid: 6edb9351491cf3e4da4edcc5c6021e7e, type: 2}
@@ -21,7 +20,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 480356d457e4e1745af54b9869ed7acf, type: 2}
   - {fileID: 11400000, guid: b4465ecee966dd34f854f6c0ec012835, type: 2}
   - {fileID: 11400000, guid: dc44f1a85543d2941abea9ad5321f079, type: 2}
-  - {fileID: 11400000, guid: 060cf252531eb1b4a849fea43fec35a3, type: 2}
   - {fileID: 11400000, guid: eb366131dedd3094bb4683db2d0148e6, type: 2}
   - {fileID: 11400000, guid: 9cd539fe24c06424887c1d3e26009c6c, type: 2}
   - {fileID: 11400000, guid: b0d3503e8a44d074b8e742fcf46455ce, type: 2}
@@ -38,6 +36,7 @@ MonoBehaviour:
   - {fileID: 1997946248186148176, guid: dc2e0f787ccf2914d9ecf7bde9ce5c79, type: 3}
   - {fileID: 1852221908060043770, guid: a99b1ee8132c22d43974f2b73212819a, type: 3}
   - {fileID: 3508368966515316259, guid: 4e0f7f9d5b50b9b489c93e6bed50e286, type: 3}
-  - {fileID: 6441233813146342226, guid: 7abdace285e98624085ce342b2303c65, type: 3}
   - {fileID: 7273213546831215558, guid: 16dd3c0022a03b245817b660e21e11b9, type: 3}
+  - {fileID: 4503196664744615152, guid: 20dd18b894030b349926690db6454cfb, type: 3}
+  - {fileID: 2222116600124568563, guid: 01dd544beb30d6241a62bffa0167b468, type: 3}
   exposureCount: 1

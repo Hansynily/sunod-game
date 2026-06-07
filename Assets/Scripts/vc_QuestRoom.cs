@@ -22,6 +22,10 @@ public class vc_QuestRoom : MonoBehaviour
     [SerializeField] private string questDescription;
     [SerializeField] private string[] questHints;
 
+    [Header("Save")]
+    [Tooltip("Quest ID of the next quest in sequence. Set on each room so Continue picks up here. Leave blank on the final quest.")]
+    [SerializeField] private string nextQuestId;
+
     [Header("Availability")]
     [SerializeField] private QuestLockType lockType = QuestLockType.None;
     [SerializeField] private string requiredSkillTag;
@@ -69,6 +73,8 @@ public class vc_QuestRoom : MonoBehaviour
         vc_QuestTimer.Instance?.CompleteQuest();
 
         int stars = vc_QuestTimer.Instance != null ? vc_QuestTimer.Instance.FinalStarsEarned : 5;
+
+        WriteQuestSave(stars);
 
         if (vc_QuestDonePopup.Instance != null)
             vc_QuestDonePopup.Instance.Show(questName, stars, OnQuestDoneAcknowledged);
@@ -165,4 +171,27 @@ public class vc_QuestRoom : MonoBehaviour
     public bool IsExposureEligible => isExposureEligible;
     public string[] RequiredComboTags => requiredComboTags;
     public string[] SolvableWithTags => solvableWithTags;
+
+    // ── Save ────────────────────────────────────────────────────────────────
+
+    private static readonly string[] RiasecOrder = { "R", "I", "A", "S", "E", "C" };
+
+    private void WriteQuestSave(int starsEarned)
+    {
+        vc_SaveManager.SaveData data = vc_SaveManager.Load() ?? new vc_SaveManager.SaveData
+        {
+            riasecScores = new int[6]
+        };
+
+        data.currentQuestId = nextQuestId;
+
+        int riasecIndex = System.Array.FindIndex(RiasecOrder,
+            r => primaryRiasec.StartsWith(r, System.StringComparison.OrdinalIgnoreCase));
+
+        if (riasecIndex >= 0)
+            data.riasecScores[riasecIndex] += Mathf.Max(1, starsEarned);
+
+        vc_SaveManager.Save(data);
+        Debug.Log($"[QuestRoom] Save written — nextQuestId='{nextQuestId}', riasec[{riasecIndex}]+={Mathf.Max(1, starsEarned)}");
+    }
 }

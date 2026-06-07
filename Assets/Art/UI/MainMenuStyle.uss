@@ -181,21 +181,6 @@
     padding: 14px 36px;
 }
 
-/* ============================
-   Continue button
-   ============================ */
-.btn-continue {
-    background-color: rgb(38, 54, 88);
-}
-.btn-continue:hover {
-    background-color: rgb(52, 72, 112);
-}
-.btn-continue:disabled {
-    background-color: rgba(38, 38, 38, 0.6);
-    border-color: rgba(100, 100, 100, 0.5);
-    opacity: 0.5;
-}
-
 /* menu-panel width override for left layout */
 .menu-panel {
     width: 100%;

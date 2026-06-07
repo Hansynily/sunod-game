@@ -290,8 +290,8 @@ public class vc_SkillManager : MonoBehaviour
 
         if (skillType == null || !typeof(vc_PlayerSkill).IsAssignableFrom(skillType))
         {
-            Debug.LogWarning($"[vc_SkillManager] No skill class found matching '{typeName}'. Skill name must match class name convention vc_{{Name}}Skill.");
-            return null;
+            skillType = typeof(vc_GenericSkill);
+            SkillTypeCache[typeName] = skillType;
         }
 
         GameObject skillObject = new GameObject(skillData.skillName);

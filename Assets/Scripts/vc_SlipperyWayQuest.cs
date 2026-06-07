@@ -50,7 +50,8 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
         if (!questStarted || questDone || skill == null) return;
 
         bool handled = false;
-        if (skill.SkillData.HasTag("navigate") && !arrowDone)
+        if ((skill.SkillData.HasTag("navigate") || skill.SkillData.HasTag("guide")
+             || skill.SkillData.HasTag("map") || skill.SkillData.HasTag("direct")) && !arrowDone)
         {
             if (safeRouteHighlight != null) safeRouteHighlight.SetActive(true);
             vc_FloatingMessage.Instance?.Show("Safe path found!");
@@ -60,7 +61,8 @@ public class vc_SlipperyWayQuest : MonoBehaviour, vc_IQuestLogic
             StartCoroutine(WaitThenComplete());
             handled = true;
         }
-        if (skill.SkillData.HasTag("summon") && !sosUsed)
+        if ((skill.SkillData.HasTag("summon") || skill.SkillData.HasTag("command")
+             || skill.SkillData.HasTag("persuade")) && !sosUsed)
         {
             sosUsed = true;
             vc_QuestHUD.Instance?.CheckObjective(0);

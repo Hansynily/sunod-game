@@ -68,42 +68,6 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
 
         UpdateKeyPickup();
         UpdateDoorUnlockWithKey();
-        UpdateLockpickProgress();
-    }
-
-    private void UpdateLockpickProgress()
-    {
-        if (!questStarted || questDone || keyPickedUp || !vc_SkillManager.Instance.IsHoldingTag("unlock"))
-        {
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
-        if (_playerTransform == null || frontDoor == null)
-        {
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
-        if (Vector3.Distance(_playerTransform.position, frontDoor.transform.position) >= lockpickRange)
-        {
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            return;
-        }
-
-        lockpickTimer += Time.deltaTime;
-        vc_QuestHUD.Instance?.ShowFeedback($"Lockpicking... {Mathf.Floor(lockpickTimer)}s");
-
-        if (lockpickTimer >= lockpickHoldTime)
-        {
-            lockpickTimer = 0f;
-            vc_QuestHUD.Instance?.HideFeedback();
-            vc_QuestHUD.Instance?.CheckObjective(0);
-            CompleteQuest();
-        }
     }
 
     private void HandleSkillUsed(int slotIndex, vc_PlayerSkill skill)
@@ -111,20 +75,31 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         if (!questStarted || questDone || skill == null) return;
 
         bool handled = false;
-        if (skill.SkillData.HasTag("scan") && !xrayDone)
+        if ((skill.SkillData.HasTag("scan") || skill.SkillData.HasTag("survey")
+             || skill.SkillData.HasTag("inspect") || skill.SkillData.HasTag("guide")
+             || skill.SkillData.HasTag("map")) && !xrayDone)
         {
             ActivateXray();
             xrayDone = true;
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
-        if (skill.SkillData.HasTag("summon") && !sosUsed)
+        if ((skill.SkillData.HasTag("summon") || skill.SkillData.HasTag("command")
+             || skill.SkillData.HasTag("persuade")) && !sosUsed)
         {
             sosUsed = true;
             vc_QuestHUD.Instance?.CheckObjective(0);
             if (friendNPCObject != null) friendNPCObject.SetActive(true);
             if (friendNPC != null && frontDoor != null) friendNPC.WalkToPoint(frontDoor.transform.position);
             StartCoroutine(WaitThenUnlockDoor());
+            handled = true;
+        }
+        // Direct resolve: unlock opens the door on press.
+        if (skill.SkillData.HasTag("unlock") && !questDone)
+        {
+            vc_QuestHUD.Instance?.CheckObjective(0);
+            vc_FloatingMessage.Instance?.Show("Door unlocked!");
+            CompleteQuest();
             handled = true;
         }
         if (!handled) vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");

@@ -45,6 +45,9 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private vc_FloatingMarker[] globalMarkersToHide;
     [SerializeField] private GameObject[] globalObjectsToDestroy;
 
+    [Header("Animation")]
+    [SerializeField] private float propAnimDuration = 0.4f;
+
     private vc_QuestRoom _questRoom;
     private Transform _playerTransform;
     private bool _questDone;
@@ -99,12 +102,6 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
             if (_pathFired[i]) continue;
             if (path.requiresPathIndex >= 0 && !_pathFired[path.requiresPathIndex]) continue;
 
-            if (path.targetTransform != null && _playerTransform != null)
-            {
-                if (Vector2.Distance(_playerTransform.position, path.targetTransform.position)
-                    > path.proximityRange) continue;
-            }
-
             handled = true;
             _pathFired[i] = true;
 
@@ -148,9 +145,10 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
                     break;
 
                 case InteractionType.ItemReveal:
-                    if (path.propToReveal != null) path.propToReveal.SetActive(true);
+                    if (path.propToReveal != null) StartCoroutine(FadeIn(path.propToReveal, propAnimDuration));
                     if (path.propsToHide != null)
-                        foreach (GameObject p in path.propsToHide) p?.SetActive(false);
+                        foreach (GameObject p in path.propsToHide)
+                            if (p != null) StartCoroutine(FadeAndHide(p, propAnimDuration));
                     StartCoroutine(CompleteAfterDelay(path));
                     break;
             }
@@ -160,6 +158,40 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
 
         if (!handled)
             vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
+    }
+
+    private IEnumerator FadeAndHide(GameObject target, float duration)
+    {
+        SpriteRenderer sr = target.GetComponentInChildren<SpriteRenderer>();
+        if (sr == null) { target.SetActive(false); yield break; }
+        Color original = sr.color;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float k = Mathf.Clamp01(elapsed / duration);
+            sr.color = new Color(original.r, original.g, original.b, 1f - k);
+            yield return null;
+        }
+        target.SetActive(false);
+        sr.color = original;
+    }
+
+    private IEnumerator FadeIn(GameObject target, float duration)
+    {
+        target.SetActive(true);
+        SpriteRenderer sr = target.GetComponentInChildren<SpriteRenderer>();
+        if (sr == null) yield break;
+        Color c = sr.color;
+        sr.color = new Color(c.r, c.g, c.b, 0f);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            sr.color = new Color(c.r, c.g, c.b, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+        sr.color = new Color(c.r, c.g, c.b, 1f);
     }
 
     private IEnumerator CompleteAfterDelay(SkillPath path)

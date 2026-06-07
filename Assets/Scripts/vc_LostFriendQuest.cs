@@ -15,6 +15,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
     private bool questStarted = false;
     private bool trackDone = false;
     private bool charmActive = false;
+    private bool guidingActive = false;
     private bool questDone = false;
 
     private void Start()
@@ -33,10 +34,14 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         questStarted = true;
         trackDone = false;
         charmActive = false;
+        guidingActive = false;
         questDone = false;
 
         vc_DirectionalArrow.Instance?.ClearTarget();
         vc_DirectionalArrow.Instance?.HideArrow();
+
+        // Fall back to the NPC's own transform so the completion check tracks it as it walks.
+        if (friendTransform == null && friendNPC != null) friendTransform = friendNPC.transform;
 
         SubscribeToSkillManager();
 
@@ -52,7 +57,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
     {
         if (!questStarted || questDone) return;
 
-        if (!charmActive || friendTransform == null || classroomTransform == null) return;
+        if ((!charmActive && !guidingActive) || friendTransform == null || classroomTransform == null) return;
 
         if (Vector3.Distance(friendTransform.position, classroomTransform.position) < 1.5f)
             CompleteQuest();
@@ -63,19 +68,28 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         if (!questStarted || questDone || skill == null) return;
 
         bool handled = false;
-        if (skill.SkillData.HasTag("navigate") && !trackDone)
+        if ((skill.SkillData.HasTag("navigate") || skill.SkillData.HasTag("guide")
+             || skill.SkillData.HasTag("map") || skill.SkillData.HasTag("direct")) && !trackDone)
         {
             if (classroomTransform != null)
             {
                 vc_DirectionalArrow.Instance?.SetTarget(classroomTransform);
                 vc_DirectionalArrow.Instance?.ShowArrow();
             }
-            vc_FloatingMessage.Instance?.Show("Path found!");
+            // The friend follows the revealed route to class on their own — navigate solves it alone.
+            if (friendNPC != null && classroomTransform != null)
+            {
+                friendNPC.WalkToPoint(classroomTransform.position);
+                guidingActive = true;
+                vc_QuestHUD.Instance?.CheckObjective(1);
+            }
+            vc_FloatingMessage.Instance?.Show("Path found! Your friend heads for class.");
             trackDone = true;
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
-        if (skill.SkillData.HasTag("attract"))
+        if (skill.SkillData.HasTag("attract") || skill.SkillData.HasTag("charm")
+            || skill.SkillData.HasTag("persuade") || skill.SkillData.HasTag("summon"))
         {
             TryCharmFriend();
             handled = true;
@@ -86,17 +100,9 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
     private void TryCharmFriend()
     {
         if (charmActive) return;
-        if (_playerTransform == null || friendTransform == null) return;
+        if (_playerTransform == null || friendNPC == null) return;
 
-        float dist = Vector3.Distance(_playerTransform.position, friendTransform.position);
-        if (dist >= charmRange)
-        {
-            vc_FloatingMessage.Instance?.Show("Get closer to your friend first.");
-            return;
-        }
-
-        if (friendNPC == null) return;
-
+        // Skill zone already gates WHERE this can be used — no proximity check needed.
         friendNPC.FollowTarget(_playerTransform);
         charmActive = true;
         vc_FloatingMessage.Instance?.Show("Your friend now follows you.");

@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\vc_DoorController.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController.cs" />
     <Compile Include="Assets\Scripts\Core\LocalRubricFallback.cs" />
+    <Compile Include="Assets\Scripts\vc_ChartBankQuest.cs" />
     <Compile Include="Assets\Scripts\vc_DebugSkipToEnd.cs" />
     <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickup.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUIToolkit.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_SaveManager.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
     <Compile Include="Assets\Scripts\Core\vc_RoomSlot.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
@@ -119,6 +121,7 @@
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.cs" />
     <Compile Include="Assets\Scripts\vc_HintSystem.cs" />
     <Compile Include="Assets\Scripts\vc_RunCompleteZone.cs" />
+    <Compile Include="Assets\Scripts\vc_BrokenPumpQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\HUD\HudSystem.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSlot.cs" />
     <Compile Include="Assets\Scripts\vc_BlockedPathQuest.cs" />
@@ -141,6 +144,7 @@
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_TestHarness.cs" />
     <Compile Include="Assets\Scripts\vc_PathSkill.cs" />
+    <Compile Include="Assets\Scripts\vc_MuralQuest.cs" />
     <Compile Include="Assets\Scripts\vc_QuestTimer.cs" />
     <Compile Include="Assets\Scripts\UI\vc_InventoryUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickupPopup.cs" />
@@ -152,6 +156,7 @@
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialAreaTrigger.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorInitializer.cs" />
+    <Compile Include="Assets\Scripts\vc_GenericSkill.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUIToolkit.cs" />
     <Compile Include="Assets\Scripts\UI\GameHUDUIToolkit.cs" />
     <Compile Include="Assets\Scripts\vc_DirectionalArrow.cs" />

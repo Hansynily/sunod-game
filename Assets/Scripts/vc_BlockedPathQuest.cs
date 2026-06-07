@@ -65,7 +65,8 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
         if (!questStarted || questDone || skill == null) return;
 
         bool handled = false;
-        if (skill.SkillData.HasTag("navigate") && !pathDone)
+        if ((skill.SkillData.HasTag("navigate") || skill.SkillData.HasTag("guide")
+             || skill.SkillData.HasTag("map") || skill.SkillData.HasTag("direct")) && !pathDone)
         {
             if (hiddenWall != null) hiddenWall.SetActive(false);
             if (hiddenWallCollider != null) hiddenWallCollider.enabled = false;
@@ -76,7 +77,8 @@ public class vc_BlockedPathQuest : MonoBehaviour, vc_IQuestLogic
             vc_QuestHUD.Instance?.CheckObjective(0);
             handled = true;
         }
-        if (skill.SkillData.HasTag("push") && !strengthDone)
+        if ((skill.SkillData.HasTag("push") || skill.SkillData.HasTag("build")
+             || skill.SkillData.HasTag("repair")) && !strengthDone)
         {
             if (blockingObject != null)
             {
