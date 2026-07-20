@@ -35,12 +35,16 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
         public GameObject[] objectsToDestroy;
         public vc_FloatingMarker[] markersToHide;
         public string animTrigger;
-        [Tooltip("-1 = no objective checked. Otherwise calls CheckObjective on this index when the path fires.")]
-        public int objectiveIndex = -1;
+        [Tooltip("Tick to check a HUD objective when this path fires. Which one = Objective Index below. Leave OFF for single-objective quests (the quest ticks everything on completion anyway).")]
+        public bool ticksObjective;
+        [Tooltip("HUD objective to check when this path fires. Only used if Ticks Objective is ON. 0 = first objective.")]
+        public int objectiveIndex;
         [Tooltip("If set, shows the directional arrow pointing here when this path fires.")]
         public Transform arrowTarget;
-        [Tooltip("This path only activates if the path at this index has already fired. -1 = no requirement.")]
-        public int requiresPathIndex = -1;
+        [Tooltip("Tick only for a CHAIN step: this path is blocked until the path at Requires Path Index has fired. Leave OFF for normal paths.")]
+        public bool hasPrerequisite;
+        [Tooltip("Chain prerequisite: index of the path that must fire first. Only used if Has Prerequisite is ON. 0 = first path.")]
+        public int requiresPathIndex;
         [Tooltip("Seconds to wait before completing the quest. Only applies to ProximityTrigger, ItemReveal, NPCGoTo, NPCTimedAction.")]
         public float completionDelay = 0f;
         [Tooltip("How close the NPC must be to the destination to trigger completion. Only used by NPCFollow.")]
@@ -59,8 +63,8 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
         public float actionDuration = 0f;
 
         [Header("Multi-stage")]
-        [Tooltip("Only isFinal paths complete the quest. Non-final paths just tick objectives, clean their own props, and unlock chained paths.")]
-        public bool isFinal = true;
+        [Tooltip("Tick ONLY for a non-final chain step (e.g. the 'plan' before the 'survey'). A stage step ticks objectives, cleans its props, and unlocks chained paths but does NOT finish the quest. Leave OFF for normal paths - they complete the quest when they fire.")]
+        public bool isStageStep;
 
         [Header("No-skill path (optional)")]
         [Tooltip("Armed automatically when the quest starts - no skill press needed. ReachLocation only: the exploration fallback (player wanders onto the target). Armed silently - no arrow or message, so a hidden target isn't given away. successMessage still shows when it resolves. Leave skillTag empty on these paths.")]
@@ -162,7 +166,7 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
             _activeFollowPath.destination != null)
         {
             if (Vector2.Distance(_activeFollowPath.npcFollow.transform.position,
-                                 _activeFollowPath.destination.position) <= _activeFollowPath.npcArrivalRange)
+                                 _activeFollowPath.destination.position) <= EffectiveRange(_activeFollowPath.npcArrivalRange, 3f))
             {
                 _activeFollowPath.npcFollow.Deactivate();
                 SkillPath arrived = _activeFollowPath;
@@ -180,7 +184,7 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
                 SkillPath p = _activeReachPaths[i];
                 if (p == null || p.targetTransform == null) { _activeReachPaths.RemoveAt(i); continue; }
 
-                if (Vector2.Distance(_playerTransform.position, p.targetTransform.position) <= p.proximityRange)
+                if (Vector2.Distance(_playerTransform.position, p.targetTransform.position) <= EffectiveRange(p.proximityRange, 2f))
                 {
                     _activeReachPaths.RemoveAt(i);
                     ResolvePath(p);
@@ -201,9 +205,9 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
             SkillPath path = skillPaths[i];
             if (path == null) continue;
 
-            if (!skill.SkillData.HasTag(path.skillTag)) continue;
+            if (!PathAcceptsSkill(path, skill.SkillData)) continue;
             if (_pathFired[i]) continue;
-            if (path.requiresPathIndex >= 0 &&
+            if (path.hasPrerequisite && path.requiresPathIndex >= 0 &&
                 (path.requiresPathIndex >= _pathFired.Length || !_pathFired[path.requiresPathIndex])) continue;
 
             // An NPCFollow path must not be consumed while another follow is active -
@@ -248,7 +252,7 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
                     if (skillPaths[j] != null && skillPaths[j].counterGroup == path.counterGroup)
                         _pathFired[j] = true;
 
-                if (path.objectiveIndex >= 0)
+                if (path.ticksObjective && path.objectiveIndex >= 0)
                     vc_QuestHUD.Instance?.CheckObjective(path.objectiveIndex);
 
                 RunInteraction(path); // honor the configured interaction, same as non-counter paths
@@ -258,7 +262,7 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
             // Non-counter paths fire once.
             _pathFired[i] = true;
 
-            if (path.objectiveIndex >= 0)
+            if (path.ticksObjective && path.objectiveIndex >= 0)
                 vc_QuestHUD.Instance?.CheckObjective(path.objectiveIndex);
 
             RunInteraction(path);
@@ -266,7 +270,57 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
         }
 
         if (!handled)
+        {
             vc_QuestHUD.Instance?.ShowFeedbackTimed("That skill doesn't work here.");
+            Debug.Log($"[QuestEngine] No skill path accepted '{skill.SkillData.skillName}' " +
+                      $"(its tags: [{JoinTags(skill.SkillData.capabilityTags)}]). Configured path Skill Tags: [{DescribePathTags()}]. " +
+                      $"A path fires when its Skill Tag equals one of the pressed skill's tags, its name, or its button label (all trimmed, case-insensitive).");
+        }
+    }
+
+    // Matches a pressed skill to a path. Forgiving on purpose - this is Inspector-authored
+    // by a non-coder, and the two mistakes that silently break a correct-looking path are a
+    // stray space and typing the skill NAME ("TULAK") into Skill Tag instead of its tag
+    // ("push"). Skill names and capability tags never overlap, so the name/label fallback
+    // cannot cause a wrong match. Empty tag never matches a press (walk/startsActive paths).
+    // Unity zero-fills new Inspector array elements instead of running C# field
+    // initializers, so a proximity/arrival range left untouched serializes as 0 (meaning
+    // "player must stand exactly on the point"). Treat a non-positive range as the intended
+    // default so authors never have to remember to type it.
+    private static float EffectiveRange(float configured, float fallback)
+    {
+        return configured > 0f ? configured : fallback;
+    }
+
+    private static bool PathAcceptsSkill(SkillPath path, vc_SkillData data)
+    {
+        if (path == null || data == null) return false;
+
+        string tag = path.skillTag != null ? path.skillTag.Trim() : string.Empty;
+        if (string.IsNullOrEmpty(tag)) return false;
+
+        if (data.HasTag(tag)) return true;
+        if (!string.IsNullOrEmpty(data.skillName) &&
+            string.Equals(data.skillName.Trim(), tag, StringComparison.OrdinalIgnoreCase)) return true;
+        if (!string.IsNullOrEmpty(data.buttonLabel) &&
+            string.Equals(data.buttonLabel.Trim(), tag, StringComparison.OrdinalIgnoreCase)) return true;
+
+        return false;
+    }
+
+    private static string JoinTags(string[] tags)
+    {
+        return tags != null ? string.Join(", ", tags) : string.Empty;
+    }
+
+    private string DescribePathTags()
+    {
+        if (skillPaths == null) return string.Empty;
+        List<string> parts = new List<string>();
+        for (int i = 0; i < skillPaths.Length; i++)
+            if (skillPaths[i] != null)
+                parts.Add($"{i}:'{skillPaths[i].skillTag}'");
+        return string.Join(", ", parts);
     }
 
     private void RunInteraction(SkillPath path)
@@ -401,7 +455,7 @@ public class vc_GenericQuestEngine : MonoBehaviour, vc_IQuestLogic
     {
         if (_questDone || path == null) return;
 
-        if (path.isFinal)
+        if (!path.isStageStep)
             CompleteQuest(path);
         else
             ApplyNonFinalEffects(path);

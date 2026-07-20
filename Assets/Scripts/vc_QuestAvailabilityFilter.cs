@@ -9,6 +9,10 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
 
     [SerializeField] private vc_GameSettings gameSettings;
 
+    /// <summary>The master GameSettings assigned in the scene. Read-only accessor so other
+    /// systems (e.g. the +ALL skill cheat) can reuse the one master skill list.</summary>
+    public vc_GameSettings GameSettings => gameSettings;
+
     private readonly HashSet<vc_QuestRoom> _sessionExposureRooms = new HashSet<vc_QuestRoom>();
     private readonly HashSet<GameObject> _usedPrefabs = new HashSet<GameObject>();
 

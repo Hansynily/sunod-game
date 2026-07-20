@@ -50,6 +50,19 @@ public static class SpriteGenerator
     static readonly Color32 PaintA     = new Color32(0xd6, 0x5a, 0x4a, 255);
     static readonly Color32 PaintB     = new Color32(0x4a, 0x7a, 0xd6, 255);
     static readonly Color32 PaintC     = new Color32(0xe0, 0xc0, 0x40, 255);
+    static readonly Color32 MudDark    = new Color32(0x3d, 0x2a, 0x18, 255);
+    static readonly Color32 MudMid     = new Color32(0x5a, 0x40, 0x28, 255);
+    static readonly Color32 MudHi      = new Color32(0x6e, 0x50, 0x34, 255);
+    static readonly Color32 LeafDark   = new Color32(0x2c, 0x5a, 0x2e, 255);
+    static readonly Color32 LeafMid    = new Color32(0x3e, 0x7d, 0x3f, 255);
+    static readonly Color32 LeafHi     = new Color32(0x5a, 0x9c, 0x52, 255);
+    static readonly Color32 ClothMid   = new Color32(0xcf, 0xc7, 0xb4, 255);
+    static readonly Color32 ClothShade = new Color32(0xac, 0xa3, 0x8d, 255);
+    static readonly Color32 SkyPaint   = new Color32(0x7c, 0xb2, 0xe0, 255);
+    static readonly Color32 HillPaint  = new Color32(0x6f, 0xa8, 0x4f, 255);
+    static readonly Color32 SunPaint   = new Color32(0xf0, 0xd0, 0x55, 255);
+    static readonly Color32 AwningRed  = new Color32(0xc4, 0x4a, 0x40, 255);
+    static readonly Color32 AwningPale = new Color32(0xe8, 0xe0, 0xd4, 255);
 
     // ── Entry point ──────────────────────────────────────────────────────────
     [MenuItem("SUNOD/Generate Quest Sprites")]
@@ -68,6 +81,12 @@ public static class SpriteGenerator
             { "poster_blank", DrawPosterBlank },
             { "poster_done",  DrawPosterDone },
             { "rabbit",       DrawRabbit },
+            { "mud_patch",    DrawMudPatch },
+            { "bush",         DrawBush },
+            { "backdrop",     DrawBackdrop },
+            { "painted_set",  DrawPaintedSet },
+            { "stall",        DrawStall },
+            { "notes",        DrawNotes },
         };
 
         int count = 0;
@@ -167,6 +186,74 @@ public static class SpriteGenerator
         c.Rect(20, 8, 2, 6, FurShade);
         c.Rect(8, 19, 3, 3, Fur);                // tail
         c.Set(23, 15, Ink);                      // eye
+    }
+
+    static void DrawMudPatch(Canvas c)
+    {
+        c.Ellipse(16, 19, 13, 8, MudMid);        // muddy gap
+        c.Ellipse(15, 18, 10, 6, MudDark);       // deep wet center
+        c.Rect(9, 13, 4, 2, MudHi);              // damp glints
+        c.Rect(20, 15, 3, 2, MudHi);
+        c.Rect(13, 22, 5, 2, MudDark);
+        c.Ellipse(24, 21, 3, 2, MudMid);         // splatter to the side
+        c.Ellipse(7, 22, 2, 2, MudMid);
+    }
+
+    static void DrawBush(Canvas c)
+    {
+        c.Ellipse(11, 20, 7, 6, LeafDark);       // clustered foliage lobes
+        c.Ellipse(21, 20, 7, 6, LeafDark);
+        c.Ellipse(16, 16, 9, 7, LeafMid);
+        c.Ellipse(16, 14, 6, 5, LeafHi);         // top highlight
+        c.Rect(9, 12, 2, 2, LeafHi);             // scattered leaf glints
+        c.Rect(22, 13, 2, 2, LeafHi);
+        c.Rect(15, 25, 2, 3, LeafDark);          // little trunk shadow
+    }
+
+    static void DrawBackdrop(Canvas c)
+    {
+        c.Rect(4, 3, 24, 2, FrameCol);           // top rail the cloth hangs from
+        c.Rect(5, 5, 22, 21, ClothMid);          // plain hanging cloth
+        c.Rect(5, 5, 2, 21, ClothShade);         // fold shading
+        c.Rect(15, 5, 2, 21, ClothShade);
+        c.Rect(5, 24, 22, 2, ClothShade);        // bottom hem
+    }
+
+    static void DrawPaintedSet(Canvas c)
+    {
+        c.Rect(4, 3, 24, 2, FrameCol);
+        c.Rect(5, 5, 22, 21, SkyPaint);          // painted sky
+        c.EllipseTop(9, 15, 4, 4, SunPaint);     // sun
+        c.Rect(5, 18, 22, 8, HillPaint);         // rolling hills
+        c.Ellipse(13, 18, 6, 3, HillPaint);      // hill mound
+        c.Ellipse(22, 19, 5, 3, HillPaint);
+        c.Rect(5, 24, 22, 2, ClothShade);        // hem
+    }
+
+    static void DrawStall(Canvas c)
+    {
+        // Striped awning
+        for (int i = 0; i < 6; i++)
+            c.Rect(3 + i * 4, 4, 4, 5, (i % 2 == 0) ? AwningRed : AwningPale);
+        c.Rect(3, 9, 26, 1, WoodEdge);           // awning trim
+        c.Rect(5, 9, 2, 15, WoodDark);           // support posts
+        c.Rect(25, 9, 2, 15, WoodDark);
+        c.Rect(4, 20, 24, 6, WoodMid);           // counter
+        c.Rect(4, 20, 24, 1, WoodLight);         // counter edge highlight
+        c.Rect(9, 15, 4, 4, PaintA);             // goods on display
+        c.Rect(14, 14, 4, 5, PaintC);
+        c.Rect(19, 15, 4, 4, PaintB);
+    }
+
+    static void DrawNotes(Canvas c)
+    {
+        c.Rect(7, 5, 18, 22, Paper);             // loose sheet of notes
+        c.Rect(7, 5, 18, 1, PaperLine);          // top edge
+        c.Rect(7, 26, 18, 1, PaperLine);         // bottom edge
+        for (int i = 0; i < 6; i++)              // scribbled lines
+            c.Rect(10, 9 + i * 3, 12, 1, Ink);
+        c.Rect(10, 9, 6, 1, Ink);                // a shorter "heading" line
+        c.Rect(19, 23, 4, 2, PaintB);            // small diagram/sketch mark
     }
 
     // ── 32x32 drawing surface + primitives (top-down y) ──────────────────────
