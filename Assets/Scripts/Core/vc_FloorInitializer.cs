@@ -78,7 +78,7 @@ namespace SunodGame.Core
             if (slots.Count <= 1) return;
 
             // Slots 1+: if player already has skills (floors 2+), place now.
-            // On floor 1 first load, player hasn't hit the skill marker yet — defer
+            // On floor 1 first load, player hasn't hit the skill marker yet - defer
             // until their first skill is picked so the filter has a real inventory to read.
             bool playerHasSkills = vc_PlayerInventory.Instance != null
                 && vc_PlayerInventory.Instance.GatheredSkills.Count > 0;
@@ -94,7 +94,7 @@ namespace SunodGame.Core
                 if (vc_PlayerInventory.Instance != null)
                     vc_PlayerInventory.Instance.OnSkillAdded += OnFirstSkillAdded;
                 else
-                    Debug.LogWarning("[vc_FloorInitializer] vc_PlayerInventory.Instance is null — quest rooms will not be placed.");
+                    Debug.LogWarning("[vc_FloorInitializer] vc_PlayerInventory.Instance is null - quest rooms will not be placed.");
             }
         }
 
@@ -103,7 +103,7 @@ namespace SunodGame.Core
             if (vc_PlayerInventory.Instance != null)
                 vc_PlayerInventory.Instance.OnSkillAdded -= OnFirstSkillAdded;
 
-            // Place only the first quest slot — hallway markers place each subsequent slot
+            // Place only the first quest slot - hallway markers place each subsequent slot
             // after the player picks a skill in the hallway between quests.
             if (_pendingSlots != null && _pendingSlots.Count > 1)
                 PlaceQuestInSlot(_pendingSlots[1]);
@@ -114,7 +114,7 @@ namespace SunodGame.Core
         /// <summary>
         /// Places one quest room into a specific slot. Called by hallway skill markers
         /// after the player picks a skill, so each room is placed with the player's
-        /// actual inventory at that moment — not all at floor load.
+        /// actual inventory at that moment - not all at floor load.
         /// </summary>
         public void PlaceQuestInSlot(vc_RoomSlot slot)
         {

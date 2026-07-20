@@ -12,6 +12,24 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     private readonly HashSet<vc_QuestRoom> _sessionExposureRooms = new HashSet<vc_QuestRoom>();
     private readonly HashSet<GameObject> _usedPrefabs = new HashSet<GameObject>();
 
+    /// <summary>
+    /// Set by the main menu's Continue button before loading the floor scene - this
+    /// component is scene-scoped (no DontDestroyOnLoad), so a static handoff is how a
+    /// freshly-created instance learns which quests the resumed run already completed.
+    /// Consumed and cleared in Awake().
+    /// </summary>
+    public static List<string> PendingCompletedQuestIds;
+
+    /// <summary>
+    /// Skill NAMES (vc_SkillData.skillName) the resumed run owned - set by Continue,
+    /// resolved to assets via gameSettings and re-equipped. Applied idempotently the
+    /// first time it's needed (Start or the first quest draw, whichever comes first),
+    /// so the player's inventory is populated BEFORE quest availability is computed.
+    /// </summary>
+    public static List<string> PendingOwnedSkillNames;
+
+    private bool _skillRestoreApplied;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -20,6 +38,97 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
             return;
         }
         Instance = this;
+
+        if (PendingCompletedQuestIds != null)
+        {
+            SeedCompletedQuestIds(PendingCompletedQuestIds);
+            PendingCompletedQuestIds = null;
+        }
+
+        // Always exclude quests the local save already records as completed, so floor
+        // transitions and resumed runs never re-offer a finished quest. Fresh runs delete
+        // the save before loading, so there is nothing stale to seed there.
+        vc_SaveManager.SaveData save = vc_SaveManager.Load();
+        if (save != null && save.completedQuestIds != null)
+            SeedCompletedQuestIds(save.completedQuestIds);
+    }
+
+    private void Start()
+    {
+        // Belt-and-suspenders: apply here too. DrawQuestsForFloor also calls this, and the
+        // done-flag makes whichever runs first (with the singletons ready) the one that wins.
+        ApplyPendingSkillRestore();
+    }
+
+    /// <summary>
+    /// Resolves the resumed run's owned skill names to vc_SkillData assets (via the master
+    /// list in gameSettings) and re-equips them into the player's inventory and skill slots.
+    /// Idempotent and heavily null-guarded - if a dependency isn't ready it logs and leaves
+    /// the pending list in place for the next call rather than crashing or half-applying.
+    /// </summary>
+    public void ApplyPendingSkillRestore()
+    {
+        if (_skillRestoreApplied) return;
+        if (PendingOwnedSkillNames == null) return; // nothing to restore (normal fresh run)
+
+        if (gameSettings == null || gameSettings.skills == null)
+        {
+            Debug.LogWarning("[vc_QuestAvailabilityFilter] Skill restore skipped - no gameSettings/skills master list assigned.");
+            return;
+        }
+
+        // Both singletons must exist to restore meaningfully; if not yet, defer to the next call.
+        if (vc_PlayerInventory.Instance == null)
+        {
+            Debug.Log("[vc_QuestAvailabilityFilter] Deferring skill restore - PlayerInventory not ready yet.");
+            return;
+        }
+
+        List<string> names = PendingOwnedSkillNames;
+        int equippedSlot = 0;
+        foreach (string skillName in names)
+        {
+            if (string.IsNullOrWhiteSpace(skillName)) continue;
+
+            vc_SkillData resolved = System.Array.Find(gameSettings.skills,
+                s => s != null && string.Equals(s.skillName, skillName, System.StringComparison.OrdinalIgnoreCase));
+
+            if (resolved == null)
+            {
+                Debug.LogWarning($"[vc_QuestAvailabilityFilter] Owned skill '{skillName}' not found in the master list - skipped.");
+                continue;
+            }
+
+            vc_PlayerInventory.Instance.AddSkill(resolved);      // ownership (drives quest availability)
+            vc_SkillManager.Instance?.AssignSkillToSlot(equippedSlot, resolved); // usable equip
+            equippedSlot++;
+        }
+
+        _skillRestoreApplied = true;
+        PendingOwnedSkillNames = null;
+        Debug.Log($"[vc_QuestAvailabilityFilter] Restored {equippedSlot} skill(s) for the resumed run.");
+    }
+
+    /// <summary>
+    /// Marks quests already completed in a resumed run as "used" so DrawQuestsForFloor
+    /// won't offer them again. Matches by vc_QuestRoom.QuestId against the registry's
+    /// configured prefabs - additive, does not change fresh-run behavior.
+    /// </summary>
+    public void SeedCompletedQuestIds(IEnumerable<string> completedQuestIds)
+    {
+        if (gameSettings == null || gameSettings.questPrefabs == null || completedQuestIds == null)
+            return;
+
+        HashSet<string> idSet = new HashSet<string>(completedQuestIds);
+        if (idSet.Count == 0) return;
+
+        foreach (GameObject prefab in gameSettings.questPrefabs)
+        {
+            if (prefab == null) continue;
+            vc_QuestRoom qr = prefab.GetComponentInChildren<vc_QuestRoom>(true);
+            if (qr != null && idSet.Contains(qr.QuestId))
+                _usedPrefabs.Add(prefab);
+        }
     }
 
     private void OnDestroy()
@@ -42,6 +151,10 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     /// </summary>
     public GameObject[] DrawQuestsForFloor(int slotCount)
     {
+        // Ensure a resumed run's owned skills are re-equipped BEFORE availability is computed -
+        // CanPlayerSolve reads the inventory, so the restore must land first.
+        ApplyPendingSkillRestore();
+
         if (gameSettings == null || gameSettings.questPrefabs == null)
         {
             Debug.LogWarning("[vc_QuestAvailabilityFilter] No game settings assigned. No quests will be placed.");
@@ -74,16 +187,17 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         ShuffleList(matched);
         ShuffleList(exposureCandidates);
 
-        int exposurePick = gameSettings != null
-            ? Mathf.Min(gameSettings.exposureCount, exposureCandidates.Count)
-            : 0;
-
         List<GameObject> selected = new List<GameObject>();
 
-        int matchedCount = Mathf.Min(slotCount - exposurePick, matched.Count);
+        // Solvable quests fill slots first. Exposure quests only take slots the solvable
+        // pool could not fill, and the total never exceeds slotCount, so no prefab is ever
+        // marked used without also being returned to the caller.
+        int matchedCount = Mathf.Min(slotCount, matched.Count);
         for (int i = 0; i < matchedCount; i++)
             selected.Add(matched[i]);
 
+        int exposureBudget = Mathf.Min(gameSettings != null ? gameSettings.exposureCount : 0, exposureCandidates.Count);
+        int exposurePick = Mathf.Clamp(slotCount - matchedCount, 0, exposureBudget);
         for (int i = 0; i < exposurePick; i++)
             selected.Add(exposureCandidates[i]);
 

@@ -24,7 +24,7 @@ namespace SunodGame.Core
 
         private void Start()
         {
-            // Dev mode: hit Play directly from a floor scene — it's already loaded.
+            // Dev mode: hit Play directly from a floor scene - it's already loaded.
             foreach (string floor in FloorScenes)
             {
                 if (SceneManager.GetSceneByName(floor).isLoaded)
@@ -36,7 +36,7 @@ namespace SunodGame.Core
             }
 
             // Test/design scene mode: active scene is not Game_Scene and not MainMenu
-            // (e.g. RoomDesign_Temp). vc_TestHarness handles setup — skip auto floor load.
+            // (e.g. RoomDesign_Temp). vc_TestHarness handles setup - skip auto floor load.
             string activeScene = SceneManager.GetActiveScene().name;
             if (activeScene != SceneLoader.SCENE_GAME && activeScene != SceneLoader.SCENE_MAINMENU)
                 return;
@@ -63,7 +63,7 @@ namespace SunodGame.Core
 
         private void OnFloorLoaded(Scene scene)
         {
-            // InitializeFloor must run first — room prefabs are instantiated here,
+            // InitializeFloor must run first - room prefabs are instantiated here,
             // and spawn points live inside those prefabs.
             vc_FloorInitializer.Instance?.InitializeFloor(scene);
             // Availability filter must run after FloorInitializer so all vc_QuestRoom

@@ -44,7 +44,7 @@ public class vc_PauseMenu : MonoBehaviour
 
         _player = FindFirstObjectByType<PlayerController>();
 
-        // NOTE: never set enabled = false in Awake — that suppresses OnEnable,
+        // NOTE: never set enabled = false in Awake - that suppresses OnEnable,
         // leaving all element fields null and every callback unregistered.
         // The scene guard is enforced inside OpenPauseMenu / OnEnable instead.
     }
@@ -150,7 +150,7 @@ public class vc_PauseMenu : MonoBehaviour
             confirmLabel: "Yes",
             cancelLabel:  "No",
             onConfirm:    HandleExitConfirmed,
-            // Cancel returns to the still-open pause menu — re-freeze input
+            // Cancel returns to the still-open pause menu - re-freeze input
             // because DialogPanel.Hide() re-enables it on close.
             onCancel:     () => _player?.MoveAction.Disable()
         );
@@ -168,7 +168,7 @@ public class vc_PauseMenu : MonoBehaviour
 
     /// <summary>
     /// Cancels the active run's state before leaving the scene.
-    /// Intentionally does NOT touch vc_SkillManager or vc_PlayerInventory —
+    /// Intentionally does NOT touch vc_SkillManager or vc_PlayerInventory -
     /// those get reset inside SceneLoader.GoToPlay() → ResetForNewRun() when
     /// the player starts the next run. Calling ResetForNewRun() here too
     /// destroys skill child objects, leaving a stale Instance that crashes

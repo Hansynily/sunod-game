@@ -12,7 +12,6 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private vc_NPCController friendNPC;
     [SerializeField] private GameObject friendNPCObject;
     [SerializeField] private float lockpickRange = 1.5f;
-    [SerializeField] private float lockpickHoldTime = 5f;
     [SerializeField] private vc_XrayEffect xrayEffect;
     [SerializeField] private vc_FloatingMarker mainMarker_Door;
     [SerializeField] private vc_FloatingMarker poiMarker_KeySpot;
@@ -25,7 +24,6 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
     private bool xrayDone = false;
     private bool keyPickedUp = false;
     private float keyPickupGraceTimer = 0f;
-    private float lockpickTimer = 0f;
 
     private void Start()
     {
@@ -46,7 +44,6 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         xrayDone = false;
         keyPickedUp = false;
         keyPickupGraceTimer = 0f;
-        lockpickTimer = 0f;
         vc_QuestHUD.Instance?.ForceHideFeedback();
 
         if (friendNPCObject != null) friendNPCObject.SetActive(false);

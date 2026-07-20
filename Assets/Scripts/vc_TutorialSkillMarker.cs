@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// One of the six color-coded RIASEC skill markers on the tutorial floor.
 /// Walking into it asks the flow controller to present this skill's explain
-/// dialog (browse freely; only one gets picked). Dumb component — all decision
+/// dialog (browse freely; only one gets picked). Dumb component - all decision
 /// logic lives in vc_TutorialFlowController.
 /// </summary>
 [DisallowMultipleComponent]

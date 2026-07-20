@@ -11,7 +11,7 @@ public class vc_BrokenPumpQuest : MonoBehaviour, vc_IQuestLogic
 {
     [Header("Visuals (assign in Inspector)")]
     [SerializeField] private GameObject brokenPump;      // faded out on success
-    [SerializeField] private GameObject fixedPump;        // optional — faded in on success
+    [SerializeField] private GameObject fixedPump;        // optional - faded in on success
     [SerializeField] private vc_FloatingMarker mainMarker;
     [SerializeField] private float animDuration = 0.5f;
 

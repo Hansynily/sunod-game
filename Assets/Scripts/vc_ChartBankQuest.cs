@@ -10,7 +10,7 @@ using UnityEngine;
 public class vc_ChartBankQuest : MonoBehaviour, vc_IQuestLogic
 {
     [Header("Visuals (assign in Inspector)")]
-    [SerializeField] private GameObject chartReveal;     // the charted map overlay — starts hidden, fades in
+    [SerializeField] private GameObject chartReveal;     // the charted map overlay - starts hidden, fades in
     [SerializeField] private vc_FloatingMarker mainMarker;
     [SerializeField] private float animDuration = 0.6f;
 

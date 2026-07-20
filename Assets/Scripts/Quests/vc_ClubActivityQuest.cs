@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Quest logic for L4 Quest 2 — Club Activity.
+/// Quest logic for L4 Quest 2 - Club Activity.
 ///
 /// Combo 1: attract × 6
 ///   - Use attract near a student → student follows player (toggle: use again to stop)
@@ -150,7 +150,7 @@ public class vc_ClubActivityQuest : MonoBehaviour, vc_IQuestLogic
                 }
                 else
                 {
-                    // No GoTo component — count as arrived immediately
+                    // No GoTo component - count as arrived immediately
                     studentsRecruited++;
                     studentMarkers[capturedIndex]?.Hide();
                     UpdateCounter();

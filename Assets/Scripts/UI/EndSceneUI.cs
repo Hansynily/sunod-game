@@ -26,17 +26,20 @@ namespace SunodGame.UI
             }
         }
 
+        // Indexed by the server's predicted cluster id (0-7). MUST match the live server
+        // partition - CLUSTER_HOLLAND_CODES in cluster_runtime.py + career_map.json.
+        // Clusters 1 and 4 are outlier buckets the server never routes real players into.
+        // Only used as a display fallback when the server sends empty example careers.
         private static readonly ClusterInfo[] ClusterMap =
         {
-            new ClusterInfo("RI", "Engineering", "Civil Engineer", "Programmer", "Architect"),
-            new ClusterInfo("IA", "Arts & Design", "Fashion Designer", "Graphic Artist", "Writer"),
-            new ClusterInfo("SEC", "Business & Finance", "Accountant", "Financial Analyst", "Entrepreneur"),
-            new ClusterInfo("AS", "Performing Arts", "Musician", "Athlete", "Entertainer"),
-            new ClusterInfo("-", "Varied Interests"),
-            new ClusterInfo("IS", "Research", "Computer Scientist", "Zoologist", "Epidemiologist"),
-            new ClusterInfo("SC", "Social Services", "Lawyer", "Teacher", "Counselor"),
-            new ClusterInfo("-", "Varied Interests"),
-            new ClusterInfo("IAS", "Healthcare", "Doctor", "Nurse", "Pharmacist")
+            new ClusterInfo("IA", "Research", "Computer Scientist", "Biologist", "Chemist"),      // 0
+            new ClusterInfo("-", "Varied Interests"),                                             // 1 (outlier)
+            new ClusterInfo("RIC", "Engineering", "Architect", "Civil Engineer", "Web Developer"),// 2
+            new ClusterInfo("AS", "Arts & Design", "Graphic Artist", "Writer", "Musician"),       // 3
+            new ClusterInfo("-", "Varied Interests"),                                             // 4 (outlier)
+            new ClusterInfo("SEC", "Business & Finance", "Accountant", "Financial Analyst", "Entrepreneur"), // 5
+            new ClusterInfo("S", "Social Services", "Teacher", "Lawyer", "Counselor"),            // 6
+            new ClusterInfo("SIA", "Healthcare", "Doctor", "Nurse", "Pharmacist")                 // 7
         };
 
         [Header("Labels")]

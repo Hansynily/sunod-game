@@ -42,7 +42,7 @@ public class vc_TestHarness : MonoBehaviour
 
         Physics2D.SyncTransforms();
 
-        // Now re-enable quest triggers — player is already in position.
+        // Now re-enable quest triggers - player is already in position.
         // OnTriggerEnter2D / Stay2D fires on the next physics step,
         // starting the quest naturally.
         foreach (var qr in FindObjectsByType<vc_QuestRoom>(FindObjectsSortMode.None))

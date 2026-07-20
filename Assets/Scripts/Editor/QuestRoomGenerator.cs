@@ -125,7 +125,7 @@ public static class QuestRoomGenerator
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log($"[QuestGen] Done — {count}/{Quests.Length} prefabs written to {ROOMS_PATH}");
+        Debug.Log($"[QuestGen] Done - {count}/{Quests.Length} prefabs written to {ROOMS_PATH}");
     }
 
     static bool GenerateOne(QuestData q)
@@ -150,7 +150,7 @@ public static class QuestRoomGenerator
         GameObject skillZonePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(SKILL_ZONE_PATH);
 
         if (npcPrefab == null)
-            Debug.LogError($"[QuestGen] {NPC_PATH} missing — NPC instantiation skipped for '{q.outputName}'. Empty GameObjects used instead.");
+            Debug.LogError($"[QuestGen] {NPC_PATH} missing - NPC instantiation skipped for '{q.outputName}'. Empty GameObjects used instead.");
 
         // ── Resolve main target + Target_Center ──────────────────────────
         string mainTargetName = (q.skillPaths != null && q.skillPaths.Length > 0) ? q.skillPaths[0].targetName : null;

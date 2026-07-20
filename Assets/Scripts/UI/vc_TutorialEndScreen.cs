@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Rule-based career teaser shown at the end of the tutorial. NO ML, NO real
-/// data — it mirrors the framing of the real Career Result screen but produces a
+/// data - it mirrors the framing of the real Career Result screen but produces a
 /// generalized, clearly-fake professional suggestion from the single skill the
 /// player chose. Renders through the reusable vc_DialogPanel, so it needs no UI
 /// assets of its own.

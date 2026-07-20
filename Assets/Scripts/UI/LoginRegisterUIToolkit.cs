@@ -201,7 +201,7 @@ namespace SunodGame.UI
 
             SessionState.Instance?.SetAuthenticatedUser(
                 auth.username, auth.player_id, auth.access_token,
-                auth.name, auth.birthdate, auth.gender, auth.tutorial_completed);
+                auth.name, auth.birthdate, auth.gender, auth.tutorial_completed, auth.id);
             TelemetryManager.Instance?.TagSessionStart();
             SceneLoader.GoToMainMenu();
         }
@@ -430,7 +430,7 @@ namespace SunodGame.UI
             if (_inputBackendUrl != null)
                 _inputBackendUrl.value = tm.BaseUrl;
 
-            SetBackendStatus($"Current: {tm.CurrentBackendMode} — {tm.BaseUrl}");
+            SetBackendStatus($"Current: {tm.CurrentBackendMode} - {tm.BaseUrl}");
 
             if (_selectedBackendPreset == PresetRailway)
             {
@@ -519,7 +519,7 @@ namespace SunodGame.UI
             }
 
             // PointerDownEvent with TrickleDown fires the instant the user taps,
-            // before the inner text element handles focus — more reliable than FocusInEvent.
+            // before the inner text element handles focus - more reliable than FocusInEvent.
             field.RegisterCallback<PointerDownEvent>(_ =>
             {
                 if (!field.ClassListContains("is-placeholder")) return;

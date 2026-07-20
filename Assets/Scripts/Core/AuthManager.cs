@@ -101,6 +101,43 @@ namespace SunodGame.Core
             ));
         }
 
+        /// <summary>
+        /// Validates a restored (persisted) session against the server. Used only at app
+        /// startup after TryRestoreSession() rehydrates the in-memory session from disk -
+        /// confirms the stored token still authenticates before trusting it for gameplay.
+        /// </summary>
+        public void ValidateSession(int userId, string accessToken, Action<bool> onResult)
+        {
+            if (userId <= 0 || string.IsNullOrWhiteSpace(accessToken))
+            {
+                onResult?.Invoke(false);
+                return;
+            }
+
+            StartCoroutine(GetAuthorized(
+                $"/api/telemetry/users/{userId}/profile",
+                accessToken,
+                onResult
+            ));
+        }
+
+        private IEnumerator GetAuthorized(string path, string accessToken, Action<bool> onResult)
+        {
+            string requestUrl = GetBaseUrl() + path;
+
+            using var req = UnityWebRequest.Get(requestUrl);
+            req.SetRequestHeader("Authorization", $"Bearer {accessToken}");
+            req.timeout = Mathf.Max(1, requestTimeoutSeconds);
+
+            yield return req.SendWebRequest();
+
+            bool ok = req.result == UnityWebRequest.Result.Success && req.responseCode == 200;
+            if (!ok)
+                Debug.Log($"[Auth] Session validation failed: {req.responseCode} | {req.error}");
+
+            onResult?.Invoke(ok);
+        }
+
         private bool ValidateUsername(string username, Action<string> onError)
         {
             if (!string.IsNullOrWhiteSpace(username)) return true;

@@ -6,7 +6,6 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private vc_NPCController friendNPC;
     [SerializeField] private Transform friendTransform;
     [SerializeField] private Transform classroomTransform;
-    [SerializeField] private float charmRange = 1.5f;
     [SerializeField] private vc_FloatingMarker mainMarker_Friend;
     [SerializeField] private vc_FloatingMarker mainMarker_Classroom;
 
@@ -78,7 +77,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
                 vc_DirectionalArrow.Instance?.SetTarget(classroomTransform);
                 vc_DirectionalArrow.Instance?.ShowArrow();
             }
-            // The friend follows the revealed route to class on their own — navigate solves it alone.
+            // The friend follows the revealed route to class on their own - navigate solves it alone.
             if (friendNPC != null && classroomTransform != null)
             {
                 friendNPC.WalkToPoint(classroomTransform.position);
@@ -104,7 +103,7 @@ public class vc_LostFriendQuest : MonoBehaviour, vc_IQuestLogic
         if (charmActive) return;
         if (_playerTransform == null || friendNPC == null) return;
 
-        // Skill zone already gates WHERE this can be used — no proximity check needed.
+        // Skill zone already gates WHERE this can be used - no proximity check needed.
         friendNPC.FollowTarget(_playerTransform);
         charmActive = true;
         vc_FloatingMessage.Instance?.Show("Your friend now follows you.");

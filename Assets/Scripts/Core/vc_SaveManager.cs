@@ -11,6 +11,12 @@ public static class vc_SaveManager
         public int[] riasecScores = new int[6]; // R, I, A, S, E, C
         public List<string> unlockedSkills = new List<string>();
         public bool tutorialComplete;
+
+        // Local staging buffer for the server-side run-state (Continue/Reset). This file
+        // stays as a device-local cache; the server (player_run_state) is the source of
+        // truth read by the main menu - these fields are what get pushed on each checkpoint.
+        public List<string> completedQuestIds = new List<string>();
+        public int totalStars;
     }
 
     private static string SavePath => Application.persistentDataPath + "/sunod_save.json";

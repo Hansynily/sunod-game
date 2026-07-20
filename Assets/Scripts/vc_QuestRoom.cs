@@ -18,6 +18,8 @@ public class vc_QuestRoom : MonoBehaviour
     [SerializeField] private string questId;
     [SerializeField] private string questName;
     [SerializeField] private string primaryRiasec;
+    [Tooltip("Option B: the RIASEC questionnaire item this quest represents (R1..C8). Fill per room. Leave blank until assigned - the incomplete-run guard handles unfilled quests.")]
+    [SerializeField] private string questionCode;
     [SerializeField] private string objectiveText;
     [SerializeField] private string questDescription;
     [SerializeField] private string[] questHints;
@@ -66,13 +68,15 @@ public class vc_QuestRoom : MonoBehaviour
 
     public void OnQuestComplete()
     {
-        if (questCompletionNotified) return;
+        // questResultRecorded is set when the timer's fail already ended this quest -
+        // a late NPC arrival after expiry must not also complete it.
+        if (questCompletionNotified || questResultRecorded) return;
 
         questCompletionNotified = true;
         Debug.Log($"[QuestRoom] '{questId}' OnQuestComplete called. QuestTimer={(vc_QuestTimer.Instance == null ? "NULL" : "OK")}, subscribed={isQuestTimerSubscribed}");
         vc_QuestTimer.Instance?.CompleteQuest();
 
-        int stars = vc_QuestTimer.Instance != null ? vc_QuestTimer.Instance.FinalStarsEarned : 5;
+        int stars = vc_QuestTimer.Instance != null ? vc_QuestTimer.Instance.FinalStarsEarned : 3;
 
         WriteQuestSave(stars);
 
@@ -100,7 +104,7 @@ public class vc_QuestRoom : MonoBehaviour
                 && vc_QuestAvailabilityFilter.Instance.IsAvailable(this);
             if (!available)
             {
-                vc_FloatingMessage.Instance?.Show("Locked — you don't have the required skill.");
+                vc_FloatingMessage.Instance?.Show("Locked - you don't have the required skill.");
                 return;
             }
         }
@@ -153,7 +157,7 @@ public class vc_QuestRoom : MonoBehaviour
             : new Dictionary<string, int>();
 
         vc_SessionTelemetry.Instance?.RecordQuestResult(
-            questId, questName, primaryRiasec,
+            questId, questName, primaryRiasec, questionCode,
             result != null && result.DidPassQuest,
             result != null ? result.FinalStarsEarnedNormalized : 0,
             result != null ? result.FinalTimeRemaining : 0f,
@@ -166,6 +170,7 @@ public class vc_QuestRoom : MonoBehaviour
     public string QuestId => questId;
     public string QuestName => questName;
     public string PrimaryRiasec => primaryRiasec;
+    public string QuestionCode => questionCode;
     public QuestLockType LockType => lockType;
     public string RequiredSkillTag => requiredSkillTag;
     public bool IsExposureEligible => isExposureEligible;
@@ -191,7 +196,59 @@ public class vc_QuestRoom : MonoBehaviour
         if (riasecIndex >= 0)
             data.riasecScores[riasecIndex] += Mathf.Max(1, starsEarned);
 
+        if (!string.IsNullOrWhiteSpace(questId) && !data.completedQuestIds.Contains(questId))
+            data.completedQuestIds.Add(questId);
+
+        data.totalStars += Mathf.Max(0, starsEarned);
+        data.tutorialComplete = SessionState.Instance != null && SessionState.Instance.HasCompletedTutorial;
+
+        // Capture the player's currently-owned skills by name (unique per skill) so Continue
+        // can re-equip them. Snapshot from the live inventory, not the old empty local list.
+        if (vc_PlayerInventory.Instance != null)
+        {
+            data.unlockedSkills.Clear();
+            foreach (vc_SkillData owned in vc_PlayerInventory.Instance.GatheredSkills)
+                if (owned != null && !string.IsNullOrWhiteSpace(owned.skillName))
+                    data.unlockedSkills.Add(owned.skillName);
+        }
+
         vc_SaveManager.Save(data);
-        Debug.Log($"[QuestRoom] Save written — nextQuestId='{nextQuestId}', riasec[{riasecIndex}]+={Mathf.Max(1, starsEarned)}");
+        Debug.Log($"[QuestRoom] Save written - nextQuestId='{nextQuestId}', riasec[{riasecIndex}]+={Mathf.Max(1, starsEarned)}");
+
+        PushRunStateCheckpoint(data);
+    }
+
+    // Server save-state (Continue/Reset) - pushed after each quest so the resumed run's
+    // checkpoint always reflects what was actually completed. Fire-and-forget: a failed
+    // push just means the NEXT quest's push retries with the fuller picture; it must
+    // never block gameplay.
+    private void PushRunStateCheckpoint(vc_SaveManager.SaveData data)
+    {
+        SunodGame.Telemetry.TelemetryManager telemetryManager = SunodGame.Telemetry.TelemetryManager.Instance;
+        if (telemetryManager == null) return;
+
+        var payload = new SunodGame.Models.RunStatePayload
+        {
+            session_id = vc_SessionTelemetry.Instance != null ? vc_SessionTelemetry.Instance.SessionId : string.Empty,
+            completed_quest_ids = new List<string>(data.completedQuestIds),
+            // Per-quest results ride along so Continue can rebuild the playthrough's
+            // telemetry records. The telemetry list is already cumulative within this
+            // session, and seeded from this same checkpoint on resume, so this is
+            // always the whole playthrough.
+            quest_records = vc_SessionTelemetry.Instance != null
+                ? vc_SessionTelemetry.Instance.BuildRunStateRecords()
+                : new List<SunodGame.Models.RunStateQuestRecordDto>(),
+            owned_skills = new List<string>(data.unlockedSkills),
+            total_stars = data.totalStars,
+            floor_scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+            tutorial_completed = data.tutorialComplete,
+        };
+
+        var riasec = new Dictionary<string, float>();
+        for (int i = 0; i < RiasecOrder.Length && i < data.riasecScores.Length; i++)
+            riasec[RiasecOrder[i]] = data.riasecScores[i];
+
+        telemetryManager.PutMyRunState(payload, riasec,
+            onError: error => Debug.LogWarning($"[QuestRoom] Run-state checkpoint push failed (will retry next quest): {error}"));
     }
 }

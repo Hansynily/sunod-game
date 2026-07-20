@@ -66,7 +66,8 @@ public class vc_EndRunUI : MonoBehaviour
         vc_SessionTelemetry telemetry = vc_SessionTelemetry.Instance;
         if (telemetry == null)
         {
-            Debug.LogWarning("[vc_EndRunUI] vc_SessionTelemetry unavailable — going to EndScene without submission.");
+            Debug.LogWarning("[vc_EndRunUI] vc_SessionTelemetry unavailable. Going to EndScene without submission.");
+            yield return FinalizeRun();
             SceneLoader.GoToEnd();
             yield break;
         }
@@ -80,6 +81,49 @@ public class vc_EndRunUI : MonoBehaviour
             cluster => Debug.Log($"[vc_EndRunUI] Prediction done. Cluster={cluster}"));
 
         Debug.Log("[vc_EndRunUI] Done. Loading EndScene.");
+        yield return FinalizeRun();
         SceneLoader.GoToEnd();
+    }
+
+    /// <summary>
+    /// Ends the run for real: waits (bounded) for the server to mark run_finished so the
+    /// main menu's Continue is greyed out when we get back there. If the call cannot land,
+    /// a local pending flag makes the menu treat the run as finished anyway and retry.
+    /// </summary>
+    private IEnumerator FinalizeRun()
+    {
+        vc_SaveManager.DeleteSave();
+
+        var telemetryManager = SunodGame.Telemetry.TelemetryManager.Instance;
+        if (telemetryManager == null)
+        {
+            PlayerPrefs.SetInt(SunodGame.Telemetry.TelemetryManager.RunFinishPendingPrefKey, 1);
+            PlayerPrefs.Save();
+            yield break;
+        }
+
+        bool done = false;
+        bool succeeded = false;
+        telemetryManager.FinishMyRunState(
+            _ => { succeeded = true; done = true; },
+            e => { Debug.LogWarning($"[vc_EndRunUI] Finish run-state failed: {e}"); done = true; });
+
+        float waited = 0f;
+        while (!done && waited < 8f)
+        {
+            waited += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (succeeded)
+        {
+            PlayerPrefs.DeleteKey(SunodGame.Telemetry.TelemetryManager.RunFinishPendingPrefKey);
+        }
+        else
+        {
+            PlayerPrefs.SetInt(SunodGame.Telemetry.TelemetryManager.RunFinishPendingPrefKey, 1);
+        }
+        PlayerPrefs.Save();
+        Debug.Log($"[vc_EndRunUI] Run finalized. Server flag landed: {succeeded}.");
     }
 }

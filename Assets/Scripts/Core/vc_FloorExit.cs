@@ -36,7 +36,7 @@ namespace SunodGame.Core
             vc_SessionTelemetry telemetry = vc_SessionTelemetry.Instance;
             if (telemetry == null)
             {
-                Debug.LogWarning("[vc_FloorExit] No SessionTelemetry found — loading scene directly.");
+                Debug.LogWarning("[vc_FloorExit] No SessionTelemetry found - loading scene directly.");
                 SceneManager.LoadScene(nextFloorScene);
                 yield break;
             }

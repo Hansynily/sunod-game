@@ -25,6 +25,11 @@ public class vc_DebugSkipToEnd : MonoBehaviour
         "S", "C", "R", "R", "I", "C", "E"
     };
 
+    // Fabricated Option B question codes (R1..C8) so RecordQuestResult compiles. Debug only.
+    private static readonly string[] QuestCodes = {
+        "S1", "C1", "R1", "R2", "I1", "C2", "E1"
+    };
+
     private static readonly string[] RiasecLetters = { "R", "I", "A", "S", "E", "C" };
 
     private bool _isRunning;
@@ -83,7 +88,7 @@ public class vc_DebugSkipToEnd : MonoBehaviour
                 usage[r] = Random.Range(0, 6);
 
             telemetry.RecordQuestResult(
-                QuestIds[i], QuestNames[i], riasec,
+                QuestIds[i], QuestNames[i], riasec, QuestCodes[i],
                 done, stars, timeRem, time, usage);
         }
 
@@ -95,8 +100,11 @@ public class vc_DebugSkipToEnd : MonoBehaviour
             error   => { Debug.LogWarning($"[DebugSkip] Run summary failed: {error}"); });
 
         if (!runSummarySucceeded)
-            Debug.LogWarning("[DebugSkip] Run summary did not succeed — prediction will still run.");
+            Debug.LogWarning("[DebugSkip] Run summary did not succeed - attempting prediction anyway.");
 
+        // Only 7 of 48 question codes are fabricated above, so with Require Complete Run
+        // ON (the default on vc_SessionTelemetry) SubmitAndPredict skips /api/predict and
+        // returns cluster -1. Toggle it OFF in the Inspector to exercise the predict path.
         yield return telemetry.SubmitAndPredict(cluster =>
             Debug.Log($"[DebugSkip] Prediction done. Cluster={cluster}"));
 

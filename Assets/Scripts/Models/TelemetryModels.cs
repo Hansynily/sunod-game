@@ -171,6 +171,86 @@ namespace SunodGame.Models
     }
 
     [Serializable]
+    public class PlayerProgressResponse
+    {
+        public bool has_data;
+        public int quests_completed;
+        public int quests_attempted;
+        public int total_stars;
+        public string predicted_career_result;
+        public string predicted_career_family;
+        public string predicted_cluster_label;
+        public string predicted_holland_code;
+        public int predicted_cluster = -1;
+        public string prediction_source;
+        public RiasecScoresDto riasec_scores;
+        public string last_updated;
+    }
+
+    // NOTE: riasec_scores travels as a JSON OBJECT ({"R":5,"I":3,...}), which JsonUtility
+    // cannot serialize/deserialize (it only handles arrays/primitives/[Serializable] classes,
+    // not Dictionary<,>). RunStatePayload/RunStateResponse below therefore do NOT declare a
+    // riasec_scores field - TelemetryManager builds/reads that piece with a small hand-rolled
+    // JSON object (same pattern as the existing skills-array building in SubmitQuestAttempt).
+
+    // One quest's result inside the run-state checkpoint. Persisted server-side so a
+    // resumed run can rebuild the whole playthrough's telemetry records: without these,
+    // Continue starts from an empty record list and the run summary / prediction /
+    // progress counts only cover the current app session.
+    [Serializable]
+    public class RunStateQuestRecordDto
+    {
+        public string quest_id;
+        public string quest_name;
+        public string primary_riasec;
+        public string question_code;
+        public bool completed;
+        public int stars;
+        public float time_spent_seconds;
+        public int skill_use_r;
+        public int skill_use_i;
+        public int skill_use_a;
+        public int skill_use_s;
+        public int skill_use_e;
+        public int skill_use_c;
+    }
+
+    [Serializable]
+    public class RunStatePayload
+    {
+        public string session_id;
+        public List<string> completed_quest_ids = new();
+        public List<RunStateQuestRecordDto> quest_records = new();
+        public List<string> owned_skills = new(); // vc_SkillData.skillName values (unique per skill)
+        public int total_stars;
+        public string floor_scene;
+        public bool tutorial_completed;
+        public bool run_finished;
+    }
+
+    [Serializable]
+    public class RunStateResponse
+    {
+        public bool has_state;
+        public string session_id;
+        public List<string> completed_quest_ids;
+        public List<RunStateQuestRecordDto> quest_records;
+        public List<string> owned_skills;
+        public int total_stars;
+        public string floor_scene;
+        public bool tutorial_completed;
+        public bool run_finished;
+        public string updated_at;
+    }
+
+    [Serializable]
+    public class RunStateResetResponse
+    {
+        public bool success;
+        public string message;
+    }
+
+    [Serializable]
     public class SessionClusterTelemetryPayload
     {
         public string player_id;

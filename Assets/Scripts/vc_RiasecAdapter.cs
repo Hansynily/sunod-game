@@ -1,240 +1,86 @@
 using System;
 using System.Collections.Generic;
 
-// Converts gameplay telemetry into the fixed 48-feature questionnaire-like layout
-// expected by the thesis model. This is a designed behavioral proxy layer, not a
-// learned transformation, so each slot below is intentionally traceable to a single
-// interpretable gameplay signal.
+// Option B: 1 quest = 1 RIASEC questionnaire item.
+// Each quest is assigned a question code (R1..R8, I1..I8, A1..A8, S1..S8, E1..E8, C1..C8) and
+// produces a 1-5 item score. This adapter places each quest's item score into its question slot,
+// so the 48-feature vector sent to /api/predict matches the shape the model was trained on.
 public static class vc_RiasecAdapter
 {
+    public const int FeatureCount = 48;
+    public const float NeutralScore = 3f;
+
+    // Canonical slot order - MUST match the model's training columns. Do not reorder.
     private static readonly string[] LetterOrder = { "R", "I", "A", "S", "E", "C" };
-    private const int FeaturesPerLetter = 8;
 
-    public static float[] BuildModelInput(vc_SessionTelemetry.SessionSummary summary, IReadOnlyList<vc_SessionTelemetry.QuestRecord> records)
+    public sealed class BuildResult
     {
-        float[] modelInput = new float[LetterOrder.Length * FeaturesPerLetter];
-        if (records == null)
+        public float[] Features;                                 // always length 48, every value within 1..5
+        public bool IsComplete;                                  // true only when all 48 slots got a real record
+        public List<string> MissingCodes = new List<string>();   // question codes with no record (slot order)
+        public List<string> IgnoredRecords = new List<string>(); // records dropped (empty/unknown question code)
+    }
+
+    // Builds the 48-feature vector from quest records.
+    // requireCompleteRun only affects the IsComplete flag the caller checks; Features is always a
+    // valid 48-vector (missing slots filled with the neutral score) so nothing downstream crashes.
+    public static BuildResult BuildModelInput(IReadOnlyList<vc_SessionTelemetry.QuestRecord> records, bool requireCompleteRun)
+    {
+        Dictionary<string, int> slotMap = BuildSlotMap();
+        BuildResult result = new BuildResult { Features = new float[FeatureCount] };
+        bool[] filled = new bool[FeatureCount];
+
+        if (records != null)
         {
-            return modelInput;
-        }
-
-        Dictionary<string, int> totalUsageByLetter = BuildTotalUsageByLetter(summary, records);
-        int dominantUsage = GetHighestValue(totalUsageByLetter);
-
-        for (int letterIndex = 0; letterIndex < LetterOrder.Length; letterIndex++)
-        {
-            string letter = LetterOrder[letterIndex];
-            int featureOffset = letterIndex * FeaturesPerLetter;
-
-            int questsWithMaxUsage = 0;
-            int questsWithAnyUsage = 0;
-            int starsInPrimaryQuests = 0;
-            int primaryQuestCount = 0;
-            int completedPrimaryQuestCount = 0;
-            float totalEfficiency = 0f;
-            HashSet<int> levelsWithUsage = new HashSet<int>();
-
-            for (int recordIndex = 0; recordIndex < records.Count; recordIndex++)
+            for (int i = 0; i < records.Count; i++)
             {
-                vc_SessionTelemetry.QuestRecord record = records[recordIndex];
-                if (record == null)
+                vc_SessionTelemetry.QuestRecord record = records[i];
+                if (record == null) continue;
+
+                string code = NormalizeCode(record.questionCode);
+                if (string.IsNullOrEmpty(code) || !slotMap.TryGetValue(code, out int slot))
                 {
+                    result.IgnoredRecords.Add(string.IsNullOrEmpty(record.questId) ? "(no id)" : record.questId);
                     continue;
                 }
 
-                int usageForLetter = GetUsageForLetter(record.skillUsageCounts, letter);
-                if (usageForLetter > 0)
-                {
-                    questsWithAnyUsage++;
-
-                    int levelNumber = ExtractLevelNumber(record.questId);
-                    if (levelNumber > 0)
-                    {
-                        levelsWithUsage.Add(levelNumber);
-                    }
-                }
-
-                // Tied highest letters all count as "most-used" for that quest.
-                if (usageForLetter > 0 && usageForLetter == GetHighestUsageForQuest(record.skillUsageCounts))
-                {
-                    questsWithMaxUsage++;
-                }
-
-                if (!string.Equals(NormalizeLetter(record.primaryRiasec), letter, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                primaryQuestCount++;
-                starsInPrimaryQuests += Math.Clamp(record.starsEarned, 0, 3);
-
-                if (record.completed)
-                {
-                    completedPrimaryQuestCount++;
-                }
-
-                totalEfficiency += GetQuestEfficiency(record);
+                // Same code recorded twice (retry): the latest record wins.
+                result.Features[slot] = ClampScore(record.itemScore);
+                filled[slot] = true;
             }
-
-            bool isDominantLetter = dominantUsage > 0 && totalUsageByLetter[letter] == dominantUsage;
-            float completionRate = primaryQuestCount > 0 ? (float)completedPrimaryQuestCount / primaryQuestCount : 0f;
-            float averageEfficiency = primaryQuestCount > 0 ? totalEfficiency / primaryQuestCount : 0f;
-            float levelConsistency = levelsWithUsage.Count > 0 ? (levelsWithUsage.Count / 3f) * 5f : 0f;
-
-            modelInput[featureOffset + 0] = ClampToFive(totalUsageByLetter[letter]);
-            modelInput[featureOffset + 1] = ClampToFive(questsWithMaxUsage);
-            modelInput[featureOffset + 2] = ClampToFive(questsWithAnyUsage);
-            modelInput[featureOffset + 3] = ClampToFive(starsInPrimaryQuests);
-            modelInput[featureOffset + 4] = ClampToFive(completionRate * 5f);
-            modelInput[featureOffset + 5] = ClampToFive(averageEfficiency * 5f);
-            modelInput[featureOffset + 6] = isDominantLetter ? 5f : 0f;
-            modelInput[featureOffset + 7] = ClampToFive(levelConsistency);
         }
 
-        return modelInput;
+        foreach (KeyValuePair<string, int> entry in slotMap)
+            if (!filled[entry.Value]) result.MissingCodes.Add(entry.Key);
+        result.MissingCodes.Sort((a, b) => slotMap[a].CompareTo(slotMap[b]));
+
+        result.IsComplete = result.MissingCodes.Count == 0;
+
+        // Fill unfilled slots with a neutral score so Features is always usable.
+        for (int s = 0; s < FeatureCount; s++)
+            if (!filled[s]) result.Features[s] = NeutralScore;
+
+        _ = requireCompleteRun; // caller decides what to do with IsComplete; kept for signature clarity.
+        return result;
     }
 
-    private static Dictionary<string, int> BuildTotalUsageByLetter(vc_SessionTelemetry.SessionSummary summary, IReadOnlyList<vc_SessionTelemetry.QuestRecord> records)
+    private static Dictionary<string, int> BuildSlotMap()
     {
-        Dictionary<string, int> totals = CreateLetterIntMap();
-        if (summary != null && summary.totalSkillUsageCounts != null)
-        {
-            foreach (string letter in LetterOrder)
-            {
-                totals[letter] = Math.Max(0, GetUsageForLetter(summary.totalSkillUsageCounts, letter));
-            }
-
-            return totals;
-        }
-
-        for (int i = 0; i < records.Count; i++)
-        {
-            vc_SessionTelemetry.QuestRecord record = records[i];
-            if (record == null)
-            {
-                continue;
-            }
-
-            foreach (string letter in LetterOrder)
-            {
-                totals[letter] += GetUsageForLetter(record.skillUsageCounts, letter);
-            }
-        }
-
-        return totals;
-    }
-
-    private static int GetHighestUsageForQuest(IDictionary<string, int> skillUsageCounts)
-    {
-        int highest = 0;
-        if (skillUsageCounts == null)
-        {
-            return highest;
-        }
-
+        Dictionary<string, int> map = new Dictionary<string, int>(FeatureCount, StringComparer.Ordinal);
+        int slot = 0;
         foreach (string letter in LetterOrder)
-        {
-            highest = Math.Max(highest, GetUsageForLetter(skillUsageCounts, letter));
-        }
-
-        return highest;
+            for (int index = 1; index <= 8; index++)
+                map[$"{letter}{index}"] = slot++;
+        return map;
     }
 
-    private static float GetQuestEfficiency(vc_SessionTelemetry.QuestRecord record)
+    private static string NormalizeCode(string raw)
     {
-        if (record == null)
-        {
-            return 0f;
-        }
-
-        float totalTime = Math.Max(0f, record.timeSpentSeconds) + Math.Max(0f, record.finalTimeRemainingSeconds);
-        if (totalTime <= 0f)
-        {
-            return 0f;
-        }
-
-        return Math.Clamp(record.finalTimeRemainingSeconds / totalTime, 0f, 1f);
+        return string.IsNullOrWhiteSpace(raw) ? string.Empty : raw.Trim().ToUpperInvariant();
     }
 
-    private static int ExtractLevelNumber(string questId)
+    private static float ClampScore(int score)
     {
-        if (string.IsNullOrWhiteSpace(questId) || questId.Length < 2 || char.ToUpperInvariant(questId[0]) != 'L')
-        {
-            return 0;
-        }
-
-        int digitIndex = 1;
-        int levelNumber = 0;
-        while (digitIndex < questId.Length && char.IsDigit(questId[digitIndex]))
-        {
-            levelNumber = (levelNumber * 10) + (questId[digitIndex] - '0');
-            digitIndex++;
-        }
-
-        return levelNumber;
-    }
-
-    private static int GetHighestValue(Dictionary<string, int> valuesByLetter)
-    {
-        int highest = 0;
-        foreach (string letter in LetterOrder)
-        {
-            highest = Math.Max(highest, valuesByLetter[letter]);
-        }
-
-        return highest;
-    }
-
-    private static int GetUsageForLetter(IDictionary<string, int> usageCounts, string letter)
-    {
-        if (usageCounts == null)
-        {
-            return 0;
-        }
-
-        string normalized = NormalizeLetter(letter);
-        if (string.IsNullOrEmpty(normalized))
-        {
-            return 0;
-        }
-
-        return usageCounts.TryGetValue(normalized, out int count) ? Math.Max(0, count) : 0;
-    }
-
-    private static string NormalizeLetter(string rawLetter)
-    {
-        if (string.IsNullOrWhiteSpace(rawLetter))
-        {
-            return string.Empty;
-        }
-
-        string normalized = rawLetter.Trim().ToUpperInvariant();
-        for (int i = 0; i < LetterOrder.Length; i++)
-        {
-            if (LetterOrder[i] == normalized)
-            {
-                return normalized;
-            }
-        }
-
-        return string.Empty;
-    }
-
-    private static Dictionary<string, int> CreateLetterIntMap()
-    {
-        return new Dictionary<string, int>
-        {
-            { "R", 0 },
-            { "I", 0 },
-            { "A", 0 },
-            { "S", 0 },
-            { "E", 0 },
-            { "C", 0 }
-        };
-    }
-
-    private static float ClampToFive(float value)
-    {
-        return Math.Clamp(value, 0f, 5f);
+        return Math.Clamp(score, 1, 5);
     }
 }

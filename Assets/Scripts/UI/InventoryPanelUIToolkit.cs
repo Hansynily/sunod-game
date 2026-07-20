@@ -187,7 +187,7 @@ namespace SunodGame.UI
             textBlock.Add(nameLabel);
 
             string letter = (skill.riaSecLetter ?? "?").ToUpper();
-            string riasecName = RiasecNames.TryGetValue(letter.ToLower(), out var n) ? n : "—";
+            string riasecName = RiasecNames.TryGetValue(letter.ToLower(), out var n) ? n : "-";
             var metaLabel = new Label($"{riasecName}  -  LV. {skill.level}");
             metaLabel.AddToClassList("row-meta");
             textBlock.Add(metaLabel);
@@ -235,7 +235,7 @@ namespace SunodGame.UI
 
             string letter = (skill.riaSecLetter ?? "?").ToUpper();
             string letterLower = letter.ToLower();
-            string riasecName = RiasecNames.TryGetValue(letterLower, out var n) ? n : "—";
+            string riasecName = RiasecNames.TryGetValue(letterLower, out var n) ? n : "-";
 
             if (_detailTagLetter != null) _detailTagLetter.text = letter;
             if (_detailTagName != null)   _detailTagName.text   = riasecName;
@@ -249,12 +249,12 @@ namespace SunodGame.UI
 
             if (_detailLevel != null)  _detailLevel.text  = $"LV. {skill.level}";
             if (_detailDesc != null)   _detailDesc.text   = string.IsNullOrEmpty(skill.description) ? "No description available." : skill.description;
-            if (_detailAction != null) _detailAction.text = string.IsNullOrEmpty(skill.buttonLabel) ? "—" : skill.buttonLabel;
+            if (_detailAction != null) _detailAction.text = string.IsNullOrEmpty(skill.buttonLabel) ? "-" : skill.buttonLabel;
         }
 
         private void OnSlotClicked(int slotIndex)
         {
-            Debug.Log($"[Inventory] OnSlotClicked({slotIndex}) — selectedSkill={_selectedSkill?.skillName ?? "NULL"}, SkillManager={(vc_SkillManager.Instance == null ? "NULL" : "OK")}");
+            Debug.Log($"[Inventory] OnSlotClicked({slotIndex}) - selectedSkill={_selectedSkill?.skillName ?? "NULL"}, SkillManager={(vc_SkillManager.Instance == null ? "NULL" : "OK")}");
             if (_selectedSkill == null || vc_SkillManager.Instance == null) return;
 
             vc_SkillManager.Instance.AssignSkillToSlot(slotIndex, _selectedSkill);
@@ -287,8 +287,8 @@ namespace SunodGame.UI
 
                 if (_slotNames[i] != null)
                     _slotNames[i].text = data != null
-                        ? (data.skillName ?? "—").ToUpper()
-                        : "——";
+                        ? (data.skillName ?? "-").ToUpper()
+                        : "--";
             }
         }
 

@@ -111,7 +111,49 @@ public class vc_RunCompleteZone : MonoBehaviour
         Debug.Log($"[vc_RunCompleteZone] Prediction complete. Cluster={predictedCluster}.");
         SetLoadingState(false);
         isPredictionRunning = false;
+
+        yield return FinalizeRun();
+
         LoadEndScene();
+    }
+
+    // Same contract as vc_EndRunUI.FinalizeRun: bounded wait for the server run_finished
+    // flag; on failure a local pending flag keeps Continue greyed and the menu retries.
+    private IEnumerator FinalizeRun()
+    {
+        vc_SaveManager.DeleteSave();
+
+        var telemetryManager = SunodGame.Telemetry.TelemetryManager.Instance;
+        if (telemetryManager == null)
+        {
+            PlayerPrefs.SetInt(SunodGame.Telemetry.TelemetryManager.RunFinishPendingPrefKey, 1);
+            PlayerPrefs.Save();
+            yield break;
+        }
+
+        bool done = false;
+        bool succeeded = false;
+        telemetryManager.FinishMyRunState(
+            _ => { succeeded = true; done = true; },
+            e => { Debug.LogWarning($"[vc_RunCompleteZone] Finish run-state failed: {e}"); done = true; });
+
+        float waited = 0f;
+        while (!done && waited < 8f)
+        {
+            waited += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (succeeded)
+        {
+            PlayerPrefs.DeleteKey(SunodGame.Telemetry.TelemetryManager.RunFinishPendingPrefKey);
+        }
+        else
+        {
+            PlayerPrefs.SetInt(SunodGame.Telemetry.TelemetryManager.RunFinishPendingPrefKey, 1);
+        }
+        PlayerPrefs.Save();
+        Debug.Log($"[vc_RunCompleteZone] Run finalized. Server flag landed: {succeeded}.");
     }
 
     private bool AreAllQuestsRecorded(vc_SessionTelemetry telemetry)

@@ -10,7 +10,7 @@ using UnityEngine;
 public class vc_MuralQuest : MonoBehaviour, vc_IQuestLogic
 {
     [Header("Visuals (assign in Inspector)")]
-    [SerializeField] private GameObject muralReveal;     // the finished mural — starts hidden, fades in
+    [SerializeField] private GameObject muralReveal;     // the finished mural - starts hidden, fades in
     [SerializeField] private vc_FloatingMarker mainMarker;
     [SerializeField] private float animDuration = 0.6f;
 

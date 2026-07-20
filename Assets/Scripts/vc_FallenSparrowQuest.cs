@@ -8,18 +8,14 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private Transform birdTransform;
     [SerializeField] private GameObject vetNPCObject;
     [SerializeField] private vc_NPCController vetNPC;
-    [SerializeField] private float charmRange = 1.5f;
-    [SerializeField] private float healHoldTime = 5f;
     [SerializeField] private vc_FloatingMarker mainMarker_Bird;
     [SerializeField] private vc_FloatingMarker poiMarker_VetSpot;
 
     private Transform _playerTransform;
     private vc_QuestRoom _questRoom;
     private bool questStarted = false;
-    private bool charmDone = false;
     private bool sosUsed = false;
     private bool questDone = false;
-    private float healTimer = 0f;
 
     private void Start()
     {
@@ -35,10 +31,8 @@ public class vc_FallenSparrowQuest : MonoBehaviour, vc_IQuestLogic
     {
         _questRoom = activeQuestRoom;
         questStarted = true;
-        charmDone = false;
         sosUsed = false;
         questDone = false;
-        healTimer = 0f;
         vc_QuestHUD.Instance?.ForceHideFeedback();
 
         if (vetNPCObject != null) vetNPCObject.SetActive(false);

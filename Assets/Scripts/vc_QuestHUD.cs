@@ -115,9 +115,19 @@ public class vc_QuestHUD : MonoBehaviour
         _currentRow?.SetDisplay(false);
     }
 
-    // Kept for API compatibility — description/hints not shown in the new compact design.
+    // Kept for API compatibility - description not shown in the new compact design.
     public void SetDescription(string text) { }
-    public void SetHints(string[] hints)    { }
+
+    // Hints are shown through the scene's uGUI hint button/panel (vc_HintSystem),
+    // not inside this compact panel.
+    public void SetHints(string[] hints)
+    {
+        if (_hintSystem == null)
+            _hintSystem = FindFirstObjectByType<vc_HintSystem>(FindObjectsInactive.Include);
+        _hintSystem?.SetHints(hints);
+    }
+
+    private vc_HintSystem _hintSystem;
 
     public void ShowFeedback(string text)
     {

@@ -21,7 +21,7 @@ public class vc_DialogPanel : MonoBehaviour
     private Action _onCancel;
     private PlayerController _player;
 
-    // ── Lifecycle — mirrors vc_QuestHUD exactly ───────────────────────────
+    // ── Lifecycle - mirrors vc_QuestHUD exactly ───────────────────────────
 
     private void Awake()
     {
@@ -57,7 +57,7 @@ public class vc_DialogPanel : MonoBehaviour
         Populate(title, body, null, "Continue", null);
         _cancelBtn?.SetDisplay(false);
 
-        // No backdrop for narration — game world stays visible.
+        // No backdrop for narration - game world stays visible.
         if (_dialogRoot != null)
             _dialogRoot.style.backgroundColor = new StyleColor(Color.clear);
 

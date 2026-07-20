@@ -299,7 +299,8 @@ namespace SunodGame.UI
                 auth.name,
                 auth.birthdate,
                 auth.gender,
-                auth.tutorial_completed);
+                auth.tutorial_completed,
+                auth.id);
             TelemetryManager.Instance?.TagSessionStart();
             SceneLoader.GoToMainMenu();
         }

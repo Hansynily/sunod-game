@@ -186,3 +186,280 @@
     width: 100%;
     max-width: 600px;
 }
+
+/* ============================
+   New menu buttons (Continue / Stats / Reset)
+   ============================ */
+.btn-continue {
+    background-color: rgb(184, 138, 38);
+}
+.btn-continue:hover {
+    background-color: rgb(212, 160, 50);
+}
+.btn-continue:disabled {
+    background-color: rgb(60, 64, 74);
+    opacity: 0.5;
+}
+
+.btn-stats {
+    background-color: rgb(38, 54, 88);
+}
+.btn-stats:hover {
+    background-color: rgb(52, 72, 112);
+}
+
+.btn-reset {
+    background-color: rgb(120, 40, 40);
+    margin-top: 8px;
+}
+.btn-reset:hover {
+    background-color: rgb(150, 50, 50);
+}
+
+/* ============================
+   Progress page (full-screen "My Progress")
+   ============================ */
+.progress-page {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-image: url("../Background/PlainA.png");
+    -unity-background-scale-mode: scale-and-crop;
+}
+.progress-page-inner {
+    width: 80%;
+    max-width: 700px;
+    max-height: 88%;
+    background-color: rgba(14, 20, 42, 0.97);
+    border-color: rgb(201, 151, 59);
+    border-width: 4px;
+    border-radius: 20px;
+    padding: 0 48px 36px 48px;
+    align-items: stretch;
+}
+.progress-page-actions {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 24px;
+}
+.run-complete-note {
+    font-size: 15px;
+    color: rgb(120, 210, 130);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    background-color: rgba(20, 52, 26, 0.6);
+    border-color: rgb(90, 170, 100);
+    border-width: 1px;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+/* ============================
+   Overlay shell (shared by Reset-confirm + New-run-confirm)
+   ============================ */
+.overlay-root {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(4, 8, 20, 0.82);
+}
+
+.overlay-panel {
+    width: 80%;
+    max-width: 640px;
+    max-height: 85%;
+    background-color: rgba(22, 32, 58, 0.97);
+    border-color: rgb(201, 151, 59);
+    border-width: 3px;
+    border-radius: 16px;
+    padding: 0 40px 32px 40px;
+    align-items: stretch;
+}
+
+.empty-state-label {
+    font-size: 18px;
+    color: rgb(200, 210, 230);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 20px 10px;
+}
+
+.stats-content {
+    display: flex;
+}
+
+.provisional-note {
+    font-size: 14px;
+    color: rgb(245, 200, 60);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    background-color: rgba(60, 46, 10, 0.6);
+    border-color: rgb(201, 151, 59);
+    border-width: 1px;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-top: 10px;
+    margin-bottom: 14px;
+}
+
+.error-note {
+    font-size: 14px;
+    color: rgb(230, 120, 110);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-top: 10px;
+}
+
+.overlay-close-btn {
+    margin-top: 20px;
+    align-self: center;
+}
+
+/* ============================
+   Reset confirm box
+   ============================ */
+.confirm-box {
+    width: 70%;
+    max-width: 520px;
+    background-color: rgba(22, 32, 58, 0.97);
+    border-color: rgb(201, 151, 59);
+    border-width: 3px;
+    border-radius: 16px;
+    padding: 32px;
+    align-items: center;
+}
+.confirm-title {
+    font-size: 28px;
+    color: rgb(245, 168, 35);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: middle-center;
+    margin-bottom: 14px;
+}
+.confirm-body {
+    font-size: 16px;
+    color: rgb(200, 215, 235);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 24px;
+}
+.confirm-button-row {
+    flex-direction: row;
+    justify-content: center;
+}
+.btn-reset-confirm {
+    background-color: rgb(120, 40, 40);
+}
+.btn-reset-confirm:hover {
+    background-color: rgb(150, 50, 50);
+}
+
+/* ============================
+   Shared action-button look (local copy - MainMenu.uxml only imports this
+   stylesheet, so these mirror EndSceneStyle.uss's .action-btn/.btn-main-menu
+   rather than cross-importing another scene's style)
+   ============================ */
+.action-btn {
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    min-width: 180px;
+    border-color: rgb(201, 151, 59);
+    border-width: 2px;
+    border-radius: 12px;
+    padding: 0 28px;
+    margin-left: 10px;
+    margin-right: 10px;
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+.action-btn-label {
+    font-size: 20px;
+    color: white;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: middle-center;
+}
+.btn-main-menu {
+    background-color: rgb(38, 54, 88);
+}
+.btn-main-menu:hover {
+    background-color: rgb(52, 72, 112);
+}
+
+/* Header badge + career/stat rows - local copies matching EndSceneStyle.uss's look */
+.panel-header {
+    align-items: center;
+    background-color: rgb(22, 32, 58);
+    border-color: rgb(201, 151, 59);
+    border-width: 3px;
+    border-radius: 12px;
+    margin-top: -22px;
+    margin-left: 80px;
+    margin-right: 80px;
+    padding: 12px 24px;
+    margin-bottom: 20px;
+}
+.header-text {
+    font-size: 22px;
+    color: rgb(245, 210, 120);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: middle-center;
+}
+.career-section {
+    align-items: center;
+    margin-bottom: 10px;
+}
+.recommended-label {
+    font-size: 15px;
+    color: rgb(180, 195, 220);
+    -unity-text-align: middle-center;
+    margin-bottom: 6px;
+}
+.career-name {
+    font-size: 40px;
+    color: rgb(245, 168, 35);
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 6px;
+}
+.riasec-note {
+    font-size: 14px;
+    color: rgb(200, 210, 230);
+    -unity-text-align: middle-center;
+}
+.divider {
+    height: 2px;
+    background-color: rgb(201, 151, 59);
+    opacity: 0.4;
+    margin-top: 14px;
+    margin-bottom: 14px;
+}
+.stats-section {
+    padding: 0 4px;
+}
+.stat-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+    min-height: 32px;
+}
+.stat-label {
+    font-size: 16px;
+    color: rgb(200, 215, 235);
+    width: 170px;
+}
+.stat-value {
+    flex-grow: 1;
+    font-size: 16px;
+    color: white;
+    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+}
+.stat-gold {
+    color: rgb(245, 200, 60);
+}

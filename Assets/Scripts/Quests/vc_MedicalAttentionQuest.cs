@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Quest logic for L4 Quest 1 — Medical Attention.
+/// Quest logic for L4 Quest 1 - Medical Attention.
 ///
 /// Combo 1: navigate → attract
 ///   - navigate shows directional arrow to clinic

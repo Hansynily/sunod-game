@@ -36,7 +36,7 @@ public class vc_SkillSelectionMarker : MonoBehaviour
             return;
         }
 
-        // Starting kit mode ignores nextRoomSlot weighting — all skills are equal weight at game start.
+        // Starting kit mode ignores nextRoomSlot weighting - all skills are equal weight at game start.
         string nextRiasec = string.Empty;
         if (!startingKitMode && nextRoomSlot != null)
         {

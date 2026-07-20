@@ -17,8 +17,10 @@ public class vc_SessionTelemetry : MonoBehaviour
         public string questId;
         public string questName;
         public string primaryRiasec;
+        public string questionCode;   // RIASEC item this quest represents: "R1".."C8" (Option B)
         public bool completed;
         public int starsEarned;
+        public int itemScore;         // 1-5 Option B score (see ComputeItemScore)
         public float finalTimeRemainingSeconds;
         public float timeSpentSeconds;
         public Dictionary<string, int> skillUsageCounts = CreateEmptySkillUsageCounts();
@@ -40,6 +42,13 @@ public class vc_SessionTelemetry : MonoBehaviour
     }
 
     public static vc_SessionTelemetry Instance { get; private set; }
+
+    [Header("Option B prediction")]
+    [Tooltip("OFF (default): players see a predicted career even mid-progress - unfilled slots " +
+             "neutral-fill to 3 and prediction still runs. EndScene/UI must label this provisional " +
+             "until all 48 slots are real. ON: prediction only runs once all 48 slots are filled " +
+             "(cleanest thesis data, but no in-progress career).")]
+    [SerializeField] private bool requireCompleteRun = false;
 
     [SerializeField] private List<QuestRecord> questRecords = new List<QuestRecord>();
 
@@ -119,29 +128,151 @@ public class vc_SessionTelemetry : MonoBehaviour
         Debug.Log("[Telemetry] Session canceled.");
     }
 
-    public void RecordQuestResult(string questId, string questName, string primaryRiasec, bool completed, int starsEarned, float finalTimeRemainingSeconds, float timeSpentSeconds, IDictionary<string, int> skillUsageCounts)
+    public void RecordQuestResult(string questId, string questName, string primaryRiasec, string questionCode, bool completed, int starsEarned, float finalTimeRemainingSeconds, float timeSpentSeconds, IDictionary<string, int> skillUsageCounts)
     {
         EnsureSessionStarted();
         RefreshPlayerIdentity();
+
+        int normalizedStars = Mathf.Clamp(starsEarned, 0, 3);
 
         questRecords.Add(new QuestRecord
         {
             questId = string.IsNullOrWhiteSpace(questId) ? string.Empty : questId.Trim(),
             questName = string.IsNullOrWhiteSpace(questName) ? string.Empty : questName.Trim(),
             primaryRiasec = NormalizeRiasecLetter(primaryRiasec) ?? string.Empty,
+            questionCode = string.IsNullOrWhiteSpace(questionCode) ? string.Empty : questionCode.Trim().ToUpperInvariant(),
             completed = completed,
-            starsEarned = Mathf.Clamp(starsEarned, 0, 3),
+            starsEarned = normalizedStars,
+            itemScore = ComputeItemScore(completed, normalizedStars),
             finalTimeRemainingSeconds = Mathf.Max(0f, finalTimeRemainingSeconds),
             timeSpentSeconds = Mathf.Max(0f, timeSpentSeconds),
             skillUsageCounts = NormalizeSkillUsageCounts(skillUsageCounts)
         });
 
-        Debug.Log($"[Telemetry] Quest recorded: {questId} | Stars: {starsEarned} | Completed: {completed}");
+        Debug.Log($"[Telemetry] Quest recorded: {questId} | Code: {questionCode} | Stars: {starsEarned} | Completed: {completed}");
+    }
+
+    // Option B per-item score. This is the SINGLE place the 1-5 rule lives - change it here only.
+    // Rule (pending adviser sign-off): not completed -> 1; completed 0*->2, 1*->3, 2*->4, 3*->5.
+    public static int ComputeItemScore(bool completed, int starsNormalized)
+    {
+        if (!completed) return 1;
+        return 2 + Mathf.Clamp(starsNormalized, 0, 3);
     }
 
     public IReadOnlyList<QuestRecord> GetAllRecords()
     {
         return questRecords.AsReadOnly();
+    }
+
+    /// <summary>
+    /// The current records as run-state checkpoint DTOs, deduplicated to the latest
+    /// record per questId (same rule as BuildRunSummaryPayload and the 48-item adapter).
+    /// Pushed to the server after each quest so a resumed run can rebuild them.
+    /// </summary>
+    public List<RunStateQuestRecordDto> BuildRunStateRecords()
+    {
+        Dictionary<string, int> latestIndexByQuestId = new Dictionary<string, int>();
+        List<string> orderedQuestIds = new List<string>();
+        for (int i = 0; i < questRecords.Count; i++)
+        {
+            QuestRecord record = questRecords[i];
+            if (record == null || string.IsNullOrWhiteSpace(record.questId))
+            {
+                continue;
+            }
+
+            if (!latestIndexByQuestId.ContainsKey(record.questId))
+            {
+                orderedQuestIds.Add(record.questId);
+            }
+            latestIndexByQuestId[record.questId] = i;
+        }
+
+        List<RunStateQuestRecordDto> result = new List<RunStateQuestRecordDto>(orderedQuestIds.Count);
+        foreach (string questId in orderedQuestIds)
+        {
+            QuestRecord record = questRecords[latestIndexByQuestId[questId]];
+            result.Add(new RunStateQuestRecordDto
+            {
+                quest_id = record.questId,
+                quest_name = record.questName ?? string.Empty,
+                primary_riasec = record.primaryRiasec ?? string.Empty,
+                question_code = record.questionCode ?? string.Empty,
+                completed = record.completed,
+                stars = Mathf.Clamp(record.starsEarned, 0, 3),
+                time_spent_seconds = Mathf.Max(0f, record.timeSpentSeconds),
+                skill_use_r = GetSkillUseCount(record.skillUsageCounts, "R"),
+                skill_use_i = GetSkillUseCount(record.skillUsageCounts, "I"),
+                skill_use_a = GetSkillUseCount(record.skillUsageCounts, "A"),
+                skill_use_s = GetSkillUseCount(record.skillUsageCounts, "S"),
+                skill_use_e = GetSkillUseCount(record.skillUsageCounts, "E"),
+                skill_use_c = GetSkillUseCount(record.skillUsageCounts, "C")
+            });
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Continue: rebuilds prior sessions' quest records from the server checkpoint so the
+    /// run summary, the 48-item prediction vector, and the progress counts cover the WHOLE
+    /// playthrough, not just the quests played since the app launched. Restored records
+    /// never overwrite a record already present for the same questId.
+    /// </summary>
+    public void SeedRestoredRecords(IEnumerable<RunStateQuestRecordDto> restored)
+    {
+        if (restored == null)
+        {
+            return;
+        }
+
+        EnsureSessionStarted();
+
+        HashSet<string> existingIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (QuestRecord record in questRecords)
+        {
+            if (record != null && !string.IsNullOrWhiteSpace(record.questId))
+            {
+                existingIds.Add(record.questId);
+            }
+        }
+
+        int seeded = 0;
+        foreach (RunStateQuestRecordDto dto in restored)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.quest_id) || existingIds.Contains(dto.quest_id))
+            {
+                continue;
+            }
+
+            int stars = Mathf.Clamp(dto.stars, 0, 3);
+            Dictionary<string, int> usage = CreateEmptySkillUsageCounts();
+            usage["R"] = Mathf.Max(0, dto.skill_use_r);
+            usage["I"] = Mathf.Max(0, dto.skill_use_i);
+            usage["A"] = Mathf.Max(0, dto.skill_use_a);
+            usage["S"] = Mathf.Max(0, dto.skill_use_s);
+            usage["E"] = Mathf.Max(0, dto.skill_use_e);
+            usage["C"] = Mathf.Max(0, dto.skill_use_c);
+
+            questRecords.Add(new QuestRecord
+            {
+                questId = dto.quest_id.Trim(),
+                questName = dto.quest_name ?? string.Empty,
+                primaryRiasec = NormalizeRiasecLetter(dto.primary_riasec) ?? string.Empty,
+                questionCode = string.IsNullOrWhiteSpace(dto.question_code) ? string.Empty : dto.question_code.Trim().ToUpperInvariant(),
+                completed = dto.completed,
+                starsEarned = stars,
+                itemScore = ComputeItemScore(dto.completed, stars),
+                finalTimeRemainingSeconds = 0f,
+                timeSpentSeconds = Mathf.Max(0f, dto.time_spent_seconds),
+                skillUsageCounts = usage
+            });
+            existingIds.Add(dto.quest_id);
+            seeded++;
+        }
+
+        Debug.Log($"[Telemetry] Restored {seeded} quest record(s) from the server checkpoint (session now holds {questRecords.Count}).");
     }
 
     public SessionSummary GetSessionSummary()
@@ -196,7 +327,21 @@ public class vc_SessionTelemetry : MonoBehaviour
         PredictedClusterHollandCode = string.Empty;
         PredictedSource = string.Empty;
         PredictedModelVersion = string.Empty;
-        float[] features = vc_RiasecAdapter.BuildModelInput(summary, GetAllRecords());
+        vc_RiasecAdapter.BuildResult buildResult = vc_RiasecAdapter.BuildModelInput(GetAllRecords(), requireCompleteRun);
+        float[] features = buildResult.Features;
+
+        if (buildResult.IgnoredRecords.Count > 0)
+        {
+            Debug.LogWarning($"[vc_SessionTelemetry] {buildResult.IgnoredRecords.Count} quest record(s) had no/unknown question code and were excluded from the model vector: {string.Join(", ", buildResult.IgnoredRecords)}");
+        }
+
+        if (requireCompleteRun && !buildResult.IsComplete)
+        {
+            Debug.LogWarning($"[vc_SessionTelemetry] Skipping /api/predict - incomplete run (requireCompleteRun is ON). Missing question codes: {string.Join(", ", buildResult.MissingCodes)}. EndScene keeps the rubric/fallback result.");
+            onResult?.Invoke(PredictedCluster);
+            yield break;
+        }
+
         Debug.Log($"[Adapter] float[48]: {string.Join(", ", features)}");
         string baseUrl = ResolvePredictionBaseUrl();
         if (string.IsNullOrWhiteSpace(baseUrl))
@@ -399,6 +544,12 @@ public class vc_SessionTelemetry : MonoBehaviour
             rounds = new List<ChallengeRoundTelemetryPayload>()
         };
 
+        // The server rejects the whole run summary if two rounds share a challenge_id.
+        // A quest re-recorded in one run (retry) would produce exactly that, so collapse
+        // to the LATEST record per questId - the same "latest wins" rule the 48-item
+        // adapter uses. First-seen order is preserved for readability.
+        Dictionary<string, int> latestIndexByQuestId = new Dictionary<string, int>();
+        List<string> orderedQuestIds = new List<string>();
         for (int i = 0; i < questRecords.Count; i++)
         {
             QuestRecord record = questRecords[i];
@@ -406,6 +557,17 @@ public class vc_SessionTelemetry : MonoBehaviour
             {
                 continue;
             }
+
+            if (!latestIndexByQuestId.ContainsKey(record.questId))
+            {
+                orderedQuestIds.Add(record.questId);
+            }
+            latestIndexByQuestId[record.questId] = i;
+        }
+
+        foreach (string questId in orderedQuestIds)
+        {
+            QuestRecord record = questRecords[latestIndexByQuestId[questId]];
 
             payload.rounds.Add(new ChallengeRoundTelemetryPayload
             {

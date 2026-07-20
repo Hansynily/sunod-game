@@ -3,14 +3,18 @@
     <ui:VisualElement name="root" class="root-container">
 
         <!-- Left panel: brand + nav buttons -->
-        <ui:VisualElement class="left-panel">
+        <ui:VisualElement name="left-panel" class="left-panel">
 
             <ui:VisualElement class="brand-area">
                 <ui:Label text="SUNOD" class="brand-title"/>
-                <ui:Label text="·—·◆·—·" class="brand-divider"/>
+                <ui:Label text="·-·◆·-·" class="brand-divider"/>
             </ui:VisualElement>
 
             <ui:VisualElement class="menu-panel">
+
+                <ui:Button name="btn-continue" class="menu-btn btn-continue">
+                    <ui:Label text="Continue" class="btn-label"/>
+                </ui:Button>
 
                 <ui:Button name="btn-tutorial" class="menu-btn btn-tutorial">
                     <ui:Label text="Tutorial" class="btn-label"/>
@@ -18,6 +22,10 @@
 
                 <ui:Button name="btn-play" class="menu-btn btn-play">
                     <ui:Label text="Play" class="btn-label"/>
+                </ui:Button>
+
+                <ui:Button name="btn-stats" class="menu-btn btn-stats">
+                    <ui:Label text="My Progress" class="btn-label"/>
                 </ui:Button>
 
                 <ui:Button name="btn-settings" class="menu-btn btn-settings">
@@ -28,7 +36,7 @@
         </ui:VisualElement>
 
         <!-- Right panel: player card + username -->
-        <ui:VisualElement class="right-panel">
+        <ui:VisualElement name="right-panel" class="right-panel">
 
             <ui:VisualElement name="player-card" class="player-card">
                 <ui:VisualElement name="player-card-image" class="player-card-image"/>
@@ -38,10 +46,104 @@
 
         </ui:VisualElement>
 
-        <!-- Logout button — MUST be last so it renders on top and receives clicks -->
+        <!-- Logout button. MUST render on top to receive clicks. -->
         <ui:Button name="btn-logout" class="btn-logout">
             <ui:Label text="Logout" class="btn-logout-label"/>
         </ui:Button>
+
+        <!--
+             "My Progress" full page. Hidden by default, opened by btn-stats.
+             Shows the caller's latest server run, scoped to their player id.
+             Reset Run lives here as a destructive action at the bottom.
+        -->
+        <ui:VisualElement name="stats-overlay" class="progress-page">
+            <ui:VisualElement class="progress-page-inner">
+
+                <ui:VisualElement class="panel-header">
+                    <ui:Label text="Your Progress" class="header-text"/>
+                </ui:VisualElement>
+
+                <ui:Label name="lbl-stats-empty" text="Play your first quests to see your career forming." class="empty-state-label"/>
+
+                <ui:VisualElement name="stats-content" class="stats-content">
+
+                    <ui:Label name="lbl-run-complete" text="" class="run-complete-note"/>
+                    <ui:Label name="lbl-provisional-note" text="" class="provisional-note"/>
+
+                    <ui:VisualElement class="career-section">
+                        <ui:Label text="Career So Far" class="recommended-label"/>
+                        <ui:Label name="lbl-career-name" text="..." class="career-name"/>
+                        <ui:Label name="lbl-cluster-label" text="" class="riasec-note"/>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="divider"/>
+
+                    <ui:VisualElement class="stats-section">
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="Holland Code:" class="stat-label"/>
+                            <ui:Label name="lbl-holland-code" text="---" class="stat-value stat-gold"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="Quests:" class="stat-label"/>
+                            <ui:Label name="lbl-quests" text="--/48" class="stat-value stat-gold"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="Stars Earned:" class="stat-label"/>
+                            <ui:Label name="lbl-stars" text="--" class="stat-value stat-gold"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="Result Source:" class="stat-label"/>
+                            <ui:Label name="lbl-source" text="--" class="stat-value"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+
+                <ui:Label name="lbl-stats-error" text="" class="error-note"/>
+
+                <ui:VisualElement class="progress-page-actions">
+                    <ui:Button name="btn-stats-close" class="action-btn btn-main-menu">
+                        <ui:Label text="Back" class="action-btn-label"/>
+                    </ui:Button>
+                    <ui:Button name="btn-reset" class="action-btn btn-reset-confirm">
+                        <ui:Label text="Reset Run" class="action-btn-label"/>
+                    </ui:Button>
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Reset Run confirm overlay. Opened from the progress page. -->
+        <ui:VisualElement name="reset-confirm-overlay" class="overlay-root">
+            <ui:VisualElement class="confirm-box">
+                <ui:Label text="Reset Run?" class="confirm-title"/>
+                <ui:Label text="This clears your in-progress quests and skills. Your past completed runs and reports are kept." class="confirm-body"/>
+                <ui:VisualElement class="confirm-button-row">
+                    <ui:Button name="btn-reset-confirm" class="action-btn btn-reset-confirm">
+                        <ui:Label text="Reset" class="action-btn-label"/>
+                    </ui:Button>
+                    <ui:Button name="btn-reset-cancel" class="action-btn btn-main-menu">
+                        <ui:Label text="Cancel" class="action-btn-label"/>
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- New-run confirm overlay. Opened by Play when an unfinished run exists. -->
+        <ui:VisualElement name="newrun-confirm-overlay" class="overlay-root">
+            <ui:VisualElement class="confirm-box">
+                <ui:Label text="Start a New Run?" class="confirm-title"/>
+                <ui:Label text="Starting a new run erases your current in-progress run. Use Continue instead to pick up where you left off." class="confirm-body"/>
+                <ui:VisualElement class="confirm-button-row">
+                    <ui:Button name="btn-newrun-confirm" class="action-btn btn-reset-confirm">
+                        <ui:Label text="New Run" class="action-btn-label"/>
+                    </ui:Button>
+                    <ui:Button name="btn-newrun-cancel" class="action-btn btn-main-menu">
+                        <ui:Label text="Cancel" class="action-btn-label"/>
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
 
     </ui:VisualElement>
 </ui:UXML>

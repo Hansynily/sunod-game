@@ -7,7 +7,6 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private GameObject safe;
     [SerializeField] private Transform catTransform;
     [SerializeField] private BoxCollider2D safeCollider;
-    [SerializeField] private float lockpickHoldTime = 5f;
     [SerializeField] private float medicineDeliveryRange = 1.5f;
     [SerializeField] private vc_FloatingMarker mainMarker_Safe;
     [SerializeField] private vc_FloatingMarker mainMarker_Cat;
@@ -19,9 +18,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
     private bool moldingDone = false;
     private bool safeOpen = false;
     private bool medicinePickedUp = false;
-    private bool lockpicking = false;
     private float medicinePickupGraceTimer = 0f;
-    private float lockpickTimer = 0f;
 
     private void Start()
     {
@@ -41,9 +38,7 @@ public class vc_CatMedicineQuest : MonoBehaviour, vc_IQuestLogic
         moldingDone = false;
         safeOpen = false;
         medicinePickedUp = false;
-        lockpicking = false;
         medicinePickupGraceTimer = 0f;
-        lockpickTimer = 0f;
         vc_QuestHUD.Instance?.ForceHideFeedback();
 
         if (catTransform == null)

@@ -163,14 +163,14 @@ public class vc_SkillManager : MonoBehaviour
 
         if (skillSlots == null || slotIndex < 0 || slotIndex >= skillSlots.Length || skillSlots[slotIndex] == null)
         {
-            Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) — slot check failed. skillSlots null={skillSlots == null}, length={skillSlots?.Length}");
+            Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) - slot check failed. skillSlots null={skillSlots == null}, length={skillSlots?.Length}");
             return;
         }
 
         vc_PlayerSkill skill = ResolveSkill(data);
         if (skill == null)
         {
-            Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) — ResolveSkill returned null for '{data?.skillName}'");
+            Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) - ResolveSkill returned null for '{data?.skillName}'");
             return;
         }
 
