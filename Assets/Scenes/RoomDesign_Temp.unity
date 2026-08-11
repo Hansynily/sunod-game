@@ -575,6 +575,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Room_School_FairPoster
       objectReference: {fileID: 0}
+    - target: {fileID: 4199325092526589879, guid: 1814994377ac1754481d7dda34188919, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

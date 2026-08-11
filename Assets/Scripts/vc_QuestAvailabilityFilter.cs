@@ -149,6 +149,23 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     }
 
     /// <summary>
+    /// True if any quest prefab in the registry has not been drawn/completed yet, regardless
+    /// of whether the player can currently solve it. Lets callers tell "no quest to place
+    /// RIGHT NOW because the player lacks the skill" (keep waiting) apart from "the pool is
+    /// genuinely exhausted" (show End Run).
+    /// </summary>
+    public bool HasUnusedQuests()
+    {
+        if (gameSettings == null || gameSettings.questPrefabs == null) return false;
+        foreach (GameObject prefab in gameSettings.questPrefabs)
+        {
+            if (prefab == null) continue;
+            if (!_usedPrefabs.Contains(prefab)) return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Draws prefabs from the global registry for a floor's quest slots.
     /// Separates into skill-matched pool and exposure pool, combines, shuffles.
     /// Called by vc_FloorInitializer before instantiating rooms.
@@ -165,8 +182,20 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
             return System.Array.Empty<GameObject>();
         }
 
-        List<GameObject> matched = new List<GameObject>();
+        // Three tiers, best first:
+        //  aligned   = player can solve it AND it fits a skill they own (matching tag, or
+        //              the quest's RIASEC letter matches one of their skills' letters).
+        //  solvable  = player can complete it, but only via a generic route (e.g. a
+        //              walk-solve quest, or an old quest with no tags declared) - it does
+        //              not fit their gathered skills.
+        //  exposure  = player cannot solve it, but it is flagged for exposure.
+        // Aligned quests fill slots first so "gather S skills -> get S quests" holds; the
+        // generic solvable pool is only fallback, and exposure only fills leftover slots.
+        List<GameObject> aligned = new List<GameObject>();
+        List<GameObject> solvable = new List<GameObject>();
         List<GameObject> exposureCandidates = new List<GameObject>();
+
+        HashSet<string> ownedLetters = BuildOwnedSkillLetters();
 
         foreach (GameObject prefab in gameSettings.questPrefabs)
         {
@@ -176,33 +205,35 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
             vc_QuestRoom qr = prefab.GetComponentInChildren<vc_QuestRoom>(true);
             if (qr == null)
             {
-                matched.Add(prefab);
+                solvable.Add(prefab); // no metadata to align on - treat as generic filler
                 continue;
             }
 
-            bool canSolve = CanPlayerSolve(qr);
-            if (canSolve)
-                matched.Add(prefab);
+            if (CanPlayerSolve(qr))
+            {
+                if (IsSkillAligned(qr, ownedLetters)) aligned.Add(prefab);
+                else solvable.Add(prefab);
+            }
             else if (qr.IsExposureEligible)
+            {
                 exposureCandidates.Add(prefab);
+            }
             // Can't solve + not exposure eligible = never surfaces this floor
         }
 
-        ShuffleList(matched);
+        ShuffleList(aligned);
+        ShuffleList(solvable);
         ShuffleList(exposureCandidates);
 
+        // Fill by tier: aligned, then generic solvable, then exposure. Never exceed
+        // slotCount, and only ever mark used what we actually return.
         List<GameObject> selected = new List<GameObject>();
+        AddUpTo(selected, aligned, slotCount);
+        AddUpTo(selected, solvable, slotCount);
 
-        // Solvable quests fill slots first. Exposure quests only take slots the solvable
-        // pool could not fill, and the total never exceeds slotCount, so no prefab is ever
-        // marked used without also being returned to the caller.
-        int matchedCount = Mathf.Min(slotCount, matched.Count);
-        for (int i = 0; i < matchedCount; i++)
-            selected.Add(matched[i]);
-
-        int exposureBudget = Mathf.Min(gameSettings != null ? gameSettings.exposureCount : 0, exposureCandidates.Count);
-        int exposurePick = Mathf.Clamp(slotCount - matchedCount, 0, exposureBudget);
-        for (int i = 0; i < exposurePick; i++)
+        int exposureBudget = Mathf.Min(gameSettings.exposureCount, exposureCandidates.Count);
+        int exposureRoom = Mathf.Min(exposureBudget, slotCount - selected.Count);
+        for (int i = 0; i < exposureRoom; i++)
             selected.Add(exposureCandidates[i]);
 
         ShuffleList(selected);
@@ -210,8 +241,60 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         foreach (GameObject prefab in selected)
             _usedPrefabs.Add(prefab);
 
-        Debug.Log($"[vc_QuestAvailabilityFilter] Drew {selected.Count} quests for floor ({matchedCount} matched, {exposurePick} exposure).");
+        Debug.Log($"[vc_QuestAvailabilityFilter] Drew {selected.Count} quests for floor (aligned pool {aligned.Count}, generic {solvable.Count}, exposure used {exposureRoom}).");
         return selected.ToArray();
+    }
+
+    private static void AddUpTo(List<GameObject> target, List<GameObject> source, int slotCount)
+    {
+        for (int i = 0; i < source.Count && target.Count < slotCount; i++)
+            target.Add(source[i]);
+    }
+
+    // Letters (R/I/A/S/E/C) of every skill the player currently owns.
+    private static HashSet<string> BuildOwnedSkillLetters()
+    {
+        HashSet<string> letters = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        if (vc_PlayerInventory.Instance == null) return letters;
+
+        foreach (vc_SkillData skill in vc_PlayerInventory.Instance.GatheredSkills)
+        {
+            if (skill == null || string.IsNullOrWhiteSpace(skill.riaSecLetter)) continue;
+            letters.Add(skill.riaSecLetter.Trim());
+        }
+        return letters;
+    }
+
+    // A quest "fits" the player when they own a skill whose tag actually solves it, or
+    // (when the quest declares no solving tags) when its RIASEC letter matches a skill
+    // they own. This is what makes the draw follow the player's gathered skills.
+    private static bool IsSkillAligned(vc_QuestRoom qr, HashSet<string> ownedLetters)
+    {
+        if (vc_PlayerInventory.Instance == null) return false;
+
+        if (qr.RequiredComboTags != null && qr.RequiredComboTags.Length > 0)
+        {
+            foreach (string tag in qr.RequiredComboTags)
+                if (!vc_PlayerInventory.Instance.HasSkillByTag(tag)) return false;
+            return true; // owns every required tag
+        }
+
+        if (qr.SolvableWithTags != null && qr.SolvableWithTags.Length > 0)
+        {
+            foreach (string tag in qr.SolvableWithTags)
+                if (vc_PlayerInventory.Instance.HasSkillByTag(tag)) return true;
+            return false; // declares tags but player owns none of them
+        }
+
+        // No tags declared (walk-solve / legacy quest): align on the quest's RIASEC letter.
+        if (!string.IsNullOrWhiteSpace(qr.PrimaryRiasec) && ownedLetters != null)
+        {
+            string letter = qr.PrimaryRiasec.Trim();
+            if (letter.Length > 0 && ownedLetters.Contains(letter.Substring(0, 1)))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool CanPlayerSolve(vc_QuestRoom qr)

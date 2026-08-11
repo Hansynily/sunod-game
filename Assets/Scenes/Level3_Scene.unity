@@ -7630,7 +7630,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9dbd130484ddb84ebb927f6f4bc00d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_FloorExit
-  nextFloorScene: EndScene
+  nextFloorScene: Level1_Scene
 --- !u!1 &316271808
 GameObject:
   m_ObjectHideFlags: 0

@@ -4587,7 +4587,7 @@ Transform:
   m_GameObject: {fileID: 3963112739771233400}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.41, y: 4.46, z: 0}
+  m_LocalPosition: {x: -3.41, y: 3.58, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5987,8 +5987,10 @@ MonoBehaviour:
     objectsToDestroy: []
     markersToHide: []
     animTrigger: 
+    ticksObjective: 0
     objectiveIndex: 0
     arrowTarget: {fileID: 0}
+    hasPrerequisite: 0
     requiresPathIndex: 0
     completionDelay: 0
     npcArrivalRange: 0
@@ -5996,7 +5998,7 @@ MonoBehaviour:
     counterTarget: 3
     npcAction: {fileID: 0}
     actionDuration: 0
-    isFinal: 0
+    isStageStep: 0
     startsActive: 0
   - skillTag: unlock
     successMessage: You cracked the secret of the glow!
@@ -6011,8 +6013,10 @@ MonoBehaviour:
     objectsToDestroy: []
     markersToHide: []
     animTrigger: 
+    ticksObjective: 0
     objectiveIndex: 0
     arrowTarget: {fileID: 0}
+    hasPrerequisite: 0
     requiresPathIndex: 0
     completionDelay: 1
     npcArrivalRange: 0
@@ -6020,7 +6024,7 @@ MonoBehaviour:
     counterTarget: 0
     npcAction: {fileID: 0}
     actionDuration: 0
-    isFinal: 0
+    isStageStep: 0
     startsActive: 0
   - skillTag: 
     successMessage: 'Up close, you finally see it: the roots feed on moonlight!'
@@ -6035,8 +6039,10 @@ MonoBehaviour:
     objectsToDestroy: []
     markersToHide: []
     animTrigger: 
+    ticksObjective: 0
     objectiveIndex: 0
     arrowTarget: {fileID: 0}
+    hasPrerequisite: 0
     requiresPathIndex: 0
     completionDelay: 0
     npcArrivalRange: 0
@@ -6044,7 +6050,7 @@ MonoBehaviour:
     counterTarget: 0
     npcAction: {fileID: 0}
     actionDuration: 0
-    isFinal: 0
+    isStageStep: 0
     startsActive: 1
   globalMarkersToHide:
   - {fileID: 7231177986720465758}
