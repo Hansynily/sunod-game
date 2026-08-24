@@ -31,6 +31,10 @@ public static class QuestRoomGenerator
         public string propToRevealName;
         public string[] propsToHideNames;
         public int objectiveIndex;
+        public string counterGroup;    // empty = no counter
+        public int counterTarget;      // presses needed before the path resolves
+        public bool startsActive;      // walk-solve: armed at quest start, no skill press
+        public bool isStageStep;       // non-terminal chain step
     }
 
     struct QuestData
@@ -40,6 +44,11 @@ public static class QuestRoomGenerator
         public string questId;
         public string questName;
         public string riasec;
+        public string questionCode;    // Option B item slot (R1..C8). Blank = scores nothing.
+        public string[] hints;         // vc_QuestRoom.questHints - house style is exactly 2
+        public string[] solvableWithTags;
+        public int lockType;           // 0=None 1=Soft 2=Hard
+        public bool isExposureEligible;
         public string objectiveText;
         public string description;
         public string hudTitle;
@@ -66,6 +75,16 @@ public static class QuestRoomGenerator
 
     static SkillPathData SPNPCGoTo(string tag, string msg, string npcName, string dest, int objIdx = -1)
         => new SkillPathData { tag = tag, message = msg, interactionType = 3, targetName = npcName, npcGoToName = npcName, destinationName = dest, objectiveIndex = objIdx };
+
+    // Counter reveal: the path re-fires on every qualifying press, showing "msg (n/target)".
+    // The reveal/hide swap runs ONCE, when the group reaches its target - see
+    // vc_GenericQuestEngine.HandleSkillPressed. So one prop pair covers the whole counter.
+    static SkillPathData SPRevealCounter(string tag, string msg, string target, string reveal, string[] hide, string group, int target_, int objIdx = -1)
+        => new SkillPathData { tag = tag, message = msg, interactionType = 4, targetName = target, propToRevealName = reveal, propsToHideNames = hide, counterGroup = group, counterTarget = target_, objectiveIndex = objIdx };
+
+    // Walk-solve: ReachLocation armed at quest start, no skill press. Leave the tag empty.
+    static SkillPathData SPWalkSolve(string msg, string target, int objIdx = -1)
+        => new SkillPathData { tag = "", message = msg, interactionType = 6, targetName = target, startsActive = true, objectiveIndex = objIdx };
 
     // ── Quest definitions ───────────────────────────────────────────────────
 
@@ -112,20 +131,169 @@ public static class QuestRoomGenerator
                 SP("plan",   "You planned out the layout!", 0, "Target_MapPoint"),
             }
         },
+
+        // S3 - "Help people who have problems with drugs or alcohol"
+        new QuestData {
+            roomArea = "River", outputName = "Room_River_BitterSpringQuest",
+            questId = "s3_spring", questName = "The Bitter Spring", riasec = "S",
+            questionCode = "S3",
+            objectiveText = "Help Mang Tino away from the bitter spring.",
+            description = "Mang Tino keeps going back to the bitter spring. The water has made him sick, and he can't leave it alone on his own.",
+            hints = new[] {
+                "His hands are shaking - steady him first.",
+                "He won't leave until someone shows him why he should.",
+            },
+            solvableWithTags = new[] { "heal", "teach", "guide" },
+            hudTitle = "The Bitter Spring", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Tino_Sick", "Target_Spring", "Target_HealerHut",
+                "Target_Tino_Steady", "Target_Tino_TurnedAway", "Target_Tino_AtHut",
+            },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Tino_Steady", "Target_Tino_TurnedAway", "Target_Tino_AtHut" },
+            skillPaths = new[] {
+                SPReveal("heal",  "His hands are steady again.", "Target_Tino_Sick", "Target_Tino_Steady",     new[] { "Target_Tino_Sick" }),
+                SPReveal("teach", "He looked at the spring a long time - then turned his back on it.", "Target_Tino_Sick", "Target_Tino_TurnedAway", new[] { "Target_Tino_Sick" }),
+                SPReveal("guide", "You walked him to the healer's door.", "Target_Tino_Sick", "Target_Tino_AtHut", new[] { "Target_Tino_Sick" }),
+            }
+        },
+
+        // S4 - "Teach children how to play sports"
+        new QuestData {
+            roomArea = "School", outputName = "Room_School_TeachTheGameQuest",
+            questId = "s4_game", questName = "Teach Them the Game", riasec = "S",
+            questionCode = "S4",
+            objectiveText = "Get the children playing properly.",
+            description = "The kids have a ball and an empty schoolyard but no idea how to play. One of them hangs back by the wall.",
+            hints = new[] {
+                "Show them how it's done - one child at a time.",
+                "The quiet one by the wall is only waiting to be asked.",
+            },
+            // 'heal' deliberately excluded: ComputeItemScore ignores which skill solved the
+            // quest, so a heal solve would write "interested in teaching children sports"
+            // into slot S4 for a player who only gave first aid. teach/guide are on-item.
+            solvableWithTags = new[] { "teach", "guide" },
+            hudTitle = "Teach Them the Game", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Kids_Idle", "Target_Court", "Target_Ball", "Target_ShyKid",
+                "Target_Kids_Playing",
+            },
+            // The shy kid physically walks to the line, so it needs the follow/goto components.
+            npcFollowObjects = new[] { "Target_ShyKid" },
+            inactiveOnStart = new[] { "Target_Kids_Playing" },
+            skillPaths = new[] {
+                SPRevealCounter("teach", "That's it - you've got it now!", "Target_Kids_Idle", "Target_Kids_Playing", new[] { "Target_Kids_Idle" }, "kids", 3),
+                // guide = the player leads her over: she follows, and the quest resolves when
+                // she reaches the court. Destination is Target_Court, about 7 tiles away.
+                SPNPCFollow("guide", "She joined the line. The game's on.", "Target_ShyKid", "Target_Court", -1),
+            }
+        },
+
+        // C4 - "Maintain employee records"
+        new QuestData {
+            roomArea = "School", outputName = "Room_School_StaffLedgerQuest",
+            questId = "c4_ledger", questName = "The Staff Ledger", riasec = "C",
+            questionCode = "C4",
+            objectiveText = "Put the staff records in order.",
+            description = "The school office is behind on its staff records - forms in loose piles on the floor, names entered wrong in the ledger, nothing in the right drawer.",
+            hints = new[] {
+                "Three piles are still on the floor - gather them first.",
+                "Or read the ledger properly; the errors are in the names.",
+            },
+            // All three are literally record-keeping, so none of them writes a false C4 score.
+            solvableWithTags = new[] { "collect", "inspect", "direct" },
+            hudTitle = "The Staff Ledger", hudObjectives = null,
+            // Every path acts on Target_Records, so one skill zone covers the whole quest.
+            placeholders = new[] {
+                "Target_Records", "Target_Cabinet",
+                "Target_Records_Filed", "Target_Records_Checked", "Target_Records_Sorted",
+            },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Records_Filed", "Target_Records_Checked", "Target_Records_Sorted" },
+            skillPaths = new[] {
+                SPRevealCounter("collect", "Every form off the floor and stacked.", "Target_Records", "Target_Records_Filed", new[] { "Target_Records" }, "records", 3),
+                SPReveal("inspect", "Three names were spelled wrong. Not any more.", "Target_Records", "Target_Records_Checked", new[] { "Target_Records" }),
+                SPReveal("direct", "Filed, drawer by drawer. Anyone could find these now.", "Target_Records", "Target_Records_Sorted", new[] { "Target_Records" }),
+            }
+        },
     };
 
     // ── Entry point ─────────────────────────────────────────────────────────
 
-    [MenuItem("SUNOD/Generate 3 Quest Rooms")]
-    static void Generate()
+    // Default run skips any prefab that already exists, so re-running to add a new quest
+    // never clobbers rooms that have since been hand-tuned in the Editor.
+    [MenuItem("SUNOD/Generate Quest Rooms (new only)")]
+    static void Generate() => Run(force: false);
+
+    [MenuItem("SUNOD/Generate Quest Rooms (FORCE overwrite)")]
+    static void GenerateForce()
     {
-        int count = 0;
+        if (!EditorUtility.DisplayDialog(
+                "Overwrite quest rooms?",
+                $"This rebuilds all {Quests.Length} quest room prefabs in {ROOMS_PATH} from the table, " +
+                "discarding any hand-tuning done in the Editor.\n\nContinue?",
+                "Overwrite", "Cancel"))
+            return;
+
+        Run(force: true);
+    }
+
+    static void Run(bool force)
+    {
+        int written = 0, skipped = 0;
         foreach (var q in Quests)
-            if (GenerateOne(q)) count++;
+        {
+            if (!force && AssetDatabase.LoadAssetAtPath<GameObject>(ROOMS_PATH + q.outputName + ".prefab") != null)
+            {
+                skipped++;
+                continue;
+            }
+
+            if (GenerateOne(q)) written++;
+        }
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log($"[QuestGen] Done - {count}/{Quests.Length} prefabs written to {ROOMS_PATH}");
+        Debug.Log($"[QuestGen] Done - {written} written, {skipped} skipped (already exist) in {ROOMS_PATH}");
+    }
+
+    const string PLACEHOLDER_SPRITE_PATH = "Assets/Art/Generated/Quests/crate.png";
+
+    // Gives every Target_* placeholder a visible sprite, drawn above the room's tilemaps.
+    // NPC-named placeholders are skipped - they already carry the NPC prefab's own visuals.
+    static void AddPlaceholderSprites(GameObject root, Dictionary<string, GameObject> pm)
+    {
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(PLACEHOLDER_SPRITE_PATH);
+        if (sprite == null)
+        {
+            Debug.LogWarning($"[QuestGen] {PLACEHOLDER_SPRITE_PATH} missing - props will be invisible. " +
+                             "Run SUNOD/Generate Quest Sprites first.");
+            return;
+        }
+
+        // Draw above whatever the base room's tilemaps use, whichever layer that is.
+        int topOrder = 0;
+        string layer = "Default";
+        foreach (var tr in root.GetComponentsInChildren<UnityEngine.Tilemaps.TilemapRenderer>(true))
+            if (tr.sortingOrder >= topOrder) { topOrder = tr.sortingOrder; layer = tr.sortingLayerName; }
+
+        foreach (var kvp in pm)
+        {
+            if (NpcNames.Contains(kvp.Key) || kvp.Value == null) continue;
+
+            var go = kvp.Value;
+            var sr = go.GetComponent<SpriteRenderer>();
+            if (sr == null) sr = go.AddComponent<SpriteRenderer>();
+
+            sr.sprite = sprite;
+            sr.sortingLayerName = layer;
+            sr.sortingOrder = topOrder + 10;
+
+            // Yellow marks the main target (the skill zone lives there); green marks a prop
+            // that starts hidden and is revealed by a skill.
+            bool isMain = go.GetComponentInChildren<vc_SkillZone>(true) != null;
+            sr.color = isMain ? new Color(1f, 0.85f, 0.2f) : Color.white;
+        }
     }
 
     static bool GenerateOne(QuestData q)
@@ -233,6 +401,32 @@ public static class QuestRoomGenerator
             }
         }
 
+        // ── Skill zones on every OTHER path target ───────────────────────
+        // Skills only fire inside a vc_SkillZone. A quest whose paths point at different
+        // props (e.g. "help the shy kid" vs "help the hurt kid") needs a zone at each one,
+        // or those paths are unpressable: the player can never be within proximityRange of
+        // the target while standing in the single main zone.
+        if (skillZonePrefab != null && q.skillPaths != null)
+        {
+            var zoned = new HashSet<string> { mainTargetName };
+            foreach (var spd in q.skillPaths)
+            {
+                string name = spd.targetName;
+                if (string.IsNullOrEmpty(name) || zoned.Contains(name)) continue;
+                if (!pm.TryGetValue(name, out var tgtObj)) continue;
+
+                var extraZone = (GameObject)PrefabUtility.InstantiatePrefab(skillZonePrefab, tgtObj.transform);
+                extraZone.transform.localPosition = Vector3.zero;
+                zoned.Add(name);
+            }
+        }
+
+        // ── Visible placeholder art ──────────────────────────────────────
+        // Without this every Target_* is an empty GameObject and the room looks empty in
+        // Play mode, which makes a quest impossible to test. Real art replaces the sprite
+        // later; the point here is only that the builder can SEE where each prop sits.
+        AddPlaceholderSprites(root, pm);
+
         // ── QuestTrigger ─────────────────────────────────────────────────
         var qtGO = new GameObject("QuestTrigger");
         qtGO.transform.SetParent(root.transform, false);
@@ -252,6 +446,25 @@ public static class QuestRoomGenerator
         roomSO.FindProperty("primaryRiasec").stringValue = q.riasec;
         roomSO.FindProperty("objectiveText").stringValue = q.objectiveText;
         roomSO.FindProperty("questDescription").stringValue = q.description;
+
+        // Option B: without a questionCode the quest plays fine but scores nothing -
+        // vc_RiasecAdapter drops uncoded records into IgnoredRecords.
+        roomSO.FindProperty("questionCode").stringValue = q.questionCode ?? string.Empty;
+        roomSO.FindProperty("lockType").enumValueIndex = q.lockType;
+        roomSO.FindProperty("isExposureEligible").boolValue = q.isExposureEligible;
+
+        var hintsProp = roomSO.FindProperty("questHints");
+        string[] hints = q.hints ?? new string[0];
+        hintsProp.arraySize = hints.Length;
+        for (int i = 0; i < hints.Length; i++)
+            hintsProp.GetArrayElementAtIndex(i).stringValue = hints[i];
+
+        var solvableProp = roomSO.FindProperty("solvableWithTags");
+        string[] solvable = q.solvableWithTags ?? new string[0];
+        solvableProp.arraySize = solvable.Length;
+        for (int i = 0; i < solvable.Length; i++)
+            solvableProp.GetArrayElementAtIndex(i).stringValue = solvable[i];
+
         roomSO.ApplyModifiedProperties();
 
         // ── vc_GenericQuestEngine fields ─────────────────────────────────
@@ -283,6 +496,10 @@ public static class QuestRoomGenerator
                 sp.FindPropertyRelative("proximityRange").floatValue = 2f;
                 sp.FindPropertyRelative("npcArrivalRange").floatValue = 3f;
                 sp.FindPropertyRelative("completionDelay").floatValue = 0f;
+                sp.FindPropertyRelative("counterGroup").stringValue = spd.counterGroup ?? string.Empty;
+                sp.FindPropertyRelative("counterTarget").intValue = spd.counterTarget;
+                sp.FindPropertyRelative("startsActive").boolValue = spd.startsActive;
+                sp.FindPropertyRelative("isStageStep").boolValue = spd.isStageStep;
 
                 string resolvedTarget = spd.targetName;
                 if (string.IsNullOrEmpty(resolvedTarget) && useTargetCenter)
