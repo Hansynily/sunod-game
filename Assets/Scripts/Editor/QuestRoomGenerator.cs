@@ -37,6 +37,13 @@ public static class QuestRoomGenerator
         public bool isStageStep;       // non-terminal chain step
     }
 
+    // An explicit local position for one placeholder, overriding the default ring layout.
+    struct PlaceholderPos
+    {
+        public string name;
+        public float x, y;
+    }
+
     struct QuestData
     {
         public string roomArea;        // Forest / House / River / School
@@ -54,6 +61,12 @@ public static class QuestRoomGenerator
         public string hudTitle;
         public string[] hudObjectives; // null = none
         public string[] placeholders;
+        // Optional. Any placeholder named here is dropped at that exact local position;
+        // everything else falls back to the default ring layout. Needed because the default
+        // spots are pure geometry and know nothing about the room's collision - the index-0
+        // default (0, 1.5) sits inside Room_House's vegetation, which buries the skill zone
+        // and makes every path in the quest unpressable.
+        public PlaceholderPos[] placeholderPositions;
         public string[] npcFollowObjects;
         public string[] inactiveOnStart;
         public SkillPathData[] skillPaths;
@@ -81,6 +94,10 @@ public static class QuestRoomGenerator
     // vc_GenericQuestEngine.HandleSkillPressed. So one prop pair covers the whole counter.
     static SkillPathData SPRevealCounter(string tag, string msg, string target, string reveal, string[] hide, string group, int target_, int objIdx = -1)
         => new SkillPathData { tag = tag, message = msg, interactionType = 4, targetName = target, propToRevealName = reveal, propsToHideNames = hide, counterGroup = group, counterTarget = target_, objectiveIndex = objIdx };
+
+    // Pin one placeholder to an exact local position instead of the default ring spot.
+    static PlaceholderPos At(string name, float x, float y)
+        => new PlaceholderPos { name = name, x = x, y = y };
 
     // Walk-solve: ReachLocation armed at quest start, no skill press. Leave the tag empty.
     static SkillPathData SPWalkSolve(string msg, string target, int objIdx = -1)
@@ -132,7 +149,7 @@ public static class QuestRoomGenerator
             }
         },
 
-        // S3 - "Help people who have problems with drugs or alcohol"
+        // S3 
         new QuestData {
             roomArea = "River", outputName = "Room_River_BitterSpringQuest",
             questId = "s3_spring", questName = "The Bitter Spring", riasec = "S",
@@ -158,7 +175,7 @@ public static class QuestRoomGenerator
             }
         },
 
-        // S4 - "Teach children how to play sports"
+        // S4 
         new QuestData {
             roomArea = "School", outputName = "Room_School_TeachTheGameQuest",
             questId = "s4_game", questName = "Teach Them the Game", riasec = "S",
@@ -169,9 +186,7 @@ public static class QuestRoomGenerator
                 "Show them how it's done - one child at a time.",
                 "The quiet one by the wall is only waiting to be asked.",
             },
-            // 'heal' deliberately excluded: ComputeItemScore ignores which skill solved the
-            // quest, so a heal solve would write "interested in teaching children sports"
-            // into slot S4 for a player who only gave first aid. teach/guide are on-item.
+         
             solvableWithTags = new[] { "teach", "guide" },
             hudTitle = "Teach Them the Game", hudObjectives = null,
             placeholders = new[] {
@@ -214,6 +229,216 @@ public static class QuestRoomGenerator
                 SPRevealCounter("collect", "Every form off the floor and stacked.", "Target_Records", "Target_Records_Filed", new[] { "Target_Records" }, "records", 3),
                 SPReveal("inspect", "Three names were spelled wrong. Not any more.", "Target_Records", "Target_Records_Checked", new[] { "Target_Records" }),
                 SPReveal("direct", "Filed, drawer by drawer. Anyone could find these now.", "Target_Records", "Target_Records_Sorted", new[] { "Target_Records" }),
+            }
+        },
+
+        // C1 - "Generate the monthly payroll checks for an office"
+        new QuestData {
+            roomArea = "School", outputName = "Room_School_PayrollRunQuest",
+            questId = "c1_payroll", questName = "The Payroll Run", riasec = "C",
+            questionCode = "C1",
+            objectiveText = "Get the month's payroll out.",
+            description = "End of the month and nobody's been paid. The timesheets are still in loose piles on the office desk, and not one of them has been checked against the hours.",
+            hints = new[] {
+                "The timesheets are scattered across the desk - gather them first.",
+                "Or go straight to the hours; someone logged them wrong.",
+            },
+            // Gathering, checking and issuing payroll are all the same clerical job, so no
+            // path here writes a false C1 score.
+            solvableWithTags = new[] { "collect", "inspect", "direct" },
+            hudTitle = "The Payroll Run", hudObjectives = null,
+            // Every path acts on Target_Timesheets, so one skill zone covers the whole quest.
+            placeholders = new[] {
+                "Target_Timesheets", "Target_Desk",
+                "Target_Timesheets_Stacked", "Target_Hours_Checked", "Target_Checks_Issued",
+            },
+            // The idx4 ring spot (-2, -3.46) is inside Room_School's south wall Blocker.
+            // Only cosmetic here - this prop is revealed, never stood on - but the checks
+            // would otherwise pop into the wall on success.
+            placeholderPositions = new[] { At("Target_Checks_Issued", -2f, -2f) },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Timesheets_Stacked", "Target_Hours_Checked", "Target_Checks_Issued" },
+            skillPaths = new[] {
+                SPRevealCounter("collect", "Every timesheet off the desk and stacked.", "Target_Timesheets", "Target_Timesheets_Stacked", new[] { "Target_Timesheets" }, "timesheets", 3),
+                SPReveal("inspect", "Two people were short-paid. Not this month.", "Target_Timesheets", "Target_Hours_Checked", new[] { "Target_Timesheets" }),
+                SPReveal("direct", "Signed, sorted, and out the door on time.", "Target_Timesheets", "Target_Checks_Issued", new[] { "Target_Timesheets" }),
+            }
+        },
+
+        // C2 - "Inventory supplies using a hand-held computer"
+        new QuestData {
+            roomArea = "House", outputName = "Room_House_StockroomCountQuest",
+            questId = "c2_inventory", questName = "The Stockroom Count", riasec = "C",
+            questionCode = "C2",
+            objectiveText = "Count what's actually on the shelves.",
+            description = "The stockroom hasn't been counted in months. The tally sheet says one thing and the shelves say another, and nobody knows which to believe.",
+            hints = new[] {
+                "Count it shelf by shelf - the back row counts too.",
+                "Or check the old tally against what's really there.",
+            },
+            // Counting, verifying and re-shelving are all stock-record work - all honest C2.
+            solvableWithTags = new[] { "collect", "inspect", "direct" },
+            hudTitle = "The Stockroom Count", hudObjectives = null,
+            // Every path acts on Target_Supplies, so one skill zone covers the whole quest.
+            placeholders = new[] {
+                "Target_Supplies", "Target_Shelves",
+                "Target_Supplies_Counted", "Target_Tally_Corrected", "Target_Supplies_Sorted",
+            },
+            // The index-0 default (0, 1.5) is buried in Room_House's vegetation, and this is
+            // the prop carrying the skill zone - left there, no path in the quest is pressable.
+            placeholderPositions = new[] { At("Target_Supplies", 0f, 3.5f) },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Supplies_Counted", "Target_Tally_Corrected", "Target_Supplies_Sorted" },
+            skillPaths = new[] {
+                SPRevealCounter("collect", "Shelf counted. The tally's catching up.", "Target_Supplies", "Target_Supplies_Counted", new[] { "Target_Supplies" }, "shelves", 3),
+                SPReveal("inspect", "Six short of what the sheet claimed. Now it's right.", "Target_Supplies", "Target_Tally_Corrected", new[] { "Target_Supplies" }),
+                SPReveal("direct", "Every item back where its label says it goes.", "Target_Supplies", "Target_Supplies_Sorted", new[] { "Target_Supplies" }),
+            }
+        },
+
+        // C3 - "Use a computer program to generate customer bills"
+        new QuestData {
+            roomArea = "House", outputName = "Room_House_CustomerBillsQuest",
+            questId = "c3_billing", questName = "The Month's Bills", riasec = "C",
+            questionCode = "C3",
+            objectiveText = "Get every customer's bill right before it goes out.",
+            description = "The store's accounts are due. The billing list has printed a stack of statements, but some of the amounts don't match what the ledger says.",
+            hints = new[] {
+                "Check the amounts against the ledger before anything goes out.",
+                "Or sort them by customer - half of these are in the wrong pile.",
+            },
+            // Only two paths. Gathering would be a stretch here: the item is about producing
+            // correct bills, not collecting them, and an off-item path still writes a full C3.
+            solvableWithTags = new[] { "inspect", "direct" },
+            hudTitle = "The Month's Bills", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Bills", "Target_Counter",
+                "Target_Bills_Checked", "Target_Bills_Sorted",
+            },
+            // Same trap as C2 - the index-0 default (0, 1.5) is inside Room_House's vegetation,
+            // and this is the prop carrying the skill zone.
+            placeholderPositions = new[] { At("Target_Bills", 0f, 3.5f) },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Bills_Checked", "Target_Bills_Sorted" },
+            skillPaths = new[] {
+                SPReveal("inspect", "Three bills had the wrong total. Caught before they went out.", "Target_Bills", "Target_Bills_Checked", new[] { "Target_Bills" }),
+                SPReveal("direct", "One pile per customer, every name in order.", "Target_Bills", "Target_Bills_Sorted", new[] { "Target_Bills" }),
+            }
+        },
+
+        // C5 - "Compute and record statistical and other numerical data"
+        new QuestData {
+            roomArea = "School", outputName = "Room_School_TallySheetQuest",
+            questId = "c5_tally", questName = "The Tally Sheet", riasec = "C",
+            questionCode = "C5",
+            objectiveText = "Total the figures and get them into the record.",
+            description = "The term's attendance figures are due at the district office. Right now they are loose slips in three piles, with nothing added up.",
+            hints = new[] {
+                "The slips are in three piles - gather them before you total anything.",
+                "Or check the running totals; one column was added wrong.",
+            },
+            // Computing and recording are the item itself; both paths are the same clerical job.
+            solvableWithTags = new[] { "collect", "inspect" },
+            hudTitle = "The Tally Sheet", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Figures", "Target_Logbook",
+                "Target_Figures_Gathered", "Target_Totals_Recorded",
+            },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Figures_Gathered", "Target_Totals_Recorded" },
+            skillPaths = new[] {
+                SPRevealCounter("collect", "Another pile totalled onto the sheet.", "Target_Figures", "Target_Figures_Gathered", new[] { "Target_Figures" }, "figures", 3),
+                SPReveal("inspect", "One column was off by twelve. The totals balance now.", "Target_Figures", "Target_Totals_Recorded", new[] { "Target_Figures" }),
+            }
+        },
+
+        // C6 - "Operate a calculator"
+        new QuestData {
+            roomArea = "School", outputName = "Room_School_CanteenTillQuest",
+            questId = "c6_till", questName = "Closing the Till", riasec = "C",
+            questionCode = "C6",
+            objectiveText = "Balance the till before closing.",
+            description = "The canteen is shut and the till still has to be counted. The receipts are spiked on the counter, and the total written in the book does not match the cash in the drawer.",
+            hints = new[] {
+                "Run the receipts through again - the total in the book is wrong.",
+                "Or square the cash away once the number is right.",
+            },
+            // The thinnest item of the eight; two paths is all it honestly supports.
+            solvableWithTags = new[] { "inspect", "direct" },
+            hudTitle = "Closing the Till", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Till", "Target_Receipts",
+                "Target_Till_Counted", "Target_Till_Closed",
+            },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Till_Counted", "Target_Till_Closed" },
+            skillPaths = new[] {
+                SPReveal("inspect", "Forty pesos out. Counted again - it balances.", "Target_Till", "Target_Till_Counted", new[] { "Target_Till" }),
+                SPReveal("direct", "Cash bagged, book signed, drawer shut.", "Target_Till", "Target_Till_Closed", new[] { "Target_Till" }),
+            }
+        },
+
+        // C7 - "Handle customers' bank transactions"
+        new QuestData {
+            roomArea = "House", outputName = "Room_House_PadalaCounterQuest",
+            questId = "c7_padala", questName = "The Padala Counter", riasec = "C",
+            questionCode = "C7",
+            objectiveText = "Put the customer's money through properly.",
+            description = "Someone is at the counter to send money home. The form is half filled in, the amount on it does not match what they handed over, and none of it has been logged yet.",
+            hints = new[] {
+                "Read the form back before any money moves.",
+                "Or get it logged and filed under the right name.",
+            },
+            solvableWithTags = new[] { "inspect", "direct" },
+            hudTitle = "The Padala Counter", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Form", "Target_Counter",
+                "Target_Form_Checked", "Target_Form_Logged",
+            },
+            // Room_House again - the index-0 default is inside the vegetation.
+            placeholderPositions = new[] { At("Target_Form", 0f, 3.5f) },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Form_Checked", "Target_Form_Logged" },
+            skillPaths = new[] {
+                SPReveal("inspect", "The amount was two hundred short. Caught before it went through.", "Target_Form", "Target_Form_Checked", new[] { "Target_Form" }),
+                SPReveal("direct", "Logged, receipted, and filed under the right name.", "Target_Form", "Target_Form_Logged", new[] { "Target_Form" }),
+            }
+        },
+
+        // C8 - "Keep shipping and receiving records"
+        new QuestData {
+            roomArea = "River", outputName = "Room_River_LandingRecordsQuest",
+            questId = "c8_landing", questName = "The Landing Book", riasec = "C",
+            questionCode = "C8",
+            objectiveText = "Get everything on the landing into the book.",
+            description = "Cargo has been coming off the boats all morning and going straight back out again, and not one sack of it has been written down.",
+            hints = new[] {
+                "Walk the whole landing - nothing gets recorded from one spot.",
+                "Or go through what is already stacked and check it against the book.",
+            },
+            solvableWithTags = new[] { "collect", "inspect" },
+            hudTitle = "The Landing Book", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Cargo", "Target_Book",
+                "Target_Cargo_Tallied", "Target_Cargo_Checked", "Target_FarBay",
+            },
+            // Room_River is the most cluttered of the four - both defaults land in vegetation,
+            // and both are load-bearing: Target_Cargo carries the skill zone, Target_FarBay is
+            // the walk destination. The open band is y=0/-1, so both sit on it, 5.1 units apart
+            // (arrival range is 3, so the walk cannot resolve the moment the quest starts).
+            placeholderPositions = new[] {
+                At("Target_Cargo",  0f,  0f),
+                At("Target_FarBay", 5f, -1f),
+            },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Cargo_Tallied", "Target_Cargo_Checked" },
+            skillPaths = new[] {
+                SPRevealCounter("collect", "Another load counted onto the tally.", "Target_Cargo", "Target_Cargo_Tallied", new[] { "Target_Cargo" }, "cargo", 3),
+                SPReveal("inspect", "Two sacks short of the manifest. Now the book says so.", "Target_Cargo", "Target_Cargo_Checked", new[] { "Target_Cargo" }),
+                // The one C item where covering the ground IS the job - walking bay to bay is
+                // how a landing gets tallied. Also the only C quest a player with no C skill
+                // can finish, which keeps the letter drawable in the solvable tier.
+                SPWalkSolve("You walked the length of the landing, checking off every bay.", "Target_FarBay"),
             }
         },
     };
@@ -333,16 +558,37 @@ public static class QuestRoomGenerator
         // ── Create + position placeholders ───────────────────────────────
         var pm = new Dictionary<string, GameObject>();
 
+        var explicitPos = new Dictionary<string, Vector3>();
+        if (q.placeholderPositions != null)
+            foreach (var pp in q.placeholderPositions)
+            {
+                if (string.IsNullOrEmpty(pp.name)) continue;
+                // A name that matches no placeholder would otherwise be dropped in silence,
+                // leaving the prop at a ring spot the author thought they had overridden.
+                if (!placeholderNames.Contains(pp.name))
+                    Debug.LogWarning($"[QuestGen] '{q.outputName}': placeholderPositions names '{pp.name}', which is not in placeholders. Ignored - check the spelling.");
+                explicitPos[pp.name] = new Vector3(pp.x, pp.y, 0f);
+            }
+
         foreach (string name in placeholderNames)
         {
             var go = new GameObject(name);
             go.transform.SetParent(root.transform, false);
 
-            int idx = pm.Count;
-            float angle = idx * 60f * Mathf.Deg2Rad;
-            go.transform.localPosition = idx == 0
-                ? new Vector3(0f, 1.5f, 0f)
-                : new Vector3(Mathf.Cos(angle) * 4f, Mathf.Sin(angle) * 4f, 0f);
+            if (explicitPos.TryGetValue(name, out var authored))
+            {
+                go.transform.localPosition = authored;
+            }
+            else
+            {
+                // Default ring. Pure geometry - it does not know where the room's walls are,
+                // so any spot that lands in collision needs a placeholderPositions override.
+                int idx = pm.Count;
+                float angle = idx * 60f * Mathf.Deg2Rad;
+                go.transform.localPosition = idx == 0
+                    ? new Vector3(0f, 1.5f, 0f)
+                    : new Vector3(Mathf.Cos(angle) * 4f, Mathf.Sin(angle) * 4f, 0f);
+            }
 
             pm[name] = go;
         }
