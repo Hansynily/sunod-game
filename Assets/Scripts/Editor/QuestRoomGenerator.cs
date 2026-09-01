@@ -149,7 +149,7 @@ public static class QuestRoomGenerator
             }
         },
 
-        // S3 
+        // S3 - "Help people who have problems with drugs or alcohol"
         new QuestData {
             roomArea = "River", outputName = "Room_River_BitterSpringQuest",
             questId = "s3_spring", questName = "The Bitter Spring", riasec = "S",
@@ -439,6 +439,132 @@ public static class QuestRoomGenerator
                 // how a landing gets tallied. Also the only C quest a player with no C skill
                 // can finish, which keeps the letter drawable in the solvable tier.
                 SPWalkSolve("You walked the length of the landing, checking off every bay.", "Target_FarBay"),
+            }
+        },
+
+        // S1 - "Give career guidance to people"
+        new QuestData {
+            roomArea = "School", outputName = "Room_School_WhatComesAfterQuest",
+            questId = "s1_after", questName = "What Comes After", riasec = "S",
+            questionCode = "S1",
+            objectiveText = "Help Divina work out what comes next.",
+            description = "School ends this week and Divina still has no answer for anyone who asks what she will do after. She has been sitting outside the classroom since morning.",
+            hints = new[] {
+                "She does not need advice yet - she needs to know what the work actually asks of her.",
+                "Or take her to someone who does it for a living.",
+            },
+            // Telling someone what the work asks, and walking them to go and see it, are both
+            // career guidance. heal has no honest reading here, so this stays a two-path quest.
+            solvableWithTags = new[] { "teach", "guide" },
+            hudTitle = "What Comes After", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Divina", "Target_Classroom", "Target_Workshop", "Target_Divina_Decided",
+            },
+            // Target_Workshop would default to the idx-2 ring spot (-2, 3.46), only 2.8 units
+            // from Divina at (0, 1.5) - inside vc_NPC_Follow's arrival range of 3, so the guide
+            // path would resolve the instant it was pressed. Moved to the idx-4 spot: 5.3 units
+            // out, and already proven clear in Room_School by S4 and C4.
+            placeholderPositions = new[] { At("Target_Workshop", -2f, -3.46f) },
+            npcFollowObjects = new[] { "Target_Divina" },
+            inactiveOnStart = new[] { "Target_Divina_Decided" },
+            skillPaths = new[] {
+                SPRevealCounter("teach", "Another trade laid out plain - what it pays, what it costs her.", "Target_Divina", "Target_Divina_Decided", new[] { "Target_Divina" }, "trades", 3),
+                // Same shape as S4's shy kid: press at Divina, she follows, the quest resolves
+                // when she reaches the workshop. The schoolyard is open ground, so the
+                // straight-line walk does not clip anything.
+                SPNPCFollow("guide", "She watched them work an hour and started asking her own questions.", "Target_Divina", "Target_Workshop", -1),
+            }
+        },
+
+        // S2 - "Do volunteer work at a non-profit organization"
+        new QuestData {
+            roomArea = "River", outputName = "Room_River_PlantingDriveQuest",
+            questId = "s2_planting", questName = "The Planting Drive", riasec = "S",
+            questionCode = "S2",
+            objectiveText = "Get the planting drive working.",
+            description = "The barangay's tree-planting drive started an hour ago. Eleven people came with seedlings and nobody has told a single one of them what to do.",
+            hints = new[] {
+                "They came to help - they only need showing how it is done.",
+                "Or put each of them where they are needed.",
+            },
+            // Showing volunteers the work, and coordinating them, are both the volunteering
+            // itself. guide is deliberately a reveal here, not an NPCFollow - S1 carries the
+            // block's one walk, and two lead-them-there quests would play as the same quest.
+            solvableWithTags = new[] { "teach", "guide" },
+            hudTitle = "The Planting Drive", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Volunteers", "Target_Seedlings", "Target_Bank",
+                "Target_Volunteers_Planting", "Target_Volunteers_Placed",
+            },
+            // Room_River's idx-0 default (0, 1.5) is inside vegetation. (0, 0) is on the open
+            // band C8 verified. Target_Volunteers carries the quest's only skill zone, so
+            // burying it would make both paths unpressable with no error anywhere.
+            placeholderPositions = new[] { At("Target_Volunteers", 0f, 0f) },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Volunteers_Planting", "Target_Volunteers_Placed" },
+            skillPaths = new[] {
+                SPRevealCounter("teach", "Another row in the ground, planted the way it holds.", "Target_Volunteers", "Target_Volunteers_Planting", new[] { "Target_Volunteers" }, "volunteers", 3),
+                SPReveal("guide", "Seedlings to the bank, diggers to the slope. Everyone has work now.", "Target_Volunteers", "Target_Volunteers_Placed", new[] { "Target_Volunteers" }),
+            }
+        },
+
+        // S5 - "Help people with family-related problems"
+        new QuestData {
+            roomArea = "House", outputName = "Room_House_TwoChairsQuest",
+            questId = "s5_chairs", questName = "Two Chairs", riasec = "S",
+            questionCode = "S5",
+            objectiveText = "Get the two of them back in the same room.",
+            description = "Aling Rosa has not spoken to her son since the argument over the land. He has been sleeping at his cousin's for a week, and she still sets his plate out every night.",
+            hints = new[] {
+                "She has carried this a week on her own. Sit with her first.",
+                "Or go to the cousin's and bring him home - he has been waiting to be asked.",
+            },
+            // teach is left out on purpose. "Show them how to talk to each other" is the kind of
+            // stretch that cost S4 its heal path: ComputeItemScore ignores WHICH skill solved
+            // the quest, so a stretch path writes a full S5 score for something that isn't S5.
+            solvableWithTags = new[] { "heal", "guide" },
+            hudTitle = "Two Chairs", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Rosa", "Target_Table", "Target_EmptyChair",
+                "Target_Rosa_Steady", "Target_Son_Home",
+            },
+            placeholderPositions = new[] { At("Target_Rosa", 0f, 3.5f) },
+            // guide is a reveal, not an NPCFollow: Room_House is an interior, and vc_NPC_Follow
+            // is plain Vector2.MoveTowards, so a son crossing the room walks through the walls.
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Rosa_Steady", "Target_Son_Home" },
+            skillPaths = new[] {
+                SPReveal("heal", "She let all of it out at last, and her hands went still.", "Target_Rosa", "Target_Rosa_Steady", new[] { "Target_Rosa" }),
+                SPReveal("guide", "You walked to the cousin's and back. He took the chair without a word.", "Target_Rosa", "Target_Son_Home", new[] { "Target_Rosa" }),
+            }
+        },
+
+        // S8 - "Help elderly people with their daily activities"
+        new QuestData {
+            roomArea = "House", outputName = "Room_House_BenchAtNoonQuest",
+            questId = "s8_bench", questName = "The Bench at Noon", riasec = "S",
+            questionCode = "S8",
+            objectiveText = "Get the three of them through their afternoon.",
+            description = "Three of the old ones have been on the bench since the service let out. Each is waiting for something before she can start home, and the heat is not helping any of them.",
+            hints = new[] {
+                "Take them one at a time - each needs something different before she can stand.",
+                "Or walk the three of them down to the road together.",
+            },
+            // The item says people, plural, so heal runs as a counter - one press per elder.
+            // That is also what keeps this from playing as S3 twice: Mang Tino was a single
+            // static reveal, this is three presses on a group.
+            solvableWithTags = new[] { "heal", "guide" },
+            hudTitle = "The Bench at Noon", hudObjectives = null,
+            placeholders = new[] {
+                "Target_Elders", "Target_Bench", "Target_Road",
+                "Target_Elders_Steady", "Target_Elders_Home",
+            },
+            placeholderPositions = new[] { At("Target_Elders", 0f, 3.5f) },
+            npcFollowObjects = new string[0],
+            inactiveOnStart = new[] { "Target_Elders_Steady", "Target_Elders_Home" },
+            skillPaths = new[] {
+                SPRevealCounter("heal", "One more of them steady enough to stand.", "Target_Elders", "Target_Elders_Steady", new[] { "Target_Elders" }, "elders", 3),
+                SPReveal("guide", "All three down to the road, slow, and nobody left behind.", "Target_Elders", "Target_Elders_Home", new[] { "Target_Elders" }),
             }
         },
     };
