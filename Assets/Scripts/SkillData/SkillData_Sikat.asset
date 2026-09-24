@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: SIKAT
   riaSecLetter: E
   buttonLabel: SIKAT
-  description: Attract a target to follow you.
+  description: Make a character follow you.
   icon: {fileID: 0}
   capabilityTags:
   - charm
+  level: 1

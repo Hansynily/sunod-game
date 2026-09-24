@@ -166,7 +166,7 @@ namespace SunodGame.UI
 
             if (AuthManager.Instance == null)
             {
-                ShowError(_lblErrorLogin, "Auth manager is unavailable.");
+                ShowError(_lblErrorLogin, "Can't sign in right now. Try again.");
                 return;
             }
 
@@ -185,7 +185,7 @@ namespace SunodGame.UI
         {
             if (auth == null)
             {
-                ShowError(_lblErrorLogin, "Backend auth response could not be read.");
+                ShowError(_lblErrorLogin, "Something went wrong. Try again.");
                 return;
             }
             if (!auth.can_login)
@@ -195,7 +195,7 @@ namespace SunodGame.UI
             }
             if (string.IsNullOrWhiteSpace(auth.username) || string.IsNullOrWhiteSpace(auth.player_id))
             {
-                ShowError(_lblErrorLogin, "Backend auth response is missing some IDs.");
+                ShowError(_lblErrorLogin, "Something went wrong. Try again.");
                 return;
             }
 
@@ -216,7 +216,7 @@ namespace SunodGame.UI
 
             if (AuthManager.Instance == null)
             {
-                ShowError(_lblErrorRegister, "Auth manager is unavailable.");
+                ShowError(_lblErrorRegister, "Can't sign up right now. Try again.");
                 return;
             }
 

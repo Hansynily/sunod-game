@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: HIMOK
   riaSecLetter: E
   buttonLabel: HIMOK
-  description: Persuade a character to do what you ask.
+  description: Convince a character to do what you ask.
   icon: {fileID: 0}
   capabilityTags:
   - persuade
+  level: 1

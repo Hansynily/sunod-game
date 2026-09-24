@@ -338,7 +338,7 @@ namespace SunodGame.UI
             if (_lblProvisionalNote != null)
             {
                 _lblProvisionalNote.text = isProvisional
-                    ? $"Provisional, based on {progress.quests_completed} of {TotalQuestSlots} quests. Keep playing to sharpen this."
+                    ? $"Not final yet ({progress.quests_completed} of {TotalQuestSlots} quests done). Play more for a clearer result."
                     : string.Empty;
                 _lblProvisionalNote.SetDisplay(isProvisional);
             }

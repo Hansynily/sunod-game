@@ -29,7 +29,7 @@ public class vc_TutorialFlowController : MonoBehaviour
     private const int TotalSteps = 5;
 
     private const string IntroText =
-        "Welcome to SUNOD. Solve things your own way. The skills you pick and the choices you make quietly tell a story about where your strengths could take you.";
+        "Welcome to SUNOD! Solve problems any way you like.";
 
     [Header("Scene Refs")]
     [SerializeField] private vc_TutorialSkillMarker[] markers;
@@ -107,7 +107,7 @@ public class vc_TutorialFlowController : MonoBehaviour
             {
                 "Use the joystick to move",
                 "Find the skill area",
-                "Inspect the skills and choose one",
+                "Look at each skill, then pick one",
                 "Step into the glowing skill zone",
                 "Use your skill to clear the path",
             });
@@ -134,7 +134,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         _phase = Phase.Explore;
         vc_QuestHUD.Instance?.CheckObjective(OBJ_MOVE);
         AdvanceStep(OBJ_MOVE);
-        vc_FloatingMessage.Instance?.Show("Good. Now head into the skill area ahead.");
+        vc_FloatingMessage.Instance?.Show("Good! Walk to the skill area ahead.");
         PointArrow(skillAreaArrowTarget);
     }
 
@@ -160,7 +160,7 @@ public class vc_TutorialFlowController : MonoBehaviour
 
         vc_DialogPanel.Instance?.ShowMessage(
             "Skill Zones",
-            "Skills only work inside skill zones. Look for the glowing patch on the ground ahead, then stand on it.",
+            "Skills only work in skill zones. Find the glowing spot and stand on it.",
             () => PointArrow(zoneArrowTarget));
     }
 
@@ -226,7 +226,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_QuestHUD.Instance?.CheckObjective(OBJ_ZONE);
         AdvanceStep(OBJ_ZONE);
         HideArrow();
-        vc_FloatingMessage.Instance?.Show("You are in the zone. Your skill button lit up at the bottom right. Tap it to use your skill.");
+        vc_FloatingMessage.Instance?.Show("You're in the zone! Tap the skill button to use it.");
     }
 
     // ── Completion ────────────────────────────────────────────────────────

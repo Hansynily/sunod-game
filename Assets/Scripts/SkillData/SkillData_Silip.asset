@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: SILIP
   riaSecLetter: C
   buttonLabel: SILIP
-  description: Scan an object to read its requirements.
+  description: Look at an object to see what it needs.
   icon: {fileID: 0}
   capabilityTags:
   - inspect
+  level: 1

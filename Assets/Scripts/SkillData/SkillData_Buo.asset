@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: BUO
   riaSecLetter: R
   buttonLabel: BUO
-  description: Construct a path or structure across obstacles.
+  description: Build a path or structure across obstacles.
   icon: {fileID: 0}
   capabilityTags:
   - build
+  level: 1

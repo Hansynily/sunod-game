@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: HULMA
   riaSecLetter: A
   buttonLabel: HULMA
-  description: Shape a protective barrier.
+  description: Make a barrier to protect you.
   icon: {fileID: 0}
   capabilityTags:
   - barrier
+  level: 1

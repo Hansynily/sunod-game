@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: IPON
   riaSecLetter: C
   buttonLabel: IPON
-  description: Pull and gather nearby objects to you.
+  description: Pull nearby things toward you.
   icon: {fileID: 0}
   capabilityTags:
   - collect
+  level: 1

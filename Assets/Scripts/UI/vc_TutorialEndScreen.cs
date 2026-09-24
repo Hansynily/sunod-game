@@ -36,10 +36,10 @@ public static class vc_TutorialEndScreen
         string name = string.IsNullOrEmpty(skillName) ? "that skill" : skillName;
 
         string body =
-            $"Recommended path: {p.Careers}.\n\n" +
-            $"This is a quick guess from the one skill you tried ({name}, a {p.Trait} choice). It is not your real result.\n\n" +
-            "Play the full game and SUNOD will read every choice you make, across all your quests, to suggest careers that truly fit you.\n\n" +
-            "Six traits guide it: R, I, A, S, E, C.";
+            $"Possible path: {p.Careers}.\n\n" +
+            $"This is just a guess from one skill: {name} ({p.Trait}). It is not your real result.\n\n" +
+            "Play the full game. SUNOD will use every choice you make to suggest careers that fit you.\n\n" +
+            "It looks at 6 traits: R, I, A, S, E, C.";
 
         if (vc_DialogPanel.Instance != null)
             vc_DialogPanel.Instance.ShowMessage("Career Result", body, onDone);

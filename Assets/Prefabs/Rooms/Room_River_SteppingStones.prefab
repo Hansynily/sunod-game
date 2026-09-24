@@ -9113,7 +9113,7 @@ MonoBehaviour:
   hudCounter: Quest
   hudTitle: Stepping Stones
   hudObjectives:
-  - Get accross the mud
+  - Get across the mud
   skillPaths:
   - skillTag: push
     successMessage: Stone shoved into place!
@@ -9132,8 +9132,10 @@ MonoBehaviour:
     - {fileID: 3840884759446590052}
     markersToHide: []
     animTrigger: 
+    ticksObjective: 0
     objectiveIndex: 0
     arrowTarget: {fileID: 0}
+    hasPrerequisite: 0
     requiresPathIndex: 0
     completionDelay: 0.5
     npcArrivalRange: 0
@@ -9141,7 +9143,7 @@ MonoBehaviour:
     counterTarget: 3
     npcAction: {fileID: 0}
     actionDuration: 0
-    isFinal: 0
+    isStageStep: 0
     startsActive: 0
   - skillTag: build
     successMessage: You laid a clean stone path across!
@@ -9160,8 +9162,10 @@ MonoBehaviour:
     - {fileID: 3840884759446590052}
     markersToHide: []
     animTrigger: 
+    ticksObjective: 0
     objectiveIndex: 0
     arrowTarget: {fileID: 0}
+    hasPrerequisite: 0
     requiresPathIndex: 0
     completionDelay: 1
     npcArrivalRange: 0
@@ -9169,10 +9173,10 @@ MonoBehaviour:
     counterTarget: 0
     npcAction: {fileID: 0}
     actionDuration: 0
-    isFinal: 0
+    isStageStep: 0
     startsActive: 0
   - skillTag: 
-    successMessage: You waded the long way aroundz
+    successMessage: You waded the long way around
     interactionType: 6
     targetTransform: {fileID: 2246572171266246037}
     proximityRange: 1.5
@@ -9184,8 +9188,10 @@ MonoBehaviour:
     objectsToDestroy: []
     markersToHide: []
     animTrigger: 
+    ticksObjective: 0
     objectiveIndex: 0
     arrowTarget: {fileID: 0}
+    hasPrerequisite: 0
     requiresPathIndex: 0
     completionDelay: 0
     npcArrivalRange: 0
@@ -9193,7 +9199,7 @@ MonoBehaviour:
     counterTarget: 0
     npcAction: {fileID: 0}
     actionDuration: 0
-    isFinal: 0
+    isStageStep: 0
     startsActive: 1
   globalMarkersToHide:
   - {fileID: 286260645615712484}

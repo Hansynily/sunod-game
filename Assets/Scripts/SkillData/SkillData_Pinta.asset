@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: PINTA
   riaSecLetter: A
   buttonLabel: PINTA
-  description: Apply color to mark or transform an object.
+  description: Paint an object to mark or change it.
   icon: {fileID: 0}
   capabilityTags:
   - paint
+  level: 1

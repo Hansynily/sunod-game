@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: GABAY
   riaSecLetter: S
   buttonLabel: GABAY
-  description: Highlight the path toward an objective.
+  description: Show the path to your goal.
   icon: {fileID: 0}
   capabilityTags:
   - guide
+  level: 1

@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: DAAN
   riaSecLetter: C
   buttonLabel: DAAN
-  description: Lay directional arrows to route movement.
+  description: Place arrows to show the way.
   icon: {fileID: 0}
   capabilityTags:
   - direct
+  level: 1

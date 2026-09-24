@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: KATHA
   riaSecLetter: A
   buttonLabel: KATHA
-  description: Craft and mold materials into a useful item.
+  description: Craft materials into something useful.
   icon: {fileID: 0}
   capabilityTags:
   - craft
+  level: 1

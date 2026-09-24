@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: UTOS
   riaSecLetter: E
   buttonLabel: UTOS
-  description: Command and direct another character.
+  description: Order another character to act.
   icon: {fileID: 0}
   capabilityTags:
   - command
+  level: 1

@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: LUNAS
   riaSecLetter: S
   buttonLabel: LUNAS
-  description: Treat and heal an injured character.
+  description: Heal a hurt character.
   icon: {fileID: 0}
   capabilityTags:
   - heal
+  level: 1

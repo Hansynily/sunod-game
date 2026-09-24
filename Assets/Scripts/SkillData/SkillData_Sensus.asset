@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: SENSUS
   riaSecLetter: E
   buttonLabel: SENSUS
-  description: Reveal the route and view the area map.
+  description: Show the way and see the map.
   icon: {fileID: 0}
   capabilityTags:
   - map
+  level: 1

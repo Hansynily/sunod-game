@@ -104,7 +104,7 @@ public class vc_QuestRoom : MonoBehaviour
                 && vc_QuestAvailabilityFilter.Instance.IsAvailable(this);
             if (!available)
             {
-                vc_FloatingMessage.Instance?.Show("Locked - you don't have the required skill.");
+                vc_FloatingMessage.Instance?.Show("Locked. You need a different skill.");
                 return;
             }
         }

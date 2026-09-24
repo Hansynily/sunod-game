@@ -45,7 +45,7 @@ public class vc_EndRunUI : MonoBehaviour
 
         dialog.ShowChoice(
             title:        "No More Quests",
-            body:         "You've completed all available quests.\nProceed to results?",
+            body:         "You finished all the quests.\nSee your results?",
             icon:         null,
             confirmLabel: "Yes",
             cancelLabel:  "No",
