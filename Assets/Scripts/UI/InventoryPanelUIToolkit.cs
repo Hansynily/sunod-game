@@ -257,8 +257,20 @@ namespace SunodGame.UI
             Debug.Log($"[Inventory] OnSlotClicked({slotIndex}) - selectedSkill={_selectedSkill?.skillName ?? "NULL"}, SkillManager={(vc_SkillManager.Instance == null ? "NULL" : "OK")}");
             if (_selectedSkill == null || vc_SkillManager.Instance == null) return;
 
-            if (vc_SkillManager.SlotIndexForLetter(_selectedSkill.riaSecLetter) != slotIndex)
+            if (vc_SkillManager.Instance.GetSkillInSlot(slotIndex) == _selectedSkill)
+            {
+                vc_DialogPanel.Instance?.ShowMessage("Already Equipped",
+                    $"{_selectedSkill.skillName} is already in your {vc_SkillManager.CategoryNameForSlot(slotIndex)} slot.", null);
                 return;
+            }
+
+            int homeSlot = vc_SkillManager.SlotIndexForLetter(_selectedSkill.riaSecLetter);
+            if (homeSlot != slotIndex)
+            {
+                string categoryName = vc_SkillManager.CategoryNameForSlot(homeSlot);
+                vc_FloatingMessage.Instance?.Show($"{_selectedSkill.skillName} is a {categoryName} skill. It goes in the {categoryName} slot.");
+                return;
+            }
 
             vc_SkillManager.Instance.AssignSkillToSlot(slotIndex, _selectedSkill);
 

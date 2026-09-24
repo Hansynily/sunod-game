@@ -229,6 +229,40 @@ public class vc_SkillManager : MonoBehaviour
         return GetSkillInSlot(slotIndex);
     }
 
+    public void OfferEquip(vc_SkillData data)
+    {
+        if (data == null) return;
+
+        int slot = SlotIndexForLetter(data.riaSecLetter);
+        if (slot < 0) return;
+
+        vc_SkillData current = GetSkillInSlot(slot);
+        string categoryName = CategoryNameForSlot(slot);
+
+        if (current == null)
+        {
+            EquipToCategorySlot(data);
+            vc_FloatingMessage.Instance?.Show($"{data.skillName} added to your {categoryName} slot.");
+            return;
+        }
+
+        if (current == data)
+        {
+            vc_DialogPanel.Instance?.ShowMessage("Already Equipped",
+                $"{data.skillName} is already in your {categoryName} slot.", null);
+            return;
+        }
+
+        vc_DialogPanel.Instance?.ShowChoice(
+            "Swap Skill?",
+            $"Your {categoryName} slot has {current.skillName}. Swap it for {data.skillName}? The other one stays in your inventory.",
+            data.icon,
+            "Swap",
+            "Keep",
+            () => EquipToCategorySlot(data),
+            null);
+    }
+
     public void RegisterSlot(vc_SkillSlot slot)
     {
         if (slot == null) return;

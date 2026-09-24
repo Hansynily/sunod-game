@@ -7,7 +7,7 @@ using SunodGame.Telemetry;
 /// single tracked quest in the QuestPanel whose objectives tick off as the
 /// player progresses:
 ///   intro -> teach movement -> walk into the skill area (trigger) -> read the
-///   6 skills & pick ONE -> reach the glowing zone -> clear the obstacle
+///   6 kinds of skills & pick ONE -> reach the glowing zone -> clear the obstacle
 ///   (per-skill flavor) -> rule-based career reveal -> exit.
 ///
 /// Replaces the deleted vc_Level0TutorialController. Attach to TutorialRoot.
@@ -128,8 +128,8 @@ public class vc_TutorialFlowController : MonoBehaviour
         _phase = Phase.ChooseSkill;
 
         vc_DialogPanel.Instance?.ShowMessage(
-            "Six Skills",
-            "Six skills are scattered around this area. Walk up to each one to see what it does. Read as many as you like, but you can only take one.",
+            "6 Kinds of Skills",
+            "There are 6 kinds of skills here, one of each kind. Walk up to each one to see what it does. You can only take one.",
             () => PointArrowAtFirstMarker());
     }
 

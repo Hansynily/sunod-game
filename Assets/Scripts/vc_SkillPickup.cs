@@ -21,6 +21,7 @@ public class vc_SkillPickup : MonoBehaviour
         if (vc_SkillPickupPopup.Instance == null)
         {
             vc_PlayerInventory.Instance.AddSkill(skillData);
+            vc_SkillManager.Instance?.OfferEquip(skillData);
             Destroy(gameObject);
             return;
         }
@@ -28,6 +29,7 @@ public class vc_SkillPickup : MonoBehaviour
         vc_SkillPickupPopup.Instance.Show(skillData, () =>
         {
             vc_PlayerInventory.Instance.AddSkill(skillData);
+            vc_SkillManager.Instance?.OfferEquip(skillData);
             Destroy(gameObject);
         });
     }

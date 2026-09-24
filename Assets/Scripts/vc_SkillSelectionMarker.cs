@@ -59,7 +59,10 @@ public class vc_SkillSelectionMarker : MonoBehaviour
     private void OnSkillChosen(vc_SkillData chosen)
     {
         if (chosen != null)
+        {
             vc_PlayerInventory.Instance?.AddSkill(chosen);
+            vc_SkillManager.Instance?.OfferEquip(chosen);
+        }
 
         _picksDone++;
 
