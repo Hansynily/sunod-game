@@ -2241,6 +2241,7 @@ GameObject:
   - component: {fileID: 373974371}
   - component: {fileID: 373974370}
   - component: {fileID: 373974369}
+  - component: {fileID: 373974372}
   m_Layer: 0
   m_Name: UIToolkit_PauseMenu
   m_TagString: Untagged
@@ -2300,6 +2301,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &373974372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 373974368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &399843832
 GameObject:
   m_ObjectHideFlags: 0
@@ -30492,6 +30505,7 @@ GameObject:
   - component: {fileID: 918117648}
   - component: {fileID: 918117647}
   - component: {fileID: 918117646}
+  - component: {fileID: 918117649}
   m_Layer: 0
   m_Name: UIToolkit_InventoryPanel
   m_TagString: Untagged
@@ -30553,6 +30567,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &918117649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918117645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &986474750
 GameObject:
   m_ObjectHideFlags: 0
@@ -38500,6 +38526,7 @@ GameObject:
   - component: {fileID: 1131536551}
   - component: {fileID: 1131536550}
   - component: {fileID: 1131536549}
+  - component: {fileID: 1131536552}
   m_Layer: 0
   m_Name: UIToolkit_GameHUD
   m_TagString: Untagged
@@ -38558,6 +38585,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1131536552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1131536548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &1137680870
 GameObject:
   m_ObjectHideFlags: 0
@@ -41970,6 +42009,7 @@ GameObject:
   - component: {fileID: 1197952543}
   - component: {fileID: 1197952544}
   - component: {fileID: 1197952545}
+  - component: {fileID: 1197952546}
   m_Layer: 0
   m_Name: UIToolKit_DialogPanel
   m_TagString: Untagged
@@ -42028,6 +42068,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_DialogPanel
   pausePlayerOnShow: 1
+--- !u!114 &1197952546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197952542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &1204290702
 GameObject:
   m_ObjectHideFlags: 0
@@ -43948,6 +44000,7 @@ GameObject:
   - component: {fileID: 1464466941}
   - component: {fileID: 1464466940}
   - component: {fileID: 1464466939}
+  - component: {fileID: 1464466942}
   m_Layer: 0
   m_Name: UiToolkit_QuestPanelUI
   m_TagString: Untagged
@@ -44005,6 +44058,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1464466942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1464466938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &1474680778
 GameObject:
   m_ObjectHideFlags: 0

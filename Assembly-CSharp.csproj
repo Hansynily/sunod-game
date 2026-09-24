@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\vc_ChartBankQuest.cs" />
     <Compile Include="Assets\Scripts\vc_DebugSkipToEnd.cs" />
     <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_KeyboardAvoider.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.LegacyBridge.cs" />
     <Compile Include="Assets\Scripts\vc_PlayerInventory.cs" />
     <Compile Include="Assets\Scripts\NPCs\NPCController.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_SafeArea.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.RoundFlow.cs" />
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
     <Compile Include="Assets\Scripts\UI\vc_EndRunUI.cs" />

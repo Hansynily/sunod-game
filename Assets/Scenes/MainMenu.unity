@@ -547,6 +547,7 @@ GameObject:
   - component: {fileID: 168284913}
   - component: {fileID: 168284914}
   - component: {fileID: 168284915}
+  - component: {fileID: 168284916}
   m_Layer: 0
   m_Name: UIToolkit_MainMenu
   m_TagString: Untagged
@@ -606,6 +607,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.UI.MainMenuUIToolkit
   playSceneName: Cutscene
   tutorialSceneName: Level0_Tutorial
+  fallbackContinueScene: Level1_Scene
+  playerCharacterSprite: {fileID: 0}
+--- !u!114 &168284916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 168284912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &354581026
 GameObject:
   m_ObjectHideFlags: 0

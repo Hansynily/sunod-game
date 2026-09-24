@@ -1121,6 +1121,7 @@ GameObject:
   - component: {fileID: 135710469}
   - component: {fileID: 135710468}
   - component: {fileID: 135710467}
+  - component: {fileID: 135710470}
   m_Layer: 0
   m_Name: UIToolkit_InventoryPanel
   m_TagString: Untagged
@@ -1182,6 +1183,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &135710470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 135710466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &151587299
 GameObject:
   m_ObjectHideFlags: 0
@@ -2139,6 +2152,7 @@ GameObject:
   - component: {fileID: 371209707}
   - component: {fileID: 371209709}
   - component: {fileID: 371209708}
+  - component: {fileID: 371209710}
   m_Layer: 0
   m_Name: UIToolkit_GameHUD
   m_TagString: Untagged
@@ -2197,6 +2211,18 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &371209710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371209706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &382067074
 GameObject:
   m_ObjectHideFlags: 0
@@ -3174,6 +3200,7 @@ GameObject:
   - component: {fileID: 491930505}
   - component: {fileID: 491930506}
   - component: {fileID: 491930507}
+  - component: {fileID: 491930508}
   m_Layer: 0
   m_Name: UIToolkit_DialogPanel
   m_TagString: Untagged
@@ -3232,6 +3259,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_DialogPanel
   pausePlayerOnShow: 1
+--- !u!114 &491930508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491930504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &500154634
 GameObject:
   m_ObjectHideFlags: 0
@@ -3802,6 +3841,7 @@ GameObject:
   - component: {fileID: 585289704}
   - component: {fileID: 585289705}
   - component: {fileID: 585289706}
+  - component: {fileID: 585289707}
   m_Layer: 0
   m_Name: UiToolkit_QuestPanelUI
   m_TagString: Untagged
@@ -3859,6 +3899,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3c0ca5bb7d738b4790c6320d23f9a07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestHUD
+--- !u!114 &585289707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 585289703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &624500290
 GameObject:
   m_ObjectHideFlags: 0
@@ -8103,7 +8155,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 3.189394
+  orthographic size: 3.625
   m_Depth: 100
   m_CullingMask:
     serializedVersion: 2
@@ -11809,6 +11861,7 @@ GameObject:
   - component: {fileID: 1763001775}
   - component: {fileID: 1763001776}
   - component: {fileID: 1763001777}
+  - component: {fileID: 1763001778}
   m_Layer: 0
   m_Name: UIToolkit_EndRunUI
   m_TagString: Untagged
@@ -11866,6 +11919,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38317e2ceb71568419ac87b7dc96343d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_EndRunUI
+--- !u!114 &1763001778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763001774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &1798132773
 GameObject:
   m_ObjectHideFlags: 0
@@ -12266,6 +12331,7 @@ GameObject:
   - component: {fileID: 1899172096}
   - component: {fileID: 1899172098}
   - component: {fileID: 1899172097}
+  - component: {fileID: 1899172099}
   m_Layer: 0
   m_Name: UIToolkit_PauseMenu
   m_TagString: Untagged
@@ -12325,6 +12391,18 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &1899172099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1899172095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &1921891339
 GameObject:
   m_ObjectHideFlags: 0
@@ -12706,6 +12784,9 @@ MonoBehaviour:
   arrowTarget: {fileID: 0}
   arrowVisual: {fileID: 1952752716}
   rotationOffset: 90
+  bobAmplitude: 0.08
+  bobSpeed: 3
+  hideWithinDistance: 1.2
 --- !u!1 &1971658697
 GameObject:
   m_ObjectHideFlags: 0

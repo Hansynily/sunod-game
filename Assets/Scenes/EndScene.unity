@@ -1456,6 +1456,7 @@ GameObject:
   - component: {fileID: 2000001227}
   - component: {fileID: 2000001228}
   - component: {fileID: 2000001229}
+  - component: {fileID: 2000001230}
   m_Layer: 0
   m_Name: UIToolkit_EndScene
   m_TagString: Untagged
@@ -1513,6 +1514,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef64536f0ea117e4db97f8bad79e7140, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.UI.EndSceneUIToolkit
+--- !u!114 &2000001230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000001226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a4eb78d0345464983b9075fd32efee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SafeArea
 --- !u!1 &2058633510
 GameObject:
   m_ObjectHideFlags: 0
