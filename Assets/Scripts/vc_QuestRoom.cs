@@ -240,7 +240,9 @@ public class vc_QuestRoom : MonoBehaviour
                 : new List<SunodGame.Models.RunStateQuestRecordDto>(),
             owned_skills = new List<string>(data.unlockedSkills),
             total_stars = data.totalStars,
-            floor_scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+            floor_scene = SunodGame.Core.vc_FloorLoader.Instance != null && !string.IsNullOrEmpty(SunodGame.Core.vc_FloorLoader.Instance.CurrentFloorScene)
+                ? SunodGame.Core.vc_FloorLoader.Instance.CurrentFloorScene
+                : (!string.IsNullOrEmpty(gameObject.scene.name) ? gameObject.scene.name : UnityEngine.SceneManagement.SceneManager.GetActiveScene().name),
             tutorial_completed = data.tutorialComplete,
         };
 

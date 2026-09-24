@@ -21,7 +21,7 @@
                 </ui:Button>
 
                 <ui:Button name="btn-play" class="menu-btn btn-play">
-                    <ui:Label text="Play" class="btn-label"/>
+                    <ui:Label text="New Game" class="btn-label"/>
                 </ui:Button>
 
                 <ui:Button name="btn-stats" class="menu-btn btn-stats">
@@ -105,38 +105,19 @@
                     <ui:Button name="btn-stats-close" class="action-btn btn-main-menu">
                         <ui:Label text="Back" class="action-btn-label"/>
                     </ui:Button>
-                    <ui:Button name="btn-reset" class="action-btn btn-reset-confirm">
-                        <ui:Label text="Reset Run" class="action-btn-label"/>
-                    </ui:Button>
                 </ui:VisualElement>
 
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Reset Run confirm overlay. Opened from the progress page. -->
-        <ui:VisualElement name="reset-confirm-overlay" class="overlay-root">
-            <ui:VisualElement class="confirm-box">
-                <ui:Label text="Reset Run?" class="confirm-title"/>
-                <ui:Label text="This clears your in-progress quests and skills. Your past completed runs and reports are kept." class="confirm-body"/>
-                <ui:VisualElement class="confirm-button-row">
-                    <ui:Button name="btn-reset-confirm" class="action-btn btn-reset-confirm">
-                        <ui:Label text="Reset" class="action-btn-label"/>
-                    </ui:Button>
-                    <ui:Button name="btn-reset-cancel" class="action-btn btn-main-menu">
-                        <ui:Label text="Cancel" class="action-btn-label"/>
-                    </ui:Button>
-                </ui:VisualElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <!-- New-run confirm overlay. Opened by Play when an unfinished run exists. -->
+        <!-- New-run confirm overlay. Opened by New Game when an unfinished run exists. -->
         <ui:VisualElement name="newrun-confirm-overlay" class="overlay-root">
             <ui:VisualElement class="confirm-box">
-                <ui:Label text="Start a New Run?" class="confirm-title"/>
-                <ui:Label text="Starting a new run erases your current in-progress run. Use Continue instead to pick up where you left off." class="confirm-body"/>
+                <ui:Label text="Start a New Game?" class="confirm-title"/>
+                <ui:Label text="Your saved progress will be erased. Continue?" class="confirm-body"/>
                 <ui:VisualElement class="confirm-button-row">
                     <ui:Button name="btn-newrun-confirm" class="action-btn btn-reset-confirm">
-                        <ui:Label text="New Run" class="action-btn-label"/>
+                        <ui:Label text="New Game" class="action-btn-label"/>
                     </ui:Button>
                     <ui:Button name="btn-newrun-cancel" class="action-btn btn-main-menu">
                         <ui:Label text="Cancel" class="action-btn-label"/>

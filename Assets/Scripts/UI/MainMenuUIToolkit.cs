@@ -13,7 +13,7 @@ namespace SunodGame.UI
         [Header("Navigation")]
         [SerializeField] private string playSceneName     = SceneLoader.SCENE_CUTSCENE;
         [SerializeField] private string tutorialSceneName = SceneLoader.SCENE_TUTORIAL;
-        [SerializeField] private string fallbackContinueScene = SceneLoader.SCENE_PLAY;
+        [SerializeField] private string fallbackContinueScene = SceneLoader.SCENE_PLAY; // used only as a floor fallback (see OnContinueClicked)
 
         [Header("Player Card")]
         [SerializeField] private Sprite playerCharacterSprite;
@@ -24,7 +24,6 @@ namespace SunodGame.UI
         private Button _btnSettings;
         private Button _btnContinue;
         private Button _btnStats;
-        private Button _btnReset;
         private VisualElement _playerCardImage;
         private Label _lblUsername;
         private VisualElement _leftPanel;
@@ -44,11 +43,6 @@ namespace SunodGame.UI
         private Label _lblSource;
         private Label _lblStatsError;
         private Button _btnStatsClose;
-
-        // Reset-confirm overlay
-        private VisualElement _resetConfirmOverlay;
-        private Button _btnResetConfirm;
-        private Button _btnResetCancel;
 
         // New-run-confirm overlay
         private VisualElement _newRunConfirmOverlay;
@@ -71,7 +65,6 @@ namespace SunodGame.UI
             _btnSettings  = root.Q<Button>("btn-settings");
             _btnContinue  = root.Q<Button>("btn-continue");
             _btnStats     = root.Q<Button>("btn-stats");
-            _btnReset     = root.Q<Button>("btn-reset");
             _playerCardImage = root.Q<VisualElement>("player-card-image");
             _lblUsername     = root.Q<Label>("lbl-username");
             _leftPanel       = root.Q<VisualElement>("left-panel");
@@ -91,10 +84,6 @@ namespace SunodGame.UI
             _lblStatsError     = root.Q<Label>("lbl-stats-error");
             _btnStatsClose     = root.Q<Button>("btn-stats-close");
 
-            _resetConfirmOverlay = root.Q<VisualElement>("reset-confirm-overlay");
-            _btnResetConfirm     = root.Q<Button>("btn-reset-confirm");
-            _btnResetCancel      = root.Q<Button>("btn-reset-cancel");
-
             _newRunConfirmOverlay = root.Q<VisualElement>("newrun-confirm-overlay");
             _btnNewRunConfirm     = root.Q<Button>("btn-newrun-confirm");
             _btnNewRunCancel      = root.Q<Button>("btn-newrun-cancel");
@@ -105,15 +94,11 @@ namespace SunodGame.UI
             _btnSettings?.RegisterCallback<ClickEvent>(OnSettingsClicked);
             _btnContinue?.RegisterCallback<ClickEvent>(OnContinueClicked);
             _btnStats?   .RegisterCallback<ClickEvent>(OnStatsClicked);
-            _btnReset?   .RegisterCallback<ClickEvent>(OnResetClicked);
             _btnStatsClose?  .RegisterCallback<ClickEvent>(OnStatsCloseClicked);
-            _btnResetConfirm?.RegisterCallback<ClickEvent>(OnResetConfirmClicked);
-            _btnResetCancel? .RegisterCallback<ClickEvent>(OnResetCancelClicked);
             _btnNewRunConfirm?.RegisterCallback<ClickEvent>(OnNewRunConfirmClicked);
             _btnNewRunCancel? .RegisterCallback<ClickEvent>(OnNewRunCancelClicked);
 
             _statsOverlay?.SetDisplay(false);
-            _resetConfirmOverlay?.SetDisplay(false);
             _newRunConfirmOverlay?.SetDisplay(false);
 
             PopulatePlayerCard();
@@ -128,10 +113,7 @@ namespace SunodGame.UI
             _btnSettings?.UnregisterCallback<ClickEvent>(OnSettingsClicked);
             _btnContinue?.UnregisterCallback<ClickEvent>(OnContinueClicked);
             _btnStats?   .UnregisterCallback<ClickEvent>(OnStatsClicked);
-            _btnReset?   .UnregisterCallback<ClickEvent>(OnResetClicked);
             _btnStatsClose?  .UnregisterCallback<ClickEvent>(OnStatsCloseClicked);
-            _btnResetConfirm?.UnregisterCallback<ClickEvent>(OnResetConfirmClicked);
-            _btnResetCancel? .UnregisterCallback<ClickEvent>(OnResetCancelClicked);
             _btnNewRunConfirm?.UnregisterCallback<ClickEvent>(OnNewRunConfirmClicked);
             _btnNewRunCancel? .UnregisterCallback<ClickEvent>(OnNewRunCancelClicked);
         }
@@ -293,12 +275,18 @@ namespace SunodGame.UI
             data.tutorialComplete = _cachedRunState.tutorial_completed;
             vc_SaveManager.Save(data);
 
-            string targetScene = !string.IsNullOrWhiteSpace(_cachedRunState.floor_scene)
-                ? _cachedRunState.floor_scene
-                : fallbackContinueScene;
+            // The checkpoint's floor_scene is where the player left off; Game_Scene isn't a
+            // valid floor (that used to be the bug - Continue always dropped onto Level1
+            // because the checkpoint stored the active-but-not-a-floor scene name).
+            string floor = !string.IsNullOrWhiteSpace(_cachedRunState.floor_scene)
+                && _cachedRunState.floor_scene != SceneLoader.SCENE_GAME
+                    ? _cachedRunState.floor_scene
+                    : fallbackContinueScene;
+
+            SunodGame.Core.vc_FloorLoader.PendingStartFloor = floor;
 
             TelemetryManager.Instance?.TagButtonClick("Continue");
-            SceneLoader.LoadByName(targetScene);
+            SceneLoader.LoadByName(SceneLoader.SCENE_GAME);
         }
 
         // ── My Progress (stats overlay) ─────────────────────────────────
@@ -389,39 +377,6 @@ namespace SunodGame.UI
             // Logout is rendered last (on top of everything), so it must be hidden
             // explicitly while the progress page is open or it floats over the page.
             _btnLogout?.SetDisplay(visible);
-        }
-
-        // ── Reset Run ───────────────────────────────────────────────────
-
-        private void OnResetClicked(ClickEvent _) => _resetConfirmOverlay?.SetDisplay(true);
-        private void OnResetCancelClicked(ClickEvent _) => _resetConfirmOverlay?.SetDisplay(false);
-
-        private void OnResetConfirmClicked(ClickEvent _)
-        {
-            _resetConfirmOverlay?.SetDisplay(false);
-
-            // Reset never deletes session_runs history server-side, only the in-progress
-            // save-state (both the local staging cache and the server doc).
-            vc_SaveManager.DeleteSave();
-            vc_QuestAvailabilityFilter.PendingCompletedQuestIds = null;
-            vc_QuestAvailabilityFilter.PendingOwnedSkillNames = null;
-            PlayerPrefs.DeleteKey(TelemetryManager.RunFinishPendingPrefKey);
-            _cachedRunState = null;
-            SetContinueEnabled(false);
-
-            TelemetryManager.Instance?.ResetMyRunState(
-                onSuccess: _ => Debug.Log("[MainMenu] Run reset."),
-                onError: error => Debug.LogWarning($"[MainMenu] Run reset failed server-side (local cache still cleared): {error}"));
-
-            // Reflect the reset on the page immediately and unconditionally: empty state,
-            // no stale counts, no run-complete/provisional notes, no old error text.
-            _lblRunComplete?.SetDisplay(false);
-            _lblProvisionalNote?.SetDisplay(false);
-            _statsContent?.SetDisplay(false);
-            _statsEmptyLabel?.SetDisplay(true);
-            SetStatsError(string.Empty);
-            if (_lblQuests != null) _lblQuests.text = $"0/{TotalQuestSlots}";
-            if (_lblStars  != null) _lblStars.text  = "0";
         }
     }
 }

@@ -43,11 +43,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         }
         Instance = this;
 
-        if (PendingCompletedQuestIds != null)
-        {
-            SeedCompletedQuestIds(PendingCompletedQuestIds);
-            PendingCompletedQuestIds = null;
-        }
+        ApplyPendingCompletedQuestIds();
 
         // Always exclude quests the local save already records as completed, so floor
         // transitions and resumed runs never re-offer a finished quest. Fresh runs delete
@@ -114,6 +110,19 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     }
 
     /// <summary>
+    /// Consumes the resumed run's completed-quest handoff, merging it into _usedPrefabs.
+    /// Called from Awake (fresh instance, set before Game_Scene loads) and again at floor
+    /// init (DrawQuestsForFloor) in case the singleton survived from a same-session
+    /// Continue, where Awake already ran before Continue set the pending list.
+    /// </summary>
+    private void ApplyPendingCompletedQuestIds()
+    {
+        if (PendingCompletedQuestIds == null) return;
+        SeedCompletedQuestIds(PendingCompletedQuestIds);
+        PendingCompletedQuestIds = null;
+    }
+
+    /// <summary>
     /// Marks quests already completed in a resumed run as "used" so DrawQuestsForFloor
     /// won't offer them again. Matches by vc_QuestRoom.QuestId against the registry's
     /// configured prefabs - additive, does not change fresh-run behavior.
@@ -175,6 +184,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         // Ensure a resumed run's owned skills are re-equipped BEFORE availability is computed -
         // CanPlayerSolve reads the inventory, so the restore must land first.
         ApplyPendingSkillRestore();
+        ApplyPendingCompletedQuestIds();
 
         if (gameSettings == null || gameSettings.questPrefabs == null)
         {

@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using SunodGame.Core;
+using SunodGame.Telemetry;
+using SunodGame.UI;
 
 public class vc_AppStartup : MonoBehaviour
 {
     [SerializeField] private string mainMenuScene = "MainMenu";
 
-    void Awake()
+    void Start()
     {
         if (SessionState.Instance == null || !SessionState.Instance.TryRestoreSession())
             return; // no persisted session - stay on the login scene
@@ -18,6 +20,9 @@ public class vc_AppStartup : MonoBehaviour
             return;
         }
 
+        var loginUI = FindFirstObjectByType<LoginRegisterUIToolkit>();
+        loginUI?.SetRestoringSession(true);
+
         AuthManager.Instance.ValidateSession(
             SessionState.Instance.AuthUserId,
             SessionState.Instance.AccessToken,
@@ -25,6 +30,7 @@ public class vc_AppStartup : MonoBehaviour
             {
                 if (isValid)
                 {
+                    TelemetryManager.Instance?.TagSessionStart();
                     SceneManager.LoadScene(mainMenuScene);
                 }
                 else
@@ -34,6 +40,7 @@ public class vc_AppStartup : MonoBehaviour
                     // session we can't confirm. Stay on Login; the player logs in fresh.
                     Debug.LogWarning("[AppStartup] Persisted session could not be validated - clearing.");
                     SessionState.Instance.ClearUser();
+                    loginUI?.SetRestoringSession(false);
                 }
             });
     }

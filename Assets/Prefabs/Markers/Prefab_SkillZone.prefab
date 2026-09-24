@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.10075, y: 1.26526, z: 0}
-  m_LocalScale: {x: 1.9393939, y: 3.7647057, z: 1}
+  m_LocalScale: {x: 5, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1366689230012679500}
@@ -82,10 +82,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: fc83484d67739eb44bd3701650d44c55, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.7058824}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.45}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
@@ -138,7 +138,7 @@ BoxCollider2D:
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.66, y: 0.34}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &721602872445471201
 MonoBehaviour:
@@ -152,6 +152,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f84b50507aa2f64389c87e947cfb6fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillZone
+  zoneSprite: {fileID: 0}
+  pulseSpeed: 2
+  idleAlphaMin: 0.25
+  idleAlphaMax: 0.55
+  activeAlpha: 0.8
+  activeTint: {r: 1, g: 0.9, b: 0.4, a: 1}
 --- !u!1 &3048141508794055157
 GameObject:
   m_ObjectHideFlags: 0
@@ -260,7 +266,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 0
+  scalingMode: 1
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -321,7 +327,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.2
+      scalar: 0.15
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -439,7 +445,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.15
+      scalar: 0.12
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -824,7 +830,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 0.66, y: 0.34, z: 1}
+    m_Scale: {x: 5, y: 3, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -4934,7 +4940,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10301, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: bebeca2a2c82b8840a441420cd8ca83d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

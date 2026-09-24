@@ -13,6 +13,13 @@ namespace SunodGame.Core
 
         private static readonly string[] FloorScenes = { "Level1_Scene", "Level2_Scene", "Level3_Scene" };
 
+        /// <summary>
+        /// Set by MainMenuUIToolkit.OnContinueClicked before loading Game_Scene, so a resumed
+        /// run lands on the floor it left off on instead of always startingFloor. Consumed and
+        /// cleared in Start().
+        /// </summary>
+        public static string PendingStartFloor;
+
         private string _currentFloorScene;
         public string CurrentFloorScene => _currentFloorScene;
 
@@ -41,8 +48,14 @@ namespace SunodGame.Core
             if (activeScene != SceneLoader.SCENE_GAME && activeScene != SceneLoader.SCENE_MAINMENU)
                 return;
 
+            // Resumed run: Continue stashed the floor it left off on before loading Game_Scene.
+            string floorToLoad = startingFloor;
+            if (!string.IsNullOrEmpty(PendingStartFloor) && System.Array.IndexOf(FloorScenes, PendingStartFloor) >= 0)
+                floorToLoad = PendingStartFloor;
+            PendingStartFloor = null;
+
             // Normal game flow: Game_Scene was loaded first, now load the starting floor.
-            StartCoroutine(LoadFloorRoutine(startingFloor));
+            StartCoroutine(LoadFloorRoutine(floorToLoad));
         }
 
         public void LoadFloor(string sceneName)

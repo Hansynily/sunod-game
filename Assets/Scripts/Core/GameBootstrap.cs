@@ -19,14 +19,24 @@ namespace Sunod
 
         private static void EnsureCoreServices()
         {
-            if (FindFirstObjectByType<TelemetryManager>() != null) return;
+            GameObject root = null;
+            GameObject GetRoot()
+            {
+                if (root != null) return root;
+                root = FindFirstObjectByType<SessionState>()?.gameObject
+                    ?? FindFirstObjectByType<TelemetryManager>()?.gameObject
+                    ?? FindFirstObjectByType<AuthManager>()?.gameObject;
+                if (root == null)
+                {
+                    root = new GameObject("[Sunod Singletons]");
+                    DontDestroyOnLoad(root);
+                }
+                return root;
+            }
 
-            var root = new GameObject("[Sunod Singletons]");
-            DontDestroyOnLoad(root);
-
-            root.AddComponent<SessionState>();
-            root.AddComponent<TelemetryManager>();
-            root.AddComponent<AuthManager>();
+            if (FindFirstObjectByType<SessionState>() == null) GetRoot().AddComponent<SessionState>();
+            if (FindFirstObjectByType<TelemetryManager>() == null) GetRoot().AddComponent<TelemetryManager>();
+            if (FindFirstObjectByType<AuthManager>() == null) GetRoot().AddComponent<AuthManager>();
 
             //Debug.Log("[Bootstrap] Singletons initialised.");
         }

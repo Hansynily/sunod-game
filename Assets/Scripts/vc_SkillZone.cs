@@ -8,8 +8,40 @@ public class vc_SkillZone : MonoBehaviour
     // tutorial to coach the player; the main game ignores it.
     public static event System.Action PlayerEnteredZone;
 
+    [SerializeField] private SpriteRenderer zoneSprite;
+    [SerializeField] private float pulseSpeed = 2f;
+    [SerializeField] private float idleAlphaMin = 0.25f;
+    [SerializeField] private float idleAlphaMax = 0.55f;
+    [SerializeField] private float activeAlpha = 0.8f;
+    [SerializeField] private Color activeTint = new Color(1f, 0.9f, 0.4f);
+
     private static int _activeZoneCount = 0;
     private bool _playerInside = false;
+    private Color _originalColor;
+
+    private void Awake()
+    {
+        if (zoneSprite == null)
+            zoneSprite = GetComponent<SpriteRenderer>();
+
+        if (zoneSprite != null)
+            _originalColor = zoneSprite.color;
+    }
+
+    private void Update()
+    {
+        if (zoneSprite == null) return;
+
+        if (_playerInside)
+        {
+            zoneSprite.color = new Color(activeTint.r, activeTint.g, activeTint.b, activeAlpha);
+        }
+        else
+        {
+            float alpha = Mathf.Lerp(idleAlphaMin, idleAlphaMax, (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f);
+            zoneSprite.color = new Color(_originalColor.r, _originalColor.g, _originalColor.b, alpha);
+        }
+    }
 
     private void OnDisable()
     {

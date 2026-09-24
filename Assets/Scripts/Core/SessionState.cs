@@ -14,6 +14,7 @@ namespace SunodGame.Core
         private const string PrefKeyUsername = "sunod.auth.username";
         private const string PrefKeyPlayerId = "sunod.auth.playerId";
         private const string PrefKeyUserId = "sunod.auth.userId";
+        private const string PrefKeyTutorialDone = "sunod.auth.tutorialDone";
 
         public string Username { get; private set; }
         public string AuthPlayerId { get; private set; }
@@ -85,6 +86,7 @@ namespace SunodGame.Core
             PlayerPrefs.SetString(PrefKeyUsername, Username);
             PlayerPrefs.SetString(PrefKeyPlayerId, AuthPlayerId ?? string.Empty);
             PlayerPrefs.SetInt(PrefKeyUserId, AuthUserId);
+            PlayerPrefs.SetInt(PrefKeyTutorialDone, HasCompletedTutorial ? 1 : 0);
             PlayerPrefs.Save();
         }
 
@@ -94,6 +96,7 @@ namespace SunodGame.Core
             PlayerPrefs.DeleteKey(PrefKeyUsername);
             PlayerPrefs.DeleteKey(PrefKeyPlayerId);
             PlayerPrefs.DeleteKey(PrefKeyUserId);
+            PlayerPrefs.DeleteKey(PrefKeyTutorialDone);
             PlayerPrefs.Save();
         }
 
@@ -113,6 +116,7 @@ namespace SunodGame.Core
             AuthPlayerId = PlayerPrefs.GetString(PrefKeyPlayerId, string.Empty);
             AccessToken = token;
             AuthUserId = PlayerPrefs.GetInt(PrefKeyUserId, 0);
+            HasCompletedTutorial = PlayerPrefs.GetInt(PrefKeyTutorialDone, 0) == 1;
             Debug.Log($"[Session] Restored persisted session -> {Username}");
             return true;
         }

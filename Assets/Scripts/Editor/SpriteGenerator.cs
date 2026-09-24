@@ -87,6 +87,8 @@ public static class SpriteGenerator
             { "painted_set",  DrawPaintedSet },
             { "stall",        DrawStall },
             { "notes",        DrawNotes },
+            { "mural_blank",  DrawMuralBlank },
+            { "mural_done",   DrawMuralDone },
         };
 
         int count = 0;
@@ -254,6 +256,30 @@ public static class SpriteGenerator
             c.Rect(10, 9 + i * 3, 12, 1, Ink);
         c.Rect(10, 9, 6, 1, Ink);                // a shorter "heading" line
         c.Rect(19, 23, 4, 2, PaintB);            // small diagram/sketch mark
+    }
+
+    static void DrawMuralBlank(Canvas c)
+    {
+        c.Rect(2, 2, 28, 28, StoneMid);          // plain cracked wall face
+        c.Rect(2, 2, 28, 2, StoneLight);         // top edge highlight
+        c.Rect(2, 28, 28, 2, StoneDark);         // bottom edge shading
+        c.Line(6, 5, 11, 20, CrackGrey);         // cracks
+        c.Line(18, 4, 14, 16, CrackGrey);
+        c.Line(20, 18, 26, 27, CrackGrey);
+        c.Rect(9, 9, 3, 2, StoneDark);           // worn patches
+        c.Rect(21, 12, 3, 2, StoneDark);
+    }
+
+    static void DrawMuralDone(Canvas c)
+    {
+        c.Rect(2, 2, 28, 28, StoneMid);          // same wall, now painted over
+        c.Rect(4, 4, 24, 24, SkyPaint);          // painted sky
+        c.EllipseTop(10, 10, 4, 4, SunPaint);    // sun
+        c.Rect(4, 20, 24, 8, HillPaint);         // rolling hills
+        c.Ellipse(12, 20, 6, 3, HillPaint);      // hill mound
+        c.Ellipse(22, 21, 5, 3, HillPaint);
+        c.Rect(2, 2, 28, 2, StoneLight);         // frame edges kept from the wall
+        c.Rect(2, 28, 28, 2, StoneDark);
     }
 
     // ── 32x32 drawing surface + primitives (top-down y) ──────────────────────

@@ -26,6 +26,8 @@ public class vc_TutorialFlowController : MonoBehaviour
     private const int OBJ_ZONE   = 3;
     private const int OBJ_CLEAR  = 4;
 
+    private const int TotalSteps = 5;
+
     private const string IntroText =
         "Welcome to SUNOD. Solve things your own way. The skills you pick and the choices you make quietly tell a story about where your strengths could take you.";
 
@@ -46,6 +48,9 @@ public class vc_TutorialFlowController : MonoBehaviour
     private vc_TutorialSkillMarker _activeMarker;
     private PlayerController _player;
     private Vector3 _moveStartPos;
+
+    private int _stepsDone;
+    private readonly bool[] _stepCounted = new bool[TotalSteps];
 
     private void Awake()
     {
@@ -107,13 +112,28 @@ public class vc_TutorialFlowController : MonoBehaviour
                 "Use your skill to clear the path",
             });
 
+        vc_QuestHUD.Instance?.SetCounter($"Step 1 of {TotalSteps}");
+
         vc_FloatingMessage.Instance?.Show("Drag the joystick at the bottom left to walk around.");
+    }
+
+    private void AdvanceStep(int objectiveIndex)
+    {
+        if (objectiveIndex < 0 || objectiveIndex >= _stepCounted.Length || _stepCounted[objectiveIndex]) return;
+        _stepCounted[objectiveIndex] = true;
+
+        _stepsDone++;
+        vc_QuestHUD.Instance?.SetCounter(
+            _stepsDone < TotalSteps ? $"Step {_stepsDone + 1} of {TotalSteps}" : "Tutorial done!");
+
+        vc_QuestHUD.Instance?.ShowFeedbackTimed("Step done!", 1.5f);
     }
 
     private void OnMoveLearned()
     {
         _phase = Phase.Explore;
         vc_QuestHUD.Instance?.CheckObjective(OBJ_MOVE);
+        AdvanceStep(OBJ_MOVE);
         vc_FloatingMessage.Instance?.Show("Good. Now head into the skill area ahead.");
         PointArrow(skillAreaArrowTarget);
     }
@@ -124,6 +144,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         if (_phase != Phase.Explore) return;
 
         vc_QuestHUD.Instance?.CheckObjective(OBJ_AREA);
+        AdvanceStep(OBJ_AREA);
         HideArrow();
         _phase = Phase.ChooseSkill;
 
@@ -190,6 +211,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         }
 
         vc_QuestHUD.Instance?.CheckObjective(OBJ_CHOOSE);
+        AdvanceStep(OBJ_CHOOSE);
         EnterGoToZone();
     }
 
@@ -202,6 +224,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         _phase = Phase.QuestActive;
 
         vc_QuestHUD.Instance?.CheckObjective(OBJ_ZONE);
+        AdvanceStep(OBJ_ZONE);
         HideArrow();
         vc_FloatingMessage.Instance?.Show("You are in the zone. Your skill button lit up at the bottom right. Tap it to use your skill.");
     }
@@ -214,6 +237,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         if (quest != null) quest.Completed -= OnQuestCompleted;
 
         vc_QuestHUD.Instance?.CheckObjective(OBJ_CLEAR);
+        AdvanceStep(OBJ_CLEAR);
 
         string letter = _chosen != null ? _chosen.riaSecLetter : string.Empty;
         string name   = _chosen != null ? _chosen.skillName   : "your skill";

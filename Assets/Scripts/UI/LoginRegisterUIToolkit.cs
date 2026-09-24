@@ -480,6 +480,17 @@ namespace SunodGame.UI
             _btnSwitchToLogin?   .SetEnabled(!isLoading);
         }
 
+        /// <summary>
+        /// Called by vc_AppStartup while it validates a persisted session at launch.
+        /// </summary>
+        public void SetRestoringSession(bool isRestoring)
+        {
+            if (isRestoring && _lblLoading != null)
+                _lblLoading.text = "Signing you in...";
+
+            SetLoading(isRestoring);
+        }
+
         private static string GetAuthMessage(AuthResponse auth, string fallback)
         {
             return auth != null && !string.IsNullOrWhiteSpace(auth.message)
