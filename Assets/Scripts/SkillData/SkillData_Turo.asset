@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a5f72cb8cf64df68962b7a7d6cf8dfb, type: 3}
-  m_Name: SkillData_Aral
+  m_Name: SkillData_Turo
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
-  skillName: ARAL
+  skillName: TURO
   riaSecLetter: S
-  buttonLabel: ARAL
-  description: Assist and teach another character.
+  buttonLabel: TURO
+  description: Teach or show someone how to do something.
   icon: {fileID: 0}
   capabilityTags:
   - teach
+  level: 1
