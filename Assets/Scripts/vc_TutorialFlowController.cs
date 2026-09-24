@@ -177,7 +177,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         _chosen = marker.Skill;
 
         vc_PlayerInventory.Instance?.AddSkill(_chosen);
-        vc_SkillManager.Instance?.AssignSkillToSlot(0, _chosen);
+        vc_SkillManager.Instance?.EquipToCategorySlot(_chosen);
 
         if (markers != null)
             for (int i = 0; i < markers.Length; i++) markers[i]?.Despawn();

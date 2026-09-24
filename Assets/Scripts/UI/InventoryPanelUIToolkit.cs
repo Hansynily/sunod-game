@@ -10,10 +10,10 @@ namespace SunodGame.UI
         private VisualElement _overlay;
         private ScrollView    _cardsScroll;
 
-        private readonly VisualElement[] _slotIcons   = new VisualElement[4];
-        private readonly VisualElement[] _slotFrames  = new VisualElement[4];
-        private readonly Label[]         _slotEmpties = new Label[4];
-        private readonly Label[]         _slotNames   = new Label[4];
+        private readonly VisualElement[] _slotIcons   = new VisualElement[vc_SkillManager.SlotCount];
+        private readonly VisualElement[] _slotFrames  = new VisualElement[vc_SkillManager.SlotCount];
+        private readonly Label[]         _slotEmpties = new Label[vc_SkillManager.SlotCount];
+        private readonly Label[]         _slotNames   = new Label[vc_SkillManager.SlotCount];
 
         // Detail pane elements
         private VisualElement _detailEmpty;
@@ -74,7 +74,7 @@ namespace SunodGame.UI
             root.Q<Button>("btn-cheat-all")
                 ?.RegisterCallback<ClickEvent>(_ => OnCheatClicked());
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 int idx = i;
                 _slotFrames[i]  = root.Q<Button>($"slot-{i}");
@@ -217,7 +217,7 @@ namespace SunodGame.UI
             row.AddToClassList("selected");
 
             PopulateDetail(skill);
-            SetSlotsReady(true);
+            SetCategorySlotReady(skill);
         }
 
         private void PopulateDetail(vc_SkillData skill)
@@ -257,6 +257,9 @@ namespace SunodGame.UI
             Debug.Log($"[Inventory] OnSlotClicked({slotIndex}) - selectedSkill={_selectedSkill?.skillName ?? "NULL"}, SkillManager={(vc_SkillManager.Instance == null ? "NULL" : "OK")}");
             if (_selectedSkill == null || vc_SkillManager.Instance == null) return;
 
+            if (vc_SkillManager.SlotIndexForLetter(_selectedSkill.riaSecLetter) != slotIndex)
+                return;
+
             vc_SkillManager.Instance.AssignSkillToSlot(slotIndex, _selectedSkill);
 
             _selectedCard?.RemoveFromClassList("selected");
@@ -272,7 +275,7 @@ namespace SunodGame.UI
         {
             if (vc_SkillManager.Instance == null) return;
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 var data = vc_SkillManager.Instance.GetSkillInSlot(i);
 
@@ -294,12 +297,22 @@ namespace SunodGame.UI
 
         private void SetSlotsReady(bool ready)
         {
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 if (_slotFrames[i] == null) continue;
                 if (ready) _slotFrames[i].AddToClassList("ready");
                 else       _slotFrames[i].RemoveFromClassList("ready");
             }
+        }
+
+        private void SetCategorySlotReady(vc_SkillData skill)
+        {
+            SetSlotsReady(false);
+
+            int slotIndex = skill != null ? vc_SkillManager.SlotIndexForLetter(skill.riaSecLetter) : -1;
+            if (slotIndex < 0 || slotIndex >= _slotFrames.Length || _slotFrames[slotIndex] == null) return;
+
+            _slotFrames[slotIndex].AddToClassList("ready");
         }
 
         private void OnCheatClicked()

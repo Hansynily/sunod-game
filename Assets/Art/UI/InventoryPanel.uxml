@@ -16,54 +16,82 @@
                 </ui:VisualElement>
                 <ui:VisualElement class="equipped-section">
                     <ui:Label text="EQUIPPED" class="equipped-title"/>
-                    <ui:VisualElement class="slots-row">
-                        <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="1" class="slot-number"/>
-                            <ui:VisualElement class="slot-diamond-container">
-                                <ui:Button name="slot-0" class="slot-frame">
-                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
-                                        <ui:VisualElement name="slot-icon-0" picking-mode="Ignore" class="slot-frame-icon"/>
-                                        <ui:Label name="slot-empty-0" text="+" picking-mode="Ignore" class="slot-empty-label"/>
-                                    </ui:VisualElement>
-                                </ui:Button>
+                    <ui:VisualElement class="slots-grid">
+                        <ui:VisualElement class="slots-row">
+                            <ui:VisualElement class="slot-wrapper">
+                                <ui:Label text="REALISTIC" class="slot-number"/>
+                                <ui:VisualElement class="slot-diamond-container">
+                                    <ui:Button name="slot-0" class="slot-frame">
+                                        <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                            <ui:VisualElement name="slot-icon-0" picking-mode="Ignore" class="slot-frame-icon"/>
+                                            <ui:Label name="slot-empty-0" text="+" picking-mode="Ignore" class="slot-empty-label"/>
+                                        </ui:VisualElement>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:Label name="slot-name-0" text="" picking-mode="Ignore" class="slot-name-label"/>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-0" text="" picking-mode="Ignore" class="slot-name-label"/>
+                            <ui:VisualElement class="slot-wrapper">
+                                <ui:Label text="INVESTIGATIVE" class="slot-number"/>
+                                <ui:VisualElement class="slot-diamond-container">
+                                    <ui:Button name="slot-1" class="slot-frame">
+                                        <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                            <ui:VisualElement name="slot-icon-1" picking-mode="Ignore" class="slot-frame-icon"/>
+                                            <ui:Label name="slot-empty-1" text="+" picking-mode="Ignore" class="slot-empty-label"/>
+                                        </ui:VisualElement>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:Label name="slot-name-1" text="" picking-mode="Ignore" class="slot-name-label"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="slot-wrapper">
+                                <ui:Label text="ARTISTIC" class="slot-number"/>
+                                <ui:VisualElement class="slot-diamond-container">
+                                    <ui:Button name="slot-2" class="slot-frame">
+                                        <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                            <ui:VisualElement name="slot-icon-2" picking-mode="Ignore" class="slot-frame-icon"/>
+                                            <ui:Label name="slot-empty-2" text="+" picking-mode="Ignore" class="slot-empty-label"/>
+                                        </ui:VisualElement>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:Label name="slot-name-2" text="" picking-mode="Ignore" class="slot-name-label"/>
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="2" class="slot-number"/>
-                            <ui:VisualElement class="slot-diamond-container">
-                                <ui:Button name="slot-1" class="slot-frame">
-                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
-                                        <ui:VisualElement name="slot-icon-1" picking-mode="Ignore" class="slot-frame-icon"/>
-                                        <ui:Label name="slot-empty-1" text="+" picking-mode="Ignore" class="slot-empty-label"/>
-                                    </ui:VisualElement>
-                                </ui:Button>
+                        <ui:VisualElement class="slots-row">
+                            <ui:VisualElement class="slot-wrapper">
+                                <ui:Label text="SOCIAL" class="slot-number"/>
+                                <ui:VisualElement class="slot-diamond-container">
+                                    <ui:Button name="slot-3" class="slot-frame">
+                                        <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                            <ui:VisualElement name="slot-icon-3" picking-mode="Ignore" class="slot-frame-icon"/>
+                                            <ui:Label name="slot-empty-3" text="+" picking-mode="Ignore" class="slot-empty-label"/>
+                                        </ui:VisualElement>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:Label name="slot-name-3" text="" picking-mode="Ignore" class="slot-name-label"/>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-1" text="" picking-mode="Ignore" class="slot-name-label"/>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="3" class="slot-number"/>
-                            <ui:VisualElement class="slot-diamond-container">
-                                <ui:Button name="slot-2" class="slot-frame">
-                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
-                                        <ui:VisualElement name="slot-icon-2" picking-mode="Ignore" class="slot-frame-icon"/>
-                                        <ui:Label name="slot-empty-2" text="+" picking-mode="Ignore" class="slot-empty-label"/>
-                                    </ui:VisualElement>
-                                </ui:Button>
+                            <ui:VisualElement class="slot-wrapper">
+                                <ui:Label text="ENTERPRISING" class="slot-number"/>
+                                <ui:VisualElement class="slot-diamond-container">
+                                    <ui:Button name="slot-4" class="slot-frame">
+                                        <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                            <ui:VisualElement name="slot-icon-4" picking-mode="Ignore" class="slot-frame-icon"/>
+                                            <ui:Label name="slot-empty-4" text="+" picking-mode="Ignore" class="slot-empty-label"/>
+                                        </ui:VisualElement>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:Label name="slot-name-4" text="" picking-mode="Ignore" class="slot-name-label"/>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-2" text="" picking-mode="Ignore" class="slot-name-label"/>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="slot-wrapper">
-                            <ui:Label text="4" class="slot-number"/>
-                            <ui:VisualElement class="slot-diamond-container">
-                                <ui:Button name="slot-3" class="slot-frame">
-                                    <ui:VisualElement picking-mode="Ignore" class="slot-inner">
-                                        <ui:VisualElement name="slot-icon-3" picking-mode="Ignore" class="slot-frame-icon"/>
-                                        <ui:Label name="slot-empty-3" text="+" picking-mode="Ignore" class="slot-empty-label"/>
-                                    </ui:VisualElement>
-                                </ui:Button>
+                            <ui:VisualElement class="slot-wrapper">
+                                <ui:Label text="CONVENTIONAL" class="slot-number"/>
+                                <ui:VisualElement class="slot-diamond-container">
+                                    <ui:Button name="slot-5" class="slot-frame">
+                                        <ui:VisualElement picking-mode="Ignore" class="slot-inner">
+                                            <ui:VisualElement name="slot-icon-5" picking-mode="Ignore" class="slot-frame-icon"/>
+                                            <ui:Label name="slot-empty-5" text="+" picking-mode="Ignore" class="slot-empty-label"/>
+                                        </ui:VisualElement>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:Label name="slot-name-5" text="" picking-mode="Ignore" class="slot-name-label"/>
                             </ui:VisualElement>
-                            <ui:Label name="slot-name-3" text="" picking-mode="Ignore" class="slot-name-label"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>

@@ -10,14 +10,15 @@ namespace SunodGame.UI
     {
         [SerializeField] private GameObject _uguiSkillBarRoot;
 
-        private readonly Button[]        _slotBtns      = new Button[4];
-        private readonly VisualElement[] _slotIcons    = new VisualElement[4];
-        private readonly Label[]         _slotLevels   = new Label[4];
-        private readonly Label[]         _slotNames    = new Label[4];
-        private readonly Label[]         _slotEmpties  = new Label[4];
-        private readonly VisualElement[] _previews     = new VisualElement[6];
+        private readonly Button[]        _slotBtns       = new Button[vc_SkillManager.SlotCount];
+        private readonly VisualElement[] _slotIcons      = new VisualElement[vc_SkillManager.SlotCount];
+        private readonly Label[]         _slotLevels     = new Label[vc_SkillManager.SlotCount];
+        private readonly Label[]         _slotNames      = new Label[vc_SkillManager.SlotCount];
+        private readonly Label[]         _slotEmpties    = new Label[vc_SkillManager.SlotCount];
+        private readonly Label[]         _slotCategories = new Label[vc_SkillManager.SlotCount];
+        private readonly VisualElement[] _previews       = new VisualElement[6];
 
-        private readonly vc_SkillData[] _cachedSlots = new vc_SkillData[4];
+        private readonly vc_SkillData[] _cachedSlots = new vc_SkillData[vc_SkillManager.SlotCount];
 
         private InventoryPanelUIToolkit _inventoryPanel;
         private bool _inventoryEventBound;
@@ -41,14 +42,21 @@ namespace SunodGame.UI
 
             var root = GetComponent<UIDocument>().rootVisualElement;
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 int idx = i;
-                _slotBtns[i]     = root.Q<Button>($"slot-btn-{i}");
-                _slotIcons[i]   = root.Q<VisualElement>($"slot-icon-{i}");
-                _slotLevels[i]  = root.Q<Label>($"slot-level-{i}");
-                _slotNames[i]   = root.Q<Label>($"slot-name-{i}");
-                _slotEmpties[i] = root.Q<Label>($"slot-empty-{i}");
+                _slotBtns[i]      = root.Q<Button>($"slot-btn-{i}");
+                _slotIcons[i]     = root.Q<VisualElement>($"slot-icon-{i}");
+                _slotLevels[i]    = root.Q<Label>($"slot-level-{i}");
+                _slotNames[i]     = root.Q<Label>($"slot-name-{i}");
+                _slotEmpties[i]   = root.Q<Label>($"slot-empty-{i}");
+                _slotCategories[i] = root.Q<Label>($"slot-category-{i}");
+
+                if (_slotCategories[i] != null)
+                    _slotCategories[i].text = vc_SkillManager.CategoryNameForSlot(i);
+
+                if (_slotBtns[i] != null)
+                    _slotBtns[i].AddToClassList($"cat-{vc_SkillManager.CategoryLetterForSlot(i)}");
 
                 _slotBtns[i]?.RegisterCallback<ClickEvent>(_       => OnSlotClicked(idx));
                 _slotBtns[i]?.RegisterCallback<PointerDownEvent>(_ => OnSlotPointerDown(idx));
@@ -94,7 +102,7 @@ namespace SunodGame.UI
             var mgr = vc_SkillManager.Instance;
             if (mgr == null) return;
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 var current = mgr.GetSkillInSlot(i);
                 if (current != _cachedSlots[i])
@@ -116,7 +124,7 @@ namespace SunodGame.UI
         private void RefreshAllSlots()
         {
             if (vc_SkillManager.Instance == null) return;
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 var data = vc_SkillManager.Instance.GetSkillInSlot(i);
                 _cachedSlots[i] = data;

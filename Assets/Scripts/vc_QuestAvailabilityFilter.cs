@@ -89,7 +89,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         }
 
         List<string> names = PendingOwnedSkillNames;
-        int equippedSlot = 0;
+        int equippedCount = 0;
         foreach (string skillName in names)
         {
             if (string.IsNullOrWhiteSpace(skillName)) continue;
@@ -103,14 +103,14 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
                 continue;
             }
 
-            vc_PlayerInventory.Instance.AddSkill(resolved);      // ownership (drives quest availability)
-            vc_SkillManager.Instance?.AssignSkillToSlot(equippedSlot, resolved); // usable equip
-            equippedSlot++;
+            vc_PlayerInventory.Instance.AddSkill(resolved); // ownership (drives quest availability)
+            if (vc_SkillManager.Instance != null && vc_SkillManager.Instance.EquipToCategorySlot(resolved))
+                equippedCount++; // usable equip - only counts if its category slot was free
         }
 
         _skillRestoreApplied = true;
         PendingOwnedSkillNames = null;
-        Debug.Log($"[vc_QuestAvailabilityFilter] Restored {equippedSlot} skill(s) for the resumed run.");
+        Debug.Log($"[vc_QuestAvailabilityFilter] Restored {equippedCount} skill(s) for the resumed run.");
     }
 
     /// <summary>

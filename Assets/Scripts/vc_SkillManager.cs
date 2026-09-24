@@ -5,7 +5,35 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class vc_SkillManager : MonoBehaviour
 {
-    [SerializeField] private vc_SkillSlot[] skillSlots = new vc_SkillSlot[4];
+    public const int SlotCount = 6;
+
+    private static readonly string[] CategoryLetters = { "R", "I", "A", "S", "E", "C" };
+    private static readonly string[] CategoryNames = { "Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional" };
+
+    public static int SlotIndexForLetter(string letter)
+    {
+        if (string.IsNullOrEmpty(letter)) return -1;
+        string trimmed = letter.Trim().ToUpperInvariant();
+        for (int i = 0; i < CategoryLetters.Length; i++)
+        {
+            if (CategoryLetters[i] == trimmed) return i;
+        }
+        return -1;
+    }
+
+    public static string CategoryNameForSlot(int index)
+    {
+        if (index < 0 || index >= CategoryNames.Length) return string.Empty;
+        return CategoryNames[index];
+    }
+
+    public static string CategoryLetterForSlot(int index)
+    {
+        if (index < 0 || index >= CategoryLetters.Length) return string.Empty;
+        return CategoryLetters[index];
+    }
+
+    [SerializeField] private vc_SkillSlot[] skillSlots = new vc_SkillSlot[SlotCount];
 
     private int[] usageCount;
 
@@ -117,7 +145,8 @@ public class vc_SkillManager : MonoBehaviour
 
     public bool IsHoldingTag(string tag)
     {
-        for (int i = 0; i < 4; i++)
+        int count = skillSlots != null ? skillSlots.Length : 0;
+        for (int i = 0; i < count; i++)
         {
             vc_PlayerSkill skill = GetSlotSkill(i);
             if (skill != null && IsSlotHeld(i) && skill.SkillData != null && skill.SkillData.HasTag(tag))
@@ -157,25 +186,47 @@ public class vc_SkillManager : MonoBehaviour
         }
     }
 
-    public void AssignSkillToSlot(int slotIndex, vc_SkillData data)
+    public bool AssignSkillToSlot(int slotIndex, vc_SkillData data)
     {
         EnsureSlotsResolved();
 
         if (skillSlots == null || slotIndex < 0 || slotIndex >= skillSlots.Length || skillSlots[slotIndex] == null)
         {
             Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) - slot check failed. skillSlots null={skillSlots == null}, length={skillSlots?.Length}");
-            return;
+            return false;
+        }
+
+        if (data != null && SlotIndexForLetter(data.riaSecLetter) != slotIndex)
+        {
+            Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) - '{data.skillName}' is category '{data.riaSecLetter}', doesn't belong in slot {slotIndex}");
+            return false;
         }
 
         vc_PlayerSkill skill = ResolveSkill(data);
         if (skill == null)
         {
             Debug.LogWarning($"[SkillManager] AssignSkillToSlot({slotIndex}) - ResolveSkill returned null for '{data?.skillName}'");
-            return;
+            return false;
         }
 
         Debug.Log($"[SkillManager] Assigning '{data.skillName}' to slot {slotIndex}");
         skillSlots[slotIndex].AssignSkill(skill);
+        return true;
+    }
+
+    public bool EquipToCategorySlot(vc_SkillData data)
+    {
+        if (data == null) return false;
+        int slotIndex = SlotIndexForLetter(data.riaSecLetter);
+        if (slotIndex < 0) return false;
+        return AssignSkillToSlot(slotIndex, data);
+    }
+
+    public vc_SkillData GetSkillInCategory(string letter)
+    {
+        int slotIndex = SlotIndexForLetter(letter);
+        if (slotIndex < 0) return null;
+        return GetSkillInSlot(slotIndex);
     }
 
     public void RegisterSlot(vc_SkillSlot slot)
