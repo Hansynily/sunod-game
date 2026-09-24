@@ -250,7 +250,6 @@ MonoBehaviour:
   friendNPC: {fileID: 922362459745154360}
   friendNPCObject: {fileID: 690954746660468857}
   lockpickRange: 1.5
-  lockpickHoldTime: 5
   xrayEffect: {fileID: 4782442787140802896}
   mainMarker_Door: {fileID: 5996379917507009908}
   poiMarker_KeySpot: {fileID: 2958503486304301004}
@@ -827,7 +826,8 @@ MonoBehaviour:
   questLogic: {fileID: 5813231294438641968}
   questId: L2_MissingKey
   questName: Missing Key
-  primaryRiasec: 
+  primaryRiasec: R
+  questionCode: 
   objectiveText: 
   questDescription: Find the Missing Key
   questHints: []

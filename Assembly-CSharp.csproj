@@ -113,6 +113,7 @@
     <Compile Include="Assets\Scripts\vc_SkillAwardPopup.cs" />
     <Compile Include="Assets\Scripts\Telemetry\TelemetryManager.cs" />
     <Compile Include="Assets\Scripts\Skills\Realistic\ScriptableObjects\Giant.cs" />
+    <Compile Include="Assets\Scripts\vc_AreaSeal.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorLoader.cs" />
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
@@ -213,6 +214,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Art\UI\DialogPanel.uss" />
     <None Include="Assets\Art\UI\EndScene.uxml" />
+    <None Include="Assets\Art\Packs\Modern tiles_Free\LICENSE.txt" />
     <None Include="Assets\Art\UI\DialogPanel.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
     <None Include="Assets\Art\UI\PauseMenu.uxml" />
@@ -223,17 +225,21 @@
     <None Include="Assets\Art\UI\GameHUDStyle.uss" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\Art\Packs\Interiors_Tileset\READ_ME.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\Art\Fonts\DotGothic16\OFL.txt" />
+    <None Include="Assets\Art\Packs\Interiors_Tileset\LICENSE.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\Art\UI\PauseMenuStyle.uss" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\Art\UI\EndSceneStyle.uss" />
+    <None Include="Assets\Art\Packs\2dClassroomAssetPackByStyloo\read me .txt" />
     <None Include="Assets\Art\UI\QuestPanel.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\UI\MainMenuStyle.uss" />
     <None Include="Assets\Gif\Ruccho\FangAutoTile\Readme.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
+    <None Include="Assets\Art\Packs\Modern tiles_Free\READ ME.txt" />
     <None Include="Assets\UI\MainMenu.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />

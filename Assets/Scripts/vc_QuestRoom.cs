@@ -177,6 +177,10 @@ public class vc_QuestRoom : MonoBehaviour
     public string[] RequiredComboTags => requiredComboTags;
     public string[] SolvableWithTags => solvableWithTags;
 
+    /// <summary>True once this quest has ended, whether it succeeded or failed on the timer.
+    /// Used by vc_AreaSeal to decide whether a hallway can close behind the player.</summary>
+    public bool IsFinished => questResultRecorded || questCompletionNotified;
+
     // ── Save ────────────────────────────────────────────────────────────────
 
     private static readonly string[] RiasecOrder = { "R", "I", "A", "S", "E", "C" };
