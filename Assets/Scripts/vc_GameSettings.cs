@@ -7,6 +7,9 @@ public class vc_GameSettings : ScriptableObject
     [Tooltip("All vc_SkillData assets in the game. Every skill marker draws from this automatically.")]
     public vc_SkillData[] skills;
 
+    [Tooltip("Auto-equipped at the start of every new run, one per RIASEC category (R,I,A,S,E,C).")]
+    public vc_SkillData[] startingSkills;
+
     [Header("Quests")]
     [Tooltip("All quest prefabs in the game. Every floor draws from this pool.")]
     public GameObject[] questPrefabs;

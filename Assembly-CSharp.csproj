@@ -134,6 +134,7 @@
     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_DoAction.cs" />
     <Compile Include="Assets\Scripts\vc_LockpickSkill.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_MainMenuBackground.cs" />
     <Compile Include="Assets\Scripts\Core\vc_AppStartup.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_Follow.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Telemetry.cs" />
@@ -214,6 +215,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Art\UI\DialogPanel.uss" />
     <None Include="Assets\Art\UI\EndScene.uxml" />
+    <None Include="Assets\Art\Packs\Sprout Lands - UI Pack - Basic pack\read_me.txt" />
     <None Include="Assets\Art\Packs\Modern tiles_Free\LICENSE.txt" />
     <None Include="Assets\Art\UI\DialogPanel.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />

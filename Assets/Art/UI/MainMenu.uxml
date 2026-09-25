@@ -2,53 +2,60 @@
     <ui:Style src="MainMenuStyle.uss"/>
     <ui:VisualElement name="root" class="root-container">
 
-        <!-- Left panel: brand + nav buttons -->
-        <ui:VisualElement name="left-panel" class="left-panel">
+        <!-- Animated sky (vc_MainMenuBackground inserts itself behind this) + foreground hills -->
+        <ui:VisualElement name="menu-hills" class="menu-hills" picking-mode="Ignore"/>
 
-            <ui:VisualElement class="brand-area">
-                <ui:Label text="SUNOD" class="brand-title"/>
-                <ui:Label text="·-·◆·-·" class="brand-divider"/>
-            </ui:VisualElement>
-
-            <ui:VisualElement class="menu-panel">
-
-                <ui:Button name="btn-continue" class="menu-btn btn-continue">
-                    <ui:Label text="Continue" class="btn-label"/>
-                </ui:Button>
-
-                <ui:Button name="btn-tutorial" class="menu-btn btn-tutorial">
-                    <ui:Label text="Tutorial" class="btn-label"/>
-                </ui:Button>
-
-                <ui:Button name="btn-play" class="menu-btn btn-play">
-                    <ui:Label text="New Game" class="btn-label"/>
-                </ui:Button>
-
-                <ui:Button name="btn-stats" class="menu-btn btn-stats">
-                    <ui:Label text="My Progress" class="btn-label"/>
-                </ui:Button>
-
-                <ui:Button name="btn-settings" class="menu-btn btn-settings">
-                    <ui:Label text="Settings" class="btn-label"/>
-                </ui:Button>
-
+        <!-- Top center: SUNOD title banner -->
+        <ui:VisualElement name="left-panel" class="left-panel" picking-mode="Ignore">
+            <ui:VisualElement class="brand-area intro-item intro-hidden">
+                <ui:VisualElement class="brand-banner sl-panel-wood">
+                    <ui:Label text="SUNOD" class="brand-title"/>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Right panel: player card + username -->
-        <ui:VisualElement name="right-panel" class="right-panel">
+        <!-- Center row of big framed buttons (icon + label), standing on the hills -->
+        <ui:VisualElement class="menu-panel" picking-mode="Ignore">
 
+            <ui:Button name="btn-continue" class="menu-btn wood-btn btn-continue intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon icon-continue" picking-mode="Ignore"/>
+                <ui:Label text="Continue" class="btn-label" picking-mode="Ignore"/>
+            </ui:Button>
+
+            <ui:Button name="btn-play" class="menu-btn primary-btn btn-play intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon icon-newgame" picking-mode="Ignore"/>
+                <ui:Label text="New Game" class="btn-label" picking-mode="Ignore"/>
+            </ui:Button>
+
+            <ui:Button name="btn-tutorial" class="menu-btn wood-btn btn-tutorial intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon icon-tutorial" picking-mode="Ignore"/>
+                <ui:Label text="Tutorial" class="btn-label" picking-mode="Ignore"/>
+            </ui:Button>
+
+            <ui:Button name="btn-stats" class="menu-btn wood-btn btn-stats intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon icon-stats" picking-mode="Ignore"/>
+                <ui:Label text="My Progress" class="btn-label" picking-mode="Ignore"/>
+            </ui:Button>
+
+        </ui:VisualElement>
+
+        <!-- Bottom-left corner: settings -->
+        <ui:Button name="btn-settings" class="corner-btn wood-btn btn-settings intro-item intro-hidden">
+            <ui:VisualElement class="corner-icon icon-settings" picking-mode="Ignore"/>
+        </ui:Button>
+
+        <!-- Top-right: player avatar + greeting -->
+        <ui:VisualElement name="right-panel" class="right-panel intro-item intro-hidden" picking-mode="Ignore">
             <ui:VisualElement name="player-card" class="player-card">
                 <ui:VisualElement name="player-card-image" class="player-card-image"/>
             </ui:VisualElement>
-
-            <ui:Label name="lbl-username" class="username-label" text=""/>
-
+            <ui:Label name="lbl-username" class="username-label"/>
         </ui:VisualElement>
 
-        <!-- Logout button. MUST render on top to receive clicks. -->
-        <ui:Button name="btn-logout" class="btn-logout">
-            <ui:Label text="Logout" class="btn-logout-label"/>
+        <!-- Bottom-right corner: logout. MUST render on top to receive clicks. -->
+        <ui:Button name="btn-logout" class="corner-btn wood-btn btn-logout intro-item intro-hidden">
+            <ui:VisualElement class="corner-icon icon-logout" picking-mode="Ignore"/>
+            <ui:Label text="Logout" class="btn-logout-label" picking-mode="Ignore"/>
         </ui:Button>
 
         <!--
@@ -57,10 +64,10 @@
              Reset Run lives here as a destructive action at the bottom.
         -->
         <ui:VisualElement name="stats-overlay" class="progress-page">
-            <ui:VisualElement class="progress-page-inner">
+            <ui:VisualElement class="progress-page-inner sl-panel-dark">
 
-                <ui:VisualElement class="panel-header">
-                    <ui:Label text="Your Progress" class="header-text"/>
+                <ui:VisualElement class="panel-header sl-panel-wood">
+                    <ui:Label text="Your Progress" class="header-text sl-text-outline"/>
                 </ui:VisualElement>
 
                 <ui:Label name="lbl-stats-empty" text="Play your first quests to see your career forming." class="empty-state-label"/>
@@ -102,8 +109,8 @@
                 <ui:Label name="lbl-stats-error" text="" class="error-note"/>
 
                 <ui:VisualElement class="progress-page-actions">
-                    <ui:Button name="btn-stats-close" class="action-btn btn-main-menu">
-                        <ui:Label text="Back" class="action-btn-label"/>
+                    <ui:Button name="btn-stats-close" class="action-btn btn-main-menu sl-button-wide">
+                        <ui:Label text="Back" class="action-btn-label sl-text-outline"/>
                     </ui:Button>
                 </ui:VisualElement>
 
@@ -112,15 +119,15 @@
 
         <!-- New-run confirm overlay. Opened by New Game when an unfinished run exists. -->
         <ui:VisualElement name="newrun-confirm-overlay" class="overlay-root">
-            <ui:VisualElement class="confirm-box">
-                <ui:Label text="Start a New Game?" class="confirm-title"/>
+            <ui:VisualElement class="confirm-box sl-panel-dark">
+                <ui:Label text="Start a New Game?" class="confirm-title sl-text-outline"/>
                 <ui:Label text="Your saved progress will be erased. Continue?" class="confirm-body"/>
                 <ui:VisualElement class="confirm-button-row">
-                    <ui:Button name="btn-newrun-confirm" class="action-btn btn-reset-confirm">
-                        <ui:Label text="New Game" class="action-btn-label"/>
+                    <ui:Button name="btn-newrun-confirm" class="action-btn btn-reset-confirm sl-button-wide">
+                        <ui:Label text="New Game" class="action-btn-label sl-text-outline"/>
                     </ui:Button>
-                    <ui:Button name="btn-newrun-cancel" class="action-btn btn-main-menu">
-                        <ui:Label text="Cancel" class="action-btn-label"/>
+                    <ui:Button name="btn-newrun-cancel" class="action-btn btn-main-menu sl-button-wide">
+                        <ui:Label text="Cancel" class="action-btn-label sl-text-outline"/>
                     </ui:Button>
                 </ui:VisualElement>
             </ui:VisualElement>

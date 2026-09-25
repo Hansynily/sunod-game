@@ -1,5 +1,144 @@
 @import url("unity-theme://default");
 
 Label, Button, TextField, DropdownField {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    -unity-font-definition: url("/Assets/Art/Fonts/SproutLands/pixelFont-7-8x14-sproutLands.ttf");
+}
+
+/* ============================
+   Sprout Lands shared look
+   Reused by MainMenu / Login / Dialog / Pause / EndScene / HUD / Quest / Inventory USS.
+   Font sizes stay multiples of 14 (14/28/42/56) so the pixel font stays crisp.
+   ============================ */
+.sl-panel-wood {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    -unity-slice-scale: 2px;
+}
+
+.sl-panel-dark {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: rgb(120, 100, 130);
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    -unity-slice-scale: 2px;
+}
+
+.sl-panel-cream {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_slot");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+
+.sl-slot {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_slot");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+
+.sl-dialog {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Dialouge UI/dialog box.png#sl_dialog");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    -unity-slice-left: 10;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+
+.sl-button {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    transition-property: background-image, translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+.sl-button:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button_pressed");
+}
+.sl-button:disabled {
+    -unity-background-image-tint-color: rgb(150, 150, 150);
+    opacity: 0.6;
+}
+
+.sl-button-wide {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    transition-property: background-image, translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+.sl-button-wide:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide_pressed");
+}
+.sl-button-wide:disabled {
+    -unity-background-image-tint-color: rgb(150, 150, 150);
+    opacity: 0.6;
+}
+
+.sl-bar-bg {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_bar_bg");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    -unity-slice-left: 3;
+    -unity-slice-top: 3;
+    -unity-slice-right: 3;
+    -unity-slice-bottom: 3;
+    -unity-slice-scale: 2px;
+}
+
+.sl-icon {
+    -unity-background-scale-mode: scale-to-fit;
+    flex-shrink: 0;
+}
+.sl-text-outline {
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(46, 34, 24);
+}
+
+/* Neutralise Unity's default button hover/focus/disabled chrome */
+.sl-button:hover, .sl-button:focus, .sl-button:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+}
+.sl-button-wide:hover, .sl-button-wide:focus, .sl-button-wide:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
 }

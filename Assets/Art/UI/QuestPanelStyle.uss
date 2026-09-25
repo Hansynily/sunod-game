@@ -11,13 +11,20 @@
     padding: 30px;
 }
 
-/* Main panel card */
+/* Main panel card - Sprout Lands wood frame, 9-sliced */
 .quest-panel {
-    background-color: rgba(14, 20, 42, 0.88);
-    border-color: rgb(201, 151, 59);
-    border-width: 4px;
-    border-radius: 20px;
-    padding: 20px 26px;
+    background-image: none;
+    background-color: rgb(232, 207, 166);
+    border-radius: 0;
+    border-left-width: 4px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 8px;
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
+    padding: 22px 28px 24px 28px;
     min-width: 450px;
     width: 580px;
     max-width: 580px;
@@ -37,36 +44,39 @@
 }
 
 .quest-counter {
-    font-size: 22px;
-    color: rgb(201, 151, 59);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 18px;
+    color: rgb(90, 62, 38);
     -unity-text-align: upper-left;
 }
 
 .quest-title {
-    font-size: 30px;
-    color: rgb(255, 240, 200);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 24px;
+    color: rgb(60, 42, 26);
     -unity-text-align: upper-left;
     white-space: normal;
 }
 
-/* Chevron toggle button */
+/* Chevron toggle button - small Sprout Lands square button */
 .quest-expand-btn {
-    background-color: rgba(0, 0, 0, 0);
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
     border-width: 0;
-    border-radius: 6px;
-    color: rgb(201, 151, 59);
-    font-size: 26px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    color: rgb(72, 52, 34);
+    font-size: 20px;
     margin-left: 18px;
     padding: 4px 8px;
     align-self: flex-start;
-    transition-property: color;
-    transition-duration: 0.1s;
+    transition-property: translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
 }
-.quest-expand-btn:hover {
-    color: rgb(255, 200, 80);
+.quest-expand-btn:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button_pressed");
 }
 
 /* Active objective row (always shown) */
@@ -78,17 +88,15 @@
 }
 
 .quest-arrow {
-    color: rgb(255, 210, 60);
-    font-size: 24px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    color: rgb(180, 100, 30);
+    font-size: 22px;
     margin-right: 14px;
     margin-top: 2px;
 }
 
 .quest-active-label {
-    font-size: 24px;
-    color: rgb(230, 230, 230);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    font-size: 20px;
+    color: rgb(60, 42, 26);
     white-space: normal;
     flex-shrink: 1;
     flex-grow: 1;
@@ -99,7 +107,7 @@
 /* Divider between current row and expanded list */
 .quest-divider {
     height: 1px;
-    background-color: rgba(201, 151, 59, 0.35);
+    background-color: rgba(120, 85, 50, 0.4);
     margin-top: 12px;
     margin-bottom: 8px;
 }
@@ -116,14 +124,13 @@
     flex-direction: row;
     align-items: flex-start;
     width: 100%;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 /* Check/bullet icon */
 .quest-obj-check {
-    font-size: 24px;
-    color: rgb(100, 210, 100);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 20px;
+    color: rgb(70, 140, 55);
     margin-right: 14px;
     margin-top: 2px;
     width: 30px;
@@ -131,14 +138,13 @@
 }
 
 .quest-obj-check--pending {
-    color: rgb(201, 151, 59);
+    color: rgb(150, 105, 60);
 }
 
 /* Objective label text */
 .quest-obj-text {
-    font-size: 24px;
-    color: rgb(200, 200, 200);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    font-size: 20px;
+    color: rgb(80, 62, 46);
     white-space: normal;
     flex-shrink: 1;
     flex-grow: 1;
@@ -147,14 +153,13 @@
 }
 
 .quest-obj-text--done {
-    color: rgb(90, 90, 90);
+    color: rgb(140, 125, 110);
 }
 
 /* Feedback toast at bottom of panel */
 .quest-feedback {
-    font-size: 20px;
-    color: rgb(255, 160, 60);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    font-size: 16px;
+    color: rgb(180, 90, 30);
     white-space: normal;
     flex-shrink: 1;
     flex-grow: 1;
@@ -162,4 +167,10 @@
     overflow: hidden;
     margin-top: 14px;
     display: none;
+}
+
+/* Neutralise Unity's default button hover/focus/disabled chrome */
+.quest-expand-btn:hover, .quest-expand-btn:focus, .quest-expand-btn:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
 }

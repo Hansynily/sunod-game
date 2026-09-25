@@ -1,87 +1,83 @@
 /* =================================================================
    SUNOD — Pause Menu
-   Navy + gold palette — matches MainMenu, QuestPanel, InventoryPanel.
-
-   Sources referenced:
-     btn-logout        → MainMenuStyle.uss  (top-right absolute button)
-     inventory-preview-btn → GameHUDStyle.uss (dark HUD button look)
-     menu-panel / menu-btn → MainMenuStyle.uss (card + tall buttons)
-     overlay           → InventoryPanelStyle.uss (full-screen dim)
+   Sprout Lands wood/cream palette — matches MainMenu, QuestPanel, InventoryPanel.
    ================================================================= */
 
-/* ---------- FULL-SCREEN ROOT ----------
-   Transparent pass-through so closed overlay doesn't eat pointer events.
-   picking-mode="Ignore" is set in UXML; this just handles layout. */
 .pause-root {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
-/* ---------- HUD PAUSE BUTTON (top-right, always visible) ----------
-   Mirrors btn-logout positioning from MainMenuStyle.
-   Visual style mirrors inventory-preview-btn from GameHUDStyle. */
+/* ---------- HUD PAUSE BUTTON (top-right, always visible) ---------- */
 .pause-hud-btn {
     position: absolute;
     top: 24px;
     right: 24px;
-    background-color: rgba(14, 20, 42, 0.88);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 12px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
     padding: 14px 22px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 22px;
-    color: rgb(245, 168, 35);
-    letter-spacing: 4px;
+    font-size: 18px;
+    color: rgb(72, 52, 34);
+    letter-spacing: 2px;
     -unity-text-align: middle-center;
-    transition-property: background-color;
-    transition-duration: 0.12s;
+    transition-property: translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
 }
-.pause-hud-btn:hover  { background-color: rgba(30, 44, 80, 0.95); }
-.pause-hud-btn:active { background-color: rgba(10, 14, 34, 0.95); }
+.pause-hud-btn:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button_pressed");
+}
 
-/* ---------- DIMMED OVERLAY ----------
-   Mirrors .overlay from InventoryPanelStyle.
-   Hidden by default — vc_PauseMenu sets display:flex on open. */
+/* ---------- DIMMED OVERLAY ---------- */
 .pause-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(4, 8, 20, 0.82);
+    background-color: rgba(20, 14, 8, 0.72);
     align-items: center;
     justify-content: center;
     display: none;
 }
 
-/* ---------- CENTERED CARD ----------
-   Mirrors .menu-panel from MainMenuStyle:
-   dark navy, 4px gold border, 24px radius. */
+/* ---------- CENTERED CARD (Sprout Lands wood panel) ---------- */
 .pause-box {
     min-width: 380px;
     max-width: 460px;
-    background-color: rgba(14, 20, 42, 0.97);
-    border-color: rgb(201, 151, 59);
-    border-width: 4px;
-    border-radius: 24px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
     padding: 44px 50px 38px 50px;
     flex-direction: column;
     align-items: stretch;
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    -unity-slice-scale: 2px;
 }
 
 /* ---------- PAUSED TITLE ---------- */
 .pause-title {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 36px;
-    color: rgb(245, 168, 35);
+    font-size: 32px;
+    color: rgb(255, 245, 225);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(46, 34, 24);
     -unity-text-align: upper-center;
-    letter-spacing: 10px;
+    letter-spacing: 6px;
     margin-bottom: 16px;
 }
 
 /* ---------- DIVIDER ---------- */
 .pause-divider {
     height: 2px;
-    background-color: rgb(201, 151, 59);
-    opacity: 0.40;
+    background-color: rgb(70, 50, 30);
+    opacity: 0.5;
     margin-bottom: 28px;
     flex-shrink: 0;
 }
@@ -92,42 +88,43 @@
     align-items: stretch;
 }
 
-/* ---------- SHARED BUTTON BASE ----------
-   Scaled-down version of .menu-btn from MainMenuStyle. */
+/* ---------- SHARED BUTTON BASE (Sprout Lands wide button) ---------- */
 .pause-btn {
     align-items: center;
     justify-content: center;
     height: 72px;
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 14px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
     margin-bottom: 18px;
     padding: 0 24px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 22px;
-    letter-spacing: 3px;
+    font-size: 18px;
+    letter-spacing: 1px;
     -unity-text-align: middle-center;
-    transition-property: background-color;
-    transition-duration: 0.13s;
+    transition-property: translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+.pause-btn:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide_pressed");
 }
 
-/* Resume — green (matches btn-play from MainMenuStyle) */
+/* Resume — tinted green */
 .pause-btn-resume {
-    background-color: rgb(48, 102, 36);
-    color: rgb(220, 255, 210);
+    -unity-background-image-tint-color: rgb(200, 240, 190);
+    color: rgb(40, 80, 30);
 }
-.pause-btn-resume:hover  { background-color: rgb(62, 132, 46); }
-.pause-btn-resume:active { background-color: rgb(34, 76, 26);  }
 
-/* Exit — muted navy (matches btn-tutorial from MainMenuStyle) */
+/* Exit — neutral wood */
 .pause-btn-exit {
-    background-color: rgb(38, 54, 88);
-    color: rgb(200, 210, 230);
-    border-color: rgb(80, 100, 145);
+    color: rgb(72, 52, 34);
     margin-bottom: 0;
 }
-.pause-btn-exit:hover  { background-color: rgb(52, 72, 112); }
-.pause-btn-exit:active { background-color: rgb(26, 38, 68);  }
 
 /* ---------- EXIT CONFIRM PANEL ---------- */
 .pause-confirm {
@@ -137,9 +134,8 @@
 }
 
 .confirm-body {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 17px;
-    color: rgb(210, 215, 235);
+    font-size: 15px;
+    color: rgb(90, 70, 50);
     -unity-text-align: upper-center;
     white-space: normal;
     margin-bottom: 24px;
@@ -151,25 +147,28 @@
     justify-content: center;
 }
 
-/* Yes — danger red */
+/* Yes — tinted red/danger */
 .confirm-btn-yes {
-    background-color: rgb(148, 40, 28);
-    border-color: rgb(220, 80, 60);
-    color: rgb(255, 220, 215);
+    -unity-background-image-tint-color: rgb(235, 165, 150);
+    color: rgb(90, 20, 12);
     margin-right: 16px;
     flex-grow: 1;
     margin-bottom: 0;
 }
-.confirm-btn-yes:hover  { background-color: rgb(180, 52, 36); }
-.confirm-btn-yes:active { background-color: rgb(112, 30, 20); }
 
-/* No — muted navy */
+/* No — neutral wood */
 .confirm-btn-no {
-    background-color: rgb(38, 54, 88);
-    border-color: rgb(80, 100, 145);
-    color: rgb(200, 210, 230);
+    color: rgb(72, 52, 34);
     flex-grow: 1;
     margin-bottom: 0;
 }
-.confirm-btn-no:hover  { background-color: rgb(52, 72, 112); }
-.confirm-btn-no:active { background-color: rgb(26, 38, 68);  }
+
+/* Neutralise Unity's default button hover/focus/disabled chrome */
+.pause-hud-btn:hover, .pause-hud-btn:focus, .pause-hud-btn:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+}
+.pause-btn:hover, .pause-btn:focus, .pause-btn:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+}

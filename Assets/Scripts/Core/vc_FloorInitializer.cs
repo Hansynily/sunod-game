@@ -35,6 +35,13 @@ namespace SunodGame.Core
 
         public void InitializeFloor(Scene scene)
         {
+            // T22: every run starts with one skill per category, so this is normally a no-op
+            // by the time floor init runs - the filter's own Start() already applied it. This
+            // call is just a safety net against ordering surprises.
+            vc_QuestAvailabilityFilter startingKitFilter = vc_QuestAvailabilityFilter.Instance
+                ?? FindFirstObjectByType<vc_QuestAvailabilityFilter>();
+            startingKitFilter?.ApplyStartingKit();
+
             FloorData data = GetFloorData(scene.name);
             if (data == null)
             {
@@ -53,18 +60,17 @@ namespace SunodGame.Core
                 return;
             }
 
-            // Place hallway prefabs into all vc_HallwaySlot positions
-            if (data.hallwayPrefab != null)
+            // Place hallway prefabs into all vc_HallwaySlot positions (per-slot override wins)
+            foreach (GameObject go in scene.GetRootGameObjects())
             {
-                foreach (GameObject go in scene.GetRootGameObjects())
+                foreach (vc_HallwaySlot hallwaySlot in go.GetComponentsInChildren<vc_HallwaySlot>(true))
                 {
-                    foreach (vc_HallwaySlot hallwaySlot in go.GetComponentsInChildren<vc_HallwaySlot>(true))
-                    {
-                        if (hallwaySlot.IsLoaded) continue;
-                        hallwaySlot.MarkLoaded();
-                        GameObject hallway = Instantiate(data.hallwayPrefab, hallwaySlot.transform);
-                        hallway.transform.localPosition = Vector3.zero;
-                    }
+                    if (hallwaySlot.IsLoaded) continue;
+                    hallwaySlot.MarkLoaded();
+                    GameObject prefab = hallwaySlot.PrefabOverride != null ? hallwaySlot.PrefabOverride : data.hallwayPrefab;
+                    if (prefab == null) continue;
+                    GameObject hallway = Instantiate(prefab, hallwaySlot.transform);
+                    hallway.transform.localPosition = Vector3.zero;
                 }
             }
 
@@ -77,9 +83,9 @@ namespace SunodGame.Core
 
             if (slots.Count <= 1) return;
 
-            // Slots 1+: if player already has skills (floors 2+), place now.
-            // On floor 1 first load, player hasn't hit the skill marker yet - defer
-            // until their first skill is picked so the filter has a real inventory to read.
+            // Slots 1+: the starting kit above means the player always has skills by now
+            // (T22), so this places immediately on every floor, including floor 1. The
+            // OnFirstSkillAdded defer below only matters if the starting kit is misconfigured.
             bool playerHasSkills = vc_PlayerInventory.Instance != null
                 && vc_PlayerInventory.Instance.GatheredSkills.Count > 0;
 
@@ -119,7 +125,7 @@ namespace SunodGame.Core
         public void PlaceQuestInSlot(vc_RoomSlot slot)
         {
             if (slot == null) return;
-            if (slot.transform.childCount > 0) return;
+            if (slot.GetComponentInChildren<vc_QuestRoom>(true) != null) return;
 
             vc_QuestAvailabilityFilter filter = vc_QuestAvailabilityFilter.Instance
                 ?? FindFirstObjectByType<vc_QuestAvailabilityFilter>();
@@ -129,9 +135,16 @@ namespace SunodGame.Core
 
             if (pool.Length == 0)
             {
-                Debug.LogWarning($"[vc_FloorInitializer] No eligible quest for slot '{slot.name}'.");
-                vc_EndRunUI ui = vc_EndRunUI.Instance ?? FindFirstObjectByType<vc_EndRunUI>();
-                ui?.Show();
+                if (filter == null || !filter.HasUnusedQuests())
+                {
+                    Debug.LogWarning($"[vc_FloorInitializer] No eligible quest for slot '{slot.name}' and the pool is exhausted.");
+                    vc_EndRunUI ui = vc_EndRunUI.Instance ?? FindFirstObjectByType<vc_EndRunUI>();
+                    ui?.Show();
+                }
+                else
+                {
+                    Debug.LogWarning($"[vc_FloorInitializer] No eligible quest for slot '{slot.name}' right now (unused quests remain).");
+                }
                 return;
             }
 

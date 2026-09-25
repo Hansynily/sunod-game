@@ -15,13 +15,6 @@ public class vc_SkillSelectionMarker : MonoBehaviour
     [SerializeField] private vc_SkillData[] skillPool;
     [SerializeField] private vc_RoomSlot nextRoomSlot;
 
-    [Header("Starting Kit Mode")]
-    [Tooltip("When enabled, runs multiple pick rounds to seed the player's starting inventory. Used in Room_School_StartingArea.")]
-    [SerializeField] private bool startingKitMode = false;
-    [SerializeField] private int picksRequired = 1;
-
-    private int _picksDone = 0;
-
     private void Awake()
     {
         GetComponent<Collider2D>().isTrigger = true;
@@ -36,9 +29,8 @@ public class vc_SkillSelectionMarker : MonoBehaviour
             return;
         }
 
-        // Starting kit mode ignores nextRoomSlot weighting - all skills are equal weight at game start.
         string nextRiasec = string.Empty;
-        if (!startingKitMode && nextRoomSlot != null)
+        if (nextRoomSlot != null)
         {
             vc_QuestRoom qr = nextRoomSlot.GetComponentInChildren<vc_QuestRoom>();
             if (qr != null) nextRiasec = qr.PrimaryRiasec;
@@ -51,7 +43,6 @@ public class vc_SkillSelectionMarker : MonoBehaviour
             return;
         }
 
-        _picksDone = 0;
         gameObject.SetActive(false);
         vc_SkillAwardPopup.Instance.Show(picks, OnSkillChosen);
     }
@@ -62,26 +53,6 @@ public class vc_SkillSelectionMarker : MonoBehaviour
         {
             vc_PlayerInventory.Instance?.AddSkill(chosen);
             vc_SkillManager.Instance?.OfferEquip(chosen);
-        }
-
-        _picksDone++;
-
-        if (startingKitMode && _picksDone < picksRequired)
-        {
-            if (vc_SkillAwardPopup.Instance == null)
-            {
-                Debug.LogWarning("[vc_SkillSelectionMarker] vc_SkillAwardPopup.Instance is null during starting kit chain.");
-                Destroy(gameObject);
-                return;
-            }
-
-            // BuildWeightedPicks already excludes skills the player owns, so each round offers fresh choices.
-            vc_SkillData[] picks = BuildWeightedPicks(string.Empty, 3);
-            if (picks.Length > 0)
-            {
-                vc_SkillAwardPopup.Instance.Show(picks, OnSkillChosen);
-                return;
-            }
         }
 
         if (nextRoomSlot != null)
@@ -121,7 +92,15 @@ public class vc_SkillSelectionMarker : MonoBehaviour
             return System.Array.Empty<vc_SkillData>();
         }
 
-        var pool = new List<(vc_SkillData skill, int weight)>();
+        // Never offer a skill that leads nowhere (T21 hotfix): split into skills that would
+        // unlock a still-unused quest, and everything else. Useful skills are drawn first;
+        // the rest only fill remaining slots if fewer than `count` useful skills exist.
+        vc_QuestAvailabilityFilter filter = vc_QuestAvailabilityFilter.Instance
+            ?? FindFirstObjectByType<vc_QuestAvailabilityFilter>();
+
+        var useful = new List<(vc_SkillData skill, int weight)>();
+        var other = new List<(vc_SkillData skill, int weight)>();
+
         foreach (vc_SkillData skill in source)
         {
             if (skill == null) continue;
@@ -129,10 +108,20 @@ public class vc_SkillSelectionMarker : MonoBehaviour
 
             int w = (!string.IsNullOrEmpty(nextRiasec) &&
                      string.Equals(skill.riaSecLetter, nextRiasec, System.StringComparison.OrdinalIgnoreCase)) ? 3 : 1;
-            pool.Add((skill, w));
+
+            bool isUseful = filter != null && filter.WouldUnlockAnyQuest(skill);
+            (isUseful ? useful : other).Add((skill, w));
         }
 
         var picks = new List<vc_SkillData>();
+        DrawWeighted(useful, picks, count);
+        if (picks.Count < count) DrawWeighted(other, picks, count);
+
+        return picks.ToArray();
+    }
+
+    private static void DrawWeighted(List<(vc_SkillData skill, int weight)> pool, List<vc_SkillData> picks, int count)
+    {
         while (picks.Count < count && pool.Count > 0)
         {
             int total = 0;
@@ -151,7 +140,5 @@ public class vc_SkillSelectionMarker : MonoBehaviour
                 }
             }
         }
-
-        return picks.ToArray();
     }
 }

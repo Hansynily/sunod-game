@@ -33,6 +33,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     public static List<string> PendingOwnedSkillNames;
 
     private bool _skillRestoreApplied;
+    private bool _startingKitApplied;
 
     private void Awake()
     {
@@ -51,6 +52,15 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         vc_SaveManager.SaveData save = vc_SaveManager.Load();
         if (save != null && save.completedQuestIds != null)
             SeedCompletedQuestIds(save.completedQuestIds);
+
+#if UNITY_EDITOR
+        if (save != null && save.completedQuestIds != null && save.completedQuestIds.Count > 0)
+        {
+            Debug.LogWarning(
+                $"[vc_QuestAvailabilityFilter] Local save marked {save.completedQuestIds.Count} quest(s) completed: " +
+                $"{string.Join(", ", save.completedQuestIds)} (start via Main Menu > New Game to clear)");
+        }
+#endif
     }
 
     private void Start()
@@ -58,6 +68,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         // Belt-and-suspenders: apply here too. DrawQuestsForFloor also calls this, and the
         // done-flag makes whichever runs first (with the singletons ready) the one that wins.
         ApplyPendingSkillRestore();
+        ApplyStartingKit();
     }
 
     /// <summary>
@@ -110,6 +121,47 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     }
 
     /// <summary>
+    /// Equips one starting skill per RIASEC category at the start of a fresh run, so every
+    /// quest is solvable from the first room (T22) - no more level-start marker, no softlock.
+    /// Idempotent and null-guarded like ApplyPendingSkillRestore; defers if a singleton isn't
+    /// ready yet. Skipped entirely when a Continue restore is pending (that wins), or when the
+    /// player already has skills (mid-run floor transitions, or the kit already landed).
+    /// </summary>
+    public void ApplyStartingKit()
+    {
+        if (_startingKitApplied) return;
+        if (PendingOwnedSkillNames != null) return; // Continue: restore wins
+
+        if (vc_PlayerInventory.Instance == null)
+        {
+            Debug.Log("[vc_QuestAvailabilityFilter] Deferring starting kit - PlayerInventory not ready yet.");
+            return;
+        }
+
+        if (vc_PlayerInventory.Instance.GatheredSkills.Count > 0)
+        {
+            _startingKitApplied = true;
+            return;
+        }
+
+        if (gameSettings == null || gameSettings.startingSkills == null || gameSettings.startingSkills.Length == 0)
+        {
+            Debug.LogWarning("[vc_QuestAvailabilityFilter] Starting kit skipped - no gameSettings/startingSkills assigned.");
+            return;
+        }
+
+        foreach (vc_SkillData skill in gameSettings.startingSkills)
+        {
+            if (skill == null) continue;
+            vc_PlayerInventory.Instance.AddSkill(skill);
+            vc_SkillManager.Instance?.EquipToCategorySlot(skill);
+        }
+
+        _startingKitApplied = true;
+        Debug.Log($"[vc_QuestAvailabilityFilter] Applied starting kit ({gameSettings.startingSkills.Length} skill(s)).");
+    }
+
+    /// <summary>
     /// Consumes the resumed run's completed-quest handoff, merging it into _usedPrefabs.
     /// Called from Awake (fresh instance, set before Game_Scene loads) and again at floor
     /// init (DrawQuestsForFloor) in case the singleton survived from a same-session
@@ -155,6 +207,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     public void ClearRun()
     {
         _usedPrefabs.Clear();
+        _startingKitApplied = false;
     }
 
     /// <summary>
@@ -184,6 +237,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         // Ensure a resumed run's owned skills are re-equipped BEFORE availability is computed -
         // CanPlayerSolve reads the inventory, so the restore must land first.
         ApplyPendingSkillRestore();
+        ApplyStartingKit();
         ApplyPendingCompletedQuestIds();
 
         if (gameSettings == null || gameSettings.questPrefabs == null)
@@ -248,6 +302,29 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
 
         ShuffleList(selected);
 
+        // Safety net: with 0 quests, the pool is never marked exhausted and the player is
+        // stuck forever (T21). If nothing was solvable this pass but unused quests remain,
+        // surface one anyway rather than softlocking.
+        if (selected.Count == 0 && HasUnusedQuests())
+        {
+            List<GameObject> unused = new List<GameObject>();
+            foreach (GameObject prefab in gameSettings.questPrefabs)
+                if (prefab != null && !_usedPrefabs.Contains(prefab)) unused.Add(prefab);
+
+            if (unused.Count > 0)
+            {
+                GameObject fallback = unused[Random.Range(0, unused.Count)];
+                selected.Add(fallback);
+
+                vc_QuestRoom fallbackRoom = fallback.GetComponentInChildren<vc_QuestRoom>(true);
+                string fallbackName = fallbackRoom != null ? fallbackRoom.QuestName : fallback.name;
+                Debug.LogWarning($"[vc_QuestAvailabilityFilter] No solvable quest for owned skills; surfacing '{fallbackName}' as fallback.");
+
+                // Force it available even if hard-locked, since IsAvailable checks this set.
+                if (fallbackRoom != null) _sessionExposureRooms.Add(fallbackRoom);
+            }
+        }
+
         foreach (GameObject prefab in selected)
             _usedPrefabs.Add(prefab);
 
@@ -307,16 +384,22 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         return false;
     }
 
-    private static bool CanPlayerSolve(vc_QuestRoom qr)
+    // extraSkill: an additional skill to count as owned, on top of the real inventory - lets
+    // WouldUnlockAnyQuest ask "if the player also had this skill, could they solve it?" without
+    // touching the actual inventory.
+    private static bool CanPlayerSolve(vc_QuestRoom qr, vc_SkillData extraSkill = null)
     {
         if (vc_PlayerInventory.Instance == null) return false;
+
+        bool HasTag(string tag) =>
+            vc_PlayerInventory.Instance.HasSkillByTag(tag) || (extraSkill != null && extraSkill.HasTag(tag));
 
         // AND logic: player must have ALL combo tags for this quest to surface.
         if (qr.RequiredComboTags != null && qr.RequiredComboTags.Length > 0)
         {
             foreach (string tag in qr.RequiredComboTags)
             {
-                if (!vc_PlayerInventory.Instance.HasSkillByTag(tag))
+                if (!HasTag(tag))
                     return false;
             }
             return true;
@@ -327,7 +410,7 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         {
             foreach (string tag in qr.SolvableWithTags)
             {
-                if (vc_PlayerInventory.Instance.HasSkillByTag(tag))
+                if (HasTag(tag))
                     return true;
             }
             return false;
@@ -335,6 +418,27 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
 
         // Nothing declared = universally solvable. Safe default while quests are being authored.
         return true;
+    }
+
+    /// <summary>
+    /// True if offering this skill (on top of what the player already owns) would make at
+    /// least one still-unused pool quest solvable. Used by vc_SkillSelectionMarker so it never
+    /// offers a skill that leads nowhere.
+    /// </summary>
+    public bool WouldUnlockAnyQuest(vc_SkillData skill)
+    {
+        if (skill == null || gameSettings == null || gameSettings.questPrefabs == null) return false;
+
+        foreach (GameObject prefab in gameSettings.questPrefabs)
+        {
+            if (prefab == null || _usedPrefabs.Contains(prefab)) continue;
+
+            vc_QuestRoom qr = prefab.GetComponentInChildren<vc_QuestRoom>(true);
+            if (qr == null) continue; // generic filler - always solvable already, tells us nothing about this skill
+
+            if (CanPlayerSolve(qr, skill)) return true;
+        }
+        return false;
     }
 
     private static void ShuffleList<T>(List<T> list)

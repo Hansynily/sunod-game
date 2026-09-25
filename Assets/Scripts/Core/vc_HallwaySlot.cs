@@ -10,6 +10,9 @@ namespace SunodGame.Core
     [DisallowMultipleComponent]
     public class vc_HallwaySlot : MonoBehaviour
     {
+        [SerializeField] private GameObject prefabOverride;
+        public GameObject PrefabOverride => prefabOverride;
+
         public bool IsLoaded { get; private set; }
 
         public void MarkLoaded() => IsLoaded = true;

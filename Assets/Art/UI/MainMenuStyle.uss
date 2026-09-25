@@ -1,227 +1,244 @@
 /* ============================
-   Root
+   Root - animated sky is drawn behind everything by vc_MainMenuBackground
    ============================ */
 .root-container {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     flex-direction: column;
-    background-image: url("../Background/PlainA.png");
-    -unity-background-scale-mode: scale-and-crop;
-}
-
-/* ============================
-   Logout Button (top-right)
-   ============================ */
-.btn-logout {
-    position: absolute;
-    top: 36px;
-    right: 36px;
-    background-color: rgba(22, 32, 58, 0.9);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 15px;
-    padding: 21px 36px;
-    transition-property: background-color;
-    transition-duration: 0.15s;
-}
-.btn-logout:hover {
-    background-color: rgb(45, 62, 100);
-}
-.btn-logout-label {
-    font-size: 27px;
-    color: white;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    -unity-text-align: middle-center;
-}
-
-/* ============================
-   Screen Wrapper
-   ============================ */
-.screen-wrapper {
-    flex-grow: 1;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-/* ============================
-   Brand Area
-   ============================ */
-.brand-area {
-    align-items: center;
-    margin-bottom: 30px;
-}
-.brand-title {
-    font-size: 126px;
-    color: rgb(245, 168, 35);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    -unity-text-align: middle-center;
-    letter-spacing: 9px;
-}
-.brand-divider {
-    font-size: 30px;
-    color: rgb(201, 151, 59);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    -unity-text-align: middle-center;
-    margin-top: 6px;
-}
-
-/* ============================
-   Menu Panel Card
-   ============================ */
-.menu-panel {
-    width: 88%;
-    max-width: 780px;
-    background-color: rgba(14, 20, 42, 0.95);
-    border-color: rgb(201, 151, 59);
-    border-width: 4px;
-    border-radius: 24px;
-    padding: 54px 60px;
-    align-items: stretch;
-}
-
-/* ============================
-   Menu Buttons
-   ============================ */
-.menu-btn {
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    flex-basis: 0;
-    min-height: 44px;
-    max-height: 108px;
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 18px;
-    margin-bottom: 24px;
-    padding: 0 30px;
-    transition-property: background-color;
-    transition-duration: 0.15s;
-}
-.btn-label {
-    font-size: 39px;
-    color: white;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    -unity-text-align: middle-center;
-}
-
-.btn-tutorial {
-    background-color: rgb(38, 54, 88);
-}
-.btn-tutorial:hover {
-    background-color: rgb(52, 72, 112);
-}
-
-.btn-play {
-    background-color: rgb(55, 115, 42);
-}
-.btn-play:hover {
-    background-color: rgb(68, 142, 52);
-}
-
-.btn-settings {
-    background-color: rgb(38, 54, 88);
-    margin-bottom: 0;
-}
-.btn-settings:hover {
-    background-color: rgb(52, 72, 112);
-}
-
-/* ============================
-   Two-column layout
-   ============================ */
-.root-container {
-    flex-direction: row;
-}
-
-.left-panel {
-    width: 50%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 40px;
-}
-
-.right-panel {
-    width: 50%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 40px;
-}
-
-/* ============================
-   Player card
-   ============================ */
-.player-card {
-    width: 320px;
-    height: 420px;
-    background-color: rgba(14, 20, 42, 0.95);
-    border-color: rgb(201, 151, 59);
-    border-width: 4px;
-    border-radius: 18px;
-    align-items: center;
-    justify-content: center;
+    background-color: rgb(47, 111, 176);
     overflow: hidden;
 }
 
-.player-card-image {
-    width: 100%;
-    height: 100%;
-    -unity-background-scale-mode: scale-to-fit;
+.menu-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
 }
 
-.username-label {
-    font-size: 30px;
-    color: white;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    -unity-text-align: middle-center;
-    margin-top: 20px;
-    background-color: rgba(14, 20, 42, 0.9);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 12px;
-    padding: 14px 36px;
-}
-
-/* menu-panel width/height override for left layout - bounded so its 5 buttons
-   always fit inside it (flex-grow buttons share whatever height this resolves to)
-   instead of overflowing past the rounded border on narrow/short viewports. */
-.menu-panel {
-    width: 100%;
-    max-width: 600px;
-    height: 80%;
-    max-height: 700px;
-    padding: 28px 40px;
+.menu-hills {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 32%;
+    background-image: url("/Assets/Art/UI/Menu/menu_hills.png");
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 /* ============================
-   New menu buttons (Continue / Stats / Reset)
+   Square pixel buttons (Sprout Lands palette, drawn in USS, no sprite)
    ============================ */
-.btn-continue {
-    background-color: rgb(184, 138, 38);
+.wood-btn,
+.primary-btn {
+    background-image: none;
+    background-color: rgb(232, 207, 166);
+    border-radius: 0;
+    border-left-width: 4px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 8px;
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
+    margin: 0;
 }
-.btn-continue:hover {
-    background-color: rgb(212, 160, 50);
+.primary-btn {
+    background-color: rgb(192, 212, 112);
 }
-.btn-continue:disabled {
-    background-color: rgb(60, 64, 74);
-    opacity: 0.5;
+.wood-btn:hover, .wood-btn:focus { background-color: rgb(243, 229, 194); }
+.primary-btn:hover, .primary-btn:focus { background-color: rgb(210, 226, 140); }
+.wood-btn:active {
+    background-color: rgb(196, 154, 108);
+    border-bottom-width: 4px;
+    translate: 0 4px;
+}
+.primary-btn:active {
+    background-color: rgb(160, 184, 90);
+    border-bottom-width: 4px;
+    translate: 0 4px;
+}
+.wood-btn:disabled, .primary-btn:disabled {
+    background-color: rgb(180, 168, 160);
+    border-left-color: rgb(140, 115, 105);
+    border-top-color: rgb(140, 115, 105);
+    border-right-color: rgb(140, 115, 105);
+    border-bottom-color: rgb(100, 85, 82);
+    opacity: 1;
 }
 
-.btn-stats {
-    background-color: rgb(38, 54, 88);
+/* ============================
+   Corner buttons (settings bottom-left, logout bottom-right)
+   ============================ */
+.corner-btn {
+    position: absolute;
+    bottom: 32px;
+    width: 104px;
+    min-width: 104px;
+    max-width: 104px;
+    height: 104px;
+    min-height: 104px;
+    max-height: 104px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
-.btn-stats:hover {
-    background-color: rgb(52, 72, 112);
+.btn-settings {
+    left: 32px;
+}
+.btn-logout {
+    right: 32px;
+    width: 104px;
+    flex-direction: column;
+}
+.corner-icon {
+    width: 48px;
+    height: 48px;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: rgb(72, 52, 34);
+}
+.btn-logout .corner-icon {
+    width: 40px;
+    height: 40px;
+}
+.btn-logout-label {
+    font-size: 14px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    margin-top: 2px;
 }
 
-.btn-reset {
-    background-color: rgb(120, 40, 40);
-    margin-top: 8px;
+.icon-settings { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_gear"); }
+.icon-logout { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_cross"); }
+
+/* ============================
+   Brand Area (top-center title banner)
+   ============================ */
+.left-panel {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 72px;
 }
-.btn-reset:hover {
-    background-color: rgb(150, 50, 50);
+.brand-area {
+    align-items: center;
+}
+.brand-banner {
+    padding: 28px 88px;
+    align-items: center;
+    justify-content: center;
+}
+.brand-title {
+    font-size: 84px;
+    color: rgb(90, 62, 38);
+    -unity-text-align: middle-center;
+    letter-spacing: 10px;
+}
+
+/* ============================
+   Menu Panel - big row of buttons standing on the hills
+   ============================ */
+.menu-panel {
+    position: absolute;
+    bottom: 26%;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.menu-btn {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 272px;
+    height: 132px;
+    margin-left: 14px;
+    margin-right: 14px;
+    padding: 10px 12px;
+}
+.btn-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 6px;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: rgb(72, 52, 34);
+}
+.btn-label {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+}
+.primary-btn .btn-icon { -unity-background-image-tint-color: rgb(40, 80, 30); }
+.primary-btn .btn-label { color: rgb(40, 80, 30); }
+
+.menu-btn:disabled .btn-icon { -unity-background-image-tint-color: rgb(150, 130, 120); }
+.menu-btn:disabled .btn-label { color: rgb(150, 130, 120); }
+
+.icon-continue { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#icon_play_arrow"); }
+.icon-newgame { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_star"); }
+.icon-tutorial { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_question"); }
+.icon-stats { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_trophy"); }
+
+/* ============================
+   Right panel - player avatar + greeting, top-right
+   ============================ */
+.right-panel {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    width: 200px;
+    flex-direction: column;
+    align-items: center;
+}
+.player-card {
+    width: 168px;
+    height: 168px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 18px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    -unity-slice-scale: 2px;
+}
+.player-card-image {
+    width: 100%;
+    height: 100%;
+    background-image: url("/Assets/Art/UI/Menu/sunod_avatar.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+.username-label {
+    font-size: 14px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    margin-top: 10px;
+    padding: 10px 16px;
+    min-width: 168px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_slot");
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+
+/* ============================
+   Intro: elements fly up from the bottom (vc_MainMenuBackground removes intro-hidden, staggered)
+   ============================ */
+.intro-item {
+    transition-property: translate, opacity;
+    transition-duration: 0.6s, 0.45s;
+    transition-timing-function: ease-out-back, ease-out;
+}
+.intro-hidden {
+    translate: 0 1200px;
+    opacity: 0;
 }
 
 /* ============================
@@ -233,17 +250,13 @@
     top: 0; left: 0; right: 0; bottom: 0;
     align-items: center;
     justify-content: center;
-    background-image: url("../Background/PlainA.png");
+    background-image: url("/Assets/Art/UI/Menu/menu_sky_bg.png");
     -unity-background-scale-mode: scale-and-crop;
 }
 .progress-page-inner {
     width: 80%;
     max-width: 700px;
     max-height: 88%;
-    background-color: rgba(14, 20, 42, 0.97);
-    border-color: rgb(201, 151, 59);
-    border-width: 4px;
-    border-radius: 20px;
     padding: 0 48px 36px 48px;
     align-items: stretch;
 }
@@ -258,7 +271,7 @@
     -unity-text-align: middle-center;
     white-space: normal;
     background-color: rgba(20, 52, 26, 0.6);
-    border-color: rgb(90, 170, 100);
+    border-color: rgb(201, 151, 59);
     border-width: 1px;
     border-radius: 8px;
     padding: 8px 14px;
@@ -267,7 +280,7 @@
 }
 
 /* ============================
-   Overlay shell (shared by Reset-confirm + New-run-confirm)
+   Overlay shell (shared by confirm boxes)
    ============================ */
 .overlay-root {
     display: none;
@@ -275,24 +288,12 @@
     top: 0; left: 0; right: 0; bottom: 0;
     align-items: center;
     justify-content: center;
-    background-color: rgba(4, 8, 20, 0.82);
-}
-
-.overlay-panel {
-    width: 80%;
-    max-width: 640px;
-    max-height: 85%;
-    background-color: rgba(22, 32, 58, 0.97);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 16px;
-    padding: 0 40px 32px 40px;
-    align-items: stretch;
+    background-color: rgba(4, 8, 20, 0.6);
 }
 
 .empty-state-label {
     font-size: 18px;
-    color: rgb(200, 210, 230);
+    color: rgb(245, 240, 230);
     -unity-text-align: middle-center;
     white-space: normal;
     margin: 20px 10px;
@@ -304,10 +305,10 @@
 
 .provisional-note {
     font-size: 14px;
-    color: rgb(245, 200, 60);
+    color: rgb(80, 60, 20);
     -unity-text-align: middle-center;
     white-space: normal;
-    background-color: rgba(60, 46, 10, 0.6);
+    background-color: rgba(230, 200, 130, 0.6);
     border-color: rgb(201, 151, 59);
     border-width: 1px;
     border-radius: 8px;
@@ -318,40 +319,30 @@
 
 .error-note {
     font-size: 14px;
-    color: rgb(230, 120, 110);
+    color: rgb(160, 40, 30);
     -unity-text-align: middle-center;
     white-space: normal;
     margin-top: 10px;
 }
 
-.overlay-close-btn {
-    margin-top: 20px;
-    align-self: center;
-}
-
 /* ============================
-   Reset confirm box
+   Confirm box
    ============================ */
 .confirm-box {
     width: 70%;
     max-width: 520px;
-    background-color: rgba(22, 32, 58, 0.97);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 16px;
     padding: 32px;
     align-items: center;
 }
 .confirm-title {
     font-size: 28px;
-    color: rgb(245, 168, 35);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    color: rgb(245, 240, 230);
     -unity-text-align: middle-center;
     margin-bottom: 14px;
 }
 .confirm-body {
     font-size: 16px;
-    color: rgb(200, 215, 235);
+    color: rgb(225, 218, 205);
     -unity-text-align: middle-center;
     white-space: normal;
     margin-bottom: 24px;
@@ -360,52 +351,32 @@
     flex-direction: row;
     justify-content: center;
 }
-.btn-reset-confirm {
-    background-color: rgb(120, 40, 40);
-}
-.btn-reset-confirm:hover {
-    background-color: rgb(150, 50, 50);
+.btn-reset-confirm .btn-label,
+.btn-reset-confirm .action-btn-label {
+    color: rgb(120, 30, 20);
 }
 
 /* ============================
-   Shared action-button look (local copy - MainMenu.uxml only imports this
-   stylesheet, so these mirror EndSceneStyle.uss's .action-btn/.btn-main-menu
-   rather than cross-importing another scene's style)
+   Shared action-button look
    ============================ */
 .action-btn {
     align-items: center;
     justify-content: center;
     height: 64px;
     min-width: 180px;
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 12px;
     padding: 0 28px;
     margin-left: 10px;
     margin-right: 10px;
-    transition-property: background-color;
-    transition-duration: 0.15s;
 }
 .action-btn-label {
-    font-size: 20px;
-    color: white;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 14px;
+    color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
 }
-.btn-main-menu {
-    background-color: rgb(38, 54, 88);
-}
-.btn-main-menu:hover {
-    background-color: rgb(52, 72, 112);
-}
 
-/* Header badge + career/stat rows - local copies matching EndSceneStyle.uss's look */
+/* Header badge + career/stat rows */
 .panel-header {
     align-items: center;
-    background-color: rgb(22, 32, 58);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 12px;
     margin-top: -22px;
     margin-left: 80px;
     margin-right: 80px;
@@ -413,9 +384,8 @@
     margin-bottom: 20px;
 }
 .header-text {
-    font-size: 22px;
-    color: rgb(245, 210, 120);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 20px;
+    color: rgb(90, 62, 38);
     -unity-text-align: middle-center;
 }
 .career-section {
@@ -424,21 +394,20 @@
 }
 .recommended-label {
     font-size: 15px;
-    color: rgb(180, 195, 220);
+    color: rgb(225, 218, 205);
     -unity-text-align: middle-center;
     margin-bottom: 6px;
 }
 .career-name {
-    font-size: 40px;
-    color: rgb(245, 168, 35);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 28px;
+    color: rgb(245, 210, 130);
     -unity-text-align: middle-center;
     white-space: normal;
     margin-bottom: 6px;
 }
 .riasec-note {
     font-size: 14px;
-    color: rgb(200, 210, 230);
+    color: rgb(210, 202, 190);
     -unity-text-align: middle-center;
 }
 .divider {
@@ -459,14 +428,13 @@
 }
 .stat-label {
     font-size: 16px;
-    color: rgb(200, 215, 235);
+    color: rgb(210, 202, 190);
     width: 170px;
 }
 .stat-value {
     flex-grow: 1;
     font-size: 16px;
-    color: white;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    color: rgb(245, 240, 230);
 }
 .stat-gold {
     color: rgb(245, 200, 60);

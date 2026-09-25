@@ -8428,6 +8428,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Prefab_SkillSelectionMarker
       objectReference: {fileID: 0}
+    - target: {fileID: 7056075570699962062, guid: 048909b7ed1d862469f0821275d5fdae, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -9420,6 +9424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8f535972edf628488b294d4b003f51e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_HallwaySlot
+  prefabOverride: {fileID: 6625834668099194533, guid: 3347af6c6401b9044b57de7225119914, type: 3}
 --- !u!1 &1116187519
 GameObject:
   m_ObjectHideFlags: 0
@@ -13023,6 +13028,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8f535972edf628488b294d4b003f51e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Core.vc_HallwaySlot
+  prefabOverride: {fileID: 4629634235358986667, guid: 951b26fe612172b4c9c8d22afa757e53, type: 3}
 --- !u!1 &1650411164
 GameObject:
   m_ObjectHideFlags: 0

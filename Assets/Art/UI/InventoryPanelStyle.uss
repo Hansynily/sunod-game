@@ -1,71 +1,91 @@
 /* =================================================================
-   SUNOD — Skill Equip Screen
-   Navy + gold palette — matches MainMenu. Dark base, gold accents,
-   white text. Pixel-readable throughout.
+   SUNOD — Skill Equip Screen (cozy / compact)
+   Square Sprout Lands palette drawn in USS + SkillSlotUIKit cards.
+   Outline #645552 · rim #AA7959 · highlight #F3E5C2 · fill #E8CFA6
+   shadow #C49A6C · track #8C7369 · accent #C0D470
    ================================================================= */
 
 /* ---------- BACKDROP ---------- */
 .overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(4, 8, 20, 0.80);
+    background-color: rgba(30, 20, 12, 0.7);
     align-items: center;
     justify-content: center;
 }
 
 /* ---------- OUTER FRAME ---------- */
 .panel-root {
-    width: 92%;
-    max-width: 1100px;
-    height: 960px;
-    background-color: rgb(10, 14, 30);
-    border-color: rgb(201, 151, 59);
-    border-width: 4px;
-    padding: 4px;
+    width: 90%;
+    max-width: 1040px;
+    height: 90%;
+    max-height: 900px;
+    background-color: rgb(232, 207, 166);
+    border-radius: 0;
+    border-left-width: 4px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 8px;
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
+    padding: 0;
 }
 
-/* ---------- INNER WELL ---------- */
 .panel-inner {
     flex-grow: 1;
     flex-direction: column;
-    background-color: rgb(14, 20, 42);
-    border-color: rgb(30, 42, 80);
-    border-width: 2px;
-    padding: 12px;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    padding: 14px 18px 16px 18px;
 }
 
 /* ---------- TOP BAR ---------- */
 .topbar {
     flex-direction: row;
     align-items: center;
-    height: 68px;
+    height: 56px;
     flex-shrink: 0;
-    background-color: rgb(18, 26, 56);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 0 14px;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    padding: 0;
     margin-bottom: 10px;
 }
 
-.btn-back {
-    background-color: rgb(38, 54, 88);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 10px 20px;
-    min-width: 100px;
-    transition-property: background-color;
-    transition-duration: 0.12s;
+.btn-back,
+.btn-cheat {
+    background-image: none;
+    background-color: rgb(243, 229, 194);
+    border-radius: 0;
+    border-left-width: 3px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 6px;
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
+    padding: 6px 18px;
+    min-width: 96px;
+    height: 48px;
+    margin: 0;
+    justify-content: center;
 }
-.btn-back:hover { background-color: rgb(52, 72, 112); }
-.btn-back:active { background-color: rgb(26, 38, 68); }
-.btn-back-label {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 17px;
-    color: rgb(255, 255, 255);
+.btn-back:hover, .btn-back:focus,
+.btn-cheat:hover, .btn-cheat:focus {
+    background-color: rgb(250, 240, 214);
+}
+.btn-back:active, .btn-cheat:active {
+    background-color: rgb(196, 154, 108);
+    border-bottom-width: 3px;
+    translate: 0 3px;
+}
+.btn-back-label,
+.btn-cheat-label {
+    font-size: 16px;
+    color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
-    letter-spacing: 1px;
 }
 
 .title-block {
@@ -74,78 +94,170 @@
     justify-content: center;
 }
 .panel-title {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 22px;
-    color: rgb(245, 168, 35);
+    font-size: 28px;
+    color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
-    letter-spacing: 6px;
+    letter-spacing: 3px;
 }
 .panel-sub {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 13px;
-    color: rgb(140, 110, 58);
-    -unity-text-align: middle-center;
-    margin-top: 2px;
-}
-
-.btn-cheat {
-    background-color: rgb(38, 54, 88);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 10px 16px;
-    min-width: 100px;
-    transition-property: background-color;
-    transition-duration: 0.12s;
-}
-.btn-cheat:hover { background-color: rgb(52, 72, 112); }
-.btn-cheat:active { background-color: rgb(26, 38, 68); }
-.btn-cheat-label {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     font-size: 14px;
-    color: rgb(245, 168, 35);
+    color: rgb(140, 115, 105);
     -unity-text-align: middle-center;
 }
 
-/* ---------- SECTION DIVIDER ---------- */
 .section-divider {
-    height: 2px;
-    background-color: rgb(201, 151, 59);
-    opacity: 0.35;
-    margin-top: 0;
-    margin-bottom: 0;
+    height: 0;
+    margin: 0;
     flex-shrink: 0;
 }
 
-/* ---------- SKILL GRID BODY ---------- */
+/* ---------- EQUIPPED STRIP (all 6 in one row) ---------- */
+.equipped-section {
+    background-color: rgb(243, 229, 194);
+    border-radius: 0;
+    border-width: 3px;
+    border-color: rgb(196, 154, 108);
+    padding: 8px 10px 10px 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+.equipped-title {
+    font-size: 14px;
+    color: rgb(140, 115, 105);
+    -unity-text-align: middle-center;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+}
+
+.slots-grid {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+}
+.slots-row {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0;
+}
+
+.slot-wrapper {
+    align-items: center;
+    flex-direction: column;
+    width: 128px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+/* category name, small tag above the card */
+.slot-number {
+    font-size: 13px;
+    color: rgb(100, 85, 82);
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+    width: 124px;
+    padding: 0;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.slot-diamond-container {
+    width: 104px;
+    height: 104px;
+    align-items: center;
+    justify-content: center;
+}
+
+.slot-frame {
+    rotate: 0deg;
+    width: 104px;
+    height: 104px;
+    padding: 0;
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_normal.png");
+    -unity-slice-left: 32;
+    -unity-slice-top: 32;
+    -unity-slice-right: 32;
+    -unity-slice-bottom: 32;
+    -unity-slice-scale: 0.5px;
+    border-width: 0;
+    border-radius: 0;
+    align-items: center;
+    justify-content: center;
+}
+.slot-frame:hover {
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_hover.png");
+}
+.slot-frame:active {
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_pressed.png");
+}
+.slot-frame.ready {
+    background-color: rgba(0,0,0,0);
+    -unity-background-image-tint-color: rgb(210, 235, 150);
+}
+
+.slot-inner {
+    rotate: 0deg;
+    position: absolute;
+    top: 14px; left: 14px; right: 14px; bottom: 14px;
+    align-items: center;
+    justify-content: center;
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/icon_ring.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+.slot-frame-icon {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px; bottom: 12px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+.slot-empty-label {
+    font-size: 32px;
+    color: rgb(140, 115, 105);
+    -unity-text-align: middle-center;
+}
+
+.slot-name-label {
+    font-size: 15px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 124px;
+}
+
+/* ---------- GATHERED SKILLS ---------- */
 .body {
     flex-grow: 1;
     flex-direction: column;
-    min-height: 280px;
+    min-height: 200px;
+    margin-bottom: 10px;
 }
 
 .pane-header {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     font-size: 14px;
-    color: rgb(245, 168, 35);
-    background-color: rgb(18, 26, 56);
+    color: rgb(140, 115, 105);
+    background-color: rgba(0,0,0,0);
     -unity-text-align: middle-left;
-    padding: 8px 14px;
-    letter-spacing: 4px;
-    border-left-color: rgb(201, 151, 59);
-    border-left-width: 4px;
-    border-bottom-color: rgb(30, 42, 80);
-    border-bottom-width: 2px;
+    padding: 0 4px 6px 4px;
+    letter-spacing: 3px;
+    border-width: 0;
     flex-shrink: 0;
 }
 
 .cards-scroll {
     flex-grow: 1;
-    padding: 6px;
-    background-color: rgb(12, 18, 38);
+    padding: 4px;
+    background-color: rgb(214, 186, 145);
+    border-width: 3px;
+    border-color: rgb(196, 154, 108);
 }
 
-/* Force flex-wrap — descendant selector, content container is nested deep */
 .cards-scroll #unity-content-container,
 .cards-scroll .unity-scroll-view__content-container {
     flex-wrap: wrap;
@@ -154,43 +266,47 @@
     align-content: flex-start;
 }
 
-/* ---------- SKILL CARD (grid item) ---------- */
 .skill-row {
-    width: 172px;
-    margin: 6px;
+    width: 132px;
     height: 132px;
+    margin: 5px;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    background-color: rgb(22, 32, 64);
-    border-color: rgb(38, 54, 96);
-    border-width: 2px;
-    border-radius: 6px;
-    padding: 8px 6px 6px 6px;
-    transition-property: background-color;
-    transition-duration: 0.10s;
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_normal.png");
+    -unity-slice-left: 32;
+    -unity-slice-top: 32;
+    -unity-slice-right: 32;
+    -unity-slice-bottom: 32;
+    -unity-slice-scale: 0.5px;
+    border-width: 0;
+    border-radius: 0;
+    padding: 12px 8px 8px 8px;
 }
 .skill-row:hover {
-    background-color: rgb(32, 46, 84);
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_hover.png");
 }
 .skill-row.selected {
-    background-color: rgb(30, 44, 78);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_pressed.png");
+    -unity-background-image-tint-color: rgb(210, 235, 150);
+    border-width: 0;
 }
 
 .row-icon-frame {
     width: 72px;
     height: 72px;
-    background-color: rgb(10, 14, 30);
-    border-color: rgb(38, 54, 96);
-    border-width: 2px;
-    border-radius: 4px;
-    margin-bottom: 6px;
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/icon_ring.png");
+    -unity-background-scale-mode: scale-to-fit;
+    border-width: 0;
+    margin-bottom: 4px;
 }
 .row-icon {
     position: absolute;
-    top: 2px; left: 2px; right: 2px; bottom: 2px;
+    top: 12px; left: 12px; right: 12px; bottom: 12px;
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -200,11 +316,10 @@
     justify-content: center;
 }
 .row-name {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 12px;
-    color: rgb(210, 210, 230);
+    font-size: 15px;
+    color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
-    white-space: normal;
+    white-space: nowrap;
     overflow: hidden;
 }
 .row-meta {
@@ -218,97 +333,90 @@
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 3px;
-    right: 3px;
-    border-radius: 3px;
+    top: 8px;
+    right: 8px;
+    border-radius: 0;
+    border-width: 2px;
+    border-color: rgb(100, 85, 82);
 }
 .row-tag-letter {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 12px;
+    font-size: 13px;
     color: white;
     -unity-text-align: middle-center;
 }
 
-/* RIASEC — vivid against dark navy */
-.riasec-r { background-color: rgb(200, 50, 38); }
-.riasec-i { background-color: rgb(40, 100, 200); }
-.riasec-a { background-color: rgb(140, 50, 200); }
-.riasec-s { background-color: rgb(38, 160, 56); }
-.riasec-e { background-color: rgb(200, 158, 20); }
-.riasec-c { background-color: rgb(28, 165, 165); }
+/* RIASEC colours (T3) */
+.riasec-r { background-color: rgb(217, 58, 74); }
+.riasec-i { background-color: rgb(240, 138, 36); }
+.riasec-a { background-color: rgb(142, 79, 214); }
+.riasec-s { background-color: rgb(47, 163, 90); }
+.riasec-e { background-color: rgb(47, 111, 214); }
+.riasec-c { background-color: rgb(34, 179, 196); }
 
-/* ---------- DETAIL PANE (full-width bottom) ---------- */
+/* ---------- DETAIL PANE ---------- */
 .detail-pane {
-    background-color: rgb(18, 26, 56);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 6px;
-    padding: 14px 18px;
-    height: 220px;
+    background-color: rgb(243, 229, 194);
+    border-radius: 0;
+    border-width: 3px;
+    border-color: rgb(196, 154, 108);
+    padding: 10px 14px;
+    height: 170px;
     flex-shrink: 0;
     flex-direction: column;
 }
 
-/* Empty state */
 .detail-empty {
     flex-grow: 1;
     align-items: center;
     justify-content: center;
-    flex-direction: row;
+    flex-direction: column;
 }
 .detail-empty-title {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 16px;
-    color: rgb(80, 96, 140);
-    letter-spacing: 3px;
-    margin-right: 16px;
+    font-size: 18px;
+    color: rgb(140, 115, 105);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
 }
 .detail-empty-sub {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 15px;
-    color: rgb(60, 76, 112);
+    font-size: 14px;
+    color: rgb(160, 135, 120);
 }
 
-/* Filled state */
 .detail-filled {
     flex-grow: 1;
     flex-direction: column;
 }
-
 .detail-header {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
-
 .detail-icon-frame {
-    width: 72px;
-    height: 72px;
-    background-color: rgb(10, 14, 30);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 5px;
-    margin-right: 16px;
+    width: 56px;
+    height: 56px;
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/icon_ring.png");
+    -unity-background-scale-mode: scale-to-fit;
+    border-width: 0;
+    margin-right: 12px;
     flex-shrink: 0;
 }
 .detail-icon {
     position: absolute;
-    top: 4px; left: 4px; right: 4px; bottom: 4px;
+    top: 9px; left: 9px; right: 9px; bottom: 9px;
     -unity-background-scale-mode: scale-to-fit;
 }
-
 .detail-titlebox {
     flex-grow: 1;
     flex-direction: column;
     justify-content: center;
 }
 .detail-name {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 18px;
-    color: rgb(255, 255, 255);
-    letter-spacing: 2px;
+    font-size: 22px;
+    color: rgb(72, 52, 34);
+    letter-spacing: 1px;
     white-space: normal;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 .detail-meta {
     flex-direction: row;
@@ -317,225 +425,74 @@
 .detail-tag {
     flex-direction: row;
     align-items: center;
-    padding: 3px 10px 3px 7px;
-    margin-right: 10px;
-    border-radius: 4px;
+    padding: 2px 8px;
+    margin-right: 8px;
+    border-radius: 0;
 }
 .detail-tag-letter {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 16px;
+    font-size: 14px;
     color: white;
-    margin-right: 5px;
+    margin-right: 4px;
 }
 .detail-tag-name {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 11px;
+    font-size: 13px;
     color: white;
-    letter-spacing: 1px;
 }
 .detail-level {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 15px;
-    color: rgb(245, 168, 35);
-    background-color: rgb(10, 14, 30);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 4px;
-    padding: 3px 10px;
+    font-size: 14px;
+    color: rgb(100, 85, 82);
+    background-color: rgba(0,0,0,0);
+    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/level_badge.png");
+    -unity-slice-left: 20;
+    -unity-slice-top: 20;
+    -unity-slice-right: 20;
+    -unity-slice-bottom: 20;
+    -unity-slice-scale: 0.4px;
+    border-width: 0;
+    padding: 3px 12px;
 }
-
 .detail-divider {
-    height: 1px;
-    background-color: rgb(201, 151, 59);
-    opacity: 0.4;
-    margin-bottom: 10px;
+    height: 2px;
+    background-color: rgb(196, 154, 108);
+    margin-bottom: 6px;
 }
-
-/* Two-column row for description + action */
 .detail-body-row {
     flex-direction: row;
     flex-grow: 1;
-    margin-bottom: 8px;
 }
 .detail-desc-block {
     flex-grow: 1;
+    flex-basis: 0;
     flex-direction: column;
-    margin-right: 14px;
+    margin-right: 12px;
 }
 .detail-action-block {
     flex-grow: 1;
+    flex-basis: 0;
     flex-direction: column;
 }
-
 .detail-section-label {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 11px;
-    color: rgb(140, 110, 58);
-    letter-spacing: 3px;
-    margin-bottom: 4px;
+    font-size: 12px;
+    color: rgb(140, 115, 105);
+    letter-spacing: 2px;
+    margin-bottom: 2px;
 }
-.detail-desc {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 14px;
-    color: rgb(210, 210, 230);
-    white-space: normal;
-    overflow: hidden;
-}
+.detail-desc,
 .detail-action {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 14px;
-    color: rgb(210, 210, 230);
-    background-color: rgb(12, 18, 38);
-    border-left-color: rgb(245, 168, 35);
-    border-left-width: 3px;
-    border-top-color: rgb(30, 42, 80);
-    border-top-width: 2px;
-    border-right-color: rgb(30, 42, 80);
-    border-right-width: 2px;
-    border-bottom-color: rgb(30, 42, 80);
-    border-bottom-width: 2px;
-    padding: 5px 10px;
+    font-size: 15px;
+    color: rgb(72, 52, 34);
     white-space: normal;
     overflow: hidden;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    padding: 0;
     flex-grow: 1;
 }
-
 .detail-hint {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 12px;
-    color: rgb(245, 168, 35);
+    font-size: 13px;
+    color: rgb(90, 120, 40);
     -unity-text-align: middle-center;
-    letter-spacing: 3px;
-    border-top-color: rgb(30, 42, 80);
-    border-top-width: 2px;
-    padding-top: 8px;
-    opacity: 0.85;
-}
-
-/* ---------- EQUIPPED SECTION (top) ---------- */
-.equipped-section {
-    background-color: rgb(18, 26, 56);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 6px;
-    padding: 10px 16px 18px 16px;
-    align-items: center;
-    margin-bottom: 0;
-    flex-shrink: 0;
-}
-
-.equipped-title {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 14px;
-    color: rgb(140, 110, 58);
-    -unity-text-align: middle-center;
-    letter-spacing: 6px;
-    margin-bottom: 10px;
-}
-
-.slots-grid {
-    flex-direction: column;
-    align-items: center;
-}
-
-.slots-row {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    margin-top: 8px;
-}
-
-/* Wrapper: column — number badge, diamond container, skill name label */
-.slot-wrapper {
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    width: 120px;
-    margin-left: 16px;
-    margin-right: 16px;
-}
-
-/* Number badge */
-.slot-number {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 10px;
-    color: rgb(245, 168, 35);
-    -unity-text-align: middle-center;
-    margin-bottom: 6px;
-    background-color: rgb(10, 14, 30);
-    border-color: rgb(201, 151, 59);
-    border-width: 2px;
-    border-radius: 4px;
-    padding: 3px 6px;
-    letter-spacing: 0.5px;
-    width: 110px;
-    white-space: normal;
-}
-
-/* Container sized to contain the rotated diamond — 74×√2 ≈ 105px, padded to 110px */
-.slot-diamond-container {
-    width: 110px;
-    height: 110px;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Diamond: 74×74 rotated 45° fits inside 110×110 container */
-.slot-frame {
-    width: 74px;
-    height: 74px;
-    rotate: 45deg;
-    background-color: rgb(22, 32, 64);
-    border-color: rgb(38, 54, 96);
-    border-width: 3px;
-    border-radius: 4px;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-    transition-property: background-color;
-    transition-duration: 0.10s;
-}
-.slot-frame:hover {
-    background-color: rgb(32, 46, 84);
-    border-color: rgb(201, 151, 59);
-}
-.slot-frame:active {
-    background-color: rgb(14, 20, 46);
-}
-.slot-frame.ready {
-    background-color: rgb(28, 40, 72);
-    border-color: rgb(201, 151, 59);
-}
-
-/* Counter-rotate inner content so icon/label stay upright */
-.slot-inner {
-    rotate: -45deg;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    align-items: center;
-    justify-content: center;
-}
-
-.slot-frame-icon {
-    position: absolute;
-    top: 5px; left: 5px; right: 5px; bottom: 5px;
-    -unity-background-scale-mode: scale-to-fit;
-}
-.slot-empty-label {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 22px;
-    color: rgb(50, 68, 110);
-    -unity-text-align: middle-center;
-}
-
-/* Skill name below the diamond — "——" when empty, skill name when equipped */
-.slot-name-label {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 12px;
-    color: rgb(245, 168, 35);
-    -unity-text-align: middle-center;
-    margin-top: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 120px;
+    letter-spacing: 1px;
+    border-width: 0;
+    padding-top: 4px;
 }

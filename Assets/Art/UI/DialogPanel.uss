@@ -1,6 +1,6 @@
 /* =================================================================
    SUNOD — Dialog / Notice Panel
-   Navy + gold palette — matches QuestPanel & InventoryPanel.
+   Sprout Lands speech-bubble card, warm wood/cream palette.
    Full-screen overlay root; centered card styled as a board notice.
    ================================================================= */
 
@@ -16,53 +16,65 @@
     display: none;
 }
 
-/* ---------- CENTERED CARD (the "board notice") ---------- */
+/* ---------- CENTERED CARD (Sprout Lands dialog frame, 9-sliced) ---------- */
 .dialog-box {
-    min-width: 420px;
-    max-width: 560px;
-    background-color: rgb(14, 20, 42);
-    border-color: rgb(201, 151, 59);
-    border-width: 4px;
-    border-radius: 20px;
-    padding: 32px 36px 28px 36px;
+    min-width: 720px;
+    max-width: 900px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Dialouge UI/dialog box.png#sl_dialog");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    padding: 48px 56px 44px 68px;
     flex-direction: column;
     align-items: stretch;
-
-    /* Layered inner glow — gives the notice-board depth */
-    --unity-slice-left: 0;
-    --unity-slice-right: 0;
-    --unity-slice-top: 0;
-    --unity-slice-bottom: 0;
+    -unity-slice-left: 10;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
 }
 
 /* ---------- OPTIONAL ICON ---------- */
 .dialog-icon {
-    width: 72px;
-    height: 72px;
+    width: 96px;
+    height: 96px;
     align-self: center;
-    background-color: rgb(10, 14, 30);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 6px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_slot");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
     margin-bottom: 18px;
-    -unity-background-scale-mode: scale-to-fit;
+    padding: 8px;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
 }
 
-/* ---------- TITLE ---------- */
+/* ---------- TITLE (small wood tab on top) ---------- */
 .dialog-title {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 26px;
-    color: rgb(245, 168, 35);
+    font-size: 28px;
+    color: rgb(255, 245, 225);
     -unity-text-align: upper-center;
     white-space: normal;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     margin-bottom: 14px;
+    align-self: center;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    -unity-background-scale-mode: stretch-to-fill;
+    padding: 10px 32px;
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    -unity-slice-scale: 2px;
 }
 
 /* ---------- TITLE / BODY DIVIDER ---------- */
 .dialog-divider {
     height: 2px;
-    background-color: rgb(201, 151, 59);
+    background-color: rgb(150, 105, 60);
     opacity: 0.40;
     margin-bottom: 18px;
     flex-shrink: 0;
@@ -70,9 +82,8 @@
 
 /* ---------- BODY TEXT ---------- */
 .dialog-body {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
-    font-size: 18px;
-    color: rgb(220, 215, 240);
+    font-size: 24px;
+    color: rgb(72, 52, 34);
     -unity-text-align: upper-center;
     white-space: normal;
     margin-bottom: 28px;
@@ -87,35 +98,43 @@
     flex-shrink: 0;
 }
 
-/* ---------- SHARED BUTTON BASE ---------- */
+/* ---------- SHARED BUTTON BASE (Sprout Lands square button) ---------- */
 .dialog-btn {
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
-    font-size: 14px;
-    border-width: 2px;
-    border-radius: 8px;
-    padding: 10px 28px;
-    min-width: 120px;
-    letter-spacing: 2px;
+    font-size: 22px;
+    padding: 18px 40px;
+    min-width: 200px;
+    letter-spacing: 1px;
     -unity-text-align: middle-center;
-    transition-property: background-color;
-    transition-duration: 0.12s;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    transition-property: translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
+}
+.dialog-btn:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button_pressed");
 }
 
-/* ---------- CONFIRM BUTTON (primary / gold) ---------- */
+/* ---------- CONFIRM BUTTON (primary) ---------- */
 .dialog-confirm-btn {
-    background-color: rgb(120, 80, 14);
-    border-color: rgb(245, 168, 35);
-    color: rgb(255, 240, 180);
+    color: rgb(72, 52, 34);
     margin-right: 18px;
 }
-.dialog-confirm-btn:hover  { background-color: rgb(152, 104, 22); }
-.dialog-confirm-btn:active { background-color: rgb(90, 60, 10);   }
 
 /* ---------- CANCEL BUTTON (secondary / muted) ---------- */
 .dialog-cancel-btn {
-    background-color: rgb(28, 40, 72);
-    border-color: rgb(60, 80, 120);
-    color: rgb(140, 155, 185);
+    color: rgb(90, 75, 60);
+    -unity-background-image-tint-color: rgb(210, 210, 210);
 }
-.dialog-cancel-btn:hover  { background-color: rgb(38, 54, 92);  }
-.dialog-cancel-btn:active { background-color: rgb(18, 28, 56);  }
+
+/* Neutralise Unity's default button hover/focus/disabled chrome */
+.dialog-btn:hover, .dialog-btn:focus, .dialog-btn:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+}

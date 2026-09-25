@@ -34,30 +34,36 @@
     margin-bottom: 30px;
 }
 .brand-title {
-    font-size: 126px;
-    color: rgb(255, 255, 255);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 84px;
+    color: rgb(90, 62, 38);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(250, 245, 235);
     -unity-text-align: middle-center;
-    letter-spacing: 9px;
+    letter-spacing: 6px;
 }
 .brand-divider {
-    font-size: 30px;
-    color: rgb(201, 151, 59);
+    font-size: 28px;
+    color: rgb(160, 120, 70);
     -unity-text-align: middle-center;
     margin-top: 6px;
 }
 
 /* ============================
-   Card (login)
+   Card (login) - cream Sprout Lands panel, 9-sliced
    ============================ */
 .card {
     width: 840px;
-    background-color: rgb(14, 20, 42);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 21px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_slot");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
     padding: 60px 72px;
     align-items: stretch;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
 }
 
 /* Card wide (register) */
@@ -71,8 +77,8 @@
 .input-row {
     flex-direction: row;
     align-items: center;
-    background-color: rgb(6, 10, 24);
-    border-color: rgb(201, 151, 59);
+    background-color: rgb(40, 30, 22);
+    border-color: rgb(150, 105, 60);
     border-width: 3px;
     border-radius: 12px;
     margin-bottom: 21px;
@@ -101,15 +107,14 @@
     min-width: 0;
 }
 .input-field .unity-base-field__input {
-    background-color: rgb(6, 10, 24);
-    border-color: rgb(201, 151, 59);
+    background-color: rgb(40, 30, 22);
+    border-color: rgb(150, 105, 60);
     border-width: 3px;
     border-radius: 12px;
     padding: 0 21px;
-    color: white;
+    color: rgb(238, 226, 205);
     font-size: 26px;
     height: 75px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
 }
 .input-field:focus .unity-base-field__input {
     border-color: rgb(245, 195, 80);
@@ -122,34 +127,31 @@
     border-radius: 0;
     font-size: 27px;
     height: 66px;
-    color: white;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
+    color: rgb(238, 226, 205);
 }
 
 /* Standalone input-field (register form, not in input-row) */
 .form-row .input-field .unity-base-field__input {
-    background-color: rgb(6, 10, 24);
-    border-color: rgb(201, 151, 59);
+    background-color: rgb(40, 30, 22);
+    border-color: rgb(150, 105, 60);
     border-width: 3px;
     border-radius: 12px;
     padding: 0 21px;
-    color: white;
+    color: rgb(238, 226, 205);
     font-size: 24px;
     height: 87px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
 }
 
 /* Dropdown styling (general) */
 .input-field .unity-dropdown-field__input {
-    background-color: rgb(6, 10, 24);
-    border-color: rgb(201, 151, 59);
+    background-color: rgb(40, 30, 22);
+    border-color: rgb(150, 105, 60);
     border-width: 3px;
     border-radius: 12px;
     padding: 0 18px;
     color: rgb(180, 180, 180);
     font-size: 24px;
     height: 75px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
 }
 
 /* Dropdown inside form-row matches text field height */
@@ -188,48 +190,56 @@
    ============================ */
 .btn-primary {
     height: 96px;
-    background-color: rgb(230, 170, 30);
-    border-color: rgb(180, 120, 10);
-    border-width: 3px;
-    border-radius: 15px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
     margin-top: 12px;
     margin-bottom: 18px;
     align-items: center;
     justify-content: center;
-    transition-property: background-color;
-    transition-duration: 0.15s;
+    transition-property: translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
 }
-.btn-primary:hover {
-    background-color: rgb(255, 195, 50);
+.btn-primary:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide_pressed");
 }
 .btn-primary-label {
-    font-size: 33px;
-    color: rgb(20, 15, 5);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 28px;
+    color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
 }
 
 /* ============================
-   Secondary Button (dark + gold border)
+   Secondary Button (Sprout Lands square button, wide)
    ============================ */
 .btn-secondary {
     height: 78px;
-    background-color: rgb(20, 28, 52);
-    border-color: rgb(201, 151, 59);
-    border-width: 3px;
-    border-radius: 15px;
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
     align-items: center;
     justify-content: center;
-    transition-property: background-color;
-    transition-duration: 0.15s;
+    transition-property: translate;
+    transition-duration: 0.05s;
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 8;
+    -unity-slice-scale: 2px;
 }
-.btn-secondary:hover {
-    background-color: rgb(35, 48, 80);
+.btn-secondary:active {
+    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide_pressed");
 }
 .btn-secondary-label {
-    font-size: 24px;
-    color: rgb(201, 151, 59);
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
+    font-size: 20px;
+    color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
 }
 
@@ -285,7 +295,6 @@
     font-size: 18px;
     color: rgb(201, 151, 59);
     -unity-text-align: middle-left;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Bold.ttf");
     white-space: nowrap;
     margin-bottom: 8px;
     margin-left: 4px;
@@ -317,8 +326,8 @@
 .dp-segment .unity-base-field__input,
 .dp-segment .unity-dropdown-field__input,
 .dp-segment .unity-popup-field__input {
-    background-color: rgb(6, 10, 24);
-    border-color: rgb(201, 151, 59);
+    background-color: rgb(40, 30, 22);
+    border-color: rgb(150, 105, 60);
     border-width: 3px;
     border-radius: 12px;
     height: 87px;
@@ -330,9 +339,8 @@
 /* The selected value text inside the dropdown */
 .dp-segment .unity-base-popup-field__text,
 .dp-segment .unity-text-element {
-    color: white;
+    color: rgb(238, 226, 205);
     font-size: 22px;
-    -unity-font-definition: url("../Fonts/Silkscreen/Silkscreen-Regular.ttf");
     -unity-text-align: middle-center;
 }
 
@@ -349,7 +357,7 @@
 .card-backend {
     width: 780px;
     background-color: rgb(14, 20, 42);
-    border-color: rgb(201, 151, 59);
+    border-color: rgb(150, 105, 60);
     border-width: 3px;
     border-radius: 21px;
     padding: 42px 54px;
@@ -357,7 +365,7 @@
 }
 .backend-title {
     font-size: 33px;
-    color: white;
+    color: rgb(238, 226, 205);
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     margin-bottom: 30px;
@@ -400,10 +408,10 @@
 }
 .btn-preset-active {
     background-color: rgb(55, 80, 130);
-    border-color: rgb(201, 151, 59);
+    border-color: rgb(150, 105, 60);
 }
 .btn-preset > .unity-label {
-    color: white;
+    color: rgb(238, 226, 205);
     font-size: 24px;
     -unity-font-style: bold;
 }
@@ -464,4 +472,14 @@
 .btn-dev-label {
     font-size: 19px;
     color: rgb(150, 130, 80);
+}
+
+/* Neutralise Unity's default button hover/focus/disabled chrome */
+.btn-primary:hover, .btn-primary:focus, .btn-primary:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+}
+.btn-secondary:hover, .btn-secondary:focus, .btn-secondary:disabled {
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
 }
