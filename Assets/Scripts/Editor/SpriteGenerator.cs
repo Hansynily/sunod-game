@@ -63,6 +63,11 @@ public static class SpriteGenerator
     static readonly Color32 SunPaint   = new Color32(0xf0, 0xd0, 0x55, 255);
     static readonly Color32 AwningRed  = new Color32(0xc4, 0x4a, 0x40, 255);
     static readonly Color32 AwningPale = new Color32(0xe8, 0xe0, 0xd4, 255);
+    static readonly Color32 RadioBody  = new Color32(0x3f, 0x6e, 0x8c, 255);
+    static readonly Color32 RadioDark  = new Color32(0x26, 0x44, 0x58, 255);
+    static readonly Color32 Speaker    = new Color32(0x1e, 0x1e, 0x24, 255);
+    static readonly Color32 DialGlow   = new Color32(0xf2, 0xc9, 0x4c, 255);
+    static readonly Color32 WireRed    = new Color32(0xd0, 0x40, 0x3a, 255);
 
     // ── Entry point ──────────────────────────────────────────────────────────
     [MenuItem("SUNOD/Generate Quest Sprites")]
@@ -89,6 +94,8 @@ public static class SpriteGenerator
             { "notes",        DrawNotes },
             { "mural_blank",  DrawMuralBlank },
             { "mural_done",   DrawMuralDone },
+            { "radio_broken", DrawRadioBroken },
+            { "radio_fixed",  DrawRadioFixed },
         };
 
         int count = 0;
@@ -283,6 +290,31 @@ public static class SpriteGenerator
     }
 
     // ── 32x32 drawing surface + primitives (top-down y) ──────────────────────
+    static void DrawRadioBroken(Canvas c)
+    {
+        c.Rect(5, 12, 22, 14, RadioDark);        // open case (no front)
+        c.Rect(7, 14, 18, 10, Speaker);          // exposed insides
+        c.Rect(9, 16, 5, 3, CapMid);             // circuit board
+        c.Line(14, 17, 22, 22, WireRed);         // loose wires
+        c.Line(12, 22, 20, 15, PaintC);
+        c.Rect(18, 6, 2, 6, StoneMid);           // bent antenna
+        c.Line(20, 6, 25, 3, StoneMid);
+        c.Rect(2, 27, 4, 3, RadioBody);          // loose parts on the table
+        c.Rect(26, 27, 3, 3, StoneLight);
+        c.Rect(12, 28, 3, 2, CapMid);
+    }
+
+    static void DrawRadioFixed(Canvas c)
+    {
+        c.Rect(5, 12, 22, 14, RadioDark);        // case outline
+        c.Rect(6, 13, 20, 12, RadioBody);        // front
+        c.Ellipse(12, 19, 4, 4, Speaker);        // speaker
+        c.Rect(18, 15, 6, 3, DialGlow);          // lit dial
+        c.Rect(18, 20, 2, 2, StoneHi);           // knobs
+        c.Rect(22, 20, 2, 2, StoneHi);
+        c.Line(21, 12, 27, 3, StoneLight);       // straight antenna
+    }
+
     class Canvas
     {
         public readonly Color32[] Px = new Color32[SIZE * SIZE];
