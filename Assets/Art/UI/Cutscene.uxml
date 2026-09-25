@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Style src="CutsceneStyle.uss"/>
+    <ui:VisualElement name="cutscene-root" class="cutscene-root">
+
+        <ui:VisualElement name="stage" class="stage"/>
+
+        <ui:VisualElement name="fade-overlay" class="fade-overlay" picking-mode="Ignore"/>
+
+        <ui:VisualElement name="dialog-box" class="dialog-box sl-dialog">
+            <ui:Label name="dialog-text" class="dialog-text" text=""/>
+            <ui:Label name="next-indicator" class="next-indicator hidden" text="&#9660;"/>
+        </ui:VisualElement>
+
+        <ui:Button name="btn-skip" class="btn-skip sl-button">
+            <ui:Label text="Skip" class="btn-skip-label"/>
+        </ui:Button>
+
+    </ui:VisualElement>
+</ui:UXML>

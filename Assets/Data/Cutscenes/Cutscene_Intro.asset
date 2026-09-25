@@ -1,0 +1,1449 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c34a5d9d304503e4e9f7091f4332b0d8, type: 3}
+  m_Name: Cutscene_Intro
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Cutscene.vc_CutsceneData
+  charsPerSecond: 40
+  punctuationPause: 0.12
+  fadeDuration: 0.35
+  cuts:
+  - name: Intro
+    stageColor: {r: 0.019607844, g: 0.050980393, b: 0.18039216, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: 96c0c1a8d5b24fd4f8ff3dff2559e686, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: c9091f78f4d82584485ce155ef2051dc, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 20
+        width: 224
+        height: 105
+      clipCircle: 1
+      clipRect:
+        serializedVersion: 2
+        x: 108.5
+        y: 20.5
+        width: 103
+        height: 103
+      pivot: {x: 112, y: 72.5}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 1
+        keys:
+        - t01: 0
+          value: 150
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 40
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: -112
+        duration: 20
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 112
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: cca341013430ffa47b6b4ff2f16e3d2d, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 16
+        width: 113
+        height: 113
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160.5, y: 72.5}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 1
+        keys:
+        - t01: 0
+          value: 150
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 40
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - In a world where learning shapes reality, every skill you gain can become a
+      form of magic.
+    - What you study, practice, and master does more than prepare you for life. It
+      gives you power.
+  - name: HouseDay
+    stageColor: {r: 0.11764706, g: 0.3882353, b: 0.8392157, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: 8e8df46db89a6e54e95bece68a12d65a, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 5c3eca9785cae5a49a977b8be3cf0473, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.35
+        - t01: 1
+          value: 1
+        duration: 1.6
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 18921eeaef47228498e564075354945b, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: -120
+        - t01: 1
+          value: 320
+        duration: 60
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 145999c8001ba634dac6112215ee6d17, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 091eb1469b8abeb468a374b511be187b, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 0
+        duration: 1.6
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - Your journey begins when you are only a first-grade student.
+    - At first, everything seems normal. School, friends, and childhood days pass
+      by like they should.
+  - name: HouseNight
+    stageColor: {r: 0.02745098, g: 0.043137256, b: 0.14901961, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: 07722c5c75e75e44c89a71bee8f8b156, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: cb2ab683ae6f1d14b847e883791dde03, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.2
+        - t01: 1
+          value: 1
+        duration: 2.4
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 6af8aca2b76aed545ad6b1262f6708c9, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.2
+        - t01: 1
+          value: 1
+        duration: 3.1
+        delay: -1
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 808cd31f6a08c48409a3780cf0a79d98, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.2
+        - t01: 1
+          value: 1
+        duration: 1.9
+        delay: -0.5
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: fac37b292da2bdd429ff533b2be0c2e2, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 5abb084d44f27b1498bb80ddd48dcd23, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: -120
+        - t01: 1
+          value: 320
+        duration: 90
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: dd108bdf2f5d478478bfb7f86e7760fc, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 120d3de44d2bd294fa006f9a48e4d785, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.42
+          value: 0.8
+        - t01: 0.46
+          value: 1
+        - t01: 0.71
+          value: 0.88
+        - t01: 0.74
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 3
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 19d5d39913d73034583cd8a6d001bb2b, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 0
+        duration: 2.2
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - But soon, strange dreams begin to visit you at night.
+  - name: HouseWrecked
+    stageColor: {r: 0.16470589, g: 0.18039216, b: 0.22745098, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: 4ac6784ffdbecf04db4eb0deaf88a262, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 33476ca69484dc64a8e497ebc9a57ab4, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: -120
+        duration: 28
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 0cdd92ffe262a794c8bd7871fbc6fca2, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 27f3b08a96ed1234bab3d8c60740b9cc, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 92
+        width: 15
+        height: 27
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 176, y: 92}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 3
+        keys:
+        - t01: 0
+          value: 8
+        - t01: 0.5
+          value: 11
+        - t01: 1
+          value: 8
+        duration: 3.5
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: d335a61911b091e40b57ab80f3897faf, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    pages:
+    - In these dreams, you see pieces of a terrible future.
+    - Buildings collapsed. Streets empty. Your hometown in ruins from a disaster
+      you cannot fully understand.
+  - name: MysteriousMan
+    stageColor: {r: 0.16470589, g: 0.18039216, b: 0.22745098, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: d81972c42c03fee459f4a569738a9126, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 073fcfec5da527542b26c360e90374bc, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: 1
+        duration: 1.8
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 12
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 24
+        - t01: 1
+          value: 0
+        duration: 1.8
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 12
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 0
+        duration: 2.6
+        delay: 1.8
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: dd9367ba4a5b6f846ac0ef5774d58c36, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.1
+          value: 1
+        - t01: 0.55
+          value: 1
+        - t01: 0.57
+          value: 0
+        - t01: 0.59
+          value: 1
+        - t01: 0.75
+          value: 0
+        - t01: 1
+          value: 0
+        duration: 6
+        delay: 2.2
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - One night, a shadowy figure appears in your dream.
+    - They tell you that this future has already happened.
+    - Then, suddenly, you are sent back in time to prepare and change what is coming.
+  - name: Symbols
+    stageColor: {r: 0.023529412, g: 0.039215688, b: 0.13333334, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: 2143a9439da221c44a4cc3ec80507155, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 01f461756db9e444cb5bdb551daed1d8, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.2
+        - t01: 1
+          value: 1
+        duration: 2.4
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 6c4c6ec9a6419bc429252a0bda636d60, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.2
+        - t01: 1
+          value: 1
+        duration: 3.1
+        delay: -1
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: ace5003f526f1124490c964d35c19ed1, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.2
+        - t01: 1
+          value: 1
+        duration: 1.9
+        delay: -0.5
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: eaccb4d6f24441c4196347f1f39b1777, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 20}
+      frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
+      frameRect:
+        serializedVersion: 2
+        x: 136
+        y: -6
+        width: 48
+        height: 52
+      tracks:
+      - property: 4
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1.2
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 0.3
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 0.3
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: -1
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 1.2
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 17301ed3fa213db4bb874e15aa8e5dbf, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 240, y: 40}
+      frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
+      frameRect:
+        serializedVersion: 2
+        x: 216
+        y: 14
+        width: 48
+        height: 52
+      tracks:
+      - property: 4
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1.2
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 0.65
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 0.65
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: -1
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 1.6
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 4129b6a758cf3ed4e9d8764642b1ac39, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 240, y: 82}
+      frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
+      frameRect:
+        serializedVersion: 2
+        x: 216
+        y: 56
+        width: 48
+        height: 52
+      tracks:
+      - property: 4
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1.2
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 1
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 1
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: -1
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 2
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 991ffc5a4777601429cd8f2392898bed, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 103}
+      frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
+      frameRect:
+        serializedVersion: 2
+        x: 136
+        y: 77
+        width: 48
+        height: 52
+      tracks:
+      - property: 4
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1.2
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 1.35
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 1.35
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: -1
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 2.4
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 3a5a65167e7010a43ac553133fad6727, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 80, y: 82}
+      frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
+      frameRect:
+        serializedVersion: 2
+        x: 56
+        y: 56
+        width: 48
+        height: 52
+      tracks:
+      - property: 4
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1.2
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 1.7
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 1.7
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: -1
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 2.8
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 805393446a3487c429051fbd889e65e2, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 80, y: 40}
+      frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
+      frameRect:
+        serializedVersion: 2
+        x: 56
+        y: 14
+        width: 48
+        height: 52
+      tracks:
+      - property: 4
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1.2
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 2.05
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.7
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 0.5
+        delay: 2.05
+        loop: 0
+        alternate: 0
+        steps: 5
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: -1
+        - t01: 1
+          value: 0
+        duration: 2.4
+        delay: 3.2
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - Years pass. You grow. You learn. Each skill you gain becomes something greater!
+    - The dreams grow sharper now - flashes of the disaster ahead.
+    - The future shifts every time. The threat is never the same.
+    - Then, just before you become an adult, it happens. The disaster strikes!
+    - This is it. Everything you've learned decides what comes next!

@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Editor\QuestRoomGenerator.cs" />
     <Compile Include="Assets\Scripts\Editor\SpriteGenerator.cs" />
+    <Compile Include="Assets\Scripts\Editor\vc_CutsceneSync.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -1334,6 +1335,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.2D.Aseprite.Common.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.VectorGraphics.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.Pipeline.Attributes">
       <HintPath>Library\ScriptAssemblies\Unity.Pipeline.Attributes.dll</HintPath>
       <Private>False</Private>
@@ -1466,6 +1471,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.InternalAPIEditorBridge.003">
+      <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEditorBridge.003.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.VisualScripting.State">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
       <Private>False</Private>
@@ -1480,6 +1489,10 @@
     </Reference>
     <Reference Include="Unity.Collections.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Collections.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VectorGraphics">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.ShaderGraph.Editor">

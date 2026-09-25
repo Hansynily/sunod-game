@@ -112,8 +112,9 @@
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
     <Compile Include="Assets\Scripts\vc_SkillAwardPopup.cs" />
     <Compile Include="Assets\Scripts\Telemetry\TelemetryManager.cs" />
-    <Compile Include="Assets\Scripts\Skills\Realistic\ScriptableObjects\Giant.cs" />
     <Compile Include="Assets\Scripts\vc_AreaSeal.cs" />
+    <Compile Include="Assets\Scripts\Skills\Realistic\ScriptableObjects\Giant.cs" />
+    <Compile Include="Assets\Scripts\Cutscene\vc_CutscenePlayer.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorLoader.cs" />
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Assets\Scripts\Core\vc_AppStartup.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_Follow.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Telemetry.cs" />
+    <Compile Include="Assets\Scripts\Cutscene\vc_CutsceneData.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.LegacyBridge.cs" />
     <Compile Include="Assets\Scripts\vc_PlayerInventory.cs" />
     <Compile Include="Assets\Scripts\NPCs\NPCController.cs" />
@@ -221,6 +223,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
     <None Include="Assets\Art\UI\PauseMenu.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
+    <None Include="Assets\Art\UI\Cutscene.uxml" />
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF.shader" />
@@ -233,6 +236,7 @@
     <None Include="Assets\Art\Packs\Interiors_Tileset\LICENSE.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\Art\UI\PauseMenuStyle.uss" />
+    <None Include="Assets\Art\UI\CutsceneStyle.uss" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\Art\UI\EndSceneStyle.uss" />
     <None Include="Assets\Art\Packs\2dClassroomAssetPackByStyloo\read me .txt" />
@@ -1445,6 +1449,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.2D.Aseprite.Common.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.VectorGraphics.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.Pipeline.Attributes">
       <HintPath>Library\ScriptAssemblies\Unity.Pipeline.Attributes.dll</HintPath>
       <Private>False</Private>
@@ -1577,6 +1585,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.InternalAPIEditorBridge.003">
+      <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEditorBridge.003.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.VisualScripting.State">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
       <Private>False</Private>
@@ -1591,6 +1603,10 @@
     </Reference>
     <Reference Include="Unity.Collections.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Collections.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VectorGraphics">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.ShaderGraph.Editor">
