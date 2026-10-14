@@ -894,7 +894,6 @@ MonoBehaviour:
   knob: {fileID: 424053440}
   radius: 16
   deadZone: 0.12
-  returnTime: 0.12
   idleAlpha: 0.55
 --- !u!114 &130134369
 MonoBehaviour:
@@ -1382,6 +1381,7 @@ GameObject:
   - component: {fileID: 234510560}
   - component: {fileID: 234510559}
   - component: {fileID: 234510561}
+  - component: {fileID: 234510562}
   m_Layer: 0
   m_Name: Marker_E
   m_TagString: Untagged
@@ -1527,6 +1527,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TutorialSkillMarker
   skill: {fileID: 11400000, guid: b4465ecee966dd34f854f6c0ec012835, type: 2}
+--- !u!114 &234510562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234510557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbc762b2a986e724193b30ad6435fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MarkerGlow
+  riasecLetter: E
+  cycleAllLetters: 0
+  cycleSeconds: 0.9
+  iconHeight: 0.5
+  bobAmplitude: 0.06
+  bobSpeed: 2.2
+  pulseSpeed: 2.6
+  sparkleCount: 4
+  sparkleRise: 0.7
+  sparkleLife: 1.6
+  groundOrder: 1
+  iconOrder: 5
 --- !u!1 &248695024
 GameObject:
   m_ObjectHideFlags: 0
@@ -2102,6 +2126,7 @@ GameObject:
   - component: {fileID: 346361426}
   - component: {fileID: 346361425}
   - component: {fileID: 346361427}
+  - component: {fileID: 346361428}
   m_Layer: 0
   m_Name: Marker_S
   m_TagString: Untagged
@@ -2247,6 +2272,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TutorialSkillMarker
   skill: {fileID: 11400000, guid: 049f787191ca01b4c8bc604e47fbea59, type: 2}
+--- !u!114 &346361428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 346361423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbc762b2a986e724193b30ad6435fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MarkerGlow
+  riasecLetter: S
+  cycleAllLetters: 0
+  cycleSeconds: 0.9
+  iconHeight: 0.5
+  bobAmplitude: 0.06
+  bobSpeed: 2.2
+  pulseSpeed: 2.6
+  sparkleCount: 4
+  sparkleRise: 0.7
+  sparkleLife: 1.6
+  groundOrder: 1
+  iconOrder: 5
 --- !u!1 &359311954
 GameObject:
   m_ObjectHideFlags: 0
@@ -2483,6 +2532,8 @@ MonoBehaviour:
   idleFps: 4
   minWalkRate: 0.5
   moveThreshold: 0.05
+  footstepFrames: 0100000004000000
+  footstepVolume: 0.55
 --- !u!212 &381261235
 SpriteRenderer:
   serializedVersion: 2
@@ -30047,6 +30098,7 @@ GameObject:
   - component: {fileID: 837518547}
   - component: {fileID: 837518548}
   - component: {fileID: 837518549}
+  - component: {fileID: 837518550}
   m_Layer: 0
   m_Name: Marker_R
   m_TagString: Untagged
@@ -30192,6 +30244,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TutorialSkillMarker
   skill: {fileID: 11400000, guid: 6edb9351491cf3e4da4edcc5c6021e7e, type: 2}
+--- !u!114 &837518550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 837518545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbc762b2a986e724193b30ad6435fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MarkerGlow
+  riasecLetter: R
+  cycleAllLetters: 0
+  cycleSeconds: 0.9
+  iconHeight: 0.5
+  bobAmplitude: 0.06
+  bobSpeed: 2.2
+  pulseSpeed: 2.6
+  sparkleCount: 4
+  sparkleRise: 0.7
+  sparkleLife: 1.6
+  groundOrder: 1
+  iconOrder: 5
 --- !u!1 &871954345
 GameObject:
   m_ObjectHideFlags: 0
@@ -44715,6 +44791,7 @@ GameObject:
   - component: {fileID: 1575935660}
   - component: {fileID: 1575935659}
   - component: {fileID: 1575935661}
+  - component: {fileID: 1575935662}
   m_Layer: 0
   m_Name: Marker_I
   m_TagString: Untagged
@@ -44860,6 +44937,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TutorialSkillMarker
   skill: {fileID: 11400000, guid: 684092f1e8e75364d98713ef9f43faec, type: 2}
+--- !u!114 &1575935662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1575935657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbc762b2a986e724193b30ad6435fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MarkerGlow
+  riasecLetter: I
+  cycleAllLetters: 0
+  cycleSeconds: 0.9
+  iconHeight: 0.5
+  bobAmplitude: 0.06
+  bobSpeed: 2.2
+  pulseSpeed: 2.6
+  sparkleCount: 4
+  sparkleRise: 0.7
+  sparkleLife: 1.6
+  groundOrder: 1
+  iconOrder: 5
 --- !u!1 &1576082300
 GameObject:
   m_ObjectHideFlags: 0
@@ -45302,6 +45403,7 @@ GameObject:
   - component: {fileID: 1646929228}
   - component: {fileID: 1646929227}
   - component: {fileID: 1646929229}
+  - component: {fileID: 1646929230}
   m_Layer: 0
   m_Name: Marker_C
   m_TagString: Untagged
@@ -45447,6 +45549,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TutorialSkillMarker
   skill: {fileID: 11400000, guid: 2e962494ae0c2dd4f9e6b95091d08af8, type: 2}
+--- !u!114 &1646929230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1646929225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbc762b2a986e724193b30ad6435fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MarkerGlow
+  riasecLetter: C
+  cycleAllLetters: 0
+  cycleSeconds: 0.9
+  iconHeight: 0.5
+  bobAmplitude: 0.06
+  bobSpeed: 2.2
+  pulseSpeed: 2.6
+  sparkleCount: 4
+  sparkleRise: 0.7
+  sparkleLife: 1.6
+  groundOrder: 1
+  iconOrder: 5
 --- !u!1 &1652018500
 GameObject:
   m_ObjectHideFlags: 0
@@ -46730,6 +46856,7 @@ GameObject:
   - component: {fileID: 1860021849}
   - component: {fileID: 1860021848}
   - component: {fileID: 1860021850}
+  - component: {fileID: 1860021851}
   m_Layer: 0
   m_Name: Marker_A
   m_TagString: Untagged
@@ -46875,6 +47002,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TutorialSkillMarker
   skill: {fileID: 11400000, guid: eb366131dedd3094bb4683db2d0148e6, type: 2}
+--- !u!114 &1860021851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860021846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbc762b2a986e724193b30ad6435fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MarkerGlow
+  riasecLetter: A
+  cycleAllLetters: 0
+  cycleSeconds: 0.9
+  iconHeight: 0.5
+  bobAmplitude: 0.06
+  bobSpeed: 2.2
+  pulseSpeed: 2.6
+  sparkleCount: 4
+  sparkleRise: 0.7
+  sparkleLife: 1.6
+  groundOrder: 1
+  iconOrder: 5
 --- !u!1 &1864717758
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5944375707238994625}
   - component: {fileID: 1217595397075206561}
   - component: {fileID: 2511732318365057511}
+  - component: {fileID: 7658583772888822038}
   m_Layer: 0
   m_Name: Prefab_SkillSelectionMarker
   m_TagString: Untagged
@@ -144,5 +145,27 @@ MonoBehaviour:
   gameSettings: {fileID: 11400000, guid: 6a94d0a981eba9849baeedd9adf70fd9, type: 2}
   skillPool: []
   nextRoomSlot: {fileID: 0}
-  startingKitMode: 0
-  picksRequired: 1
+--- !u!114 &7658583772888822038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7056075570699962062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbc762b2a986e724193b30ad6435fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MarkerGlow
+  riasecLetter: 
+  cycleAllLetters: 1
+  cycleSeconds: 0.9
+  iconHeight: 0.5
+  bobAmplitude: 0.06
+  bobSpeed: 2.2
+  pulseSpeed: 2.6
+  sparkleCount: 4
+  sparkleRise: 0.7
+  sparkleLife: 1.6
+  groundOrder: 1
+  iconOrder: 5

@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
+    <Compile Include="Assets\Scripts\vc_MarkerGlow.cs" />
     <Compile Include="Assets\Scripts\UI\vc_FloatingJoystick.cs" />
     <Compile Include="Assets\Scripts\Core\GameSessionData.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
