@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rigidbody2d;
     Vector2 move;
     public float speed = 3.0f;
+
+    /// <summary>Current move input (-1..1 per axis). Read by vc_SpriteFrameAnimator.</summary>
+    public Vector2 Move => move;
     Transform followCamera;
     Vector3 cameraOffset;
     bool cameraDetachedForStability;
@@ -44,11 +47,12 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 position = (Vector2)rigidbody2d.position + move * speed * Time.deltaTime;
         rigidbody2d.MovePosition(position);
-        animator.SetFloat("Move X", move.x);
-        if (Mathf.Approximately(move.magnitude, 0f))
-            animator.SetBool("isMoving", false);
-        else
-            animator.SetBool("isMoving", true);
+        // Legacy bone-rig Animator. Disabled when vc_SpriteFrameAnimator drives frame-based art.
+        if (animator != null && animator.isActiveAndEnabled)
+        {
+            animator.SetFloat("Move X", move.x);
+            animator.SetBool("isMoving", !Mathf.Approximately(move.magnitude, 0f));
+        }
     }
 
     void LateUpdate()

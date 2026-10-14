@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_FloatingJoystick.cs" />
     <Compile Include="Assets\Scripts\Core\GameSessionData.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillManager.cs" />
@@ -194,6 +195,7 @@
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSelectionMarker.cs" />
+    <Compile Include="Assets\Scripts\Player\vc_SpriteFrameAnimator.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
