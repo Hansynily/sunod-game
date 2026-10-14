@@ -23,7 +23,6 @@ namespace SunodGame.UI
         private VisualElement _detailTag;
         private Label         _detailTagLetter;
         private Label         _detailTagName;
-        private Label         _detailLevel;
         private Label         _detailDesc;
         private Label         _detailAction;
 
@@ -64,7 +63,6 @@ namespace SunodGame.UI
             _detailTag       = root.Q<VisualElement>("detail-tag");
             _detailTagLetter = root.Q<Label>("detail-tag-letter");
             _detailTagName   = root.Q<Label>("detail-tag-name");
-            _detailLevel     = root.Q<Label>("detail-level");
             _detailDesc      = root.Q<Label>("detail-desc");
             _detailAction    = root.Q<Label>("detail-action");
 
@@ -173,8 +171,7 @@ namespace SunodGame.UI
             iconFrame.AddToClassList("row-icon-frame");
             var icon = new VisualElement();
             icon.AddToClassList("row-icon");
-            if (skill.icon != null)
-                icon.style.backgroundImage = new StyleBackground(skill.icon);
+            icon.style.backgroundImage = vc_RiasecSymbols.Background(skill.riaSecLetter);
             iconFrame.Add(icon);
             row.Add(iconFrame);
 
@@ -188,7 +185,7 @@ namespace SunodGame.UI
 
             string letter = (skill.riaSecLetter ?? "?").ToUpper();
             string riasecName = RiasecNames.TryGetValue(letter.ToLower(), out var n) ? n : "-";
-            var metaLabel = new Label($"{riasecName}  -  LV. {skill.level}");
+            var metaLabel = new Label(riasecName);
             metaLabel.AddToClassList("row-meta");
             textBlock.Add(metaLabel);
 
@@ -226,9 +223,7 @@ namespace SunodGame.UI
             if (_detailFilled != null) _detailFilled.style.display = DisplayStyle.Flex;
 
             if (_detailIcon != null)
-                _detailIcon.style.backgroundImage = skill.icon != null
-                    ? new StyleBackground(skill.icon)
-                    : NoBackground;
+                _detailIcon.style.backgroundImage = vc_RiasecSymbols.Background(skill.riaSecLetter);
 
             if (_detailName != null)
                 _detailName.text = (skill.skillName ?? "UNNAMED").ToUpper();
@@ -247,7 +242,6 @@ namespace SunodGame.UI
                 _detailTag.AddToClassList($"riasec-{letterLower}");
             }
 
-            if (_detailLevel != null)  _detailLevel.text  = $"LV. {skill.level}";
             if (_detailDesc != null)   _detailDesc.text   = string.IsNullOrEmpty(skill.description) ? "No description available." : skill.description;
             if (_detailAction != null) _detailAction.text = string.IsNullOrEmpty(skill.buttonLabel) ? "-" : skill.buttonLabel;
         }
@@ -292,8 +286,8 @@ namespace SunodGame.UI
                 var data = vc_SkillManager.Instance.GetSkillInSlot(i);
 
                 if (_slotIcons[i] != null)
-                    _slotIcons[i].style.backgroundImage = data?.icon != null
-                        ? new StyleBackground(data.icon)
+                    _slotIcons[i].style.backgroundImage = data != null
+                        ? vc_RiasecSymbols.Background(data.riaSecLetter)
                         : NoBackground;
 
                 if (_slotEmpties[i] != null)

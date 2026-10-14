@@ -12,7 +12,6 @@ namespace SunodGame.UI
 
         private readonly Button[]        _slotBtns       = new Button[vc_SkillManager.SlotCount];
         private readonly VisualElement[] _slotIcons      = new VisualElement[vc_SkillManager.SlotCount];
-        private readonly Label[]         _slotLevels     = new Label[vc_SkillManager.SlotCount];
         private readonly Label[]         _slotNames      = new Label[vc_SkillManager.SlotCount];
         private readonly Label[]         _slotEmpties    = new Label[vc_SkillManager.SlotCount];
         private readonly Label[]         _slotCategories = new Label[vc_SkillManager.SlotCount];
@@ -47,7 +46,6 @@ namespace SunodGame.UI
                 int idx = i;
                 _slotBtns[i]      = root.Q<Button>($"slot-btn-{i}");
                 _slotIcons[i]     = root.Q<VisualElement>($"slot-icon-{i}");
-                _slotLevels[i]    = root.Q<Label>($"slot-level-{i}");
                 _slotNames[i]     = root.Q<Label>($"slot-name-{i}");
                 _slotEmpties[i]   = root.Q<Label>($"slot-empty-{i}");
                 _slotCategories[i] = root.Q<Label>($"slot-category-{i}");
@@ -57,6 +55,11 @@ namespace SunodGame.UI
 
                 if (_slotBtns[i] != null)
                     _slotBtns[i].AddToClassList($"cat-{vc_SkillManager.CategoryLetterForSlot(i)}");
+
+                // Skill buttons show their RIASEC category symbol (placeholder for per-skill art).
+                if (_slotIcons[i] != null)
+                    _slotIcons[i].style.backgroundImage =
+                        vc_RiasecSymbols.Background(vc_SkillManager.CategoryLetterForSlot(i));
 
                 _slotBtns[i]?.RegisterCallback<ClickEvent>(_       => OnSlotClicked(idx));
                 _slotBtns[i]?.RegisterCallback<PointerDownEvent>(_ => OnSlotPointerDown(idx));
@@ -134,21 +137,14 @@ namespace SunodGame.UI
 
         private void RefreshSlot(int i, vc_SkillData data)
         {
-            if (_slotIcons[i] != null)
-            {
-                _slotIcons[i].style.backgroundImage = data?.icon != null
-                    ? new StyleBackground(data.icon)
-                    : NoBackground;
-            }
-
-            if (_slotLevels[i] != null)
-                _slotLevels[i].text = data != null ? $"Lv.{data.level}" : string.Empty;
+            // Symbol stays on; an empty slot just shows it dimmed.
+            _slotIcons[i]?.EnableInClassList("slot-icon--empty", data == null);
 
             if (_slotNames[i] != null)
                 _slotNames[i].text = data != null ? (data.skillName ?? "-").ToUpper() : string.Empty;
 
             if (_slotEmpties[i] != null)
-                _slotEmpties[i].style.display = data == null ? DisplayStyle.Flex : DisplayStyle.None;
+                _slotEmpties[i].style.display = DisplayStyle.None;
         }
 
         private void RefreshPreviewCircles()
@@ -161,8 +157,8 @@ namespace SunodGame.UI
                 if (_previews[i] == null) continue;
                 bool hasSkill = i < skills.Count;
                 _previews[i].style.display = hasSkill ? DisplayStyle.Flex : DisplayStyle.None;
-                _previews[i].style.backgroundImage = hasSkill && skills[i]?.icon != null
-                    ? new StyleBackground(skills[i].icon)
+                _previews[i].style.backgroundImage = hasSkill && skills[i] != null
+                    ? vc_RiasecSymbols.Background(skills[i].riaSecLetter)
                     : NoBackground;
             }
         }

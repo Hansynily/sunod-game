@@ -1,7 +1,12 @@
 @import url("unity-theme://default");
 
+/* SproutLands_UI = the Sprout Lands pixel font with a taller line height (the raw .ttf
+   packs wrapped lines too tightly). Letter/word/paragraph spacing keep text from crowding. */
 Label, Button, TextField, DropdownField {
-    -unity-font-definition: url("/Assets/Art/Fonts/SproutLands/pixelFont-7-8x14-sproutLands.ttf");
+    -unity-font-definition: url("/Assets/Art/Fonts/SproutLands/SproutLands_UI.asset");
+    letter-spacing: 1px;
+    word-spacing: 4px;
+    -unity-paragraph-spacing: 6px;
 }
 
 /* ============================

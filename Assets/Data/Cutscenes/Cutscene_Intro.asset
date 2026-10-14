@@ -15,11 +15,14 @@ MonoBehaviour:
   charsPerSecond: 40
   punctuationPause: 0.12
   fadeDuration: 0.35
+  textFloatDistance: 18
+  textFloatDuration: 0.4
   cuts:
   - name: Intro
     stageColor: {r: 0.019607844, g: 0.050980393, b: 0.18039216, a: 1}
     layers:
     - image: {fileID: 7388822144124034973, guid: 96c0c1a8d5b24fd4f8ff3dff2559e686, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -41,8 +44,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: c9091f78f4d82584485ce155ef2051dc, type: 3}
+      texture: {fileID: 2800000, guid: a68e8e8300e87af44835de2df731505f, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -64,6 +69,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 1
         keys:
@@ -92,6 +98,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: cca341013430ffa47b6b4ff2f16e3d2d, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 104
@@ -113,6 +120,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 1
         keys:
@@ -136,6 +144,7 @@ MonoBehaviour:
     stageColor: {r: 0.11764706, g: 0.3882353, b: 0.8392157, a: 1}
     layers:
     - image: {fileID: 7388822144124034973, guid: 8e8df46db89a6e54e95bece68a12d65a, type: 3}
+      texture: {fileID: 2800000, guid: a6417afcf8eedf6408d4b4be41664fca, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -157,8 +166,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: 5c3eca9785cae5a49a977b8be3cf0473, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -180,6 +191,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -197,6 +209,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 18921eeaef47228498e564075354945b, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -218,6 +231,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 0
         keys:
@@ -233,6 +247,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 091eb1469b8abeb468a374b511be187b, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -254,6 +269,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 0
         keys:
@@ -271,6 +287,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 145999c8001ba634dac6112215ee6d17, type: 3}
+      texture: {fileID: 2800000, guid: 4ad9fd9dc03215743a0ae978fa9559da, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -292,6 +309,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     pages:
     - Your journey begins when you are only a first-grade student.
@@ -301,6 +319,7 @@ MonoBehaviour:
     stageColor: {r: 0.02745098, g: 0.043137256, b: 0.14901961, a: 1}
     layers:
     - image: {fileID: 7388822144124034973, guid: 07722c5c75e75e44c89a71bee8f8b156, type: 3}
+      texture: {fileID: 2800000, guid: d5375ba91ee60ed46b8475eff66eb636, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -322,8 +341,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: cb2ab683ae6f1d14b847e883791dde03, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -345,6 +366,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -362,6 +384,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 6af8aca2b76aed545ad6b1262f6708c9, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -383,6 +406,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -400,6 +424,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 808cd31f6a08c48409a3780cf0a79d98, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -421,6 +446,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -438,6 +464,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: fac37b292da2bdd429ff533b2be0c2e2, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -459,8 +486,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: 5abb084d44f27b1498bb80ddd48dcd23, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -482,6 +511,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 0
         keys:
@@ -497,6 +527,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 19d5d39913d73034583cd8a6d001bb2b, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -518,6 +549,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 0
         keys:
@@ -535,6 +567,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: dd108bdf2f5d478478bfb7f86e7760fc, type: 3}
+      texture: {fileID: 2800000, guid: 9a0eec60e511e9e43bdefaf10fdce041, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -556,8 +589,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: 120d3de44d2bd294fa006f9a48e4d785, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -579,6 +614,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -607,6 +643,7 @@ MonoBehaviour:
     stageColor: {r: 0.16470589, g: 0.18039216, b: 0.22745098, a: 1}
     layers:
     - image: {fileID: 7388822144124034973, guid: 4ac6784ffdbecf04db4eb0deaf88a262, type: 3}
+      texture: {fileID: 2800000, guid: 83485d8a7d78d1041904562341125ab3, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -628,8 +665,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: 33476ca69484dc64a8e497ebc9a57ab4, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -651,6 +690,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 0
         keys:
@@ -666,6 +706,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 0cdd92ffe262a794c8bd7871fbc6fca2, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -687,8 +728,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: 27f3b08a96ed1234bab3d8c60740b9cc, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 170
@@ -710,6 +753,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 3
         keys:
@@ -727,6 +771,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: d335a61911b091e40b57ab80f3897faf, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -748,6 +793,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     pages:
     - In these dreams, you see pieces of a terrible future.
@@ -757,6 +803,7 @@ MonoBehaviour:
     stageColor: {r: 0.16470589, g: 0.18039216, b: 0.22745098, a: 1}
     layers:
     - image: {fileID: 7388822144124034973, guid: d81972c42c03fee459f4a569738a9126, type: 3}
+      texture: {fileID: 2800000, guid: 431bd33701db163479e4a60aab62b9b4, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -778,8 +825,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: 073fcfec5da527542b26c360e90374bc, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -801,6 +850,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -844,6 +894,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: dd9367ba4a5b6f846ac0ef5774d58c36, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -865,6 +916,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -897,6 +949,7 @@ MonoBehaviour:
     stageColor: {r: 0.023529412, g: 0.039215688, b: 0.13333334, a: 1}
     layers:
     - image: {fileID: 7388822144124034973, guid: 2143a9439da221c44a4cc3ec80507155, type: 3}
+      texture: {fileID: 2800000, guid: 428fcd41158a6f8478ecd5d00aefa7eb, type: 3}
       rect:
         serializedVersion: 2
         x: 0
@@ -918,8 +971,10 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks: []
     - image: {fileID: 7388822144124034973, guid: 01f461756db9e444cb5bdb551daed1d8, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -941,6 +996,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -958,6 +1014,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 6c4c6ec9a6419bc429252a0bda636d60, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -979,6 +1036,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -996,6 +1054,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: ace5003f526f1124490c964d35c19ed1, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
         x: 0
@@ -1017,6 +1076,7 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
+      showFromPage: 0
       tracks:
       - property: 2
         keys:
@@ -1034,12 +1094,13 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: eaccb4d6f24441c4196347f1f39b1777, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
+        x: -98
+        y: 33
+        width: 272
+        height: 153
       clipCircle: 0
       clipRect:
         serializedVersion: 2
@@ -1047,14 +1108,15 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
-      pivot: {x: 160, y: 20}
+      pivot: {x: 38, y: 50}
       frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
       frameRect:
         serializedVersion: 2
-        x: 136
-        y: -6
-        width: 48
-        height: 52
+        x: 17.599998
+        y: 27.9
+        width: 40.800003
+        height: 44.2
+      showFromPage: 2
       tracks:
       - property: 4
         keys:
@@ -1065,7 +1127,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 0.3
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1080,7 +1142,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 0.3
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1095,19 +1157,20 @@ MonoBehaviour:
         - t01: 1
           value: 0
         duration: 2.4
-        delay: 1.2
+        delay: 0.6
         loop: 1
         alternate: 0
         steps: 1
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 17301ed3fa213db4bb874e15aa8e5dbf, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
+        x: -68.4
+        y: 15.999999
+        width: 272
+        height: 153
       clipCircle: 0
       clipRect:
         serializedVersion: 2
@@ -1115,14 +1178,15 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
-      pivot: {x: 240, y: 40}
+      pivot: {x: 135.6, y: 50}
       frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
       frameRect:
         serializedVersion: 2
-        x: 216
-        y: 14
-        width: 48
-        height: 52
+        x: 115.200005
+        y: 27.9
+        width: 40.800003
+        height: 44.2
+      showFromPage: 4
       tracks:
       - property: 4
         keys:
@@ -1133,7 +1197,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 0.65
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1148,7 +1212,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 0.65
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1163,19 +1227,20 @@ MonoBehaviour:
         - t01: 1
           value: 0
         duration: 2.4
-        delay: 1.6
+        delay: 0.6
         loop: 1
         alternate: 0
         steps: 1
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 4129b6a758cf3ed4e9d8764642b1ac39, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
+        x: -19.600012
+        y: -19.700003
+        width: 272
+        height: 153
       clipCircle: 0
       clipRect:
         serializedVersion: 2
@@ -1183,14 +1248,15 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
-      pivot: {x: 240, y: 82}
+      pivot: {x: 184.4, y: 50}
       frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
       frameRect:
         serializedVersion: 2
-        x: 216
-        y: 56
-        width: 48
-        height: 52
+        x: 164
+        y: 27.9
+        width: 40.800003
+        height: 44.2
+      showFromPage: 5
       tracks:
       - property: 4
         keys:
@@ -1201,7 +1267,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 1
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1216,7 +1282,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 1
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1231,19 +1297,20 @@ MonoBehaviour:
         - t01: 1
           value: 0
         duration: 2.4
-        delay: 2
+        delay: 0.6
         loop: 1
         alternate: 0
         steps: 1
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 991ffc5a4777601429cd8f2392898bed, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
+        x: 97.2
+        y: -37.550003
+        width: 272
+        height: 153
       clipCircle: 0
       clipRect:
         serializedVersion: 2
@@ -1251,14 +1318,15 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
-      pivot: {x: 160, y: 103}
+      pivot: {x: 233.2, y: 50}
       frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
       frameRect:
         serializedVersion: 2
-        x: 136
-        y: 77
-        width: 48
-        height: 52
+        x: 212.8
+        y: 27.9
+        width: 40.800003
+        height: 44.2
+      showFromPage: 6
       tracks:
       - property: 4
         keys:
@@ -1269,7 +1337,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 1.35
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1284,7 +1352,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 1.35
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1299,19 +1367,20 @@ MonoBehaviour:
         - t01: 1
           value: 0
         duration: 2.4
-        delay: 2.4
+        delay: 0.6
         loop: 1
         alternate: 0
         steps: 1
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 3a5a65167e7010a43ac553133fad6727, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
+        x: 214
+        y: -19.700003
+        width: 272
+        height: 153
       clipCircle: 0
       clipRect:
         serializedVersion: 2
@@ -1319,14 +1388,15 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
-      pivot: {x: 80, y: 82}
+      pivot: {x: 282, y: 50}
       frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
       frameRect:
         serializedVersion: 2
-        x: 56
-        y: 56
-        width: 48
-        height: 52
+        x: 261.6
+        y: 27.9
+        width: 40.800003
+        height: 44.2
+      showFromPage: 7
       tracks:
       - property: 4
         keys:
@@ -1337,7 +1407,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 1.7
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1352,7 +1422,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 1.7
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1367,19 +1437,20 @@ MonoBehaviour:
         - t01: 1
           value: 0
         duration: 2.4
-        delay: 2.8
+        delay: 0.6
         loop: 1
         alternate: 0
         steps: 1
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: 805393446a3487c429051fbd889e65e2, type: 3}
+      texture: {fileID: 0}
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
+        x: 18.800001
+        y: 15.999999
+        width: 272
+        height: 153
       clipCircle: 0
       clipRect:
         serializedVersion: 2
@@ -1387,14 +1458,15 @@ MonoBehaviour:
         y: 0
         width: 0
         height: 0
-      pivot: {x: 80, y: 40}
+      pivot: {x: 86.8, y: 50}
       frameSprite: {fileID: 2141209844, guid: fbdfeebf3e1ab0940893f21a5b5b6df3, type: 3}
       frameRect:
         serializedVersion: 2
-        x: 56
-        y: 14
-        width: 48
-        height: 52
+        x: 66.4
+        y: 27.9
+        width: 40.800003
+        height: 44.2
+      showFromPage: 3
       tracks:
       - property: 4
         keys:
@@ -1405,7 +1477,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 2.05
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1420,7 +1492,7 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 0.5
-        delay: 2.05
+        delay: 0.05
         loop: 0
         alternate: 0
         steps: 5
@@ -1435,7 +1507,7 @@ MonoBehaviour:
         - t01: 1
           value: 0
         duration: 2.4
-        delay: 3.2
+        delay: 0.6
         loop: 1
         alternate: 0
         steps: 1
@@ -1443,6 +1515,19 @@ MonoBehaviour:
         holdLastKey: 1
     pages:
     - Years pass. You grow. You learn. Each skill you gain becomes something greater!
+    - Every skill belongs to one of six kinds. Together, they are called RIASEC.
+    - R is for Realistic. These are the doers. They like to build, fix, and work
+      with their hands.
+    - I is for Investigative. These are the thinkers. They like to ask questions
+      and solve puzzles.
+    - A is for Artistic. These are the creators. They like to draw, write, and make
+      new things.
+    - S is for Social. These are the helpers. They like to teach, care for, and guide
+      others.
+    - E is for Enterprising. These are the leaders. They like to convince people
+      and take charge.
+    - C is for Conventional. These are the organizers. They like to sort, count,
+      and keep things in order.
     - The dreams grow sharper now - flashes of the disaster ahead.
     - The future shifts every time. The threat is never the same.
     - Then, just before you become an adult, it happens. The disaster strikes!

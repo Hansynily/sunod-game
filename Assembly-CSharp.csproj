@@ -75,6 +75,7 @@
     <Compile Include="Assets\Scripts\Core\LocalRubricFallback.cs" />
     <Compile Include="Assets\Scripts\vc_ChartBankQuest.cs" />
     <Compile Include="Assets\Scripts\vc_DebugSkipToEnd.cs" />
+    <Compile Include="Assets\Scripts\vc_HopWander.cs" />
     <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
     <Compile Include="Assets\Scripts\UI\vc_KeyboardAvoider.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="Assets\Scripts\UI\vc_InventoryUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickupPopup.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\Environment\EnvironmentSystem.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_RiasecSymbols.cs" />
     <Compile Include="Assets\Scripts\Core\vc_HallwaySlot.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\UI\vc_DialogPanel.cs" />

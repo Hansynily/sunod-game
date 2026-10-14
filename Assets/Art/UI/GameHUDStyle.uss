@@ -87,7 +87,7 @@
 
 .slot-diamond-container {
     width: 116px;
-    height: 124px;
+    height: 104px;
     align-items: center;
     justify-content: flex-start;
     position: relative;
@@ -96,7 +96,7 @@
 .skill-slot-btn {
     rotate: 0deg;
     width: 116px;
-    height: 124px;
+    height: 104px;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -142,23 +142,26 @@
 .slot-inner {
     rotate: 0deg;
     position: absolute;
-    top: 12px;
-    left: 22px;
-    width: 72px;
-    height: 72px;
+    top: 10px;
+    left: 20px;
+    width: 76px;
+    height: 80px;
     align-items: center;
     justify-content: center;
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/icon_ring.png");
-    -unity-background-scale-mode: scale-to-fit;
 }
 
 .slot-icon {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
     -unity-background-scale-mode: scale-to-fit;
+}
+
+/* Empty slot: category symbol shown dimmed */
+.slot-icon--empty {
+    opacity: 0.35;
 }
 
 /* "+" shown when slot is empty */
@@ -171,24 +174,6 @@
     font-size: 42px;
     color: rgb(140, 115, 105);
     -unity-text-align: middle-center;
-}
-
-/* Level pill at the bottom of the card */
-.slot-level {
-    position: absolute;
-    bottom: 10px;
-    left: 26px;
-    right: 26px;
-    height: 28px;
-    font-size: 16px;
-    color: rgb(100, 85, 82);
-    -unity-text-align: middle-center;
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/level_badge.png");
-    -unity-slice-left: 20;
-    -unity-slice-top: 20;
-    -unity-slice-right: 20;
-    -unity-slice-bottom: 20;
-    -unity-slice-scale: 0.4px;
 }
 
 /* Skill name under the card */

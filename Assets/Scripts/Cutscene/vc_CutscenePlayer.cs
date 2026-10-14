@@ -40,6 +40,7 @@ namespace SunodGame.Cutscene
         private bool _finished;
         private float _cutStartTime;
         private float _stageScale = 1f;
+        private float _pageStartTime = -999f;
         private Coroutine _typeRoutine;
         private Coroutine _fadeRoutine;
 
@@ -48,6 +49,8 @@ namespace SunodGame.Cutscene
             public vc_CutsceneData.Layer data;
             public VisualElement container; // clip wrapper if clipCircle, else same as element
             public VisualElement element;
+            public VisualElement frame;     // optional static frame drawn behind it
+            public float revealTime = -1f;  // unscaled time it became visible; < 0 = still hidden (showFromPage)
         }
 
         private void OnEnable()
@@ -87,6 +90,7 @@ namespace SunodGame.Cutscene
         private void Update()
         {
             EvaluateLayers();
+            AnimateTextFloat();
 
             // Editor/desktop testing helpers (brief: Space/Enter = tap, Escape = Skip).
             if (Keyboard.current != null)
@@ -185,9 +189,10 @@ namespace SunodGame.Cutscene
 
             foreach (vc_CutsceneData.Layer layerData in cut.layers)
             {
+                VisualElement frame = null;
                 if (layerData.frameSprite != null)
                 {
-                    var frame = new VisualElement { name = "cut-layer-frame", pickingMode = PickingMode.Ignore };
+                    frame = new VisualElement { name = "cut-layer-frame", pickingMode = PickingMode.Ignore };
                     frame.style.position = Position.Absolute;
                     frame.style.backgroundImage = new StyleBackground(layerData.frameSprite);
                     frame.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
@@ -200,14 +205,16 @@ namespace SunodGame.Cutscene
                     _frameElements.Add((frame, layerData.frameRect));
                 }
 
-                if (layerData.image == null) continue;
+                if (layerData.image == null && layerData.texture == null) continue;
 
                 var element = new VisualElement { name = "cut-layer", pickingMode = PickingMode.Ignore };
                 element.style.position = Position.Absolute;
-                element.style.backgroundImage = new StyleBackground(layerData.image);
+                element.style.backgroundImage = layerData.texture != null
+                    ? new StyleBackground(layerData.texture)
+                    : new StyleBackground(layerData.image);
                 element.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
 
-                var runtime = new LayerRuntime { data = layerData, element = element };
+                var runtime = new LayerRuntime { data = layerData, element = element, frame = frame };
 
                 if (layerData.clipCircle)
                 {
@@ -233,6 +240,9 @@ namespace SunodGame.Cutscene
 
             LayoutStage();
             _cutStartTime = Time.unscaledTime;
+
+            foreach (LayerRuntime lr in _layerRuntimes)
+                lr.revealTime = lr.data.showFromPage <= 0 ? _cutStartTime : -1f;
         }
 
         private void ShowCut(int index)
@@ -289,6 +299,14 @@ namespace SunodGame.Cutscene
             vc_CutsceneData.Cut cut = data.cuts[_cutIndex];
 
             _nextIndicator?.AddToClassList("hidden");
+
+            // Layers tied to a page (e.g. one RIASEC symbol per page) appear now and
+            // start their own tracks from this moment.
+            foreach (LayerRuntime lr in _layerRuntimes)
+                if (lr.revealTime < 0f && lr.data.showFromPage <= page)
+                    lr.revealTime = Time.unscaledTime;
+
+            _pageStartTime = Time.unscaledTime;
 
             string[] pages = cut.pages;
             string line = (pages != null && page >= 0 && page < pages.Length) ? pages[page] : string.Empty;
@@ -386,10 +404,30 @@ namespace SunodGame.Cutscene
 
         private void EvaluateLayers()
         {
-            float cutTime = Time.unscaledTime - _cutStartTime;
-
             foreach (LayerRuntime lr in _layerRuntimes)
-                ApplyLayer(lr, cutTime);
+            {
+                bool revealed = lr.revealTime >= 0f;
+                DisplayStyle display = revealed ? DisplayStyle.Flex : DisplayStyle.None;
+                lr.container.style.display = display;
+                if (lr.frame != null) lr.frame.style.display = display;
+                if (!revealed) continue;
+
+                ApplyLayer(lr, Time.unscaledTime - lr.revealTime);
+            }
+        }
+
+        // Each new page's text drifts up into place while fading in.
+        private void AnimateTextFloat()
+        {
+            if (_dialogText == null) return;
+
+            float duration = Mathf.Max(0.01f, data != null ? data.textFloatDuration : 0.4f);
+            float distance = data != null ? data.textFloatDistance : 18f;
+            float t = Mathf.Clamp01((Time.unscaledTime - _pageStartTime) / duration);
+            float eased = 1f - Mathf.Pow(1f - t, 3f);
+
+            _dialogText.style.translate = new Translate(0, distance * (1f - eased));
+            _dialogText.style.opacity = eased;
         }
 
         private void ApplyLayer(LayerRuntime lr, float cutTime)
@@ -453,6 +491,14 @@ namespace SunodGame.Cutscene
                 lr.element.style.translate = new Translate(translateX * _stageScale, translateY * _stageScale);
                 lr.element.style.rotate = new Rotate(new Angle(rotate, AngleUnit.Degree));
                 lr.element.style.scale = new Scale(new Vector3(scale, scale, 1f));
+            }
+
+            // The frame pops/fades/bobs with its layer so it never appears before the art.
+            if (lr.frame != null)
+            {
+                lr.frame.style.opacity = opacity;
+                lr.frame.style.scale = new Scale(new Vector3(scale, scale, 1f));
+                lr.frame.style.translate = new Translate(0, translateY * _stageScale);
             }
         }
 

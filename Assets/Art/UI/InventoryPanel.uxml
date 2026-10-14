@@ -117,7 +117,6 @@
                                         <ui:Label name="detail-tag-letter" text="R" class="detail-tag-letter"/>
                                         <ui:Label name="detail-tag-name" text="REALISTIC" class="detail-tag-name"/>
                                     </ui:VisualElement>
-                                    <ui:Label name="detail-level" text="LV. 1" class="detail-level"/>
                                 </ui:VisualElement>
                             </ui:VisualElement>
                         </ui:VisualElement>

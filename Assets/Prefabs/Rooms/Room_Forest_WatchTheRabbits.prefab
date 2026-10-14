@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2769441516605592045}
   - component: {fileID: 1918319372732279188}
+  - component: {fileID: 4021002294659803302}
   m_Layer: 0
   m_Name: rabbit (1)
   m_TagString: Untagged
@@ -91,6 +92,24 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &4021002294659803302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322055335643223591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b98bc5405ad17e445b8609c82711feb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_HopWander
+  wanderRadius: 0.8
+  idleTimeRange: {x: 0.6, y: 2.2}
+  hopDistance: 0.35
+  hopDuration: 0.28
+  hopHeight: 0.18
+  hopsPerMove: {x: 1, y: 3}
 --- !u!1 &355523076940347202
 GameObject:
   m_ObjectHideFlags: 0
@@ -1868,6 +1887,7 @@ GameObject:
   m_Component:
   - component: {fileID: 995511645997428280}
   - component: {fileID: 6980903132758325816}
+  - component: {fileID: 8319086846144141241}
   m_Layer: 0
   m_Name: rabbit
   m_TagString: Untagged
@@ -1949,6 +1969,24 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &8319086846144141241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 744480433343204891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b98bc5405ad17e445b8609c82711feb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_HopWander
+  wanderRadius: 0.8
+  idleTimeRange: {x: 0.6, y: 2.2}
+  hopDistance: 0.35
+  hopDuration: 0.28
+  hopHeight: 0.18
+  hopsPerMove: {x: 1, y: 3}
 --- !u!1 &1765713898971654127
 GameObject:
   m_ObjectHideFlags: 0
@@ -4765,6 +4803,7 @@ GameObject:
   m_Component:
   - component: {fileID: 882886350066041007}
   - component: {fileID: 8752781756856455008}
+  - component: {fileID: 1120166045263530306}
   m_Layer: 0
   m_Name: rabbit (2)
   m_TagString: Untagged
@@ -4846,6 +4885,24 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1120166045263530306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5881725768323853915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b98bc5405ad17e445b8609c82711feb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_HopWander
+  wanderRadius: 0.8
+  idleTimeRange: {x: 0.6, y: 2.2}
+  hopDistance: 0.35
+  hopDuration: 0.28
+  hopHeight: 0.18
+  hopsPerMove: {x: 1, y: 3}
 --- !u!1 &6779021031690331515
 GameObject:
   m_ObjectHideFlags: 0

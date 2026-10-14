@@ -148,10 +148,26 @@ public class vc_TutorialFlowController : MonoBehaviour
         HideArrow();
         _phase = Phase.ChooseSkill;
 
+        // Skills explained in short steps: what they are, the 6 kinds, then what to do here.
         vc_DialogPanel.Instance?.ShowMessage(
-            "6 Kinds of Skills",
-            "There are 6 kinds of skills here, one of each kind. Walk up to each one to see what it does. You can only take one.",
-            () => PointArrowAtFirstMarker());
+            "What Are Skills?",
+            "Skills are how you solve problems in SUNOD. Each problem can be solved in more than one way, with different skills.",
+            () => vc_DialogPanel.Instance?.ShowMessage(
+                "6 Kinds of Skills",
+                "Every skill is one of 6 kinds:\n" +
+                "R - Realistic: build and fix\n" +
+                "I - Investigative: think and find out\n" +
+                "A - Artistic: create and design\n" +
+                "S - Social: help and teach\n" +
+                "E - Enterprising: lead and convince\n" +
+                "C - Conventional: sort and organize",
+                () => vc_DialogPanel.Instance?.ShowMessage(
+                    "Your Skill Buttons",
+                    "Your skill buttons are at the bottom right. Each button holds one kind and shows that kind's symbol.",
+                    () => vc_DialogPanel.Instance?.ShowMessage(
+                        "Pick One",
+                        "There is one skill of each kind here. Walk up to each one to read what it does. You can only take one, so pick the one you like most.",
+                        () => PointArrowAtFirstMarker()))));
     }
 
     private void EnterGoToZone()
@@ -160,7 +176,7 @@ public class vc_TutorialFlowController : MonoBehaviour
 
         vc_DialogPanel.Instance?.ShowMessage(
             "Skill Zones",
-            "Skills only work in skill zones. Find the glowing spot and stand on it.",
+            $"{SkillLabel(_chosen)} is now in its {KindName(_chosen)} button. Skills only work in skill zones. Find the glowing spot and stand on it.",
             () => PointArrow(zoneArrowTarget));
     }
 
@@ -175,8 +191,8 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_SkillData s = marker.Skill;
 
         vc_DialogPanel.Instance?.ShowChoice(
-            s.skillName,
-            s.description,
+            $"{s.skillName} ({KindName(s)})",
+            $"{s.description}\n\nKind: {KindLetter(s)} - {KindName(s)}",
             s.icon,
             "Pick this up",
             "Close",
@@ -226,7 +242,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_QuestHUD.Instance?.CheckObjective(OBJ_ZONE);
         AdvanceStep(OBJ_ZONE);
         HideArrow();
-        vc_FloatingMessage.Instance?.Show("You're in the zone! Tap the skill button to use it.");
+        vc_FloatingMessage.Instance?.Show($"You're in the zone! Tap the {KindLetter(_chosen)} button to use {SkillLabel(_chosen)}.");
     }
 
     // ── Completion ────────────────────────────────────────────────────────
@@ -270,6 +286,28 @@ public class vc_TutorialFlowController : MonoBehaviour
                 SceneLoader.GoToMainMenu();
             });
     }
+
+    // ── Skill wording helpers ─────────────────────────────────────────────
+
+    private static string KindLetter(vc_SkillData s) =>
+        s != null && !string.IsNullOrWhiteSpace(s.riaSecLetter) ? s.riaSecLetter.Trim().ToUpperInvariant() : "?";
+
+    private static string KindName(vc_SkillData s)
+    {
+        switch (KindLetter(s))
+        {
+            case "R": return "Realistic";
+            case "I": return "Investigative";
+            case "A": return "Artistic";
+            case "S": return "Social";
+            case "E": return "Enterprising";
+            case "C": return "Conventional";
+            default:  return "skill";
+        }
+    }
+
+    private static string SkillLabel(vc_SkillData s) =>
+        s != null && !string.IsNullOrWhiteSpace(s.skillName) ? s.skillName : "Your skill";
 
     // ── Arrow helpers (all null-safe) ─────────────────────────────────────
 

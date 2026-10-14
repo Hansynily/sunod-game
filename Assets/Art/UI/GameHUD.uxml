@@ -29,7 +29,6 @@
                                     <ui:Label name="slot-empty-0" text="+" class="slot-empty-plus" picking-mode="Ignore" />
                                 </ui:VisualElement>
                             </ui:Button>
-                            <ui:Label name="slot-level-0" text="" class="slot-level" picking-mode="Ignore" />
                         </ui:VisualElement>
                         <ui:Label name="slot-name-0" text="" class="slot-name" picking-mode="Ignore" />
                     </ui:VisualElement>
@@ -43,7 +42,6 @@
                                     <ui:Label name="slot-empty-1" text="+" class="slot-empty-plus" picking-mode="Ignore" />
                                 </ui:VisualElement>
                             </ui:Button>
-                            <ui:Label name="slot-level-1" text="" class="slot-level" picking-mode="Ignore" />
                         </ui:VisualElement>
                         <ui:Label name="slot-name-1" text="" class="slot-name" picking-mode="Ignore" />
                     </ui:VisualElement>
@@ -57,7 +55,6 @@
                                     <ui:Label name="slot-empty-2" text="+" class="slot-empty-plus" picking-mode="Ignore" />
                                 </ui:VisualElement>
                             </ui:Button>
-                            <ui:Label name="slot-level-2" text="" class="slot-level" picking-mode="Ignore" />
                         </ui:VisualElement>
                         <ui:Label name="slot-name-2" text="" class="slot-name" picking-mode="Ignore" />
                     </ui:VisualElement>
@@ -73,7 +70,6 @@
                                     <ui:Label name="slot-empty-3" text="+" class="slot-empty-plus" picking-mode="Ignore" />
                                 </ui:VisualElement>
                             </ui:Button>
-                            <ui:Label name="slot-level-3" text="" class="slot-level" picking-mode="Ignore" />
                         </ui:VisualElement>
                         <ui:Label name="slot-name-3" text="" class="slot-name" picking-mode="Ignore" />
                     </ui:VisualElement>
@@ -87,7 +83,6 @@
                                     <ui:Label name="slot-empty-4" text="+" class="slot-empty-plus" picking-mode="Ignore" />
                                 </ui:VisualElement>
                             </ui:Button>
-                            <ui:Label name="slot-level-4" text="" class="slot-level" picking-mode="Ignore" />
                         </ui:VisualElement>
                         <ui:Label name="slot-name-4" text="" class="slot-name" picking-mode="Ignore" />
                     </ui:VisualElement>
@@ -101,7 +96,6 @@
                                     <ui:Label name="slot-empty-5" text="+" class="slot-empty-plus" picking-mode="Ignore" />
                                 </ui:VisualElement>
                             </ui:Button>
-                            <ui:Label name="slot-level-5" text="" class="slot-level" picking-mode="Ignore" />
                         </ui:VisualElement>
                         <ui:Label name="slot-name-5" text="" class="slot-name" picking-mode="Ignore" />
                     </ui:VisualElement>

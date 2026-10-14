@@ -12,6 +12,10 @@ namespace SunodGame.Cutscene
         public float punctuationPause = 0.12f;
         public float fadeDuration = 0.35f;
 
+        [Tooltip("Each new page's text floats up this many px while fading in.")]
+        public float textFloatDistance = 18f;
+        public float textFloatDuration = 0.4f;
+
         public List<Cut> cuts = new List<Cut>();
 
         [Serializable]
@@ -34,6 +38,9 @@ namespace SunodGame.Cutscene
         {
             public VectorImage image;
 
+            [Tooltip("Optional 1:1 pixel PNG of the same art. Used instead of 'image' when set - for layers whose vector mesh exceeds UI Toolkit's 65535-vertex limit (they render blank otherwise).")]
+            public Texture2D texture;
+
             [Tooltip("Position/size in 320x180 stage units = the SVG's viewBox. Full-canvas layers = 0,0,320,180.")]
             public Rect rect = new Rect(0, 0, 320, 180);
 
@@ -50,6 +57,9 @@ namespace SunodGame.Cutscene
 
             [Tooltip("Stage-unit rect for the frame (independent of this layer's own rect/animation).")]
             public Rect frameRect;
+
+            [Tooltip("Hidden until this page of the cut is shown. Its tracks (and frame) start from that moment. 0 = visible from the start.")]
+            public int showFromPage;
 
             public List<Track> tracks = new List<Track>();
         }

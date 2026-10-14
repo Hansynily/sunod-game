@@ -37,12 +37,12 @@ public static class vc_TutorialEndScreen
 
         string body =
             $"Possible path: {p.Careers}.\n\n" +
-            $"This is just a guess from one skill: {name} ({p.Trait}). It is not your real result.\n\n" +
-            "Play the full game. SUNOD will use every choice you make to suggest careers that fit you.\n\n" +
-            "It looks at 6 traits: R, I, A, S, E, C.";
+            $"You picked {name}, from the {p.Trait} kind. People who enjoy {p.Trait} work might like jobs like these. " +
+            "This is only one possibility, not your result.\n\n" +
+            "Play the full game to see which paths could fit you best.";
 
         if (vc_DialogPanel.Instance != null)
-            vc_DialogPanel.Instance.ShowMessage("Career Result", body, onDone);
+            vc_DialogPanel.Instance.ShowMessage("A Possible Path", body, onDone);
         else
             onDone?.Invoke();
     }
