@@ -1,0 +1,207 @@
+/* =================================================================
+   SUNOD - Skill Award (hallway "Choose a Skill")
+   Same square Sprout Lands palette as the Skill Equip / inventory screen:
+   Outline #645552 · rim #AA7959 · highlight #F3E5C2 · fill #E8CFA6
+   shadow #C49A6C · accent #C0D470. Card children are built in vc_SkillAwardPopup.cs.
+   ================================================================= */
+
+.award-root {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(30, 20, 12, 0.7);
+    display: none;
+}
+
+/* ---------- BOARD ---------- */
+.award-box {
+    width: 1040px;
+    max-width: 92%;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(232, 207, 166);
+    border-radius: 0;
+    border-left-width: 4px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 8px;
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
+    padding: 22px 28px 26px 28px;
+}
+
+.award-title {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+}
+
+.award-subtitle {
+    font-size: 16px;
+    color: rgb(140, 115, 105);
+    -unity-text-align: middle-center;
+    margin-bottom: 18px;
+}
+
+.award-cards {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    align-self: stretch;
+    margin-bottom: 22px;
+}
+
+/* ---------- CARD (square framed tile, like the inventory cards) ---------- */
+.award-card {
+    flex-grow: 1;
+    flex-basis: 0;
+    max-width: 310px;
+    min-height: 360px;
+    margin: 0 10px;
+    padding: 0 0 16px 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background-image: none;
+    background-color: rgb(243, 229, 194);
+    border-radius: 0;
+    border-left-width: 3px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 6px;
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
+    overflow: hidden;
+    transition-property: translate, border-color, background-color;
+    transition-duration: 0.08s;
+}
+.award-card:hover, .award-card:focus {
+    background-color: rgb(250, 240, 214);
+}
+.award-card:active {
+    background-color: rgb(232, 207, 166);
+}
+
+/* Picked card: lifts with a green accent rim */
+.award-card--selected {
+    translate: 0 -8px;
+    background-color: rgb(250, 240, 214);
+    border-left-color: rgb(126, 160, 60);
+    border-top-color: rgb(126, 160, 60);
+    border-right-color: rgb(126, 160, 60);
+    border-bottom-color: rgb(80, 105, 40);
+}
+.award-card--selected:hover, .award-card--selected:focus {
+    background-color: rgb(250, 240, 214);
+}
+.award-card--dimmed {
+    opacity: 0.6;
+}
+
+/* Category ribbon across the card top (R I A S E C colours, same as HUD/Inventory) */
+.award-cat {
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    justify-content: center;
+    height: 34px;
+    margin-bottom: 16px;
+}
+.award-cat-label {
+    font-size: 14px;
+    color: rgb(255, 250, 240);
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+}
+.cat-bg-R { background-color: rgb(217, 58, 74); }
+.cat-bg-I { background-color: rgb(240, 138, 36); }
+.cat-bg-A { background-color: rgb(142, 79, 214); }
+.cat-bg-S { background-color: rgb(47, 163, 90); }
+.cat-bg-E { background-color: rgb(47, 111, 214); }
+.cat-bg-C { background-color: rgb(34, 179, 196); }
+
+/* Recessed icon well */
+.award-icon-frame {
+    width: 112px;
+    height: 112px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    background-color: rgb(232, 207, 166);
+    border-radius: 0;
+    border-left-width: 3px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgb(196, 154, 108);
+    border-top-color: rgb(196, 154, 108);
+    border-right-color: rgb(196, 154, 108);
+    border-bottom-color: rgb(196, 154, 108);
+}
+.award-icon {
+    width: 80px;
+    height: 88px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.award-name {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+.award-desc {
+    font-size: 18px;
+    color: rgb(100, 85, 82);
+    -unity-text-align: upper-center;
+    white-space: normal;
+    align-self: stretch;
+    padding: 0 14px;
+}
+
+/* ---------- CONFIRM (same chunky square button as the inventory) ---------- */
+.award-confirm {
+    font-size: 22px;
+    color: rgb(72, 52, 34);
+    height: 60px;
+    min-width: 320px;
+    padding: 6px 28px;
+    margin: 0;
+    -unity-text-align: middle-center;
+    background-image: none;
+    background-color: rgb(192, 212, 112);
+    border-radius: 0;
+    border-left-width: 3px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 6px;
+    border-left-color: rgb(110, 140, 50);
+    border-top-color: rgb(110, 140, 50);
+    border-right-color: rgb(110, 140, 50);
+    border-bottom-color: rgb(80, 105, 40);
+}
+.award-confirm:hover, .award-confirm:focus {
+    background-color: rgb(205, 224, 130);
+}
+.award-confirm:active {
+    background-color: rgb(165, 190, 90);
+    border-bottom-width: 3px;
+    translate: 0 3px;
+}
+.award-confirm:disabled {
+    opacity: 1;
+    color: rgb(140, 115, 105);
+    background-color: rgb(243, 229, 194);
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
+}

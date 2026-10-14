@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using SunodGame.Core;
 
 [DisallowMultipleComponent]
 public class vc_QuestTimer : MonoBehaviour
@@ -73,7 +74,11 @@ public class vc_QuestTimer : MonoBehaviour
             return;
         }
 
+        float before = timeRemaining;
         timeRemaining -= Time.deltaTime;
+        // Wood-block tick on each of the last 5 seconds.
+        if (timeRemaining > 0f && timeRemaining <= 5f && Mathf.CeilToInt(before) != Mathf.CeilToInt(timeRemaining))
+            vc_Sfx.Play("timer_tick", 0.7f);
         if (timeRemaining > 0f)
         {
             UpdateDisplayedStars();

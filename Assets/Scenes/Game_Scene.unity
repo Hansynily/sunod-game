@@ -5462,7 +5462,6 @@ MonoBehaviour:
   knob: {fileID: 424053440}
   radius: 16
   deadZone: 0.12
-  returnTime: 0.12
   idleAlpha: 0.55
 --- !u!114 &830114790
 MonoBehaviour:
@@ -6563,6 +6562,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 985922335}
   m_CullTransparentMesh: 1
+--- !u!1 &999433484
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 999433487}
+  - component: {fileID: 999433486}
+  - component: {fileID: 999433485}
+  m_Layer: 0
+  m_Name: UIToolkit_SkillAward
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &999433485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999433484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2cb5c720beb249aec63f44b2956d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SkillAwardPopup
+  questObjectivesPanel: {fileID: 0}
+--- !u!114 &999433486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999433484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 92fe7a1354ef3fc40943539487e235be, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 6cca88814f6c355468b039a1d88b045e, type: 3}
+  m_SortingOrder: 21
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!4 &999433487
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999433484}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1018030369
 GameObject:
   m_ObjectHideFlags: 0
@@ -6755,14 +6823,13 @@ GameObject:
   - component: {fileID: 1042833492}
   - component: {fileID: 1042833491}
   - component: {fileID: 1042833490}
-  - component: {fileID: 1042833493}
   m_Layer: 5
   m_Name: Panel_SkillAward
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1042833489
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6871,45 +6938,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1042833488}
   m_CullTransparentMesh: 1
---- !u!114 &1042833493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1042833488}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28e2cb5c720beb249aec63f44b2956d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_SkillAwardPopup
-  panelRoot: {fileID: 1042833488}
-  questObjectivesPanel: {fileID: 0}
-  titleText: {fileID: 1414223221}
-  cardButtons:
-  - {fileID: 21450182}
-  - {fileID: 878024786}
-  - {fileID: 985922337}
-  cardIcons:
-  - {fileID: 2023314188}
-  - {fileID: 1659083967}
-  - {fileID: 583059905}
-  cardNames:
-  - {fileID: 272839477}
-  - {fileID: 431620338}
-  - {fileID: 423423954}
-  cardDescs:
-  - {fileID: 110349461}
-  - {fileID: 1208003325}
-  - {fileID: 1937019569}
-  confirmButton: {fileID: 10145260}
-  confirmButtonImage: {fileID: 10145261}
-  cardDefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  cardSelectedColor: {r: 1, g: 0.85, b: 0.2, a: 1}
-  cardBackgrounds:
-  - {fileID: 447427275}
-  - {fileID: 1511305358}
-  - {fileID: 1189468127}
 --- !u!1 &1044715978
 GameObject:
   m_ObjectHideFlags: 0
@@ -8347,7 +8375,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 3.625
+  orthographic size: 3.6136363
   m_Depth: 100
   m_CullingMask:
     serializedVersion: 2
@@ -11499,6 +11527,8 @@ MonoBehaviour:
   idleFps: 4
   minWalkRate: 0.5
   moveThreshold: 0.05
+  footstepFrames: 0100000004000000
+  footstepVolume: 0.55
 --- !u!212 &1685680473
 SpriteRenderer:
   serializedVersion: 2
@@ -14352,3 +14382,4 @@ SceneRoots:
   - {fileID: 485648027}
   - {fileID: 1642698421}
   - {fileID: 491930505}
+  - {fileID: 999433487}

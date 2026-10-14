@@ -268,6 +268,7 @@ namespace SunodGame.Cutscene
 
         private IEnumerator FadeTransition(vc_CutsceneData.Cut cut)
         {
+            vc_Sfx.Play("cut_whoosh", 0.7f);
             yield return Fade(0f, 1f);
             Build(cut);
             if (cut.layers == null || cut.layers.Count == 0)
@@ -329,6 +330,9 @@ namespace SunodGame.Cutscene
                 if (_dialogText != null) _dialogText.text = line.Substring(0, shown);
 
                 char c = line[shown - 1];
+                // Soft, low dialogue blips on every third letter.
+                if (shown % 3 == 1 && !char.IsWhiteSpace(c))
+                    vc_Sfx.Play("text_blip", 0.35f, 0.04f, 0.06f);
                 float wait = charDelay;
                 if (c == '.' || c == ',' || c == '!' || c == '?') wait += data.punctuationPause;
 
@@ -379,6 +383,7 @@ namespace SunodGame.Cutscene
 
             if (_pageIndex + 1 < pageCount)
             {
+                vc_Sfx.Play("page_next", 0.6f, 0.03f);
                 ShowPage(_pageIndex + 1);
             }
             else if (_cutIndex + 1 < data.cuts.Count)

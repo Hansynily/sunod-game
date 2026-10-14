@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using SunodGame.Core;
 
 [DisallowMultipleComponent]
 public class vc_QuestHUD : MonoBehaviour
@@ -87,6 +88,7 @@ public class vc_QuestHUD : MonoBehaviour
     public void CheckObjective(int index)
     {
         if (_done == null || index < 0 || index >= _done.Length) return;
+        if (!_done[index]) vc_Sfx.Play("step_done", 0.7f);
         _done[index] = true;
         UpdateObjectiveRow(index, done: true);
         RefreshActiveObjective();

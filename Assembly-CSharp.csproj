@@ -153,6 +153,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_MedicalAttentionQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_TestHarness.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_Sfx.cs" />
     <Compile Include="Assets\Scripts\vc_PathSkill.cs" />
     <Compile Include="Assets\Scripts\vc_MuralQuest.cs" />
     <Compile Include="Assets\Scripts\vc_QuestTimer.cs" />
@@ -218,6 +219,7 @@
     <None Include="Assets\Art\UI\MainMenu.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\Art\UI\LoginRegister.uxml" />
+    <None Include="Assets\Art\UI\SkillAwardStyle.uss" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Art\UI\DialogPanel.uss" />
     <None Include="Assets\Art\UI\EndScene.uxml" />
@@ -243,6 +245,7 @@
     <None Include="Assets\Art\UI\CutsceneStyle.uss" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\Art\UI\EndSceneStyle.uss" />
+    <None Include="Assets\Art\UI\SkillAward.uxml" />
     <None Include="Assets\Art\Packs\2dClassroomAssetPackByStyloo\read me .txt" />
     <None Include="Assets\Art\UI\QuestPanel.uxml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />

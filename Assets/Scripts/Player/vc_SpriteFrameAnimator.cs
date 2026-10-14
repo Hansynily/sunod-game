@@ -1,4 +1,5 @@
 using UnityEngine;
+using SunodGame.Core;
 
 /// <summary>
 /// Stardew-style frame-based character animation: swaps whole PNG frames on a
@@ -24,6 +25,11 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
     [Tooltip("Walk frames run at least this fraction of walkFps at tiny tilts.")]
     [Range(0.1f, 1f)] [SerializeField] private float minWalkRate = 0.5f;
     [SerializeField] private float moveThreshold = 0.05f;
+
+    [Header("Footsteps")]
+    [Tooltip("Walk frame indices where a foot lands (one footstep sound each).")]
+    [SerializeField] private int[] footstepFrames = { 1, 4 };
+    [SerializeField] private float footstepVolume = 0.55f;
 
     private bool _facingRight = true;
     private bool _walking;
@@ -70,8 +76,18 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
         {
             _frameClock -= 1f;
             _frame++;
+            if (walking && IsFootstepFrame(_frame % frames.Length))
+                vc_Sfx.PlayRandom("footstep", 4, footstepVolume, 0.08f);
         }
 
         body.sprite = frames[_frame % frames.Length];
+    }
+
+    private bool IsFootstepFrame(int index)
+    {
+        if (footstepFrames == null) return false;
+        for (int i = 0; i < footstepFrames.Length; i++)
+            if (footstepFrames[i] == index) return true;
+        return false;
     }
 }

@@ -115,6 +115,7 @@ public class vc_QuestRoom : MonoBehaviour
 
         Debug.Log($"[QuestRoom] '{questId}' starting. QuestTimer={(vc_QuestTimer.Instance == null ? "NULL" : "OK")}, QuestLogic={(cachedQuestLogic == null ? "NULL" : cachedQuestLogic.GetType().Name)}");
 
+        vc_Sfx.Play("quest_start", 0.8f);
         QuestStarted?.Invoke(this);
 
         vc_QuestHUD.Instance?.SetDescription(questDescription);

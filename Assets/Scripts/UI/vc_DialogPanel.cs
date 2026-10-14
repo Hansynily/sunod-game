@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
+using SunodGame.Core;
 
 [DisallowMultipleComponent]
 public class vc_DialogPanel : MonoBehaviour

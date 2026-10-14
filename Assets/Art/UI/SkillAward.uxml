@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="SkillAwardStyle.uss" />
+
+    <!-- Hallway skill pick: dimmed overlay + Sprout Lands board with 3 skill cards -->
+    <ui:VisualElement name="award-root" class="award-root">
+        <ui:VisualElement name="award-box" class="award-box">
+
+            <ui:Label name="award-title" text="Choose a Skill" class="award-title" picking-mode="Ignore" />
+            <ui:Label name="award-subtitle" text="Pick one to take with you." class="award-subtitle" picking-mode="Ignore" />
+
+            <ui:VisualElement name="award-cards" class="award-cards">
+                <ui:Button name="award-card-0" class="award-card" />
+                <ui:Button name="award-card-1" class="award-card" />
+                <ui:Button name="award-card-2" class="award-card" />
+            </ui:VisualElement>
+
+            <ui:Button name="award-confirm" text="Take Skill" class="award-confirm" />
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

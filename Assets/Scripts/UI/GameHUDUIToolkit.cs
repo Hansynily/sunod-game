@@ -20,6 +20,7 @@ namespace SunodGame.UI
         private readonly vc_SkillData[] _cachedSlots = new vc_SkillData[vc_SkillManager.SlotCount];
 
         private InventoryPanelUIToolkit _inventoryPanel;
+        private int _previewSkillCount = -1;
         private bool _inventoryEventBound;
 
         private static readonly StyleBackground NoBackground =
@@ -102,6 +103,10 @@ namespace SunodGame.UI
         {
             TryBindInventoryEvent();
 
+            // Starting skills can be granted without OnSkillAdded; keep the preview in sync.
+            int gathered = vc_PlayerInventory.Instance != null ? vc_PlayerInventory.Instance.GatheredSkills.Count : 0;
+            if (gathered != _previewSkillCount) RefreshPreviewCircles();
+
             var mgr = vc_SkillManager.Instance;
             if (mgr == null) return;
 
@@ -151,6 +156,7 @@ namespace SunodGame.UI
         {
             if (vc_PlayerInventory.Instance == null) return;
             var skills = vc_PlayerInventory.Instance.GatheredSkills;
+            _previewSkillCount = skills.Count;
 
             for (int i = 0; i < 6; i++)
             {

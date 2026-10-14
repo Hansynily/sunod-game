@@ -1,45 +1,32 @@
 using System;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using SunodGame.UI;
 
 /// <summary>
-/// Manages the Panel_SkillAward overlay: populates three skill cards, enables the
-/// ConfirmButton only after the player selects a card, and fires a callback with the
-/// chosen <see cref="vc_SkillData"/> when confirmed.
+/// Hallway "Choose a Skill" overlay (UI Toolkit, Sprout Lands theme - SkillAward.uxml).
+/// Shows up to three skill cards; tapping a card selects it (lifts + glows), Take Skill
+/// confirms and fires the callback with the chosen <see cref="vc_SkillData"/>.
+/// Same public API as the old uGUI Panel_SkillAward version.
 /// </summary>
 [DisallowMultipleComponent]
+[RequireComponent(typeof(UIDocument))]
 public class vc_SkillAwardPopup : MonoBehaviour
 {
-    private static readonly Color ColorButtonEnabled  = new(0.878f, 0.706f, 0.075f, 1f);
-    private static readonly Color ColorButtonDisabled = new(0.35f,  0.35f,  0.35f,  1f);
-
     public static vc_SkillAwardPopup Instance { get; private set; }
 
-    [Header("Panel Root")]
-    [SerializeField] private GameObject panelRoot;
+    private const int CardCount = 3;
+
+    [Header("Optional: hidden while the popup is open")]
     [SerializeField] private GameObject questObjectivesPanel;
 
-    [Header("Title")]
-    [SerializeField] private TMP_Text titleText;
-
-    [Header("Skill Cards (exactly 3)")]
-    [SerializeField] private Button[]    cardButtons  = new Button[3];
-    [SerializeField] private Image[]     cardIcons    = new Image[3];
-    [SerializeField] private TMP_Text[]  cardNames    = new TMP_Text[3];
-    [SerializeField] private TMP_Text[]  cardDescs    = new TMP_Text[3];
-
-    [Header("Confirm Button")]
-    [SerializeField] private Button confirmButton;
-    [SerializeField] private Image  confirmButtonImage;
-
-    [Header("Card Selection Colors")]
-    [SerializeField] private Color cardDefaultColor  = Color.white;
-    [SerializeField] private Color cardSelectedColor = new Color(1f, 0.85f, 0.2f, 1f);
-    [SerializeField] private Image[] cardBackgrounds = new Image[3];
+    private VisualElement _root;
+    private Button _confirm;
+    private readonly Button[] _cards = new Button[CardCount];
 
     private vc_SkillData[] _offeredSkills;
-    private vc_SkillData   _selectedSkill;
+    private vc_SkillData _selectedSkill;
+    private int _selectedIndex = -1;
     private Action<vc_SkillData> _onConfirm;
     private PlayerController _playerController;
 
@@ -53,111 +40,144 @@ public class vc_SkillAwardPopup : MonoBehaviour
 
         Instance = this;
         _playerController = FindFirstObjectByType<PlayerController>();
+    }
 
-        if (confirmButton != null)
-            confirmButton.onClick.AddListener(OnConfirmClicked);
+    private void OnEnable()
+    {
+        VisualElement doc = GetComponent<UIDocument>().rootVisualElement;
+        _root = doc.Q<VisualElement>("award-root");
+        _confirm = doc.Q<Button>("award-confirm");
+        _confirm?.RegisterCallback<ClickEvent>(_ => OnConfirmClicked());
 
-        if (panelRoot != null)
-            panelRoot.SetActive(false);
+        for (int i = 0; i < CardCount; i++)
+        {
+            int idx = i;
+            _cards[i] = doc.Q<Button>($"award-card-{i}");
+            _cards[i]?.RegisterCallback<ClickEvent>(_ => OnCardSelected(idx));
+        }
+
+        SetVisible(false);
     }
 
     private void OnDestroy()
     {
-        if (confirmButton != null)
-            confirmButton.onClick.RemoveListener(OnConfirmClicked);
-
         if (Instance == this)
             Instance = null;
     }
 
     /// <summary>
-    /// Shows the panel with three skill choices.
-    /// <paramref name="skills"/> must contain exactly 3 entries (extras are ignored, missing entries show empty cards).
-    /// <paramref name="onConfirm"/> is invoked with the chosen skill when the player presses Confirm.
+    /// Shows the panel with up to three skill choices (extras ignored, missing entries hide their card).
+    /// <paramref name="onConfirm"/> is invoked with the chosen skill when the player presses Take Skill.
     /// </summary>
     public void Show(vc_SkillData[] skills, Action<vc_SkillData> onConfirm)
     {
         _offeredSkills = skills;
         _selectedSkill = null;
+        _selectedIndex = -1;
         _onConfirm = onConfirm;
 
         PopulateCards(skills);
-        SetConfirmInteractable(false);
-
-        if (panelRoot != null)
-            panelRoot.SetActive(true);
+        RefreshSelection();
+        SetVisible(true);
 
         if (questObjectivesPanel != null)
             questObjectivesPanel.SetActive(false);
 
+        if (_playerController == null) _playerController = FindFirstObjectByType<PlayerController>();
         _playerController?.MoveAction.Disable();
     }
 
     /// <summary>Hides the panel without invoking the confirm callback.</summary>
     public void Hide()
     {
-        if (panelRoot != null)
-            panelRoot.SetActive(false);
+        SetVisible(false);
 
         if (questObjectivesPanel != null)
             questObjectivesPanel.SetActive(true);
 
         _onConfirm = null;
         _selectedSkill = null;
+        _selectedIndex = -1;
         _playerController?.MoveAction.Enable();
     }
 
+    private void SetVisible(bool visible)
+    {
+        if (_root != null)
+            _root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+    // ── Cards ───────────────────────────────────────────────────────────
+
     private void PopulateCards(vc_SkillData[] skills)
     {
-        for (int i = 0; i < cardButtons.Length; i++)
+        for (int i = 0; i < CardCount; i++)
         {
-            if (cardButtons[i] == null) continue;
+            Button card = _cards[i];
+            if (card == null) continue;
 
-            cardButtons[i].onClick.RemoveAllListeners();
+            vc_SkillData skill = skills != null && i < skills.Length ? skills[i] : null;
+            card.Clear();
+            card.style.display = skill != null ? DisplayStyle.Flex : DisplayStyle.None;
+            if (skill == null) continue;
 
-            bool hasSkill = skills != null && i < skills.Length && skills[i] != null;
-            vc_SkillData skill = hasSkill ? skills[i] : null;
+            string letter = string.IsNullOrWhiteSpace(skill.riaSecLetter)
+                ? "?" : skill.riaSecLetter.Trim().ToUpperInvariant();
 
-            if (cardBackgrounds[i] != null)
-                cardBackgrounds[i].color = cardDefaultColor;
+            var cat = new VisualElement { pickingMode = PickingMode.Ignore };
+            cat.AddToClassList("award-cat");
+            cat.AddToClassList($"cat-bg-{letter}");
+            var catLabel = new Label($"{letter} - {KindName(letter)}".ToUpperInvariant()) { pickingMode = PickingMode.Ignore };
+            catLabel.AddToClassList("award-cat-label");
+            cat.Add(catLabel);
+            card.Add(cat);
 
-            if (cardIcons[i] != null)
-                cardIcons[i].sprite = skill != null ? skill.icon : null;
+            var frame = new VisualElement { pickingMode = PickingMode.Ignore };
+            frame.AddToClassList("award-icon-frame");
+            var icon = new VisualElement { pickingMode = PickingMode.Ignore };
+            icon.AddToClassList("award-icon");
+            icon.style.backgroundImage = vc_RiasecSymbols.Background(letter);
+            frame.Add(icon);
+            card.Add(frame);
 
-            if (cardNames[i] != null)
-                cardNames[i].text = skill != null ? skill.skillName : string.Empty;
+            var name = new Label((skill.skillName ?? "-").ToUpperInvariant()) { pickingMode = PickingMode.Ignore };
+            name.AddToClassList("award-name");
+            card.Add(name);
 
-            if (cardDescs[i] != null)
-                cardDescs[i].text = skill != null ? skill.description : string.Empty;
-
-            int capturedIndex = i;
-            cardButtons[i].onClick.AddListener(() => OnCardSelected(capturedIndex));
-            cardButtons[i].interactable = hasSkill;
+            var desc = new Label(skill.description ?? string.Empty) { pickingMode = PickingMode.Ignore };
+            desc.AddToClassList("award-desc");
+            card.Add(desc);
         }
     }
 
     private void OnCardSelected(int index)
     {
-        if (_offeredSkills == null || index < 0 || index >= _offeredSkills.Length) return;
+        if (_offeredSkills == null || index < 0 || index >= _offeredSkills.Length || _offeredSkills[index] == null) return;
 
+        _selectedIndex = index;
         _selectedSkill = _offeredSkills[index];
-        SetConfirmInteractable(_selectedSkill != null);
+        RefreshSelection();
+    }
 
-        for (int i = 0; i < cardButtons.Length; i++)
+    private void RefreshSelection()
+    {
+        for (int i = 0; i < CardCount; i++)
         {
-            if (cardBackgrounds[i] != null)
-                cardBackgrounds[i].color = (i == index) ? cardSelectedColor : cardDefaultColor;
+            if (_cards[i] == null) continue;
+            _cards[i].EnableInClassList("award-card--selected", i == _selectedIndex);
+            _cards[i].EnableInClassList("award-card--dimmed", _selectedIndex >= 0 && i != _selectedIndex);
         }
 
-        Debug.Log($"[vc_SkillAwardPopup] Selected: {_selectedSkill?.skillName}");
+        _confirm?.SetEnabled(_selectedSkill != null);
+        if (_confirm != null)
+            _confirm.text = _selectedSkill != null ? $"Take {_selectedSkill.skillName}" : "Pick a skill";
     }
 
     private void OnConfirmClicked()
     {
         if (_selectedSkill == null) return;
 
-        if (panelRoot != null)
-            panelRoot.SetActive(false);
+        SetVisible(false);
 
         if (questObjectivesPanel != null)
             questObjectivesPanel.SetActive(true);
@@ -168,16 +188,22 @@ public class vc_SkillAwardPopup : MonoBehaviour
         vc_SkillData chosen = _selectedSkill;
         _onConfirm = null;
         _selectedSkill = null;
+        _selectedIndex = -1;
 
         callback?.Invoke(chosen);
     }
 
-    private void SetConfirmInteractable(bool interactable)
+    private static string KindName(string letter)
     {
-        if (confirmButton != null)
-            confirmButton.interactable = interactable;
-
-        if (confirmButtonImage != null)
-            confirmButtonImage.color = interactable ? ColorButtonEnabled : ColorButtonDisabled;
+        switch (letter)
+        {
+            case "R": return "Realistic";
+            case "I": return "Investigative";
+            case "A": return "Artistic";
+            case "S": return "Social";
+            case "E": return "Enterprising";
+            case "C": return "Conventional";
+            default:  return "Skill";
+        }
     }
 }

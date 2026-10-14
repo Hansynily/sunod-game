@@ -1,4 +1,5 @@
 using UnityEngine;
+using SunodGame.Core;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(BoxCollider2D))]
@@ -72,6 +73,7 @@ public class vc_DoorController : MonoBehaviour
 
     public void Unlock()
     {
+        vc_Sfx.Play("door_open", 0.8f, 0.03f, 0.3f);
         if (doorCollider != null)
         {
             doorCollider.enabled = false;
