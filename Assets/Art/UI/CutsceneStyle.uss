@@ -27,7 +27,8 @@
     opacity: 0;
 }
 
-/* ---------- DIALOG (Sprout Lands frame, same as the rest of the game) ---------- */
+/* ---------- DIALOG (flat square panel - same look as the Main Menu buttons,
+   not the speech-bubble sl_dialog frame) ---------- */
 .dialog-box {
     position: absolute;
     left: 48px;
@@ -35,9 +36,18 @@
     bottom: 48px;
     height: 28%;
     padding: 28px 36px;
-    -unity-slice-scale: 2px;
     flex-direction: column;
     justify-content: center;
+    background-color: rgb(232, 207, 166);
+    border-radius: 0;
+    border-left-width: 4px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 8px;
+    border-left-color: rgb(170, 121, 89);
+    border-top-color: rgb(170, 121, 89);
+    border-right-color: rgb(170, 121, 89);
+    border-bottom-color: rgb(100, 85, 82);
 }
 
 .dialog-text {

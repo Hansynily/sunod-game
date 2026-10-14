@@ -232,29 +232,6 @@ MonoBehaviour:
         steps: 0
         easeInOut: 0
         holdLastKey: 1
-    - image: {fileID: 7388822144124034973, guid: 145999c8001ba634dac6112215ee6d17, type: 3}
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
-      clipCircle: 0
-      clipRect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 0
-        height: 0
-      pivot: {x: 160, y: 90}
-      frameSprite: {fileID: 0}
-      frameRect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 0
-        height: 0
-      tracks: []
     - image: {fileID: 7388822144124034973, guid: 091eb1469b8abeb468a374b511be187b, type: 3}
       rect:
         serializedVersion: 2
@@ -293,6 +270,29 @@ MonoBehaviour:
         steps: 1
         easeInOut: 0
         holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 145999c8001ba634dac6112215ee6d17, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks: []
     pages:
     - Your journey begins when you are only a first-grade student.
     - At first, everything seems normal. School, friends, and childhood days pass
@@ -496,6 +496,44 @@ MonoBehaviour:
         steps: 0
         easeInOut: 0
         holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 19d5d39913d73034583cd8a6d001bb2b, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 0
+        duration: 2.2
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: dd108bdf2f5d478478bfb7f86e7760fc, type: 3}
       rect:
         serializedVersion: 2
@@ -557,44 +595,6 @@ MonoBehaviour:
         - t01: 1
           value: 1
         duration: 3
-        delay: 0
-        loop: 1
-        alternate: 0
-        steps: 1
-        easeInOut: 0
-        holdLastKey: 1
-    - image: {fileID: 7388822144124034973, guid: 19d5d39913d73034583cd8a6d001bb2b, type: 3}
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 180
-      clipCircle: 0
-      clipRect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 0
-        height: 0
-      pivot: {x: 160, y: 90}
-      frameSprite: {fileID: 0}
-      frameRect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 0
-        height: 0
-      tracks:
-      - property: 0
-        keys:
-        - t01: 0
-          value: 0
-        - t01: 0.5
-          value: 1
-        - t01: 1
-          value: 0
-        duration: 2.2
         delay: 0
         loop: 1
         alternate: 0

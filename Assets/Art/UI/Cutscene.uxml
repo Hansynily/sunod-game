@@ -6,7 +6,7 @@
 
         <ui:VisualElement name="fade-overlay" class="fade-overlay" picking-mode="Ignore"/>
 
-        <ui:VisualElement name="dialog-box" class="dialog-box sl-dialog">
+        <ui:VisualElement name="dialog-box" class="dialog-box">
             <ui:Label name="dialog-text" class="dialog-text" text=""/>
             <ui:Label name="next-indicator" class="next-indicator hidden" text="&#9660;"/>
         </ui:VisualElement>
