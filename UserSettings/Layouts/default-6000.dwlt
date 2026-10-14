@@ -303,8 +303,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "UnityEditor.MainToolbarWindow\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1
-    y: 51
+    x: 0
+    y: 0
     width: 1918
     height: 36
   m_SerializedDataModeController:
@@ -570,7 +570,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 375
-    y: 87
+    y: 24
     width: 1273
     height: 753
   m_SerializedDataModeController:
@@ -674,8 +674,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Hierarchy\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1
-    y: 87
+    x: 0
+    y: 24
     width: 373
     height: 753
   m_SerializedDataModeController:
@@ -1846,8 +1846,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Console\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1
-    y: 866
+    x: 0
+    y: 803
     width: 1648
     height: 127
   m_SerializedDataModeController:
@@ -1885,7 +1885,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 1650
-    y: 87
+    y: 24
     width: 268
     height: 906
   m_SerializedDataModeController:
