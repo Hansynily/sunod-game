@@ -947,15 +947,15 @@ public static class vc_TownBuilder
             "Can you show me some morning stretches? I always forget how!", "I feel so awake now!");
         t.N("I2", "Kuya Migs", "adam_1", 30f, 6.6f, R + "Forest_WatchTheRabbits",
             "There are rabbits in the meadow! Want to watch what they do?", "You noticed so much about them!");
-        t.N("I3", "Teacher Joy", "amelia_1", 33.6f, 9.6f, null,
+        t.N("I3", "Teacher Joy", "amelia_1", 33.6f, 9.6f, R + "Forest_SeedlingStudy",
             "Our class is growing seedlings. Can you help me check how they're doing?", "Great notes, little scientist!");
-        t.N("I6", "Nico", "adam_2", 38.4f, 6.4f, null,
+        t.N("I6", "Nico", "adam_2", 38.4f, 6.4f, R + "River_FishCount",
             "How many fish live in this pond? Let's count them!", "Wow, that's a lot of fish!");
-        t.N("A6", "Paolo", "alex_1", 21.9f, 16.6f, null,
+        t.N("A6", "Paolo", "alex_1", 21.9f, 16.6f, R + "School_ParadeDrum",
             "The parade needs a drummer! Can you play the drum with us?", "You kept the beat perfectly!");
-        t.N("E2", "Jun", "alex_2", 30.6f, 16.9f, null,
+        t.N("E2", "Jun", "alex_2", 30.6f, 16.9f, R + "School_SnackStall",
             "Help me sell snacks at our school fair stall?", "We sold out! Thanks, partner!");
-        t.N("E8", "Mr. Tan", "bob_2", 43f, 16.9f, null,
+        t.N("E8", "Mr. Tan", "bob_2", 43f, 16.9f, R + "House_ToyStore",
             "My toy store is so busy today! Can you help me run it?", "Best helper in town!");
         t.N("A3", "Ms. Dela Cruz", "amelia_3", 22f, 28.2f, R + "School_FairPoster",
             "We need a poster for the school fair. Will you make one?", "That poster is beautiful!");
@@ -965,7 +965,7 @@ public static class vc_TownBuilder
             "Our class needs a song for the program. Will you help me write it?", "Everyone's humming our song!");
         t.N("S6", "Ate Mia", "amelia_0", 32f, 29.4f, R + "School_LostFriendQuest",
             "Can you help me look after the younger kids at the playground?", "They had so much fun with you!");
-        t.N("S7", "Toto", "adam_3", 9.6f, 27.8f, null,
+        t.N("S7", "Toto", "adam_3", 9.6f, 27.8f, R + "School_StoryTime",
             "Can you help me read this storybook? Some words are hard.", "I read the whole book!");
         t.N("C6", "Manang Fe", "amelia_2", 37.6f, 27.3f, null,
             "The canteen is so busy! Can you help me count the change?", "Not a single peso missing!");

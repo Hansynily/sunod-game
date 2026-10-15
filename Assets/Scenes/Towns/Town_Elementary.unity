@@ -22800,7 +22800,7 @@ MonoBehaviour:
   npcId: elementary_I6
   npcName: Nico
   questCode: I6
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 36b773064b6650b44982e4c7784a3cac, type: 3}
   askLine: How many fish live in this pond? Let's count them!
   thanksLine: Wow, that's a lot of fish!
   idleFrames:
@@ -76342,7 +76342,7 @@ MonoBehaviour:
   npcId: elementary_A6
   npcName: Paolo
   questCode: A6
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 9734d5c34fe8fa940a9d913ca27c1b8d, type: 3}
   askLine: The parade needs a drummer! Can you play the drum with us?
   thanksLine: You kept the beat perfectly!
   idleFrames:
@@ -89811,7 +89811,7 @@ MonoBehaviour:
   npcId: elementary_E2
   npcName: Jun
   questCode: E2
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: e7a2f98287f58b84da870cb9c096304f, type: 3}
   askLine: Help me sell snacks at our school fair stall?
   thanksLine: We sold out! Thanks, partner!
   idleFrames:
@@ -119590,7 +119590,7 @@ MonoBehaviour:
   npcId: elementary_I3
   npcName: Teacher Joy
   questCode: I3
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 084a292c6b7978d4491b780c4b9a00d9, type: 3}
   askLine: Our class is growing seedlings. Can you help me check how they're doing?
   thanksLine: Great notes, little scientist!
   idleFrames:
@@ -245778,7 +245778,7 @@ MonoBehaviour:
   npcId: elementary_S7
   npcName: Toto
   questCode: S7
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 204e98fe63de2ad48a2dad2f7cb83317, type: 3}
   askLine: Can you help me read this storybook? Some words are hard.
   thanksLine: I read the whole book!
   idleFrames:
@@ -259201,7 +259201,7 @@ MonoBehaviour:
   npcId: elementary_E8
   npcName: Mr. Tan
   questCode: E8
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: f73f1cc3bafeb2647b49388eb5da36e6, type: 3}
   askLine: My toy store is so busy today! Can you help me run it?
   thanksLine: Best helper in town!
   idleFrames:

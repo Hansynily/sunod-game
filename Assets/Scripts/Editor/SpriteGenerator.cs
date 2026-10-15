@@ -68,6 +68,21 @@ public static class SpriteGenerator
     static readonly Color32 Speaker    = new Color32(0x1e, 0x1e, 0x24, 255);
     static readonly Color32 DialGlow   = new Color32(0xf2, 0xc9, 0x4c, 255);
     static readonly Color32 WireRed    = new Color32(0xd0, 0x40, 0x3a, 255);
+    static readonly Color32 WaterDeep  = new Color32(0x2e, 0x5f, 0x8a, 255);
+    static readonly Color32 WaterMid   = new Color32(0x3f, 0x7f, 0xb0, 255);
+    static readonly Color32 WaterHi    = new Color32(0x9c, 0xd0, 0xee, 255);
+    static readonly Color32 FishOrange = new Color32(0xf0, 0x8a, 0x30, 255);
+    static readonly Color32 Blossom    = new Color32(0xf2, 0xa6, 0xc8, 255);
+    static readonly Color32 DrumRed    = new Color32(0xb8, 0x34, 0x30, 255);
+    static readonly Color32 Beanbag    = new Color32(0x5a, 0xa8, 0x9a, 255);
+    static readonly Color32 BeanbagDark= new Color32(0x3a, 0x7a, 0x70, 255);
+    static readonly Color32 BeanbagHi  = new Color32(0x8a, 0xd0, 0xc0, 255);
+    static readonly Color32 PotClay    = new Color32(0xc0, 0x68, 0x3c, 255);
+    static readonly Color32 PotRim     = new Color32(0x9a, 0x4e, 0x2c, 255);
+    static readonly Color32 ToyShelf   = new Color32(0xf0, 0xd8, 0xe8, 255);
+    static readonly Color32 ToyShelfDark = new Color32(0xc0, 0x80, 0xa8, 255);
+    static readonly Color32 TeddyBrown = new Color32(0xa8, 0x70, 0x40, 255);
+    static readonly Color32 DrumRim    = new Color32(0xe8, 0xe0, 0xd4, 255);
 
     // ── Entry point ──────────────────────────────────────────────────────────
     [MenuItem("SUNOD/Generate Quest Sprites")]
@@ -96,6 +111,28 @@ public static class SpriteGenerator
             { "mural_done",   DrawMuralDone },
             { "radio_broken", DrawRadioBroken },
             { "radio_fixed",  DrawRadioFixed },
+            { "pond",         DrawPond },
+            { "fish_school",  DrawFishSchool },
+            { "lily_pad",     DrawLilyPad },
+            { "dock",         DrawDock },
+            { "drum",         DrawDrum },
+            { "drum_parade",  DrawDrumParade },
+            { "pennants",     DrawPennants },
+            { "storybook",    DrawStorybook },
+            { "bookshelf",    DrawBookshelf },
+            { "beanbag",      DrawBeanbag },
+            { "rug_round",    DrawRugRound },
+            { "snack_jars",   DrawSnackJars },
+            { "price_sign",   DrawPriceSign },
+            { "cash_box",     DrawCashBox },
+            { "seedling_small", DrawSeedlingSmall },
+            { "seedling_tall",  DrawSeedlingTall },
+            { "watering_can", DrawWateringCan },
+            { "seed_tray",    DrawSeedTray },
+            { "toy_shelf",    DrawToyShelf },
+            { "teddy",        DrawTeddy },
+            { "toy_train",    DrawToyTrain },
+            { "toy_blocks",   DrawToyBlocks },
         };
 
         int count = 0;
@@ -313,6 +350,257 @@ public static class SpriteGenerator
         c.Rect(18, 20, 2, 2, StoneHi);           // knobs
         c.Rect(22, 20, 2, 2, StoneHi);
         c.Line(21, 12, 27, 3, StoneLight);       // straight antenna
+    }
+
+    static void DrawPond(Canvas c)
+    {
+        c.Ellipse(16, 16, 15, 13, StoneDark);    // muddy rim
+        c.Ellipse(16, 16, 14, 12, WaterDeep);
+        c.Ellipse(15, 14, 11, 8, WaterMid);
+        c.Rect(8, 10, 5, 1, WaterHi);            // ripples
+        c.Rect(18, 19, 6, 1, WaterHi);
+        c.Rect(12, 23, 4, 1, WaterHi);
+    }
+
+    static void DrawFishSchool(Canvas c)
+    {
+        c.Ellipse(16, 16, 11, 9, WaterMid);      // ripple patch so it reads on any water
+        c.Ellipse(16, 16, 10, 8, WaterDeep);
+        DrawFish(c, 9, 12);
+        DrawFish(c, 17, 17);
+        DrawFish(c, 11, 21);
+        c.Rect(20, 9, 3, 1, WaterHi);
+    }
+
+    static void DrawFish(Canvas c, int x, int y)
+    {
+        c.Ellipse(x + 3, y, 3, 2, FishOrange);
+        c.Rect(x + 5, y - 1, 1, 1, Ink);         // eye
+        c.Line(x - 1, y - 2, x - 1, y + 2, FishOrange); // tail
+        c.Set(x, y, FishOrange);
+    }
+
+    static void DrawLilyPad(Canvas c)
+    {
+        c.Ellipse(16, 18, 10, 7, LeafMid);
+        c.Ellipse(14, 16, 6, 4, LeafHi);
+        c.Line(16, 18, 24, 13, LeafDark);        // notch
+        c.Ellipse(20, 14, 2, 2, Blossom);
+    }
+
+    static void DrawDock(Canvas c)
+    {
+        c.Rect(2, 8, 28, 16, WoodDark);
+        for (int i = 0; i < 4; i++) c.Rect(3, 9 + i * 4, 26, 3, i % 2 == 0 ? WoodMid : WoodLight);
+        c.Rect(4, 24, 3, 6, WoodEdge);           // posts
+        c.Rect(25, 24, 3, 6, WoodEdge);
+    }
+
+    static void DrawDrum(Canvas c)
+    {
+        c.Line(10, 30, 13, 22, WoodEdge);        // stand legs
+        c.Line(22, 30, 19, 22, WoodEdge);
+        c.Rect(6, 12, 20, 11, DrumRed);          // shell
+        c.Rect(6, 12, 20, 2, DrumRim);
+        c.Rect(6, 21, 20, 2, DrumRim);
+        c.Ellipse(16, 11, 10, 3, CanvasCol);     // drum head
+        for (int x = 8; x < 26; x += 4) c.Line(x, 14, x + 2, 20, StoneLight); // tension cords
+        c.Line(23, 4, 28, 9, WoodLight);         // sticks resting
+        c.Line(25, 3, 29, 7, WoodLight);
+    }
+
+    static void DrawDrumParade(Canvas c)
+    {
+        c.Line(10, 30, 13, 22, WoodEdge);
+        c.Line(22, 30, 19, 22, WoodEdge);
+        c.Rect(6, 14, 20, 11, DrumRed);
+        c.Rect(6, 14, 20, 2, PaintC);            // gold rims, dressed up for the parade
+        c.Rect(6, 23, 20, 2, PaintC);
+        c.Ellipse(16, 13, 10, 3, CanvasCol);
+        c.Rect(12, 17, 8, 4, PaintB);            // star badge
+        c.Line(6, 16, 2, 26, PaintB);            // ribbons
+        c.Line(26, 16, 30, 26, PaintC);
+        c.Line(9, 8, 13, 12, WoodLight);         // sticks mid-hit
+        c.Line(23, 8, 19, 12, WoodLight);
+        c.Rect(3, 2, 2, 4, Ink); c.Rect(5, 2, 2, 1, Ink); c.Rect(2, 5, 2, 2, Ink); // music notes
+        c.Rect(27, 1, 1, 4, Ink); c.Rect(26, 4, 2, 2, Ink);
+    }
+
+    static void DrawPennants(Canvas c)
+    {
+        c.Line(0, 4, 31, 8, Ink);                // string
+        Color32[] cols = { DrumRed, PaintC, PaintB, HillPaint };
+        for (int i = 0; i < 5; i++)
+        {
+            int x = 2 + i * 6, y = 5 + i;
+            for (int r = 0; r < 6; r++) c.Rect(x + r / 2, y + r, 5 - r, 1, cols[i % cols.Length]);
+        }
+    }
+
+    static void DrawStorybook(Canvas c)
+    {
+        c.Rect(4, 10, 24, 16, SpineDark);        // open cover
+        c.Rect(5, 11, 10, 13, CanvasCol);        // left page
+        c.Rect(17, 11, 10, 13, CanvasCol);       // right page
+        c.Rect(15, 10, 2, 16, Spine);            // spine
+        c.Ellipse(10, 15, 3, 2, SunPaint);       // picture: sun
+        c.Rect(6, 19, 8, 3, HillPaint);          // picture: hill
+        for (int y = 13; y < 23; y += 3) c.Rect(18, y, 8, 1, PaperLine); // text lines
+    }
+
+    static void DrawBookshelf(Canvas c)
+    {
+        c.Rect(3, 1, 26, 30, WoodDark);
+        c.Rect(5, 3, 22, 26, WoodMid);
+        Color32[] books = { PaintA, PaintB, PaintC, HillPaint, Blossom, RadioBody };
+        for (int shelf = 0; shelf < 3; shelf++)
+        {
+            int y = 3 + shelf * 9;
+            c.Rect(5, y + 7, 22, 2, WoodDark);   // shelf plank
+            for (int b = 0; b < 7; b++) c.Rect(6 + b * 3, y + 1 + (b % 2), 2, 6 - (b % 2), books[(b + shelf) % books.Length]);
+        }
+    }
+
+    static void DrawBeanbag(Canvas c)
+    {
+        c.Ellipse(16, 20, 12, 9, BeanbagDark);
+        c.Ellipse(15, 18, 10, 7, Beanbag);
+        c.Ellipse(12, 15, 4, 2, BeanbagHi);
+    }
+
+    static void DrawRugRound(Canvas c)
+    {
+        c.Ellipse(16, 16, 15, 11, PaintB);
+        c.Ellipse(16, 16, 12, 8, PaintC);
+        c.Ellipse(16, 16, 8, 5, PaintA);
+        c.Ellipse(16, 16, 4, 2, CanvasCol);
+    }
+
+    static void DrawSnackJars(Canvas c)
+    {
+        c.Rect(1, 24, 30, 4, WoodMid);           // tray
+        DrawJar(c, 4, PaintC);                   // banana chips
+        DrawJar(c, 13, PaintA);                  // candies
+        DrawJar(c, 22, MudHi);                   // cookies
+    }
+
+    static void DrawJar(Canvas c, int x, Color32 fill)
+    {
+        c.Rect(x, 12, 7, 12, StoneHi);
+        c.Rect(x + 1, 15, 5, 8, fill);
+        c.Rect(x + 1, 10, 5, 2, AwningRed);      // lid
+        c.Rect(x + 1, 13, 1, 9, CanvasCol);      // glass shine
+    }
+
+    static void DrawPriceSign(Canvas c)
+    {
+        c.Rect(15, 18, 2, 13, WoodDark);         // post
+        c.Rect(3, 4, 26, 15, WoodEdge);
+        c.Rect(4, 5, 24, 13, CanvasCol);
+        c.Rect(6, 7, 3, 9, PaintA);              // "P5" price, chunky letters
+        c.Rect(9, 7, 3, 3, PaintA);
+        c.Rect(9, 10, 1, 3, CanvasCol);
+        c.Rect(14, 7, 6, 2, PaintB); c.Rect(14, 9, 2, 3, PaintB); c.Rect(14, 11, 6, 2, PaintB);
+        c.Rect(18, 13, 2, 2, PaintB); c.Rect(14, 15, 6, 1, PaintB);
+        c.Ellipse(24, 11, 2, 2, SunPaint);       // coin
+    }
+
+    static void DrawCashBox(Canvas c)
+    {
+        c.Rect(5, 14, 22, 12, RadioDark);
+        c.Rect(6, 15, 20, 10, RadioBody);
+        c.Rect(13, 18, 6, 2, Speaker);           // coin slot
+        c.Ellipse(9, 11, 3, 2, SunPaint);        // coins on top
+        c.Ellipse(15, 10, 3, 2, DialGlow);
+        c.Rect(20, 9, 6, 4, HillPaint);          // paper bill
+    }
+
+    static void DrawPot(Canvas c)
+    {
+        c.Rect(9, 22, 14, 3, PotRim);
+        c.Rect(10, 25, 12, 6, PotClay);
+        c.Rect(11, 21, 10, 2, MudMid);           // soil
+    }
+
+    static void DrawSeedlingSmall(Canvas c)
+    {
+        DrawPot(c);
+        c.Rect(15, 16, 2, 5, LeafMid);           // short stem
+        c.Ellipse(13, 16, 2, 1, LeafHi);
+        c.Ellipse(18, 15, 2, 1, LeafHi);
+    }
+
+    static void DrawSeedlingTall(Canvas c)
+    {
+        DrawPot(c);
+        c.Rect(15, 4, 2, 17, LeafMid);           // tall stem, grew in the sun
+        c.Ellipse(12, 14, 3, 2, LeafHi);
+        c.Ellipse(20, 10, 3, 2, LeafHi);
+        c.Ellipse(12, 6, 3, 2, LeafMid);
+        c.Ellipse(16, 3, 2, 2, SunPaint);        // bud
+    }
+
+    static void DrawWateringCan(Canvas c)
+    {
+        c.Rect(8, 14, 14, 12, RadioBody);
+        c.Rect(8, 14, 14, 2, WaterHi);
+        c.Line(22, 18, 29, 11, RadioBody);       // spout
+        c.Line(22, 19, 29, 12, RadioDark);
+        c.Rect(27, 9, 4, 3, RadioDark);
+        c.Line(9, 14, 13, 8, RadioDark);         // handle
+        c.Line(13, 8, 19, 8, RadioDark);
+        c.Line(19, 8, 21, 14, RadioDark);
+    }
+
+    static void DrawSeedTray(Canvas c)
+    {
+        c.Rect(2, 16, 28, 10, WoodDark);
+        c.Rect(3, 17, 26, 8, MudMid);
+        for (int i = 0; i < 6; i++) { c.Rect(5 + i * 4, 14, 1, 4, LeafMid); c.Set(4 + i * 4, 14, LeafHi); c.Set(6 + i * 4, 14, LeafHi); }
+    }
+
+    static void DrawToyShelf(Canvas c)
+    {
+        c.Rect(2, 2, 28, 28, ToyShelfDark);
+        c.Rect(4, 4, 24, 24, ToyShelf);
+        c.Rect(4, 14, 24, 2, ToyShelfDark);
+        c.Ellipse(9, 10, 3, 3, PaintA);          // ball
+        c.Rect(15, 8, 4, 5, PaintC);             // box
+        c.Rect(21, 7, 5, 6, PaintB);             // robot
+        c.Rect(22, 8, 1, 1, CanvasCol); c.Rect(24, 8, 1, 1, CanvasCol);
+        c.Rect(6, 20, 6, 6, HillPaint);          // blocks
+        c.Ellipse(19, 23, 4, 3, Fur);            // plush
+        c.Ellipse(17, 19, 1, 1, Fur); c.Ellipse(21, 19, 1, 1, Fur);
+    }
+
+    static void DrawTeddy(Canvas c)
+    {
+        c.Ellipse(16, 21, 7, 7, TeddyBrown);     // body
+        c.Ellipse(16, 11, 6, 5, TeddyBrown);     // head
+        c.Ellipse(11, 7, 2, 2, TeddyBrown);      // ears
+        c.Ellipse(21, 7, 2, 2, TeddyBrown);
+        c.Ellipse(16, 22, 4, 4, Fur);            // tummy
+        c.Ellipse(16, 13, 2, 1, Fur);            // snout
+        c.Set(14, 10, Ink); c.Set(18, 10, Ink); c.Set(16, 12, Ink);
+        c.Rect(13, 16, 6, 2, PaintA);            // bow
+    }
+
+    static void DrawToyTrain(Canvas c)
+    {
+        c.Rect(3, 14, 12, 9, PaintA);            // engine
+        c.Rect(9, 9, 6, 6, PaintA);              // cab
+        c.Rect(10, 10, 4, 3, WaterHi);
+        c.Rect(4, 10, 3, 4, Ink);                // chimney
+        c.Rect(17, 15, 11, 8, PaintB);           // wagon
+        c.Rect(15, 19, 2, 1, Ink);               // coupler
+        foreach (int x in new[] { 6, 12, 20, 25 }) c.Ellipse(x, 24, 2, 2, Ink);
+    }
+
+    static void DrawToyBlocks(Canvas c)
+    {
+        c.Rect(4, 18, 10, 10, PaintA);  c.Rect(6, 20, 6, 6, CanvasCol); c.Rect(8, 21, 2, 4, PaintA);
+        c.Rect(16, 18, 10, 10, PaintB); c.Rect(18, 20, 6, 6, CanvasCol); c.Rect(19, 21, 4, 4, PaintB);
+        c.Rect(10, 7, 10, 10, PaintC);  c.Rect(12, 9, 6, 6, CanvasCol); c.Rect(14, 10, 2, 4, PaintC);
     }
 
     class Canvas

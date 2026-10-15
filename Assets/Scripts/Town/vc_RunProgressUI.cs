@@ -360,6 +360,30 @@ public class vc_RunProgressUI : MonoBehaviour
     /// <summary>The banner hides during quests so it doesn't crowd the quest UI.</summary>
     public void SetBannerVisible(bool visible) => _banner?.EnableInClassList("rp-hidden", !visible);
 
+    // ── "next stage" button (shown when nothing is left to do in the town) ──
+
+    private Button _nextBtn;
+    private Label _nextLabel;
+
+    public void ShowNextStageButton(string label, Action onClick)
+    {
+        if (_nextBtn == null)
+        {
+            _nextBtn = new Button();
+            _nextBtn.AddToClassList("rp-next-btn");
+            _nextBtn.AddToClassList("sl-button-wide");
+            _nextLabel = new Label();
+            _nextLabel.AddToClassList("rp-card-btn-label");
+            _nextBtn.Add(_nextLabel);
+            _root.Q(className: "rp-root")?.Add(_nextBtn);
+        }
+        _nextLabel.text = label;
+        _nextBtn.clickable = new Clickable(() => onClick?.Invoke());
+        _nextBtn.RemoveFromClassList("rp-hidden");
+    }
+
+    public void HideNextStageButton() => _nextBtn?.AddToClassList("rp-hidden");
+
     public bool IsShowingOverlay =>
         (_dream != null && !_dream.ClassListContains("rp-hidden")) ||
         (_summaryDim != null && !_summaryDim.ClassListContains("rp-hidden"));

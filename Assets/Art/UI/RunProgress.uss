@@ -254,3 +254,14 @@
 }
 
 .rp-hidden { display: none; }
+
+/* ---------- "next stage" button (nothing left to do in this town) ---------- */
+.rp-next-btn {
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    translate: -50% 0;
+    height: 56px;
+    min-width: 300px;
+    padding: 0 28px;
+}

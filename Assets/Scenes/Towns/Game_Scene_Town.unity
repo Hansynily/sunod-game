@@ -4966,17 +4966,29 @@ MonoBehaviour:
     - R2
     - R8
     - I2
+    - I3
+    - I6
+    - A6
+    - E2
+    - E8
     - A3
     - C2
     - S6
+    - S7
     questIds:
     - r_pump
     - r2_stones
     - r8_floor
     - i2_rabbits
+    - e_i3_seedlings
+    - e_i6_fish
+    - e_a6_drum
+    - e_e2_snacks
+    - e_e8_toys
     - a3_poster
     - L2_MissingKey
     - L1_LostFriend
+    - e_s7_story
     dreamAfter:
     - The years pass. Grade school ends, and you start to grow up.
     - 'The dreams don''t stop. If anything, they''re clearer now: cracked walls,

@@ -322,9 +322,45 @@ public class vc_TownStage : MonoBehaviour
         foreach (vc_TownHome home in _homes) home.SetProgress(progress);
     }
 
+    /// <summary>
+    /// Shows the "Next stage" button whenever nothing is left to do here - every built quest
+    /// attempted, or the stage has no built quests at all yet. Works like the corridor's End
+    /// Run button: the player moves on when they're ready.
+    /// </summary>
+    private void UpdateNextStageButton()
+    {
+        vc_RunProgressUI ui = vc_RunProgressUI.Instance;
+        if (ui == null) return;
+        if (_inQuest || AttemptedCount < BuiltQuestCount) { ui.HideNextStageButton(); return; }
+
+        int idx = vc_TownFlow.Instance != null ? vc_TownFlow.Instance.CurrentStageIndex : -1;
+        bool last = idx < 0 || idx + 1 >= vc_TownFlow.TownScenes.Length;
+        string next = !last && vc_TownFlow.Instance.Stages.Length > idx + 1 ? vc_TownFlow.Instance.Stages[idx + 1].title : "";
+        ui.ShowNextStageButton(last ? "See my results  >" : $"Go to {next}  >", GoToNextStage);
+    }
+
+    /// <summary>Leave this stage now (Next stage button). Closes out the current day first.</summary>
+    public void GoToNextStage()
+    {
+        if (_inQuest || _busy) return;
+        _stageCompleted = true;
+        vc_RunProgressUI.Instance?.HideNextStageButton();
+        System.Action go = () => { _busy = true; vc_TownFlow.Instance?.LoadNextTown(); };
+        if (_questsToday > 0) EndDay(go);
+        else go();
+    }
+
     private void CheckStageComplete()
     {
-        if (_stageCompleted || BuiltQuestCount == 0 || AttemptedCount < BuiltQuestCount) return;
+        UpdateNextStageButton();
+        if (_stageCompleted || AttemptedCount < BuiltQuestCount) return;
+
+        if (BuiltQuestCount == 0)
+        {
+            // No quests built for this stage yet: let the player look around, then move on.
+            vc_QuestHUD.Instance?.ShowFeedbackTimed("No one needs help here yet. Tap the button at the top to move on.", 4f);
+            return;
+        }
         _stageCompleted = true;
 
         string line = string.IsNullOrEmpty(completeLine) ? "You've helped everyone here. Time to grow up!" : completeLine;
@@ -388,6 +424,7 @@ public class vc_TownStage : MonoBehaviour
         ResetDayTally();
         RefreshHomes();
         RefreshHud();
+        UpdateNextStageButton();
         vc_TownFlow.RaiseProgressChanged();
     }
 
