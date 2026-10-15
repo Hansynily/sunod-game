@@ -131,7 +131,10 @@
                 </ui:VisualElement>
                 <ui:VisualElement class="backend-preset-row">
                     <ui:Button name="btn-preset-railway" class="btn-preset sl-button btn-preset-active">
-                        <ui:Label text="Railway" picking-mode="Ignore"/>
+                        <ui:Label text="Online" picking-mode="Ignore"/>
+                    </ui:Button>
+                    <ui:Button name="btn-preset-localhost" class="btn-preset sl-button">
+                        <ui:Label text="Localhost" picking-mode="Ignore"/>
                     </ui:Button>
                     <ui:Button name="btn-preset-custom" class="btn-preset sl-button">
                         <ui:Label text="Custom" picking-mode="Ignore"/>
@@ -151,7 +154,7 @@
                         <ui:Label text="Save" class="lr-action-label" picking-mode="Ignore"/>
                     </ui:Button>
                 </ui:VisualElement>
-                <ui:Label text="Railway is the default. Use custom IP if Railway doesn't connect." class="backend-help"/>
+                <ui:Label text="Online is the default. Use Localhost or a custom URL if it doesn't connect." class="backend-help"/>
             </ui:VisualElement>
         </ui:VisualElement>
 

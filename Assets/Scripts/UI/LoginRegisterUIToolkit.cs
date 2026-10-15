@@ -52,6 +52,7 @@ namespace SunodGame.UI
         private Button        _btnBackendSave;
         private Button        _btnPresetRailway;
         private Button        _btnPresetCustom;
+        private Button        _btnPresetLocalhost;
         private Button        _btnDevBackend;
 
         private string _selectedBackendPreset = PresetRailway;
@@ -94,6 +95,7 @@ namespace SunodGame.UI
             _btnBackendSave   = root.Q<Button>("btn-backend-save");
             _btnPresetRailway = root.Q<Button>("btn-preset-railway");
             _btnPresetCustom  = root.Q<Button>("btn-preset-custom");
+            _btnPresetLocalhost = root.Q<Button>("btn-preset-localhost");
             _btnDevBackend    = root.Q<Button>("btn-dev-backend");
 
             // Placeholder + password masking
@@ -116,6 +118,7 @@ namespace SunodGame.UI
             _btnBackendSave?      .RegisterCallback<ClickEvent>(_ => OnBackendSaveClicked());
             _btnPresetRailway?    .RegisterCallback<ClickEvent>(_ => OnRailwayPresetClicked());
             _btnPresetCustom?     .RegisterCallback<ClickEvent>(_ => OnCustomPresetClicked());
+            _btnPresetLocalhost?  .RegisterCallback<ClickEvent>(_ => OnLocalhostPresetClicked());
             _btnDevBackend?       .RegisterCallback<ClickEvent>(_ => OpenBackendSettings());
 
             // Initial state
@@ -371,19 +374,34 @@ namespace SunodGame.UI
                 _inputBackendUrl.value = railwayUrl;
 
             SetBackendStatus(string.IsNullOrWhiteSpace(railwayUrl)
-                ? "Railway URL is not configured yet."
-                : $"Railway selected: {_inputBackendUrl?.value}");
+                ? "Online URL is not configured yet."
+                : $"Online selected: {_inputBackendUrl?.value}");
 
-            _btnPresetRailway?.AddToClassList("btn-preset-active");
-            _btnPresetCustom? .RemoveFromClassList("btn-preset-active");
+            HighlightPreset(_btnPresetRailway);
+        }
+
+        /// <summary>Localhost preset: the home-PC server URL, saved as a custom backend.</summary>
+        private void OnLocalhostPresetClicked()
+        {
+            _selectedBackendPreset = PresetCustom;
+            string url = TelemetryManager.Instance?.LocalhostPresetUrl ?? string.Empty;
+            if (_inputBackendUrl != null && !string.IsNullOrWhiteSpace(url))
+                _inputBackendUrl.value = url;
+            SetBackendStatus($"Localhost selected: {_inputBackendUrl?.value}");
+            HighlightPreset(_btnPresetLocalhost);
+        }
+
+        private void HighlightPreset(Button active)
+        {
+            foreach (Button b in new[] { _btnPresetRailway, _btnPresetLocalhost, _btnPresetCustom })
+                b?.EnableInClassList("btn-preset-active", b == active);
         }
 
         private void OnCustomPresetClicked()
         {
             _selectedBackendPreset = PresetCustom;
             SetBackendStatus("Custom mode selected. Enter the full backend URL.");
-            _btnPresetCustom? .AddToClassList("btn-preset-active");
-            _btnPresetRailway?.RemoveFromClassList("btn-preset-active");
+            HighlightPreset(_btnPresetCustom);
         }
 
         private void OnBackendSaveClicked()
@@ -413,7 +431,7 @@ namespace SunodGame.UI
             if (_inputBackendUrl != null)
                 _inputBackendUrl.value = resolvedUrl;
 
-            SetBackendStatus($"Saved {_selectedBackendPreset}: {resolvedUrl}");
+            SetBackendStatus($"Saved {(_selectedBackendPreset == PresetRailway ? "Online" : _selectedBackendPreset)}: {resolvedUrl}");
             CloseBackendSettings();
         }
 
@@ -430,18 +448,14 @@ namespace SunodGame.UI
             if (_inputBackendUrl != null)
                 _inputBackendUrl.value = tm.BaseUrl;
 
-            SetBackendStatus($"Current: {tm.CurrentBackendMode} - {tm.BaseUrl}");
+            SetBackendStatus($"Current: {(tm.CurrentBackendMode == PresetRailway ? "Online" : tm.CurrentBackendMode)} - {tm.BaseUrl}");
 
             if (_selectedBackendPreset == PresetRailway)
-            {
-                _btnPresetRailway?.AddToClassList("btn-preset-active");
-                _btnPresetCustom? .RemoveFromClassList("btn-preset-active");
-            }
+                HighlightPreset(_btnPresetRailway);
+            else if (string.Equals(tm.BaseUrl?.TrimEnd('/'), tm.LocalhostPresetUrl?.TrimEnd('/'), System.StringComparison.OrdinalIgnoreCase))
+                HighlightPreset(_btnPresetLocalhost);
             else
-            {
-                _btnPresetCustom? .AddToClassList("btn-preset-active");
-                _btnPresetRailway?.RemoveFromClassList("btn-preset-active");
-            }
+                HighlightPreset(_btnPresetCustom);
         }
 
         private void SetBackendStatus(string message)
