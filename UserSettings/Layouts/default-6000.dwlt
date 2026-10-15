@@ -594,7 +594,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 1273, y: 636}
+  m_TargetSize: {x: 1273, y: 732}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -611,8 +611,8 @@ MonoBehaviour:
     vZoomLockedByDefault: 0
     m_HBaseRangeMin: -636.5
     m_HBaseRangeMax: 636.5
-    m_VBaseRangeMin: -318
-    m_VBaseRangeMax: 318
+    m_VBaseRangeMin: -366
+    m_VBaseRangeMax: 366
     m_HAllowExceedBaseRangeMin: 1
     m_HAllowExceedBaseRangeMax: 1
     m_VAllowExceedBaseRangeMin: 1
@@ -1382,7 +1382,7 @@ MonoBehaviour:
       m_Data: 113630
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82358
+    - m_Data: 82406
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1415,7 +1415,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82358
+    - m_Data: 82406
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1559,7 +1559,7 @@ MonoBehaviour:
       m_Data: 118290
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82358
+    - m_Data: 82406
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1592,7 +1592,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82358
+    - m_Data: 82406
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1731,7 +1731,7 @@ MonoBehaviour:
       m_Data: 83256
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82358
+    - m_Data: 82406
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1764,7 +1764,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82358
+    - m_Data: 82406
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
