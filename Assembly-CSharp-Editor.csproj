@@ -53,6 +53,7 @@
     <Compile Include="Assets\Scripts\Editor\QuestRoomGenerator.cs" />
     <Compile Include="Assets\Scripts\Editor\SpriteGenerator.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_CutsceneSync.cs" />
+    <Compile Include="Assets\Scripts\Editor\vc_TownBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

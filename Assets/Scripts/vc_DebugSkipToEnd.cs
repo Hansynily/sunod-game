@@ -48,6 +48,9 @@ public class vc_DebugSkipToEnd : MonoBehaviour
             TrySkip();
     }
 
+    /// <summary>Debug menu entry: same as pressing F8.</summary>
+    public static void RunFromMenu() => FindFirstObjectByType<vc_DebugSkipToEnd>()?.TrySkip();
+
     private void TrySkip()
     {
         if (_isRunning) return;

@@ -224,7 +224,9 @@ public class vc_PauseMenu : MonoBehaviour
 
     private static bool IsRealRunSceneName(string sceneName)
         => sceneName == SceneLoader.SCENE_GAME        // "Game_Scene" (loaded by GoToPlay)
-        || sceneName == SceneLoader.SCENE_PLAY;       // "Level1_Scene" (kept for safety)
+        || sceneName == SceneLoader.SCENE_PLAY        // "Level1_Scene" (kept for safety)
+        || sceneName == vc_TownFlow.GameSceneName     // "Game_Scene_Town" (life-stage towns)
+        || System.Array.IndexOf(vc_TownFlow.TownScenes, sceneName) >= 0;   // a town played directly
 
     private static bool IsTutorialScene()
         => IsTutorialSceneName(SceneManager.GetActiveScene().name);

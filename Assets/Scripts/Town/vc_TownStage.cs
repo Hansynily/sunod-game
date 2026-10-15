@@ -23,8 +23,8 @@ public class vc_TownStage : MonoBehaviour
     public Transform playerSpawn;
     [Tooltip("Hidden spot (far from the town) where quest rooms are spawned.")]
     public Transform questArea;
-    [Tooltip("Where the player stands inside a 16x16 quest room, relative to the room's center.")]
-    public Vector2 roomEntryOffset = new Vector2(0f, -6f);
+    [Tooltip("Where the player stands inside a 16x16 quest room, relative to the room's center. Rooms are designed to be entered from the left.")]
+    public Vector2 roomEntryOffset = new Vector2(-6.5f, 0f);
 
     private vc_TownNPC[] _npcs = new vc_TownNPC[0];
     private vc_TownNPC _activeNpc;
@@ -192,6 +192,45 @@ public class vc_TownStage : MonoBehaviour
 
         string line = string.IsNullOrEmpty(completeLine) ? "You've helped everyone here. Time to grow up!" : completeLine;
         vc_DialogPanel.Instance?.ShowMessage($"{stageTitle} done!", line, () => vc_TownFlow.Instance?.LoadNextTown());
+    }
+
+    // ── Debug menu hooks ──────────────────────────────────────────────────
+
+    /// <summary>Marks every built quest in this town as attempted and finishes the stage.</summary>
+    public void DebugCompleteStage()
+    {
+        foreach (vc_TownNPC npc in _npcs)
+        {
+            if (!npc.HasQuest) continue;
+            vc_TownFlow.MarkAttempted(npc.npcId);
+            npc.SetAttempted(true);
+        }
+        RefreshHud();
+        CheckStageComplete();
+    }
+
+    /// <summary>First NPC whose quest is built and not yet attempted, or null.</summary>
+    public vc_TownNPC DebugNextOpenNpc()
+    {
+        foreach (vc_TownNPC npc in _npcs)
+            if (npc.HasQuest && !npc.Attempted) return npc;
+        return null;
+    }
+
+    public void DebugTeleportTo(vc_TownNPC npc)
+    {
+        if (npc == null || _inQuest) return;
+        _promptCooldownUntil = Time.time + 0.5f;
+        MovePlayer(npc.transform.position + new Vector3(0f, -1.2f, 0f));
+    }
+
+    /// <summary>Clears this town's progress so every quest can be played again.</summary>
+    public void DebugResetProgress()
+    {
+        foreach (vc_TownNPC npc in _npcs) npc.SetAttempted(false);
+        vc_TownFlow.ResetRun();
+        _stageCompleted = false;
+        RefreshHud();
     }
 
     private void MovePlayer(Vector3 pos)

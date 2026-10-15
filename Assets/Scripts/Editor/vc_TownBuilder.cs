@@ -38,8 +38,13 @@ public static class vc_TownBuilder
         public readonly List<Npc> npcs = new List<Npc>();
         public readonly List<(RectInt area, int count, string[] kinds)> trees = new List<(RectInt, int, string[])>();
         public string[] borderTrees = { "tree_green", "tree_pine", "tree_round" };
-        public string[] decor = { "flower_red", "flower_white", "flower_blue", "bush" };
-        public float decorDensity = 0.025f;
+        public string[] decor =
+        {
+            "flower_red", "flower_white", "flower_blue", "flowers_white", "tiny_flower1", "tiny_flower2", "tiny_flower3",
+            "bloom_orange", "bloom_blue", "bloom_pink", "clover", "clover", "bush",
+            "mush_green", "mush_purple", "mush_orange", "mush_brown",
+        };
+        public float decorDensity = 0.085f;
 
         public void Path(string mat, int x, int y, int w, int h) => paths.Add((mat, new RectInt(x, y, w, h)));
         public void Water(int x, int y, int w, int h) => water.Add(new RectInt(x, y, w, h));
@@ -183,7 +188,7 @@ public static class vc_TownBuilder
         for (int x = -Margin + 2; x < t.w + Margin - 2; x += 2)
             for (int y = -Margin + 2; y < t.h + Margin - 2; y += 2)
             {
-                if (rng.NextDouble() > 0.11) continue;
+                if (rng.NextDouble() > 0.24) continue;
                 Vector2Int c = new Vector2Int(x, y);
                 bool onPath = false;
                 foreach (var set in byMat.Values) if (set.Contains(c)) { onPath = true; break; }
@@ -232,13 +237,38 @@ public static class vc_TownBuilder
         }
         BuildBorder(natureRoot, t, rng);
 
-        for (int x = 1; x < t.w - 1; x++)
-            for (int y = 2; y < t.h - 3; y++)
+        // Ground flora: lots of tiny grass tufts, then flowers / mushrooms / clover, then the odd
+        // rock. Goes on any grass cell that isn't a path, building, NPC or tree spot - including
+        // the margin outside the town, so the forest floor isn't bare either.
+        var floraRoot = new GameObject("Flora").transform;
+        floraRoot.SetParent(root.transform, false);
+        string[] tufts = { "tuft1", "tuft2", "tuft3", "tuft4", "tuft5", "tuft6", "tuft7", "tuft8",
+                           "tuft_wide1", "tuft_wide2", "tuft_wide3", "tuft_wide4" };
+        string[] rocks = { "rock1", "rock2", "rock3", "rock_moss1", "rock_moss2", "pebble1", "pebble2", "pebble1" };
+        for (int x = -Margin + 1; x < t.w + Margin - 1; x++)
+            for (int y = -Margin + 1; y < t.h + Margin - 1; y++)
             {
-                if (occ[x, y] || rng.NextDouble() > t.decorDensity) continue;
-                string d = t.decor[rng.Next(t.decor.Length)];
-                PlaceSprite(natureRoot, d, x + 0.5f, y + 0.2f, false);
-                occ[x, y] = true;
+                bool inTown = x >= 0 && y >= 0 && x < t.w && y < t.h;
+                if (inTown && occ[x, y]) continue;
+                Vector2Int c = new Vector2Int(x, y);
+                bool onPath = false;
+                foreach (var set in byMat.Values) if (set.Contains(c)) { onPath = true; break; }
+                if (onPath) continue;
+
+                if (rng.NextDouble() < 0.45)
+                    PlaceSprite(floraRoot, tufts[rng.Next(tufts.Length)], x + 0.15f + (float)rng.NextDouble() * 0.7f, y + (float)rng.NextDouble() * 0.8f, false);
+
+                double roll = rng.NextDouble();
+                if (roll < t.decorDensity)
+                {
+                    PlaceSprite(floraRoot, t.decor[rng.Next(t.decor.Length)], x + 0.5f, y + 0.15f, false);
+                    if (inTown) occ[x, y] = true;
+                }
+                else if (roll < t.decorDensity + 0.012)
+                {
+                    PlaceSprite(floraRoot, rocks[rng.Next(rocks.Length)], x + 0.5f, y + 0.15f, false);
+                    if (inTown) occ[x, y] = true;
+                }
             }
 
         // bounds
@@ -258,6 +288,37 @@ public static class vc_TownBuilder
         questArea.SetParent(root.transform, false);
         questArea.position = new Vector3(t.w / 2f, -80f, 0f);
         stage.questArea = questArea;
+
+        // Backdrop around the quest area: quest rooms are 16x16 and were built with hallways
+        // beside them, so without this the camera shows empty void next to the room.
+        Vector2Int qa = new Vector2Int(Mathf.RoundToInt(questArea.position.x), Mathf.RoundToInt(questArea.position.y));
+        for (int x = -22; x < 22; x++)
+            for (int y = -16; y < 16; y++)
+                ground.SetTile(new Vector3Int(qa.x + x, qa.y + y, 0), grass);
+        var qaNature = new GameObject("QuestAreaBackdrop").transform;
+        qaNature.SetParent(root.transform, false);
+        string[] qaTufts = { "tuft1", "tuft3", "tuft5", "tuft_wide2", "grass_dark2", "clover", "flower_white" };
+        for (int ring = 0; ring < 4; ring++)
+        {
+            float r = 9.5f + ring * 2.4f;
+            for (float x = -r; x <= r; x += 2.6f)
+            {
+                PlaceSprite(qaNature, Pick(t, rng), qa.x + x, qa.y - r - 1.5f, false);
+                PlaceSprite(qaNature, Pick(t, rng), qa.x + x, qa.y + r - 1f, false);
+            }
+            for (float y = -r + 1f; y <= r - 1f; y += 2.6f)
+            {
+                PlaceSprite(qaNature, Pick(t, rng), qa.x - r - 0.5f, qa.y + y, false);
+                PlaceSprite(qaNature, Pick(t, rng), qa.x + r + 0.5f, qa.y + y, false);
+            }
+        }
+        for (int i = 0; i < 70; i++)
+        {
+            float x = (float)rng.NextDouble() * 40f - 20f, y = (float)rng.NextDouble() * 28f - 14f;
+            if (Mathf.Abs(x) < 9f && Mathf.Abs(y) < 9f) continue;   // keep the room footprint clear
+            GameObject d = PlaceSprite(qaNature, qaTufts[rng.Next(qaTufts.Length)], qa.x + x, qa.y + y, false);
+            if (d != null) d.GetComponentInChildren<SpriteRenderer>().sortingOrder = -21;
+        }
 
         string path = $"{SceneDir}/{t.scene}.unity";
         EditorSceneManager.SaveScene(scene, path);
@@ -694,8 +755,8 @@ public static class vc_TownBuilder
             intro = "College, and the city is full of people who need you. The disaster is close now. Help everyone you can.",
             complete = "You're ready. Whatever comes next, everything you've learned will decide your future.",
             borderTrees = new[] { "tree_pine", "tree_round", "tree_green", "tree_palm" },
-            decor = new[] { "flower_white", "flower_blue", "bush", "plant_pot" },
-            decorDensity = 0.015f,
+            decor = new[] { "flower_white", "flower_blue", "tiny_flower1", "tiny_flower3", "clover", "clover", "bush", "bloom_blue", "mush_brown" },
+            decorDensity = 0.06f,
         };
         t.Water(30, 2, 20, 5);
         t.Path("sand", 28, 7, 22, 2);

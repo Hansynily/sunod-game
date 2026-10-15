@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Core\SceneLoader.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Debug.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownFlow.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillData.cs" />
     <Compile Include="Assets\Scripts\vc_ArrowSkill.cs" />
     <Compile Include="Assets\Scripts\Models\TelemetryModels.cs" />
@@ -79,10 +80,12 @@
     <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
     <Compile Include="Assets\Scripts\UI\vc_KeyboardAvoider.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownNPC.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
     <Compile Include="Assets\Scripts\vc_MarkerGlow.cs" />
     <Compile Include="Assets\Scripts\UI\vc_FloatingJoystick.cs" />
+    <Compile Include="Assets\Scripts\Debug\vc_DebugMenu.cs" />
     <Compile Include="Assets\Scripts\Core\GameSessionData.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillManager.cs" />
@@ -166,6 +169,7 @@
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\UI\vc_DialogPanel.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownStage.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialAreaTrigger.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorInitializer.cs" />

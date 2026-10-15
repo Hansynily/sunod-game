@@ -67,9 +67,29 @@ public class vc_QuestTimer : MonoBehaviour
         UpdateDebugText();
     }
 
+    /// <summary>Debug menu: stops the countdown while true.</summary>
+    public bool DebugFrozen { get; set; }
+
+    /// <summary>Debug menu: adds (or removes) seconds on the running timer.</summary>
+    public void DebugAddTime(float seconds)
+    {
+        if (!isRunning) return;
+        timeRemaining = Mathf.Clamp(timeRemaining + seconds, 0.01f, totalTime);
+        UpdateDisplayedStars();
+    }
+
+    /// <summary>Debug menu: ends the running quest as a fail, same as running out of time.</summary>
+    public void DebugForceFail()
+    {
+        if (!isRunning) return;
+        timeRemaining = 0f;
+        UpdateDisplayedStars();
+        Fail();
+    }
+
     private void Update()
     {
-        if (!isRunning)
+        if (!isRunning || DebugFrozen)
         {
             return;
         }

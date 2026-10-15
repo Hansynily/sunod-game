@@ -181,6 +181,7 @@ public class vc_QuestRoom : MonoBehaviour
     /// <summary>True once this quest has ended, whether it succeeded or failed on the timer.
     /// Used by vc_AreaSeal to decide whether a hallway can close behind the player.</summary>
     public bool IsFinished => questResultRecorded || questCompletionNotified;
+    public bool IsInProgress => questStarted && !IsFinished;
 
     // ── Save ────────────────────────────────────────────────────────────────
 
