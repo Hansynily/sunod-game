@@ -172024,7 +172024,7 @@ MonoBehaviour:
   npcId: college_E7
   npcName: Agent Mel
   questCode: E7
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 037aa307b66fdb74e94495b04bd19251, type: 3}
   askLine: I'm holding an open house today. Can you help me sell it?
   thanksLine: Sold! You're a natural.
   idleFrames:
@@ -181598,7 +181598,7 @@ MonoBehaviour:
   npcId: college_S1
   npcName: Ms. Rivera
   questCode: S1
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: b9c22d5ec3763ba4bac47a1fece5d658, type: 3}
   askLine: Students keep asking me about careers. Can you help out at the career
     booth?
   thanksLine: You really helped them find a direction.
@@ -207279,7 +207279,7 @@ MonoBehaviour:
   npcId: college_E3
   npcName: Mr. Lee
   questCode: E3
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 7fd9388d6ecce9d49a1645896f71e97a, type: 3}
   askLine: Guests are arriving all at once. Can you help me manage the hotel?
   thanksLine: Every guest checked in happy.
   idleFrames:
@@ -224874,7 +224874,7 @@ MonoBehaviour:
   npcId: college_I7
   npcName: Ana
   questCode: I7
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 11a87f1ba901a1d44b3f6eabae02b06c, type: 3}
   askLine: I need help with the samples in the biology lab. Can you give me a hand?
   thanksLine: Perfect results. Great lab work!
   idleFrames:
@@ -305924,7 +305924,7 @@ MonoBehaviour:
   npcId: college_C1
   npcName: Mr. Go
   questCode: C1
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 22a36a9c59eb5f94591329efb208b017, type: 3}
   askLine: It's payday. Can you help me prepare everyone's pay envelopes?
   thanksLine: Everyone got paid on time!
   idleFrames:

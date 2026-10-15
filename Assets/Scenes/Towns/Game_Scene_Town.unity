@@ -5000,10 +5000,18 @@ MonoBehaviour:
     - R4
     - A8
     - S2
+    - C8
+    - C5
+    - A2
+    - S8
     questIds:
     - r4_radio
     - a_mural
     - L3_FallenSparrow
+    - h_c8_ledger
+    - h_c5_harvest
+    - h_a2_play
+    - h_s8_lola
     dreamAfter:
     - High school is over. The town you grew up in feels smaller now.
     - Every night the dream is the same, and every night it's a little closer.
@@ -5012,10 +5020,20 @@ MonoBehaviour:
     title: College
     codes:
     - I5
+    - S1
+    - I7
+    - E3
+    - C1
     - I4
+    - E7
     questIds:
     - i5_mushrooms
+    - c_s1_career
+    - c_i7_lab
+    - c_e3_hotel
+    - c_c1_payday
     - L2_CatMedicine
+    - c_e7_house
     dreamAfter:
     - And then, just before you become an adult... it happens. The disaster strikes.
     - But this time, you're ready. Every person you helped, every skill you learned,

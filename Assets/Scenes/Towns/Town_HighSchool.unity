@@ -91957,7 +91957,7 @@ MonoBehaviour:
   npcId: highschool_A2
   npcName: Direk Paulo
   questCode: A2
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 96c48d656e16bd14fa1787b307d70b2e, type: 3}
   askLine: Opening night is tonight! Can you help me direct the class play?
   thanksLine: Standing ovation!
   idleFrames:
@@ -173312,7 +173312,7 @@ MonoBehaviour:
   npcId: highschool_C8
   npcName: Mang Tonyo
   questCode: C8
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: e5434575de9843448a4ac2c6c7a945ad, type: 3}
   askLine: Boats keep coming in. Can you keep track of what we ship and receive?
   thanksLine: Every box accounted for!
   idleFrames:
@@ -244688,7 +244688,7 @@ MonoBehaviour:
   npcId: highschool_C5
   npcName: Aling Nena
   questCode: C5
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: dfadee0e4c49806479e8a0441afb60fd, type: 3}
   askLine: Can you help me tally today's harvest and write down the numbers?
   thanksLine: Neat and exact. Salamat!
   idleFrames:
@@ -279288,7 +279288,7 @@ MonoBehaviour:
   npcId: highschool_S8
   npcName: Lola Ising
   questCode: S8
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: e4ddbb82bfb4c1943aafb77ac67c80c0, type: 3}
   askLine: Could you walk me home and help me with my chores today?
   thanksLine: You're such a kind young one.
   idleFrames:

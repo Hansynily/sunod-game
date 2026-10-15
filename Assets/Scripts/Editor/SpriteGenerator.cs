@@ -82,6 +82,13 @@ public static class SpriteGenerator
     static readonly Color32 ToyShelf   = new Color32(0xf0, 0xd8, 0xe8, 255);
     static readonly Color32 ToyShelfDark = new Color32(0xc0, 0x80, 0xa8, 255);
     static readonly Color32 TeddyBrown = new Color32(0xa8, 0x70, 0x40, 255);
+    static readonly Color32 CurtainRed = new Color32(0x9a, 0x22, 0x30, 255);
+    static readonly Color32 CurtainDark= new Color32(0x6a, 0x14, 0x20, 255);
+    static readonly Color32 LightBeam  = new Color32(0xff, 0xf2, 0xb0, 90);
+    static readonly Color32 Rope       = new Color32(0xc8, 0xa8, 0x6a, 255);
+    static readonly Color32 RopeDark   = new Color32(0x9a, 0x7c, 0x48, 255);
+    static readonly Color32 LabTop     = new Color32(0xee, 0xf0, 0xf2, 255);
+    static readonly Color32 LabGlass   = new Color32(0xb8, 0xdc, 0xe8, 255);
     static readonly Color32 DrumRim    = new Color32(0xe8, 0xe0, 0xd4, 255);
 
     // ── Entry point ──────────────────────────────────────────────────────────
@@ -133,6 +140,34 @@ public static class SpriteGenerator
             { "teddy",        DrawTeddy },
             { "toy_train",    DrawToyTrain },
             { "toy_blocks",   DrawToyBlocks },
+            { "curtain",      DrawCurtain },
+            { "spotlight",    DrawSpotlight },
+            { "seat_row",     DrawSeatRow },
+            { "stage_floor",  DrawStageFloor },
+            { "rocking_chair", DrawRockingChair },
+            { "clipboard",    DrawClipboard },
+            { "barrel",       DrawBarrel },
+            { "rope_coil",    DrawRopeCoil },
+            { "veg_row",      DrawVegRow },
+            { "scarecrow",    DrawScarecrow },
+            { "basket",       DrawBasket },
+            { "fence",        DrawFence },
+            { "lab_table",    DrawLabTable },
+            { "microscope",   DrawMicroscope },
+            { "sample_dish",  DrawSampleDish },
+            { "sample_cabinet", DrawSampleCabinet },
+            { "front_desk",   DrawFrontDesk },
+            { "luggage_cart", DrawLuggageCart },
+            { "door",         DrawDoor },
+            { "for_sale_sign", DrawForSaleSign },
+            { "window_big",   DrawWindowBig },
+            { "office_desk",  DrawOfficeDesk },
+            { "filing_cabinet", DrawFilingCabinet },
+            { "envelope_stack", DrawEnvelopeStack },
+            { "envelopes_ready", DrawEnvelopesReady },
+            { "booth_science", DrawBoothScience },
+            { "booth_art",    DrawBoothArt },
+            { "booth_health", DrawBoothHealth },
         };
 
         int count = 0;
@@ -601,6 +636,298 @@ public static class SpriteGenerator
         c.Rect(4, 18, 10, 10, PaintA);  c.Rect(6, 20, 6, 6, CanvasCol); c.Rect(8, 21, 2, 4, PaintA);
         c.Rect(16, 18, 10, 10, PaintB); c.Rect(18, 20, 6, 6, CanvasCol); c.Rect(19, 21, 4, 4, PaintB);
         c.Rect(10, 7, 10, 10, PaintC);  c.Rect(12, 9, 6, 6, CanvasCol); c.Rect(14, 10, 2, 4, PaintC);
+    }
+
+    static void DrawCurtain(Canvas c)
+    {
+        c.Rect(0, 0, 32, 4, PaintC);             // gold valance
+        c.Rect(0, 4, 32, 28, CurtainRed);
+        for (int x = 2; x < 32; x += 6) c.Rect(x, 4, 2, 28, CurtainDark); // folds
+        c.Rect(0, 28, 32, 4, CurtainDark);
+    }
+
+    static void DrawSpotlight(Canvas c)
+    {
+        c.Line(16, 0, 16, 6, StoneDark);         // hanging bar
+        c.Rect(11, 6, 10, 8, Speaker);
+        c.Rect(12, 13, 8, 2, DialGlow);
+        for (int y = 15; y < 32; y++) { int w = (y - 15) / 2 + 4; c.Rect(16 - w, y, w * 2, 1, LightBeam); }
+    }
+
+    static void DrawSeatRow(Canvas c)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            int x = 1 + i * 8;
+            c.Rect(x, 10, 6, 10, CurtainRed);    // backrest
+            c.Rect(x, 20, 6, 4, CurtainDark);    // seat
+            c.Rect(x + 1, 24, 1, 5, WoodEdge);   // legs
+            c.Rect(x + 4, 24, 1, 5, WoodEdge);
+        }
+    }
+
+    static void DrawStageFloor(Canvas c)
+    {
+        c.Rect(0, 0, 32, 28, WoodMid);
+        for (int y = 3; y < 28; y += 5) c.Rect(0, y, 32, 1, WoodDark);
+        c.Rect(0, 28, 32, 4, WoodEdge);          // stage lip
+    }
+
+    static void DrawRockingChair(Canvas c)
+    {
+        c.Rect(9, 4, 14, 14, WoodMid);           // backrest
+        c.Rect(11, 6, 10, 10, Blossom);          // cushion
+        c.Rect(8, 18, 16, 4, WoodDark);          // seat
+        c.Rect(9, 22, 2, 6, WoodDark);
+        c.Rect(21, 22, 2, 6, WoodDark);
+        c.Line(4, 27, 28, 29, WoodEdge);         // rocker
+        c.Line(4, 28, 28, 30, WoodEdge);
+    }
+
+    static void DrawClipboard(Canvas c)
+    {
+        c.Rect(7, 4, 18, 25, WoodMid);
+        c.Rect(9, 7, 14, 20, CanvasCol);
+        c.Rect(12, 2, 8, 4, StoneMid);           // clip
+        for (int y = 10; y < 26; y += 3) { c.Rect(11, y, 1, 1, Ink); c.Rect(13, y, 8, 1, PaperLine); }
+    }
+
+    static void DrawBarrel(Canvas c)
+    {
+        c.Ellipse(16, 17, 10, 13, WoodMid);
+        c.Rect(6, 8, 20, 2, StoneDark);          // hoops
+        c.Rect(6, 24, 20, 2, StoneDark);
+        c.Ellipse(16, 6, 8, 3, WoodLight);       // lid
+        c.Rect(12, 12, 1, 10, WoodDark);
+        c.Rect(19, 12, 1, 10, WoodDark);
+    }
+
+    static void DrawRopeCoil(Canvas c)
+    {
+        c.Ellipse(16, 18, 12, 8, RopeDark);
+        c.Ellipse(16, 18, 10, 6, Rope);
+        c.Ellipse(16, 18, 6, 3, RopeDark);
+        c.Ellipse(16, 18, 4, 2, Rope);
+        c.Line(26, 18, 31, 24, Rope);
+    }
+
+    static void DrawVegRow(Canvas c)
+    {
+        c.Rect(0, 18, 32, 10, MudMid);
+        c.Rect(0, 18, 32, 2, MudHi);
+        for (int i = 0; i < 4; i++)
+        {
+            int x = 3 + i * 8;
+            c.Ellipse(x + 1, 14, 3, 4, LeafMid); // leafy tops
+            c.Ellipse(x + 1, 21, 2, 2, i % 2 == 0 ? PotClay : AwningRed); // veg peeking out
+        }
+    }
+
+    static void DrawScarecrow(Canvas c)
+    {
+        c.Rect(15, 8, 2, 23, WoodDark);          // pole
+        c.Rect(5, 13, 22, 2, WoodDark);          // arms
+        c.Rect(10, 12, 12, 10, PaintB);          // shirt
+        c.Ellipse(16, 7, 4, 4, Paper);           // sack head
+        c.Rect(9, 1, 14, 3, PaintC);             // straw hat
+        c.Rect(12, 0, 8, 2, PaintC);
+        c.Set(14, 7, Ink); c.Set(18, 7, Ink);
+    }
+
+    static void DrawBasket(Canvas c)
+    {
+        c.Ellipse(16, 14, 11, 4, HillPaint);     // greens on top
+        c.Ellipse(12, 13, 3, 2, AwningRed);      // tomatoes
+        c.Ellipse(20, 13, 3, 2, PotClay);
+        c.Rect(5, 15, 22, 12, Spine);            // woven body
+        for (int y = 17; y < 27; y += 3) c.Rect(5, y, 22, 1, SpineDark);
+        c.Line(6, 15, 16, 4, SpineDark);         // handle
+        c.Line(16, 4, 26, 15, SpineDark);
+    }
+
+    static void DrawFence(Canvas c)
+    {
+        c.Rect(0, 12, 32, 3, WoodMid);
+        c.Rect(0, 21, 32, 3, WoodMid);
+        foreach (int x in new[] { 2, 14, 26 }) { c.Rect(x, 6, 4, 24, WoodLight); c.Rect(x, 6, 4, 1, WoodEdge); }
+    }
+
+    static void DrawLabTable(Canvas c)
+    {
+        c.Rect(1, 16, 30, 4, LabTop);            // white bench top
+        c.Rect(2, 20, 28, 9, StoneDark);
+        c.Rect(4, 22, 10, 6, StoneMid);          // drawers
+        c.Rect(18, 22, 10, 6, StoneMid);
+        c.Rect(5, 7, 4, 9, LabGlass);            // beaker
+        c.Rect(5, 11, 4, 5, Glow);
+        c.Rect(13, 9, 3, 7, LabGlass);           // test tubes
+        c.Rect(13, 12, 3, 4, PaintA);
+        c.Rect(17, 9, 3, 7, LabGlass);
+        c.Rect(17, 12, 3, 4, PaintB);
+        c.Ellipse(26, 12, 4, 4, LabGlass);       // round flask
+        c.Ellipse(26, 13, 3, 2, PaintC);
+        c.Rect(25, 5, 2, 4, LabGlass);
+    }
+
+    static void DrawMicroscope(Canvas c)
+    {
+        c.Rect(8, 27, 16, 3, Speaker);           // base
+        c.Rect(18, 10, 4, 17, StoneDark);        // arm
+        c.Rect(9, 19, 12, 2, StoneMid);          // stage
+        c.Line(11, 4, 15, 17, StoneLight);       // tube
+        c.Line(12, 4, 16, 17, StoneLight);
+        c.Rect(9, 2, 4, 3, Speaker);             // eyepiece
+        c.Rect(14, 21, 4, 1, Glow);              // slide light
+    }
+
+    static void DrawSampleDish(Canvas c)
+    {
+        c.Ellipse(16, 18, 11, 6, LabGlass);
+        c.Ellipse(16, 18, 9, 4, LabTop);
+        c.Ellipse(12, 18, 2, 1, Glow);           // little cultures
+        c.Ellipse(18, 17, 2, 1, PaintA);
+        c.Ellipse(20, 20, 1, 1, PaintC);
+    }
+
+    static void DrawSampleCabinet(Canvas c)
+    {
+        c.Rect(5, 2, 22, 28, StoneDark);
+        c.Rect(7, 4, 18, 24, LabGlass);
+        c.Rect(7, 15, 18, 1, StoneDark);
+        for (int i = 0; i < 4; i++) { c.Rect(9 + i * 4, 9, 2, 5, i % 2 == 0 ? Glow : PaintB); c.Rect(9 + i * 4, 20, 2, 5, i % 2 == 0 ? PaintA : PaintC); }
+        c.Rect(23, 14, 3, 4, DialGlow);          // lock
+    }
+
+    static void DrawFrontDesk(Canvas c)
+    {
+        c.Rect(1, 12, 30, 4, WoodLight);         // counter top
+        c.Rect(2, 16, 28, 13, WoodDark);
+        c.Rect(4, 18, 24, 9, WoodMid);
+        c.Rect(10, 20, 12, 4, PaintC);           // brass name plate
+        c.Ellipse(24, 10, 3, 2, DialGlow);       // service bell
+        c.Rect(24, 6, 1, 2, DialGlow);
+        c.Rect(4, 8, 7, 4, CanvasCol);           // guest book
+        c.Rect(7, 8, 1, 4, PaperLine);
+    }
+
+    static void DrawLuggageCart(Canvas c)
+    {
+        c.Rect(4, 2, 2, 24, DialGlow);           // brass frame
+        c.Rect(26, 2, 2, 24, DialGlow);
+        c.Rect(4, 2, 24, 2, DialGlow);
+        c.Rect(3, 24, 26, 3, StoneDark);
+        c.Rect(7, 14, 10, 10, PaintB);           // suitcases
+        c.Rect(18, 10, 8, 14, PaintA);
+        c.Rect(9, 8, 8, 6, MudHi);
+        c.Ellipse(7, 28, 2, 2, Ink); c.Ellipse(25, 28, 2, 2, Ink);
+    }
+
+    static void DrawDoor(Canvas c)
+    {
+        c.Rect(7, 1, 18, 30, WoodEdge);
+        c.Rect(9, 3, 14, 28, WoodMid);
+        c.Rect(11, 5, 10, 10, WoodLight);
+        c.Rect(11, 18, 10, 10, WoodLight);
+        c.Rect(20, 16, 2, 2, DialGlow);          // knob
+        c.Rect(13, 7, 6, 3, PaintC);             // room number plate
+    }
+
+    static void DrawForSaleSign(Canvas c)
+    {
+        c.Rect(15, 16, 2, 15, WoodDark);
+        c.Rect(3, 3, 26, 14, AwningRed);
+        c.Rect(5, 5, 22, 10, CanvasCol);
+        c.Rect(7, 7, 2, 6, AwningRed); c.Rect(9, 7, 2, 2, AwningRed); c.Rect(9, 10, 1, 1, AwningRed);   // F
+        c.Rect(12, 7, 4, 6, AwningRed); c.Rect(13, 8, 2, 4, CanvasCol);                                  // O
+        c.Rect(18, 7, 2, 6, AwningRed); c.Rect(20, 7, 2, 3, AwningRed); c.Rect(21, 10, 1, 3, AwningRed); // R
+        c.Rect(24, 7, 2, 6, PaintB);                                                                      // house mark
+    }
+
+    static void DrawWindowBig(Canvas c)
+    {
+        c.Rect(2, 2, 28, 24, WoodLight);
+        c.Rect(4, 4, 24, 20, SkyPaint);
+        c.Rect(4, 17, 24, 7, HillPaint);         // the view
+        c.Ellipse(22, 9, 3, 3, SunPaint);
+        c.Rect(15, 4, 2, 20, WoodLight);
+        c.Rect(4, 13, 24, 2, WoodLight);
+        c.Rect(1, 26, 30, 3, WoodDark);          // sill
+    }
+
+    static void DrawOfficeDesk(Canvas c)
+    {
+        c.Rect(1, 15, 30, 4, WoodMid);
+        c.Rect(2, 19, 6, 11, WoodDark);
+        c.Rect(24, 19, 6, 11, WoodDark);
+        c.Rect(18, 3, 11, 9, Speaker);           // monitor
+        c.Rect(19, 4, 9, 7, RadioBody);
+        c.Rect(22, 12, 3, 3, Speaker);
+        c.Rect(4, 10, 9, 5, CanvasCol);          // paper stack
+        c.Rect(4, 12, 9, 1, PaperLine);
+    }
+
+    static void DrawFilingCabinet(Canvas c)
+    {
+        c.Rect(7, 1, 18, 30, StoneDark);
+        for (int i = 0; i < 3; i++) { c.Rect(9, 3 + i * 9, 14, 7, StoneLight); c.Rect(14, 5 + i * 9, 4, 2, Speaker); c.Rect(11, 8 + i * 9, 10, 1, StoneMid); }
+    }
+
+    static void DrawEnvelopeStack(Canvas c)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            int y = 22 - i * 4, x = 6 + (i % 2) * 2;
+            c.Rect(x, y, 18, 6, Paper);
+            c.Line(x, y, x + 9, y + 3, PaperLine);
+            c.Line(x + 17, y, x + 9, y + 3, PaperLine);
+        }
+        c.Rect(24, 10, 4, 16, AwningRed);        // loose rubber band pile, unsorted
+    }
+
+    static void DrawEnvelopesReady(Canvas c)
+    {
+        c.Rect(3, 18, 26, 10, WoodMid);          // tray
+        c.Rect(3, 18, 26, 2, WoodLight);
+        for (int i = 0; i < 5; i++)
+        {
+            c.Rect(5 + i * 5, 8, 4, 12, Paper);
+            c.Rect(5 + i * 5, 8, 4, 2, i % 2 == 0 ? PaintB : HillPaint); // name tabs
+            c.Rect(6 + i * 5, 13, 2, 2, AwningRed); // sealed
+        }
+    }
+
+    static void DrawBooth(Canvas c, Color32 awning, Color32 accent)
+    {
+        c.Rect(3, 4, 2, 26, WoodDark);
+        c.Rect(27, 4, 2, 26, WoodDark);
+        for (int x = 1; x < 31; x += 4) c.Rect(x, 2, 2, 6, awning);
+        for (int x = 3; x < 31; x += 4) c.Rect(x, 2, 2, 6, CanvasCol);
+        c.Rect(2, 19, 28, 10, WoodMid);          // table
+        c.Rect(2, 19, 28, 2, WoodLight);
+        c.Rect(8, 10, 16, 8, CanvasCol);         // poster board
+        c.Rect(6, 22, 5, 4, CanvasCol);          // flyers
+        c.Rect(21, 22, 5, 4, accent);
+    }
+
+    static void DrawBoothScience(Canvas c)
+    {
+        DrawBooth(c, PaintB, Glow);
+        c.Rect(14, 11, 4, 5, LabGlass);          // flask icon
+        c.Rect(14, 14, 4, 2, Glow);
+    }
+
+    static void DrawBoothArt(Canvas c)
+    {
+        DrawBooth(c, PaintC, PaintA);
+        c.Ellipse(16, 14, 5, 3, MudHi);          // palette icon
+        c.Set(14, 13, PaintA); c.Set(16, 12, PaintB); c.Set(18, 13, HillPaint);
+    }
+
+    static void DrawBoothHealth(Canvas c)
+    {
+        DrawBooth(c, AwningRed, PaintA);
+        c.Rect(15, 11, 2, 6, AwningRed);         // cross icon
+        c.Rect(13, 13, 6, 2, AwningRed);
     }
 
     class Canvas

@@ -1046,7 +1046,7 @@ public static class vc_TownBuilder
             "We're volunteering to clean up by the river. Want to join?", "The riverbank looks so much better!");
         t.N("I8", "Prof. Lim", "bob_1", 27.8f, 7.6f, null,
             "Help me map the bottom of the river for our field trip?", "This map is perfect for the class!");
-        t.N("C8", "Mang Tonyo", "bob_3", 20.4f, 7.6f, null,
+        t.N("C8", "Mang Tonyo", "bob_3", 20.4f, 7.6f, R + "River_DocksideLedger",
             "Boats keep coming in. Can you keep track of what we ship and receive?", "Every box accounted for!");
         t.N("R1", "Coach Ramon", "adam_3", 10.2f, 28.8f, null,
             "Our robotics team needs every part checked before the contest. Can you test them?", "Not a single bad part!");
@@ -1058,11 +1058,11 @@ public static class vc_TownBuilder
             "We're putting together kits for the fundraiser. Can you help assemble them?", "We'll raise so much with these!");
         t.N("E1", "Marco", "adam_2", 20.5f, 8.9f, null,
             "I want to pitch my food stall idea to the fair committee. Help me sell it?", "They said yes!");
-        t.N("C5", "Aling Nena", "amelia_2", 6.4f, 10.7f, null,
+        t.N("C5", "Aling Nena", "amelia_2", 6.4f, 10.7f, R + "River_HarvestTally",
             "Can you help me tally today's harvest and write down the numbers?", "Neat and exact. Salamat!");
-        t.N("A2", "Direk Paulo", "alex_1", 25f, 20.6f, null,
+        t.N("A2", "Direk Paulo", "alex_1", 25f, 20.6f, R + "School_OpeningNight",
             "Opening night is tonight! Can you help me direct the class play?", "Standing ovation!");
-        t.N("S8", "Lola Ising", "amelia_1", 44f, 9.7f, null,
+        t.N("S8", "Lola Ising", "amelia_1", 44f, 9.7f, R + "House_WalkLolaHome",
             "Could you walk me home and help me with my chores today?", "You're such a kind young one.");
         t.N("E4", "Mang Ramil", "bob_2", 35f, 18.9f, null,
             "My barbershop has a long line today. Can you help me run it?", "Every customer left smiling!");
@@ -1144,25 +1144,25 @@ public static class vc_TownBuilder
         const string R = "Room_";
         t.N("I5", "Dr. Cruz", "bob_1", 24.4f, 32f, R + "Forest_GlowingMushrooms",
             "Our research team found strange glowing mushrooms. Can you help us study them?", "This could be a big discovery!");
-        t.N("S1", "Ms. Rivera", "amelia_3", 17f, 31.6f, null,
+        t.N("S1", "Ms. Rivera", "amelia_3", 17f, 31.6f, R + "School_CareerFair",
             "Students keep asking me about careers. Can you help out at the career booth?", "You really helped them find a direction.");
-        t.N("I7", "Ana", "alex_2", 29.4f, 32f, null,
+        t.N("I7", "Ana", "alex_2", 29.4f, 32f, R + "School_BioLab",
             "I need help with the samples in the biology lab. Can you give me a hand?", "Perfect results. Great lab work!");
         t.N("A5", "Kevin", "adam_0", 12f, 31.7f, null,
             "The campus paper needs a story by tonight. Can you help me write it?", "Front page material!");
-        t.N("E3", "Mr. Lee", "bob_0", 10f, 21.9f, null,
+        t.N("E3", "Mr. Lee", "bob_0", 10f, 21.9f, R + "House_HotelLobby",
             "Guests are arriving all at once. Can you help me manage the hotel?", "Every guest checked in happy.");
         t.N("C7", "Ms. Uy", "amelia_0", 17.4f, 21.9f, null,
             "The bank line is long. Can you handle a teller window for me?", "Every peso balanced. Thank you!");
         t.N("E5", "Ms. Ria", "amelia_1", 31f, 21.9f, null,
             "My team at the internship needs a leader today. Can you run it?", "The team did great under you.");
-        t.N("C1", "Mr. Go", "bob_3", 34f, 21.9f, null,
+        t.N("C1", "Mr. Go", "bob_3", 34f, 21.9f, R + "School_PaydayOffice",
             "It's payday. Can you help me prepare everyone's pay envelopes?", "Everyone got paid on time!");
         t.N("C3", "Jay", "adam_1", 40f, 21.9f, null,
             "Can you help me make the customer bills at the net cafe?", "No billing mistakes today!");
         t.N("I4", "Dr. Santos", "bob_2", 10f, 11.9f, R + "House_CatMedicineQuest",
             "A sick cat was brought in. Can you help find the right treatment?", "She's going to be okay. Thank you.");
-        t.N("E7", "Agent Mel", "alex_0", 18f, 11.9f, null,
+        t.N("E7", "Agent Mel", "alex_0", 18f, 11.9f, R + "House_OpenHouse",
             "I'm holding an open house today. Can you help me sell it?", "Sold! You're a natural.");
         t.N("S3", "Kuya Joel", "adam_3", 8.4f, 4f, null,
             "A friend is going through a hard time. Can you help them find support?", "Thank you for being there for them.");
