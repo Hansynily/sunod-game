@@ -72,7 +72,7 @@ public class vc_MissingKeyQuest : MonoBehaviour, vc_IQuestLogic
         if (!questStarted || questDone || skill == null) return;
 
         bool handled = false;
-        if ((skill.SkillData.HasTag("scan") || skill.SkillData.HasTag("survey")
+        if ((skill.SkillData.HasTag("survey")
              || skill.SkillData.HasTag("inspect") || skill.SkillData.HasTag("guide")
              || skill.SkillData.HasTag("map")) && !xrayDone)
         {

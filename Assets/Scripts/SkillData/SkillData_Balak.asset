@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: SkillData_Balak
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: BALAK
+  englishName: PLAN
   riaSecLetter: I
   buttonLabel: BALAK
   description: Plan your next move and preview the route.
   icon: {fileID: 0}
   capabilityTags:
   - plan
+  level: 1

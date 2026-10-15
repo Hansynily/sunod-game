@@ -127,6 +127,7 @@
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_PlayerOptions.cs" />
     <Compile Include="Assets\Scripts\Skills\Conventional\PlanSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSpawner.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerSkillInput.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="Assets\Scripts\vc_FallenSparrowQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
+    <Compile Include="Assets\Scripts\Player\vc_CameraZoom.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorExit.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_GoTo.cs" />
     <Compile Include="Assets\Scripts\vc_QuestAvailabilityFilter.cs" />
@@ -196,7 +198,6 @@
     <Compile Include="Assets\Scripts\vc_CheckboxItem.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
     <Compile Include="Assets\Scripts\UI\vc_TutorialEndScreen.cs" />
-    <Compile Include="Assets\Scripts\Town\vc_TownSkillShrine.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
     <Compile Include="Assets\Scripts\vc_CollectSkill.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialFlowController.cs" />

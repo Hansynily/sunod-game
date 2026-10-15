@@ -49,6 +49,13 @@ namespace SunodGame.UI
         private Button _btnNewRunConfirm;
         private Button _btnNewRunCancel;
 
+        // Settings overlay
+        private VisualElement _settingsOverlay;
+        private Slider _sfxSlider;
+        private Button _btnNamesEnglish;
+        private Button _btnNamesFilipino;
+        private Button _btnSettingsClose;
+
         private const int TotalQuestSlots = 48;
 
         // Cached from the last GET so Continue can hand it straight to the target scene
@@ -88,6 +95,12 @@ namespace SunodGame.UI
             _btnNewRunConfirm     = root.Q<Button>("btn-newrun-confirm");
             _btnNewRunCancel      = root.Q<Button>("btn-newrun-cancel");
 
+            _settingsOverlay  = root.Q<VisualElement>("settings-overlay");
+            _sfxSlider        = root.Q<Slider>("settings-sfx-slider");
+            _btnNamesEnglish  = root.Q<Button>("btn-names-english");
+            _btnNamesFilipino = root.Q<Button>("btn-names-filipino");
+            _btnSettingsClose = root.Q<Button>("btn-settings-close");
+
             _btnPlay?    .RegisterCallback<ClickEvent>(OnPlayClicked);
             _btnTutorial?.RegisterCallback<ClickEvent>(OnTutorialClicked);
             _btnLogout?  .RegisterCallback<ClickEvent>(OnLogoutClicked);
@@ -97,9 +110,16 @@ namespace SunodGame.UI
             _btnStatsClose?  .RegisterCallback<ClickEvent>(OnStatsCloseClicked);
             _btnNewRunConfirm?.RegisterCallback<ClickEvent>(OnNewRunConfirmClicked);
             _btnNewRunCancel? .RegisterCallback<ClickEvent>(OnNewRunCancelClicked);
+            _btnNamesEnglish? .RegisterCallback<ClickEvent>(OnNamesEnglishClicked);
+            _btnNamesFilipino?.RegisterCallback<ClickEvent>(OnNamesFilipinoClicked);
+            _btnSettingsClose?.RegisterCallback<ClickEvent>(OnSettingsCloseClicked);
+            _sfxSlider?.RegisterValueChangedCallback(OnSfxSliderChanged);
+            // Dragger releases pointer capture on release - play a click so the level is audible.
+            _sfxSlider?.RegisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
 
             _statsOverlay?.SetDisplay(false);
             _newRunConfirmOverlay?.SetDisplay(false);
+            _settingsOverlay?.SetDisplay(false);
 
             PopulatePlayerCard();
             RefreshContinueAvailability();
@@ -116,6 +136,11 @@ namespace SunodGame.UI
             _btnStatsClose?  .UnregisterCallback<ClickEvent>(OnStatsCloseClicked);
             _btnNewRunConfirm?.UnregisterCallback<ClickEvent>(OnNewRunConfirmClicked);
             _btnNewRunCancel? .UnregisterCallback<ClickEvent>(OnNewRunCancelClicked);
+            _btnNamesEnglish? .UnregisterCallback<ClickEvent>(OnNamesEnglishClicked);
+            _btnNamesFilipino?.UnregisterCallback<ClickEvent>(OnNamesFilipinoClicked);
+            _btnSettingsClose?.UnregisterCallback<ClickEvent>(OnSettingsCloseClicked);
+            _sfxSlider?.UnregisterValueChangedCallback(OnSfxSliderChanged);
+            _sfxSlider?.UnregisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
         }
 
         private void PopulatePlayerCard()
@@ -190,7 +215,38 @@ namespace SunodGame.UI
             SessionState.Instance?.ClearUser();
             SceneLoader.GoToLogin();
         }
-        private void OnSettingsClicked(ClickEvent _) { }
+
+        // ── Settings overlay ────────────────────────────────────────────
+
+        private void OnSettingsClicked(ClickEvent _)
+        {
+            _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
+            RefreshNameChoice();
+            _settingsOverlay?.SetDisplay(true);
+        }
+
+        private void OnSettingsCloseClicked(ClickEvent _) => _settingsOverlay?.SetDisplay(false);
+
+        private void OnSfxSliderChanged(ChangeEvent<float> evt) => vc_PlayerOptions.SfxVolume = evt.newValue;
+
+        private void OnSfxSliderReleased(PointerCaptureOutEvent _) => vc_Sfx.Play("click", 0.6f);
+
+        private void OnNamesEnglishClicked(ClickEvent _)  => SetBaybayinNames(false);
+        private void OnNamesFilipinoClicked(ClickEvent _) => SetBaybayinNames(true);
+
+        private void SetBaybayinNames(bool useFilipino)
+        {
+            if (vc_PlayerOptions.UseBaybayinNames != useFilipino)
+                vc_PlayerOptions.UseBaybayinNames = useFilipino;
+            RefreshNameChoice();
+        }
+
+        private void RefreshNameChoice()
+        {
+            bool filipino = vc_PlayerOptions.UseBaybayinNames;
+            _btnNamesEnglish?.EnableInClassList("settings-choice-btn--on", !filipino);
+            _btnNamesFilipino?.EnableInClassList("settings-choice-btn--on", filipino);
+        }
 
         // ── Continue ────────────────────────────────────────────────────
 

@@ -20,9 +20,11 @@ public class vc_DialogPanel : MonoBehaviour
     private Label         _bodyLabel;
     private Button        _confirmBtn;
     private Button        _cancelBtn;
+    private Button        _thirdBtn;    // built in code, only shown by ShowChoice3
 
     private Action _onConfirm;
     private Action _onCancel;
+    private Action _onThird;
     private PlayerController _player;
 
     // ── Lifecycle - mirrors vc_QuestHUD exactly ───────────────────────────
@@ -48,6 +50,17 @@ public class vc_DialogPanel : MonoBehaviour
         _confirmBtn?.RegisterCallback<ClickEvent>(_ => OnConfirmClicked());
         _cancelBtn?.RegisterCallback<ClickEvent>(_ => OnCancelClicked());
 
+        // Third button: a copy of the cancel button's look, placed right after it.
+        _thirdBtn = root.Q<Button>("dialog-third-btn");
+        if (_thirdBtn == null && _cancelBtn != null && _cancelBtn.parent != null)
+        {
+            _thirdBtn = new Button { name = "dialog-third-btn" };
+            foreach (string cls in _cancelBtn.GetClasses()) _thirdBtn.AddToClassList(cls);
+            _cancelBtn.parent.Insert(_cancelBtn.parent.IndexOf(_cancelBtn) + 1, _thirdBtn);
+            _thirdBtn.RegisterCallback<ClickEvent>(_ => OnThirdClicked());
+            _thirdBtn.SetDisplay(false);
+        }
+
         _dialogRoot?.SetDisplay(false);
     }
 
@@ -60,6 +73,7 @@ public class vc_DialogPanel : MonoBehaviour
     {
         Populate(title, body, null, "Continue", null);
         _cancelBtn?.SetDisplay(false);
+        _thirdBtn?.SetDisplay(false);
 
         // No backdrop for narration - game world stays visible.
         if (_dialogRoot != null)
@@ -79,6 +93,7 @@ public class vc_DialogPanel : MonoBehaviour
     {
         Populate(title, body, icon, confirmLabel, cancelLabel);
         _cancelBtn?.SetDisplay(true);
+        _thirdBtn?.SetDisplay(false);
 
         // Dimmed backdrop matching the inventory panel convention.
         if (_dialogRoot != null)
@@ -87,7 +102,23 @@ public class vc_DialogPanel : MonoBehaviour
 
         _onConfirm = onConfirm;
         _onCancel  = onCancel;
+        _onThird   = null;
         Show();
+    }
+
+    /// <summary>
+    /// Three-button choice (e.g. Help / Later / Not for me). Falls back to two buttons if
+    /// the third couldn't be built.
+    /// </summary>
+    public void ShowChoice3(string title, string body, Sprite icon,
+                            string confirmLabel, string cancelLabel, string thirdLabel,
+                            Action onConfirm, Action onCancel, Action onThird)
+    {
+        ShowChoice(title, body, icon, confirmLabel, cancelLabel, onConfirm, onCancel);
+        if (_thirdBtn == null) return;
+        _thirdBtn.text = thirdLabel ?? string.Empty;
+        _thirdBtn.SetDisplay(true);
+        _onThird = onThird;
     }
 
     public void Hide()
@@ -95,6 +126,7 @@ public class vc_DialogPanel : MonoBehaviour
         _dialogRoot?.SetDisplay(false);
         _onConfirm = null;
         _onCancel  = null;
+        _onThird   = null;
 
         if (pausePlayerOnShow)
             _player?.MoveAction.Enable();
@@ -141,6 +173,13 @@ public class vc_DialogPanel : MonoBehaviour
     private void OnCancelClicked()
     {
         var cb = _onCancel;
+        Hide();
+        cb?.Invoke();
+    }
+
+    private void OnThirdClicked()
+    {
+        var cb = _onThird;
         Hide();
         cb?.Invoke();
     }

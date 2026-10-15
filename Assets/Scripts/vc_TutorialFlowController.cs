@@ -109,7 +109,7 @@ public class vc_TutorialFlowController : MonoBehaviour
                 "Find the skill area",
                 "Look at each skill, then pick one",
                 "Step into the glowing skill zone",
-                "Use your skill to clear the path",
+                "Use your skill to get Tala's kite back",
             });
 
         vc_QuestHUD.Instance?.SetCounter($"Step 1 of {TotalSteps}");
@@ -191,7 +191,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_SkillData s = marker.Skill;
 
         vc_DialogPanel.Instance?.ShowChoice(
-            $"{s.skillName} ({KindName(s)})",
+            $"{s.DisplayName} ({KindName(s)})",
             $"{s.description}\n\nKind: {KindLetter(s)} - {KindName(s)}",
             s.icon,
             "Pick this up",
@@ -256,7 +256,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         AdvanceStep(OBJ_CLEAR);
 
         string letter = _chosen != null ? _chosen.riaSecLetter : string.Empty;
-        string name   = _chosen != null ? _chosen.skillName   : "your skill";
+        string name   = _chosen != null ? _chosen.DisplayName : "your skill";
         vc_TutorialEndScreen.Show(letter, name, FinishTutorial);
     }
 
@@ -307,7 +307,7 @@ public class vc_TutorialFlowController : MonoBehaviour
     }
 
     private static string SkillLabel(vc_SkillData s) =>
-        s != null && !string.IsNullOrWhiteSpace(s.skillName) ? s.skillName : "Your skill";
+        s != null && !string.IsNullOrWhiteSpace(s.DisplayName) ? s.DisplayName : "Your skill";
 
     // ── Arrow helpers (all null-safe) ─────────────────────────────────────
 

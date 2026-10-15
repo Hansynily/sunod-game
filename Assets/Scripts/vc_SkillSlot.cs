@@ -43,9 +43,16 @@ public class vc_SkillSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         }
     }
 
+    private void OnEnable()
+    {
+        vc_PlayerOptions.Changed += RefreshDisplay;
+        RefreshDisplay();
+    }
+
     private void OnDisable()
     {
         _isHeld = false;
+        vc_PlayerOptions.Changed -= RefreshDisplay;
     }
 
     public void RefreshDisplay()
@@ -54,7 +61,7 @@ public class vc_SkillSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
         if (skillLabel != null)
         {
-            skillLabel.text = AssignedSkillData != null ? AssignedSkillData.buttonLabel : string.Empty;
+            skillLabel.text = AssignedSkillData != null ? AssignedSkillData.DisplayName : string.Empty;
         }
     }
 

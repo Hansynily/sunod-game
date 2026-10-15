@@ -23,7 +23,7 @@
 .result-panel {
     width: 85%;
     max-width: 700px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -39,7 +39,7 @@
 /* Header Badge */
 .panel-header {
     align-items: center;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -130,7 +130,7 @@
     justify-content: center;
     height: 80px;
     min-width: 200px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide");
+    background-image: url("/Assets/Art/UI/Panels/button_wide.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -139,14 +139,14 @@
     margin-right: 12px;
     transition-property: translate;
     transition-duration: 0.05s;
-    -unity-slice-left: 6;
+    -unity-slice-left: 8;
     -unity-slice-top: 6;
-    -unity-slice-right: 6;
+    -unity-slice-right: 8;
     -unity-slice-bottom: 8;
     -unity-slice-scale: 2px;
 }
 .action-btn:active {
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide_pressed");
+    background-image: url("/Assets/Art/UI/Panels/button_wide_pressed.png");
 }
 .action-btn-label {
     font-size: 18px;

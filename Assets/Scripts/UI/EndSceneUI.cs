@@ -194,7 +194,7 @@ namespace SunodGame.UI
                     : "Unavailable");
 
             builder.AppendLine($"Career Result: {careerResult}");
-            builder.AppendLine($"Holland Code: {SafeText(GameSessionData.hollandCode, "n/a")}");
+            builder.AppendLine($"Holland Code: {SafeText(GameSessionData.DisplayHollandCode, "n/a")}");
             builder.AppendLine($"Quests Cleared: {GameSessionData.rounds_cleared}/{GameSessionData.rounds_attempted}");
             builder.AppendLine($"Stars Earned: {GameSessionData.total_stars}");
             builder.AppendLine($"Time Spent: {Mathf.RoundToInt(GameSessionData.total_time_seconds)}s");

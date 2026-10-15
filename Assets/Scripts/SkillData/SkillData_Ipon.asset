@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Ipon
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: IPON
+  englishName: COLLECT
   riaSecLetter: C
   buttonLabel: IPON
   description: Pull nearby things toward you.

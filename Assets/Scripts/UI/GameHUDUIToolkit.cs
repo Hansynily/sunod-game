@@ -72,6 +72,8 @@ namespace SunodGame.UI
 
             root.Q<Button>("btn-open-inventory")
                 ?.RegisterCallback<ClickEvent>(_ => _inventoryPanel?.Show());
+
+            vc_PlayerOptions.Changed += OnOptionsChanged;
         }
 
         private void Start()
@@ -85,6 +87,8 @@ namespace SunodGame.UI
 
         private void OnDisable()
         {
+            vc_PlayerOptions.Changed -= OnOptionsChanged;
+
             if (_inventoryEventBound && vc_PlayerInventory.Instance != null)
             {
                 vc_PlayerInventory.Instance.OnSkillAdded -= OnSkillAdded;
@@ -146,7 +150,7 @@ namespace SunodGame.UI
             _slotIcons[i]?.EnableInClassList("slot-icon--empty", data == null);
 
             if (_slotNames[i] != null)
-                _slotNames[i].text = data != null ? (data.skillName ?? "-").ToUpper() : string.Empty;
+                _slotNames[i].text = data != null ? (data.DisplayName ?? "-").ToUpper() : string.Empty;
 
             if (_slotEmpties[i] != null)
                 _slotEmpties[i].style.display = DisplayStyle.None;
@@ -173,5 +177,6 @@ namespace SunodGame.UI
         private void OnSlotPointerDown(int i)  => vc_SkillManager.Instance?.GetSkillSlot(i)?.SetHeld(true);
         private void OnSlotPointerUp(int i)    => vc_SkillManager.Instance?.GetSkillSlot(i)?.SetHeld(false);
         private void OnSkillAdded(vc_SkillData _) => RefreshPreviewCircles();
+        private void OnOptionsChanged() => RefreshAllSlots(); // skill-name language may have switched
     }
 }

@@ -54,10 +54,18 @@ namespace SunodGame.UI
             var root = GetComponent<UIDocument>().rootVisualElement;
 
             root.Q<Label>("lbl-career-name").text  = GetCareerName();
-            root.Q<Label>("lbl-holland-code").text  = SafeText(GameSessionData.hollandCode);
+            root.Q<Label>("lbl-holland-code").text  = SafeText(GameSessionData.DisplayHollandCode);
             root.Q<Label>("lbl-top-traits").text    = GetTopTraits();
             root.Q<Label>("lbl-quests").text        = $"{GameSessionData.rounds_cleared}/{GameSessionData.rounds_attempted}";
             root.Q<Label>("lbl-stars").text         = GameSessionData.total_stars.ToString();
+
+            // Ended early ("See my results so far"): say the result is provisional.
+            Label partial = root.Q<Label>("lbl-partial-note");
+            if (partial != null)
+            {
+                partial.text = GameSessionData.partialRunNote ?? string.Empty;
+                partial.style.display = string.IsNullOrWhiteSpace(partial.text) ? DisplayStyle.None : DisplayStyle.Flex;
+            }
 
             _btnPlayAgain = root.Q<Button>("btn-play-again");
             _btnMainMenu  = root.Q<Button>("btn-main-menu");

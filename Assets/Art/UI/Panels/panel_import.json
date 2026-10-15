@@ -1,0 +1,181 @@
+{
+  "note": "Import as Sprite (Single), Point filter, no compression, no mipmaps, pixelsPerUnit 16. border = Unity spriteBorder order (L, B, R, T) in pixels.",
+  "textureType": "Sprite",
+  "spriteMode": "Single",
+  "filterMode": "Point",
+  "textureCompression": "Uncompressed",
+  "mipmaps": false,
+  "alphaIsTransparency": true,
+  "pixelsPerUnit": 16,
+  "files": [
+    {
+      "path": "Assets/Art/UI/Panels/panel_cream.png",
+      "size": [
+        24,
+        24
+      ],
+      "border_LBRT": [
+        6,
+        8,
+        6,
+        6
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/panel_wood.png",
+      "size": [
+        32,
+        32
+      ],
+      "border_LBRT": [
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/panel_dark.png",
+      "size": [
+        24,
+        24
+      ],
+      "border_LBRT": [
+        6,
+        8,
+        6,
+        6
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/slot.png",
+      "size": [
+        24,
+        24
+      ],
+      "border_LBRT": [
+        6,
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/dialog.png",
+      "size": [
+        30,
+        30
+      ],
+      "border_LBRT": [
+        10,
+        8,
+        6,
+        14
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/button.png",
+      "size": [
+        24,
+        26
+      ],
+      "border_LBRT": [
+        6,
+        8,
+        6,
+        6
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/button_pressed.png",
+      "size": [
+        24,
+        26
+      ],
+      "border_LBRT": [
+        6,
+        8,
+        6,
+        6
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/button_wide.png",
+      "size": [
+        40,
+        26
+      ],
+      "border_LBRT": [
+        8,
+        8,
+        8,
+        6
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/button_wide_pressed.png",
+      "size": [
+        40,
+        26
+      ],
+      "border_LBRT": [
+        8,
+        8,
+        8,
+        6
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/bar_bg.png",
+      "size": [
+        12,
+        7
+      ],
+      "border_LBRT": [
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/star_full.png",
+      "size": [
+        16,
+        16
+      ],
+      "border_LBRT": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/star_empty.png",
+      "size": [
+        16,
+        16
+      ],
+      "border_LBRT": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "Assets/Art/UI/Panels/star_glow.png",
+      "size": [
+        16,
+        16
+      ],
+      "border_LBRT": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

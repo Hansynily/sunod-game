@@ -13,6 +13,7 @@
                     <ui:Label text="Recommended Career" class="recommended-label" />
                     <ui:Label name="lbl-career-name" text="..." class="career-name" />
                     <ui:Label text="Based on your RIASEC profile." class="riasec-note" />
+                    <ui:Label name="lbl-partial-note" text="" class="riasec-note partial-note" />
                 </ui:VisualElement>
 
                 <ui:VisualElement class="divider" />

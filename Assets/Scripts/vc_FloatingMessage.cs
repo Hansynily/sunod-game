@@ -28,6 +28,13 @@ public class vc_FloatingMessage : MonoBehaviour
 
     public void Show(string message)
     {
+        // Town mode: one clean toast for every message.
+        if (vc_RunProgressUI.Instance != null)
+        {
+            vc_RunProgressUI.Instance.ShowToast(message, displayDuration);
+            return;
+        }
+
         gameObject.SetActive(true);
 
         if (messageText == null)

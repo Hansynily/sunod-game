@@ -58,7 +58,7 @@
 
 /* Chevron toggle button - small Sprout Lands square button */
 .quest-expand-btn {
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button");
+    background-image: url("/Assets/Art/UI/Panels/button.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -76,7 +76,7 @@
     -unity-slice-scale: 2px;
 }
 .quest-expand-btn:active {
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button_pressed");
+    background-image: url("/Assets/Art/UI/Panels/button_pressed.png");
 }
 
 /* Active objective row (always shown) */

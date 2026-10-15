@@ -195,10 +195,36 @@ public class vc_QuestRoom : MonoBehaviour
     public void WriteAttemptCheckpoint()
     {
         if (questCompletionNotified) return;
+        SaveProgressIds(new[] { questId }, gameObject.scene.name);
+    }
 
+    /// <summary>
+    /// Town mode: the player turned this quest down ("Not for me") without playing it.
+    /// Recorded as a failed attempt, so its item scores 1 (same rule as a fail), and saved
+    /// for Continue. Call on the quest prefab's room; nothing is spawned.
+    /// </summary>
+    public void RecordRefusal(string sceneName, params string[] extraSaveIds)
+    {
+        vc_SessionTelemetry.Instance?.RecordQuestResult(
+            questId, questName, primaryRiasec, questionCode,
+            false, 0, 0f, 0f, null);
+
+        var ids = new List<string> { questId };
+        if (extraSaveIds != null) ids.AddRange(extraSaveIds);
+        SaveProgressIds(ids, sceneName);
+    }
+
+    /// <summary>
+    /// Adds ids to the save's completed list (quest ids, or town markers like "left:&lt;id&gt;")
+    /// and pushes the run-state checkpoint, without touching RIASEC scores or stars.
+    /// </summary>
+    public static void SaveProgressIds(IEnumerable<string> ids, string sceneName)
+    {
         vc_SaveManager.SaveData data = vc_SaveManager.Load() ?? new vc_SaveManager.SaveData { riasecScores = new int[6] };
-        if (!string.IsNullOrWhiteSpace(questId) && !data.completedQuestIds.Contains(questId))
-            data.completedQuestIds.Add(questId);
+        if (ids != null)
+            foreach (string id in ids)
+                if (!string.IsNullOrWhiteSpace(id) && !data.completedQuestIds.Contains(id))
+                    data.completedQuestIds.Add(id);
 
         if (vc_PlayerInventory.Instance != null)
         {
@@ -209,7 +235,7 @@ public class vc_QuestRoom : MonoBehaviour
         }
 
         vc_SaveManager.Save(data);
-        PushRunStateCheckpoint(data);
+        PushRunStateCheckpoint(data, sceneName);
     }
 
     private void WriteQuestSave(int starsEarned)
@@ -246,14 +272,14 @@ public class vc_QuestRoom : MonoBehaviour
         vc_SaveManager.Save(data);
         Debug.Log($"[QuestRoom] Save written - nextQuestId='{nextQuestId}', riasec[{riasecIndex}]+={Mathf.Max(1, starsEarned)}");
 
-        PushRunStateCheckpoint(data);
+        PushRunStateCheckpoint(data, gameObject.scene.name);
     }
 
     // Server save-state (Continue/Reset) - pushed after each quest so the resumed run's
     // checkpoint always reflects what was actually completed. Fire-and-forget: a failed
     // push just means the NEXT quest's push retries with the fuller picture; it must
     // never block gameplay.
-    private void PushRunStateCheckpoint(vc_SaveManager.SaveData data)
+    private static void PushRunStateCheckpoint(vc_SaveManager.SaveData data, string sceneName)
     {
         SunodGame.Telemetry.TelemetryManager telemetryManager = SunodGame.Telemetry.TelemetryManager.Instance;
         if (telemetryManager == null) return;
@@ -273,7 +299,7 @@ public class vc_QuestRoom : MonoBehaviour
             total_stars = data.totalStars,
             floor_scene = SunodGame.Core.vc_FloorLoader.Instance != null && !string.IsNullOrEmpty(SunodGame.Core.vc_FloorLoader.Instance.CurrentFloorScene)
                 ? SunodGame.Core.vc_FloorLoader.Instance.CurrentFloorScene
-                : (!string.IsNullOrEmpty(gameObject.scene.name) ? gameObject.scene.name : UnityEngine.SceneManagement.SceneManager.GetActiveScene().name),
+                : (!string.IsNullOrEmpty(sceneName) ? sceneName : UnityEngine.SceneManagement.SceneManager.GetActiveScene().name),
             tutorial_completed = data.tutorialComplete,
         };
 

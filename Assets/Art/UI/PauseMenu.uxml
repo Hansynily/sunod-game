@@ -8,7 +8,12 @@
     <ui:VisualElement name="pause-root" class="pause-root" picking-mode="Ignore">
 
         <!-- ── HUD Pause Button (always visible, top-right) ─────────────── -->
-        <ui:Button name="pause-hud-btn" class="pause-hud-btn" text="||" />
+        <ui:Button name="pause-hud-btn" class="pause-hud-btn sl-button" text="">
+            <ui:VisualElement class="pause-icon" picking-mode="Ignore">
+                <ui:VisualElement class="pause-icon-bar" picking-mode="Ignore" />
+                <ui:VisualElement class="pause-icon-bar" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:Button>
 
         <!-- ── Full-screen dimmed overlay (hidden by default) ───────────── -->
         <ui:VisualElement name="pause-overlay" class="pause-overlay">
@@ -24,6 +29,15 @@
 
                 <!-- ── Main buttons (Resume / Exit) ───────────────────── -->
                 <ui:VisualElement name="pause-main-btns" class="pause-main-btns">
+                    <ui:VisualElement name="pause-settings" class="pause-settings">
+                        <ui:Label text="Sound effects" class="pause-setting-label" picking-mode="Ignore" />
+                        <ui:Slider name="pause-sfx-slider" class="pause-slider" low-value="0" high-value="1" value="1" />
+                        <ui:Label text="Skill names" class="pause-setting-label" picking-mode="Ignore" />
+                        <ui:VisualElement class="pause-choice-row">
+                            <ui:Button name="pause-names-en" class="pause-choice-btn sl-button" text="English" />
+                            <ui:Button name="pause-names-fil" class="pause-choice-btn sl-button" text="Filipino" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                     <ui:Button name="btn-resume" class="pause-btn pause-btn-resume" text="RESUME" />
                     <ui:Button name="btn-exit"   class="pause-btn pause-btn-exit"   text="QUIT TO MENU" />
                 </ui:VisualElement>

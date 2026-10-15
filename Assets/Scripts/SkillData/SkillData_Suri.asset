@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: SkillData_Suri
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: SURI
+  englishName: SURVEY
   riaSecLetter: I
   buttonLabel: SURI
   description: Scan the area to reveal hidden things.
   icon: {fileID: 0}
   capabilityTags:
   - survey
+  level: 1

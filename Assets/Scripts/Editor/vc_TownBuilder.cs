@@ -47,7 +47,7 @@ public static class vc_TownBuilder
         };
         public float decorDensity = 0.085f;
         public string home;                 // house sprite used for the rebuildable home
-        public Vector2 homePos, shrinePos;
+        public Vector2 homePos, requestPos;
         public string[] nightDreams = new string[0];
         public string[] dreamAfter = new string[0];
 
@@ -246,17 +246,18 @@ public static class vc_TownBuilder
             if (go != null) MarkSprite(occ, s, x, y);
         }
 
-        // the rebuildable home + the skill shrine
+        // the rebuildable home
         if (!string.IsNullOrEmpty(t.home))
         {
             PlaceHome(objRoot, t.home, t.homePos.x, t.homePos.y);
             MarkSprite(occ, t.home + "_home3", t.homePos.x, t.homePos.y);
         }
-        if (t.shrinePos != Vector2.zero)
-        {
-            PlaceShrine(objRoot, t.shrinePos.x, t.shrinePos.y);
-            MarkRect(occ, t.shrinePos.x - 1.5f, t.shrinePos.y - 0.6f, t.shrinePos.x + 1.5f, t.shrinePos.y + 2.4f);
-        }
+
+        // where today's "!" NPCs gather (near the plaza / spawn)
+        var requestSpot = new GameObject("RequestSpot").transform;
+        requestSpot.SetParent(root.transform, false);
+        requestSpot.position = new Vector3(t.requestPos.x, t.requestPos.y, 0f);
+        stage.requestSpot = requestSpot;
 
         // NPCs
         var npcRoot = new GameObject("NPCs").transform;
@@ -607,30 +608,6 @@ public static class vc_TownBuilder
         PlaceSprite(parent, "sign_home", x + 3.4f, y + 0.1f, true);
     }
 
-    private static void PlaceShrine(Transform parent, float x, float y)
-    {
-        GameObject go = PlaceSprite(parent, "shrine", x, y, true);
-        if (go == null) return;
-        go.name = "SkillShrine";
-        var trigger = go.AddComponent<CircleCollider2D>();
-        trigger.isTrigger = true;
-        trigger.radius = 1.1f;
-        trigger.offset = new Vector2(0f, 0.5f);
-
-        var glowGo = new GameObject("Glow", typeof(SpriteRenderer));
-        glowGo.transform.SetParent(go.transform, false);
-        glowGo.transform.localPosition = new Vector3(0f, 0.4f, 0f);
-        var glow = glowGo.GetComponent<SpriteRenderer>();
-        glow.sprite = LoadSprite("shrine_glow");
-        glow.sortingLayerName = "Default";
-        glow.sortingOrder = 9;
-
-        // the trigger must not be the solid collider PlaceSprite added
-        var shrine = go.AddComponent<vc_TownSkillShrine>();
-        shrine.glow = glow;
-        PlaceSprite(parent, "sign_shrine", x - 2.2f, y, true);
-    }
-
     private static void BuildGameScene(Town[] towns)
     {
         string path = $"{SceneDir}/Game_Scene_Town.unity";
@@ -898,7 +875,7 @@ public static class vc_TownBuilder
         t.Obj("house_slate", 6f, 9.4f);
         t.Obj("house_red_window", 16f, 9.4f);
         t.home = "house_peach2"; t.homePos = new Vector2(16.4f, 3.2f);
-        t.shrinePos = new Vector2(17.5f, 22.3f);
+        t.requestPos = new Vector2(24f, 15f);
         t.nightDreams = new[]
         {
             "You dream of your house again - the roof torn open, the street empty. It feels far away... for now.",
@@ -1009,7 +986,7 @@ public static class vc_TownBuilder
         t.Obj("sign_market", 6.4f, 15.4f);
         t.Obj("house_red_tall", 44f, 10.4f);
         t.home = "house_slate"; t.homePos = new Vector2(31f, 10.4f);
-        t.shrinePos = new Vector2(20.5f, 24.3f);
+        t.requestPos = new Vector2(25f, 17f);
         t.nightDreams = new[]
         {
             "You dream of the town square, but the buildings are leaning, and the river is far too high.",
@@ -1111,7 +1088,7 @@ public static class vc_TownBuilder
         t.Obj("sign_realty", 18f, 17.4f);
         t.Obj("cabin", 5.8f, 4.4f);
         t.home = "house_red"; t.homePos = new Vector2(15.4f, 3.6f);
-        t.shrinePos = new Vector2(21.4f, 26.4f);
+        t.requestPos = new Vector2(26f, 15f);
         t.nightDreams = new[]
         {
             "You dream of the city at night. The lights flicker, then go out, one street at a time.",

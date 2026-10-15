@@ -8,32 +8,40 @@
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
-/* ---------- HUD PAUSE BUTTON (top-right, always visible) ---------- */
+/* ---------- HUD PAUSE BUTTON (top-right, always visible) ----------
+   Big square button with a drawn pause icon (two bars) - the old "||" text was too small
+   to read on a phone. Frame comes from the theme's .sl-button. */
 .pause-hud-btn {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button");
-    -unity-background-scale-mode: stretch-to-fill;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    padding: 14px 22px;
-    font-size: 18px;
-    color: rgb(72, 52, 34);
-    letter-spacing: 2px;
-    -unity-text-align: middle-center;
-    transition-property: translate;
-    transition-duration: 0.05s;
-    -unity-slice-left: 6;
-    -unity-slice-top: 6;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 8;
-    -unity-slice-scale: 2px;
+    top: 20px;
+    right: 20px;
+    width: 84px;
+    height: 84px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    transition-property: translate, scale;
+    transition-duration: 0.08s;
 }
 .pause-hud-btn:active {
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button_pressed");
+    translate: 0 2px;
+    scale: 0.96 0.96;
 }
 
+.pause-icon {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.pause-icon-bar {
+    width: 12px;
+    height: 34px;
+    margin: 0 5px;
+    background-color: rgb(72, 52, 34);
+    border-width: 2px;
+    border-color: rgb(46, 34, 24);
+}
 /* ---------- DIMMED OVERLAY ---------- */
 .pause-overlay {
     position: absolute;
@@ -48,7 +56,7 @@
 .pause-box {
     min-width: 380px;
     max-width: 460px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -93,7 +101,7 @@
     align-items: center;
     justify-content: center;
     height: 72px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide");
+    background-image: url("/Assets/Art/UI/Panels/button_wide.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -104,14 +112,14 @@
     -unity-text-align: middle-center;
     transition-property: translate;
     transition-duration: 0.05s;
-    -unity-slice-left: 6;
+    -unity-slice-left: 8;
     -unity-slice-top: 6;
-    -unity-slice-right: 6;
+    -unity-slice-right: 8;
     -unity-slice-bottom: 8;
     -unity-slice-scale: 2px;
 }
 .pause-btn:active {
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png#sl_button_wide_pressed");
+    background-image: url("/Assets/Art/UI/Panels/button_wide_pressed.png");
 }
 
 /* Resume — tinted green */
@@ -171,4 +179,51 @@
 .pause-btn:hover, .pause-btn:focus, .pause-btn:disabled {
     background-color: rgba(0,0,0,0);
     border-width: 0;
+}
+
+/* ---------- SETTINGS (inside the pause card) ---------- */
+.pause-settings {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 22px;
+}
+.pause-setting-label {
+    font-size: 21px;
+    color: rgb(255, 245, 225);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(46, 34, 24);
+    margin-bottom: 6px;
+}
+.pause-slider {
+    margin: 0 4px 18px 4px;
+}
+.pause-slider #unity-tracker {
+    height: 12px;
+    margin-top: -6px;
+    background-color: rgb(72, 50, 36);
+    border-width: 2px;
+    border-color: rgb(40, 26, 18);
+}
+.pause-slider #unity-dragger {
+    width: 26px;
+    height: 30px;
+    margin-top: -15px;
+    background-color: rgb(255, 214, 120);
+    border-width: 3px;
+    border-color: rgb(72, 52, 34);
+}
+.pause-choice-row {
+    flex-direction: row;
+}
+.pause-choice-btn {
+    flex-grow: 1;
+    height: 52px;
+    margin: 0 4px;
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    opacity: 0.6;
+}
+.pause-choice-btn--on {
+    opacity: 1;
+    -unity-background-image-tint-color: rgb(200, 240, 190);
 }

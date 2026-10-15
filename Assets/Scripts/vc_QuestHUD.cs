@@ -133,6 +133,12 @@ public class vc_QuestHUD : MonoBehaviour
 
     public void ShowFeedback(string text)
     {
+        // Town mode: feedback shows as the shared toast, not inside the quest panel.
+        if (vc_RunProgressUI.Instance != null)
+        {
+            vc_RunProgressUI.Instance.ShowToast(text, 0f);   // stays until HideFeedback
+            return;
+        }
         if (_feedbackLabel == null) return;
         _feedbackLabel.text = text;
         _feedbackLabel.SetDisplay(true);
@@ -140,6 +146,7 @@ public class vc_QuestHUD : MonoBehaviour
 
     public void HideFeedback()
     {
+        if (vc_RunProgressUI.Instance != null) { vc_RunProgressUI.Instance.HideToast(); return; }
         if (_feedbackCoroutine != null) return;
         if (_feedbackLabel == null) return;
         _feedbackLabel.text = string.Empty;
@@ -148,6 +155,7 @@ public class vc_QuestHUD : MonoBehaviour
 
     public void ForceHideFeedback()
     {
+        if (vc_RunProgressUI.Instance != null) { vc_RunProgressUI.Instance.HideToast(); return; }
         if (_feedbackCoroutine != null) { StopCoroutine(_feedbackCoroutine); _feedbackCoroutine = null; }
         if (_feedbackLabel == null) return;
         _feedbackLabel.text = string.Empty;
@@ -156,6 +164,11 @@ public class vc_QuestHUD : MonoBehaviour
 
     public void ShowFeedbackTimed(string text, float duration = 2f)
     {
+        if (vc_RunProgressUI.Instance != null)
+        {
+            vc_RunProgressUI.Instance.ShowToast(text, Mathf.Max(0.5f, duration));
+            return;
+        }
         ShowFeedback(text);
         if (_feedbackCoroutine != null) StopCoroutine(_feedbackCoroutine);
         _feedbackCoroutine = StartCoroutine(ClearFeedbackAfter(duration));

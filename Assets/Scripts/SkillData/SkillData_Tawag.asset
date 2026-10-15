@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: SkillData_Tawag
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: TAWAG
+  englishName: CALL
   riaSecLetter: E
   buttonLabel: TAWAG
   description: Summon help when you need it.
   icon: {fileID: 0}
   capabilityTags:
   - summon
+  level: 1

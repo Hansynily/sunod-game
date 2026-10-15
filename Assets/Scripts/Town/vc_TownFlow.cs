@@ -123,6 +123,14 @@ public class vc_TownFlow : MonoBehaviour
         string[] dream = info != null ? info.dreamAfter : null;
         bool last = idx < 0 || idx + 1 >= TownScenes.Length;
 
+        // Teaser: one extra dream line hinting where the player's choices point so far.
+        string leaning = vc_RunProgressUI.LeaningText();
+        if (dream != null && dream.Length > 0 && !string.IsNullOrEmpty(leaning))
+        {
+            var withTeaser = new List<string>(dream) { $"Your path leans toward {leaning}..." };
+            dream = withTeaser.ToArray();
+        }
+
         vc_RunProgressUI ui = vc_RunProgressUI.Instance;
         if (ui != null && dream != null && dream.Length > 0)
             ui.PlayDream(info.title, dream, last ? 3 : idx, () => AfterDream(idx, last));
@@ -182,9 +190,11 @@ public class vc_TownFlow : MonoBehaviour
     public int StageQuestCount(int stage) =>
         stage >= 0 && stage < stages.Length && stages[stage].questIds != null ? stages[stage].questIds.Length : 0;
 
+    /// <summary>Helped (played) - a quest turned down with "Not for me" doesn't light up.</summary>
     public bool StageQuestDone(int stage, int i) =>
         stage >= 0 && stage < stages.Length && stages[stage].questIds != null && i < stages[stage].questIds.Length
-        && IsQuestDone(stages[stage].questIds[i]);
+        && IsQuestDone(stages[stage].questIds[i])
+        && !IsQuestDone(vc_TownStage.RefusedPrefix + stages[stage].questIds[i]);
 
     public string StageQuestCode(int stage, int i) =>
         stage >= 0 && stage < stages.Length && stages[stage].codes != null && i < stages[stage].codes.Length

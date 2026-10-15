@@ -45,6 +45,13 @@ public class vc_QuestDonePopup : MonoBehaviour
 
     public void Show(string questName, int stars, Action onContinue)
     {
+        // Town mode has the redesigned panel (stars pop in one by one).
+        if (vc_RunProgressUI.Instance != null)
+        {
+            vc_RunProgressUI.Instance.ShowQuestDone(questName, stars, onContinue);
+            return;
+        }
+
         if (textQuestName != null)
             textQuestName.text = questName;
 

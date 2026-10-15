@@ -30,7 +30,7 @@ public class vc_SkillPickupPopup : MonoBehaviour
 
     public void Show(vc_SkillData data, Action onConfirm)
     {
-        textSkillName.text = data.skillName;
+        textSkillName.text = data.DisplayName;
         textDescription.text = data.description;
         if (data.icon != null)
             imageSkillIcon.sprite = data.icon;

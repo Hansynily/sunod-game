@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Sikat
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: SIKAT
+  englishName: CHARM
   riaSecLetter: E
   buttonLabel: SIKAT
   description: Make a character follow you.

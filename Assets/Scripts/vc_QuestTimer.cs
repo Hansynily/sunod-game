@@ -62,6 +62,7 @@ public class vc_QuestTimer : MonoBehaviour
         timeRemaining = Mathf.Max(0f, totalTime);
         isRunning = true;
         isComplete = false;
+        _shownStars = -1;
         ResetFinalState();
         UpdateDisplayedStars();
         UpdateDebugText();
@@ -86,7 +87,13 @@ public class vc_QuestTimer : MonoBehaviour
     }
 
     /// <summary>Debug menu: ends the running quest as a fail, same as running out of time.</summary>
-    public void DebugForceFail()
+    public void DebugForceFail() => AbortQuest();
+
+    /// <summary>
+    /// Ends the running quest as not completed right away - used when the player cancels
+    /// ("Not for me") from inside a quest. Scores like a fail (item = 1).
+    /// </summary>
+    public void AbortQuest()
     {
         if (!isRunning) return;
         timeRemaining = 0f;
@@ -196,8 +203,15 @@ public class vc_QuestTimer : MonoBehaviour
         SetStarsForCount(GetStarCountForTimeRemaining());
     }
 
+    private int _shownStars = -1;
+
     private void SetStarsForCount(int stars)
     {
+        // A star just went out: give it a little drop so the player notices.
+        if (isRunning && _shownStars > stars && stars >= 0 && stars < starImages.Length && starImages[stars] != null)
+            StartCoroutine(PopLostStar(starImages[stars].rectTransform));
+        _shownStars = stars;
+
         for (int i = 0; i < starImages.Length; i++)
         {
             if (starImages[i] == null)
@@ -207,6 +221,24 @@ public class vc_QuestTimer : MonoBehaviour
 
             SetStarState(starImages[i], i < stars);
         }
+    }
+
+    private System.Collections.IEnumerator PopLostStar(RectTransform star)
+    {
+        if (star == null) yield break;
+        vc_Sfx.Play("timer_tick", 0.5f);
+        Vector3 baseScale = Vector3.one;
+        const float dur = 0.35f;
+        for (float t = 0f; t < dur; t += Time.unscaledDeltaTime)
+        {
+            float k = t / dur;
+            float s = 1f + 0.45f * Mathf.Sin(k * Mathf.PI);          // swell then settle
+            star.localScale = baseScale * s;
+            star.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(k * Mathf.PI * 3f) * 14f * (1f - k));
+            yield return null;
+        }
+        star.localScale = baseScale;
+        star.localRotation = Quaternion.identity;
     }
 
     private int GetStarCountForTimeRemaining()

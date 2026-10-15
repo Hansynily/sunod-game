@@ -242,20 +242,20 @@ public class vc_SkillManager : MonoBehaviour
         if (current == null)
         {
             EquipToCategorySlot(data);
-            vc_FloatingMessage.Instance?.Show($"{data.skillName} added to your {categoryName} slot.");
+            vc_FloatingMessage.Instance?.Show($"{data.DisplayName} added to your {categoryName} slot.");
             return;
         }
 
         if (current == data)
         {
             vc_DialogPanel.Instance?.ShowMessage("Already Equipped",
-                $"{data.skillName} is already in your {categoryName} slot.", null);
+                $"{data.DisplayName} is already in your {categoryName} slot.", null);
             return;
         }
 
         vc_DialogPanel.Instance?.ShowChoice(
             "Swap Skill?",
-            $"Your {categoryName} slot has {current.skillName}. Swap it for {data.skillName}? The other one stays in your inventory.",
+            $"Your {categoryName} slot has {current.DisplayName}. Swap it for {data.DisplayName}? The other one stays in your inventory.",
             data.icon,
             "Swap",
             "Keep",

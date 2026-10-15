@@ -83,6 +83,8 @@ namespace SunodGame.UI
             }
 
             Hide();
+
+            vc_PlayerOptions.Changed += OnOptionsChanged;
         }
 
         private void Start()
@@ -93,6 +95,8 @@ namespace SunodGame.UI
 
         private void OnDisable()
         {
+            vc_PlayerOptions.Changed -= OnOptionsChanged;
+
             if (_inventoryEventBound && vc_PlayerInventory.Instance != null)
             {
                 vc_PlayerInventory.Instance.OnSkillAdded -= OnSkillAdded;
@@ -179,7 +183,7 @@ namespace SunodGame.UI
             var textBlock = new VisualElement();
             textBlock.AddToClassList("row-textblock");
 
-            var nameLabel = new Label(skill.skillName);
+            var nameLabel = new Label(skill.DisplayName);
             nameLabel.AddToClassList("row-name");
             textBlock.Add(nameLabel);
 
@@ -226,7 +230,7 @@ namespace SunodGame.UI
                 _detailIcon.style.backgroundImage = vc_RiasecSymbols.Background(skill.riaSecLetter);
 
             if (_detailName != null)
-                _detailName.text = (skill.skillName ?? "UNNAMED").ToUpper();
+                _detailName.text = (skill.DisplayName ?? "UNNAMED").ToUpper();
 
             string letter = (skill.riaSecLetter ?? "?").ToUpper();
             string letterLower = letter.ToLower();
@@ -243,7 +247,7 @@ namespace SunodGame.UI
             }
 
             if (_detailDesc != null)   _detailDesc.text   = string.IsNullOrEmpty(skill.description) ? "No description available." : skill.description;
-            if (_detailAction != null) _detailAction.text = string.IsNullOrEmpty(skill.buttonLabel) ? "-" : skill.buttonLabel;
+            if (_detailAction != null) _detailAction.text = string.IsNullOrEmpty(skill.DisplayName) ? "-" : skill.DisplayName;
         }
 
         private void OnSlotClicked(int slotIndex)
@@ -254,7 +258,7 @@ namespace SunodGame.UI
             if (vc_SkillManager.Instance.GetSkillInSlot(slotIndex) == _selectedSkill)
             {
                 vc_DialogPanel.Instance?.ShowMessage("Already Equipped",
-                    $"{_selectedSkill.skillName} is already in your {vc_SkillManager.CategoryNameForSlot(slotIndex)} slot.", null);
+                    $"{_selectedSkill.DisplayName} is already in your {vc_SkillManager.CategoryNameForSlot(slotIndex)} slot.", null);
                 return;
             }
 
@@ -262,7 +266,7 @@ namespace SunodGame.UI
             if (homeSlot != slotIndex)
             {
                 string categoryName = vc_SkillManager.CategoryNameForSlot(homeSlot);
-                vc_FloatingMessage.Instance?.Show($"{_selectedSkill.skillName} is a {categoryName} skill. It goes in the {categoryName} slot.");
+                vc_FloatingMessage.Instance?.Show($"{_selectedSkill.DisplayName} is a {categoryName} skill. It goes in the {categoryName} slot.");
                 return;
             }
 
@@ -296,7 +300,7 @@ namespace SunodGame.UI
 
                 if (_slotNames[i] != null)
                     _slotNames[i].text = data != null
-                        ? (data.skillName ?? "-").ToUpper()
+                        ? (data.DisplayName ?? "-").ToUpper()
                         : "--";
             }
         }
@@ -334,6 +338,17 @@ namespace SunodGame.UI
         {
             if (_overlay?.style.display == DisplayStyle.Flex)
                 PopulateCards();
+        }
+
+        // Skill-name language may have switched: rebuild the visible names if the panel is open.
+        private void OnOptionsChanged()
+        {
+            if (_overlay == null || _overlay.style.display != DisplayStyle.Flex) return;
+
+            var selected = _selectedSkill;
+            PopulateCards();
+            RefreshSlots();
+            if (selected != null) PopulateDetail(selected);
         }
     }
 }

@@ -20,7 +20,7 @@
 .dialog-box {
     min-width: 720px;
     max-width: 900px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Dialouge UI/dialog box.png#sl_dialog");
+    background-image: url("/Assets/Art/UI/Panels/dialog.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -28,7 +28,7 @@
     flex-direction: column;
     align-items: stretch;
     -unity-slice-left: 10;
-    -unity-slice-top: 6;
+    -unity-slice-top: 14;
     -unity-slice-right: 6;
     -unity-slice-bottom: 8;
     -unity-slice-scale: 2px;
@@ -39,7 +39,7 @@
     width: 96px;
     height: 96px;
     align-self: center;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_slot");
+    background-image: url("/Assets/Art/UI/Panels/slot.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -48,7 +48,7 @@
     -unity-slice-left: 6;
     -unity-slice-top: 6;
     -unity-slice-right: 6;
-    -unity-slice-bottom: 8;
+    -unity-slice-bottom: 6;
     -unity-slice-scale: 2px;
 }
 
@@ -61,7 +61,7 @@
     letter-spacing: 2px;
     margin-bottom: 14px;
     align-self: center;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
     -unity-background-scale-mode: stretch-to-fill;
     padding: 10px 32px;
     -unity-slice-left: 10;
@@ -105,7 +105,7 @@
     min-width: 200px;
     letter-spacing: 1px;
     -unity-text-align: middle-center;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button");
+    background-image: url("/Assets/Art/UI/Panels/button.png");
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -118,7 +118,7 @@
     -unity-slice-scale: 2px;
 }
 .dialog-btn:active {
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/buttons/Square Buttons 26x26.png#sl_button_pressed");
+    background-image: url("/Assets/Art/UI/Panels/button_pressed.png");
 }
 
 /* ---------- CONFIRM BUTTON (primary) ---------- */

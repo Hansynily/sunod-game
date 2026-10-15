@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Lunas
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: LUNAS
+  englishName: HEAL
   riaSecLetter: S
   buttonLabel: LUNAS
   description: Heal a hurt character.

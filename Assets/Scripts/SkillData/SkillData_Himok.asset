@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Himok
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: HIMOK
+  englishName: PERSUADE
   riaSecLetter: E
   buttonLabel: HIMOK
   description: Convince a character to do what you ask.

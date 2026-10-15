@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: SkillData_Lutas
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: LUTAS
+  englishName: SOLVE
   riaSecLetter: I
   buttonLabel: LUTAS
   description: Solve a lock or puzzle to open the way.
   icon: {fileID: 0}
   capabilityTags:
   - unlock
+  level: 1

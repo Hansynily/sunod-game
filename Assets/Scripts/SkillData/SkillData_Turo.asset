@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Turo
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: TURO
+  englishName: TEACH
   riaSecLetter: S
   buttonLabel: TURO
   description: Teach or show someone how to do something.

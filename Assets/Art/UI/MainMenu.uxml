@@ -133,5 +133,31 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <!-- Settings overlay. Opened by btn-settings (bottom-left gear). -->
+        <ui:VisualElement name="settings-overlay" class="overlay-root">
+            <ui:VisualElement class="confirm-box settings-box sl-panel-wood">
+                <ui:Label text="Settings" class="settings-title"/>
+
+                <ui:VisualElement class="settings-row">
+                    <ui:Label text="Sound effects" class="settings-label"/>
+                    <ui:Slider name="settings-sfx-slider" class="settings-slider" low-value="0" high-value="1" value="1"/>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="settings-row">
+                    <ui:Label text="Skill names" class="settings-label"/>
+                    <ui:VisualElement class="settings-choice-row">
+                        <ui:Button name="btn-names-english" text="English" class="wood-btn settings-choice-btn"/>
+                        <ui:Button name="btn-names-filipino" text="Filipino" class="wood-btn settings-choice-btn"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="confirm-button-row">
+                    <ui:Button name="btn-settings-close" class="action-btn btn-main-menu sl-button-wide">
+                        <ui:Label text="Close" class="action-btn-label sl-text-outline"/>
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
     </ui:VisualElement>
 </ui:UXML>

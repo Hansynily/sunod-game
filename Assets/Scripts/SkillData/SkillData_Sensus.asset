@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Sensus
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: SENSUS
+  englishName: MAP
   riaSecLetter: E
   buttonLabel: SENSUS
   description: Show the way and see the map.

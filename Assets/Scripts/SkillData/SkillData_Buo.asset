@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Buo
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: BUO
+  englishName: BUILD
   riaSecLetter: R
   buttonLabel: BUO
   description: Build a path or structure across obstacles.

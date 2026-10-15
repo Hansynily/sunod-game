@@ -265,3 +265,193 @@
     min-width: 300px;
     padding: 0 28px;
 }
+
+/* ---------- side controls: energy, Sleep, zoom, quest "Not for me" ---------- */
+.rp-side {
+    position: absolute;
+    top: 130px;
+    right: 24px;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.rp-energy {
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    padding: 10px 18px;
+    margin-bottom: 10px;
+    -unity-text-align: middle-center;
+}
+
+.rp-side-btn {
+    min-width: 170px;
+    height: 52px;
+    padding: 0 18px;
+    margin-bottom: 10px;
+}
+
+.rp-zoom-row {
+    flex-direction: row;
+}
+
+.rp-zoom-btn {
+    width: 56px;
+    height: 52px;
+    margin-left: 8px;
+}
+
+/* ---------- progress ring (top-right, left of the pause button) ---------- */
+.rp-ring {
+    position: absolute;
+    top: 20px;
+    right: 120px;
+    width: 84px;
+    height: 84px;
+    align-items: center;
+    justify-content: center;
+    transition-property: scale;
+    transition-duration: 0.12s;
+}
+.rp-ring:active { scale: 0.94 0.94; }
+.rp-ring-stage {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    margin-top: 6px;
+}
+.rp-ring-day {
+    font-size: 14px;
+    color: rgb(130, 98, 70);
+    -unity-text-align: middle-center;
+    margin-top: -4px;
+}
+
+.rp-partial-btn {
+    align-self: center;
+    min-width: 300px;
+    height: 52px;
+    margin-top: 12px;
+    padding: 0 20px;
+}
+
+/* ---------- toast (all feedback messages) ---------- */
+.rp-toast {
+    position: absolute;
+    top: 118px;
+    left: 50%;
+    translate: -50% 0;
+    max-width: 640px;
+    padding: 12px 26px 14px 26px;
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    opacity: 1;
+    transition-property: opacity, translate;
+    transition-duration: 0.18s;
+    transition-timing-function: ease-out;
+}
+.rp-toast--hidden {
+    opacity: 0;
+    translate: -50% -14px;
+}
+
+/* ---------- live RIASEC chart (day summary) ---------- */
+.rp-chart-caption {
+    font-size: 14px;
+    color: rgb(130, 98, 70);
+    -unity-text-align: middle-center;
+    margin-bottom: 2px;
+}
+.rp-chart {
+    width: 230px;
+    height: 210px;
+    margin-bottom: 16px;
+}
+.rp-chart-label {
+    position: absolute;
+    width: 20px;
+    font-size: 21px;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(46, 34, 24);
+}
+
+/* ---------- quest-done panel ---------- */
+.rp-done-card {
+    width: 520px;
+    padding-top: 46px;
+}
+.rp-done-ribbon {
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    translate: -50% 0;
+    padding: 10px 34px 14px 34px;
+}
+.rp-done-title {
+    font-size: 28px;
+    color: rgb(255, 245, 225);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(46, 34, 24);
+    -unity-text-align: middle-center;
+}
+.rp-done-name {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 14px;
+}
+.rp-done-stars {
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.rp-star {
+    width: 56px;
+    height: 56px;
+    margin: 0 4px;
+    background-image: url("/Assets/Art/UI/Panels/star_empty.png");
+    -unity-background-scale-mode: scale-to-fit;
+    scale: 0 0;
+    opacity: 0;
+    transition-property: scale, opacity;
+    transition-duration: 0.28s;
+    transition-timing-function: ease-out-back;
+}
+.rp-star--full {
+    background-image: url("/Assets/Art/UI/Panels/star_full.png");
+}
+.rp-star--shown {
+    scale: 1 1;
+    opacity: 1;
+}
+.rp-done-note {
+    font-size: 21px;
+    color: rgb(168, 92, 30);
+    -unity-text-align: middle-center;
+    margin-bottom: 18px;
+}
+
+/* ---------- juice: panels pop in, buttons squash on press ---------- */
+.rp-card, .rp-banner {
+    transition-property: scale, opacity;
+    transition-duration: 0.22s;
+    transition-timing-function: ease-out-back;
+}
+.rp-pop-start {
+    scale: 0.85 0.85;
+    opacity: 0;
+}
+.rp-card-btn, .rp-side-btn, .rp-zoom-btn, .rp-next-btn, .rp-partial-btn {
+    transition-property: scale, translate;
+    transition-duration: 0.08s;
+}
+.rp-card-btn:active, .rp-side-btn:active, .rp-zoom-btn:active, .rp-next-btn:active, .rp-partial-btn:active {
+    scale: 0.95 0.95;
+    translate: 0 2px;
+}
+.rp-zoom-btn .rp-card-btn-label {
+    font-size: 28px;
+}

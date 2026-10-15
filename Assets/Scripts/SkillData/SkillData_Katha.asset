@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Katha
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: KATHA
+  englishName: CRAFT
   riaSecLetter: A
   buttonLabel: KATHA
   description: Craft materials into something useful.

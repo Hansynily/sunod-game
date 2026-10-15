@@ -6020,7 +6020,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -3095886911710049607, guid: 988ccdaafc74c2e4aa8f2529b6b1e1e0, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -6466,7 +6466,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -3095886911710049607, guid: 988ccdaafc74c2e4aa8f2529b6b1e1e0, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -8443,6 +8443,7 @@ GameObject:
   - component: {fileID: 1204290706}
   - component: {fileID: 1204290705}
   - component: {fileID: 1204290704}
+  - component: {fileID: 1204290708}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -8592,6 +8593,20 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1204290708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1204290702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc6d5241ff9d78945846d0985ad963b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_CameraZoom
+  levels: 87000000b4000000e10000000e010000
+  defaultLevel: 1
 --- !u!1 &1208003323
 GameObject:
   m_ObjectHideFlags: 0
@@ -8901,10 +8916,10 @@ MonoBehaviour:
   - {fileID: 1512642667}
   - {fileID: 1572273045}
   - {fileID: 940196460}
-  starFilled: {fileID: 1011056242421925816, guid: a94cdf1f76fa68549a4225139068b419, type: 3}
-  starEmpty: {fileID: -3095886911710049607, guid: 988ccdaafc74c2e4aa8f2529b6b1e1e0, type: 3}
-  starFilledColor: {r: 0.9811321, g: 0.7253224, b: 0, a: 1}
-  starEmptyColor: {r: 1, g: 1, b: 1, a: 0.25}
+  starFilled: {fileID: 21300000, guid: e0485a30c5337a640b5e416f0bff5f8d, type: 3}
+  starEmpty: {fileID: 21300000, guid: f05022a8f1ee1bc41b78f2c0e05bcaae, type: 3}
+  starFilledColor: {r: 1, g: 1, b: 1, a: 1}
+  starEmptyColor: {r: 1, g: 1, b: 1, a: 0.85}
   debugText: {fileID: 0}
 --- !u!1 &1355879281
 GameObject:
@@ -10693,7 +10708,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -3095886911710049607, guid: 988ccdaafc74c2e4aa8f2529b6b1e1e0, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -10768,7 +10783,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -3095886911710049607, guid: 988ccdaafc74c2e4aa8f2529b6b1e1e0, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -11101,7 +11116,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -3095886911710049607, guid: 988ccdaafc74c2e4aa8f2529b6b1e1e0, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1

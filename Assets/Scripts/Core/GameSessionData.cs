@@ -41,6 +41,17 @@ namespace SunodGame.Core
         public static string predictedModelVersion = string.Empty;
         public static string[] predictedClusterExampleCareers = Array.Empty<string>();
 
+        /// <summary>Set when the player ends the run early ("See my results so far"); shown on the End screen.</summary>
+        public static string partialRunNote = string.Empty;
+
+        /// <summary>
+        /// The one Holland code every result screen shows: the predicted cluster's code (it
+        /// matches the career shown next to it), else the rubric's code. Same rule as the
+        /// server's progress page (cluster_holland_code, then holland_code).
+        /// </summary>
+        public static string DisplayHollandCode =>
+            !string.IsNullOrWhiteSpace(predictedClusterHollandCode) ? predictedClusterHollandCode : hollandCode;
+
         static GameSessionData()
         {
             Reset();
@@ -56,6 +67,7 @@ namespace SunodGame.Core
             rounds_cleared = 0;
             total_stars = 0;
             result_source = string.Empty;
+            partialRunNote = string.Empty;
 
             hollandCode = string.Empty;
             careerResult = string.Empty;

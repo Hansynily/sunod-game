@@ -140,7 +140,7 @@ public class vc_SkillAwardPopup : MonoBehaviour
             frame.Add(icon);
             card.Add(frame);
 
-            var name = new Label((skill.skillName ?? "-").ToUpperInvariant()) { pickingMode = PickingMode.Ignore };
+            var name = new Label((skill.DisplayName ?? "-").ToUpperInvariant()) { pickingMode = PickingMode.Ignore };
             name.AddToClassList("award-name");
             card.Add(name);
 
@@ -170,7 +170,7 @@ public class vc_SkillAwardPopup : MonoBehaviour
 
         _confirm?.SetEnabled(_selectedSkill != null);
         if (_confirm != null)
-            _confirm.text = _selectedSkill != null ? $"Take {_selectedSkill.skillName}" : "Pick a skill";
+            _confirm.text = _selectedSkill != null ? $"Take {_selectedSkill.DisplayName}" : "Pick a skill";
     }
 
     private void OnConfirmClicked()

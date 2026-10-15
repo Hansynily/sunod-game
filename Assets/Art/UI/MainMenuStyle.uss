@@ -200,7 +200,7 @@
     justify-content: center;
     overflow: hidden;
     padding: 18px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Setting menu.png#sl_panel_wood");
+    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
     -unity-slice-left: 10;
     -unity-slice-top: 10;
     -unity-slice-right: 10;
@@ -220,11 +220,11 @@
     margin-top: 10px;
     padding: 10px 16px;
     min-width: 168px;
-    background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#sl_slot");
+    background-image: url("/Assets/Art/UI/Panels/slot.png");
     -unity-slice-left: 6;
     -unity-slice-top: 6;
     -unity-slice-right: 6;
-    -unity-slice-bottom: 8;
+    -unity-slice-bottom: 6;
     -unity-slice-scale: 2px;
 }
 
@@ -438,4 +438,89 @@
 }
 .stat-gold {
     color: rgb(245, 200, 60);
+}
+
+/* ============================
+   Settings overlay (cream wood panel, dark-brown text)
+   ============================ */
+.settings-box {
+    width: 70%;
+    max-width: 560px;
+    padding: 36px 44px;
+    align-items: stretch;
+}
+.settings-title {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    margin-bottom: 21px;
+}
+.settings-row {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 21px;
+}
+.settings-label {
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    margin-bottom: 8px;
+}
+
+/* Slider: dark-brown track, gold pixel knob (no rounded Unity chrome) */
+.settings-slider {
+    margin: 6px 4px 0 4px;
+}
+.settings-slider #unity-drag-container {
+    min-height: 30px;
+}
+.settings-slider #unity-tracker {
+    height: 12px;
+    margin-top: -6px;
+    border-radius: 0;
+    background-color: rgb(72, 52, 34);
+    border-width: 2px;
+    border-color: rgb(46, 34, 24);
+}
+.settings-slider #unity-dragger {
+    width: 26px;
+    height: 30px;
+    margin-top: -15px;
+    border-radius: 0;
+    background-color: rgb(255, 214, 120);
+    border-width: 3px;
+    border-color: rgb(72, 52, 34);
+}
+.settings-slider:hover #unity-dragger,
+.settings-slider:focus #unity-dragger {
+    background-color: rgb(255, 228, 160);
+}
+
+/* Two-button language choice: the active one turns green like the primary button */
+.settings-choice-row {
+    flex-direction: row;
+}
+.settings-choice-btn {
+    flex-grow: 1;
+    flex-basis: 0;
+    height: 56px;
+    margin-left: 4px;
+    margin-right: 4px;
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+}
+.settings-choice-btn--on,
+.settings-choice-btn--on:hover,
+.settings-choice-btn--on:focus {
+    background-color: rgb(192, 212, 112);
+    color: rgb(40, 80, 30);
+}
+
+/* Settings close button: bigger label, real button size */
+#btn-settings-close {
+    min-width: 220px;
+    height: 60px;
+}
+#btn-settings-close Label {
+    font-size: 21px;
 }

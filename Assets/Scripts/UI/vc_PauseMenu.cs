@@ -32,6 +32,10 @@ public class vc_PauseMenu : MonoBehaviour
     private Button        _btnExitYes;
     private Button        _btnExitNo;
 
+    private Slider        _sfxSlider;
+    private Button        _btnNamesEn;
+    private Button        _btnNamesFil;
+
     private bool             _pauseOpen;
     private PlayerController _player;
 
@@ -62,6 +66,20 @@ public class vc_PauseMenu : MonoBehaviour
         _btnExit      = root.Q<Button>("btn-exit");
         _btnExitYes   = root.Q<Button>("btn-exit-yes");
         _btnExitNo    = root.Q<Button>("btn-exit-no");
+
+        _sfxSlider    = root.Q<Slider>("pause-sfx-slider");
+        _btnNamesEn   = root.Q<Button>("pause-names-en");
+        _btnNamesFil  = root.Q<Button>("pause-names-fil");
+
+        if (_sfxSlider != null)
+        {
+            _sfxSlider.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
+            _sfxSlider.RegisterValueChangedCallback(e => vc_PlayerOptions.SfxVolume = e.newValue);
+            _sfxSlider.RegisterCallback<PointerCaptureOutEvent>(_ => vc_Sfx.Play("click", 0.6f));
+        }
+        _btnNamesEn?.RegisterCallback<ClickEvent>(_ => SetNameLanguage(false));
+        _btnNamesFil?.RegisterCallback<ClickEvent>(_ => SetNameLanguage(true));
+        RefreshNameButtons();
 
         _hudBtn?.RegisterCallback<ClickEvent>(_ => OpenPauseMenu());
         _btnResume?.RegisterCallback<ClickEvent>(_ => ClosePauseMenu());
@@ -104,6 +122,8 @@ public class vc_PauseMenu : MonoBehaviour
         }
 
         _pauseOpen = true;
+        _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
+        RefreshNameButtons();
         ShowMainButtons();
         _pauseOverlay?.SetDisplay(true);
 
@@ -122,6 +142,22 @@ public class vc_PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         _player?.MoveAction.Enable();
         ChallengeSessionController.Instance?.SetExternalPause(false);
+    }
+
+    // ── Settings ──────────────────────────────────────────────────────────
+
+    private void SetNameLanguage(bool filipino)
+    {
+        vc_Sfx.Play("click", 0.6f);
+        vc_PlayerOptions.UseBaybayinNames = filipino;
+        RefreshNameButtons();
+    }
+
+    private void RefreshNameButtons()
+    {
+        bool fil = vc_PlayerOptions.UseBaybayinNames;
+        _btnNamesEn?.EnableInClassList("pause-choice-btn--on", !fil);
+        _btnNamesFil?.EnableInClassList("pause-choice-btn--on", fil);
     }
 
     // ── Exit-to-menu flow ─────────────────────────────────────────────────

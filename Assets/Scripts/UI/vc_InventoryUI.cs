@@ -137,7 +137,7 @@ public class vc_InventoryUI : MonoBehaviour
             TMP_Text skillNameLabel = FindChildText(card.transform, "Lbl_SkillName");
             if (skillNameLabel != null)
             {
-                skillNameLabel.text = skill.skillName;
+                skillNameLabel.text = skill.DisplayName;
             }
 
             Button cardButton = card.GetComponent<Button>();
@@ -166,7 +166,7 @@ public class vc_InventoryUI : MonoBehaviour
             }
 
             vc_SkillData equipped = vc_SkillManager.Instance?.GetSkillInSlot(i);
-            slotLabels[i].text = equipped != null ? equipped.skillName : "Empty";
+            slotLabels[i].text = equipped != null ? equipped.DisplayName : "Empty";
         }
     }
 

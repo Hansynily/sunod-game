@@ -1,101 +1,164 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Art/UI/LoginRegisterStyle.uss?fileID=7433441132597879392&amp;guid=12048c31d0fdcc74b80d4821b9ad114d&amp;type=3#LoginRegisterStyle"/>
+    <!--
+        "root" MUST stay the first child of the document: vc_KeyboardAvoider translates root[0]
+        to lift the focused TextField above the on-screen keyboard.
+        Panels are toggled with the "hidden" class by LoginRegisterUIToolkit.
+    -->
     <ui:VisualElement name="root" class="root-container">
+
+        <!-- Same backdrop as the main menu: sky (root background) + foreground hills -->
+        <ui:VisualElement name="login-hills" class="login-hills" picking-mode="Ignore"/>
+
+        <!-- ============ LOGIN ============ -->
         <ui:VisualElement name="panel-login" class="screen-wrapper">
-            <ui:VisualElement class="brand-area">
-                <ui:Label text="SUNOD" class="brand-title"/>
-                <ui:Label text="·—·◆·—·" class="brand-divider"/>
+            <ui:VisualElement class="brand-area" picking-mode="Ignore">
+                <ui:VisualElement class="brand-banner sl-panel-wood" picking-mode="Ignore">
+                    <ui:Label text="SUNOD" class="brand-title" picking-mode="Ignore"/>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement class="card">
-                <ui:VisualElement class="input-row">
-                    <ui:Label text="👤" class="input-icon"/>
-                    <ui:TextField name="input-username" label="" class="input-field"/>
+
+            <ui:VisualElement class="auth-box">
+                <ui:VisualElement class="auth-tabs">
+                    <ui:VisualElement class="auth-tab auth-tab--active sl-panel-wood">
+                        <ui:Label text="Login" class="auth-tab-label" picking-mode="Ignore"/>
+                    </ui:VisualElement>
+                    <ui:Button name="btn-switch-to-register" class="auth-tab auth-tab--inactive sl-panel-wood">
+                        <ui:Label text="Register" class="auth-tab-label" picking-mode="Ignore"/>
+                    </ui:Button>
                 </ui:VisualElement>
-                <ui:VisualElement class="input-row">
-                    <ui:Label text="🔒" class="input-icon"/>
-                    <ui:TextField name="input-password" label="" class="input-field"/>
-                </ui:VisualElement>
-                <ui:Label name="lbl-error-login" class="error-label hidden"/>
-                <ui:Label name="lbl-loading" text="Loading..." class="loading-label hidden"/>
-                <ui:Button name="btn-login" class="btn-primary">
-                    <ui:Label text="LOGIN" class="btn-primary-label"/>
-                </ui:Button>
-                <ui:Button name="btn-switch-to-register" class="btn-secondary">
-                    <ui:Label text="No account? Register" class="btn-secondary-label"/>
-                </ui:Button>
-            </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement name="panel-register" class="screen-wrapper hidden">
-            <ui:VisualElement class="brand-area">
-                <ui:Label text="SUNOD" class="brand-title"/>
-                <ui:Label text="·—·◆·—·" class="brand-divider"/>
-            </ui:VisualElement>
-            <ui:VisualElement class="card card-wide">
-                <ui:VisualElement class="form-row">
-                    <ui:TextField name="input-reg-name" label="" class="input-field"/>
-                    <ui:TextField name="input-reg-username" label="" class="input-field"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="form-row">
-                    <ui:TextField name="input-reg-email" label="" class="input-field"/>
-                    <ui:TextField name="input-reg-password" label="" class="input-field"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="form-row">
-                    <ui:DropdownField name="dropdown-gender" label="" class="input-field"/>
-                    <ui:VisualElement name="date-picker" class="date-picker">
-                        <ui:Label text="Birthdate" class="date-picker-label"/>
-                        <ui:VisualElement class="date-picker-dropdowns">
-                            <ui:DropdownField name="dp-month" label="" class="dp-segment"/>
-                            <ui:DropdownField name="dp-day" label="" class="dp-segment"/>
-                            <ui:DropdownField name="dp-year" label="" class="dp-segment dp-year"/>
-                        </ui:VisualElement>
+
+                <ui:VisualElement class="card sl-panel-cream">
+                    <ui:VisualElement class="field-group">
+                        <ui:Label text="Username" class="field-label"/>
+                        <ui:TextField name="input-username" label="" class="lr-field"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="field-group">
+                        <ui:Label text="Password" class="field-label"/>
+                        <ui:TextField name="input-password" label="" class="lr-field"/>
+                    </ui:VisualElement>
+
+                    <ui:Label name="lbl-error-login" class="error-label hidden"/>
+                    <ui:Label name="lbl-loading" text="Loading..." class="loading-label hidden"/>
+
+                    <ui:VisualElement class="action-row">
+                        <ui:Button name="btn-login" class="lr-action-btn sl-button-wide">
+                            <ui:Label text="Login" class="lr-action-label" picking-mode="Ignore"/>
+                        </ui:Button>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Label name="lbl-error-register" class="error-label hidden"/>
-                <ui:VisualElement class="form-row form-btn-row">
-                    <ui:Button name="btn-switch-to-login" class="btn-secondary btn-half">
-                        <ui:Label text="Have an account? Login" class="btn-secondary-label"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- ============ REGISTER ============ -->
+        <ui:VisualElement name="panel-register" class="screen-wrapper hidden">
+            <ui:VisualElement class="brand-area" picking-mode="Ignore">
+                <ui:VisualElement class="brand-banner sl-panel-wood" picking-mode="Ignore">
+                    <ui:Label text="SUNOD" class="brand-title" picking-mode="Ignore"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="auth-box auth-box--wide">
+                <ui:VisualElement class="auth-tabs">
+                    <ui:Button name="btn-switch-to-login" class="auth-tab auth-tab--inactive sl-panel-wood">
+                        <ui:Label text="Login" class="auth-tab-label" picking-mode="Ignore"/>
                     </ui:Button>
-                    <ui:Button name="btn-register" class="btn-primary btn-half">
-                        <ui:Label text="Register" class="btn-primary-label"/>
-                    </ui:Button>
+                    <ui:VisualElement class="auth-tab auth-tab--active sl-panel-wood">
+                        <ui:Label text="Register" class="auth-tab-label" picking-mode="Ignore"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="card sl-panel-cream">
+                    <ui:VisualElement class="form-row">
+                        <ui:VisualElement class="field-group form-cell">
+                            <ui:Label text="Full name" class="field-label"/>
+                            <ui:TextField name="input-reg-name" label="" class="lr-field"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="field-group form-cell">
+                            <ui:Label text="Username" class="field-label"/>
+                            <ui:TextField name="input-reg-username" label="" class="lr-field"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="form-row">
+                        <ui:VisualElement class="field-group form-cell">
+                            <ui:Label text="Email" class="field-label"/>
+                            <ui:TextField name="input-reg-email" label="" class="lr-field"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="field-group form-cell">
+                            <ui:Label text="Password" class="field-label"/>
+                            <ui:TextField name="input-reg-password" label="" class="lr-field"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="form-row">
+                        <ui:VisualElement class="field-group form-cell">
+                            <ui:Label text="Gender" class="field-label"/>
+                            <ui:DropdownField name="dropdown-gender" label="" class="lr-field lr-dropdown"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="date-picker" class="field-group form-cell date-picker">
+                            <ui:Label text="Birthdate" class="field-label"/>
+                            <ui:VisualElement class="date-picker-dropdowns">
+                                <ui:DropdownField name="dp-month" label="" class="lr-field lr-dropdown dp-segment"/>
+                                <ui:DropdownField name="dp-day" label="" class="lr-field lr-dropdown dp-segment"/>
+                                <ui:DropdownField name="dp-year" label="" class="lr-field lr-dropdown dp-segment dp-year"/>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:Label name="lbl-error-register" class="error-label hidden"/>
+
+                    <ui:VisualElement class="action-row">
+                        <ui:Button name="btn-register" class="lr-action-btn sl-button-wide">
+                            <ui:Label text="Register" class="lr-action-label" picking-mode="Ignore"/>
+                        </ui:Button>
+                    </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
+
+        <!-- ============ DEV: BACKEND SETTINGS ============ -->
         <ui:VisualElement name="panel-backend" class="overlay hidden">
-            <ui:VisualElement class="card card-backend">
-                <ui:Button name="btn-backend-close" class="btn-close">
-                    <ui:Label text="Close" class="btn-close-label"/>
+            <ui:VisualElement class="card card-backend sl-panel-cream">
+                <ui:VisualElement class="backend-header sl-panel-wood">
+                    <ui:Label text="Backend Settings" class="backend-title"/>
+                </ui:VisualElement>
+                <ui:Button name="btn-backend-close" class="btn-close sl-button">
+                    <ui:VisualElement class="btn-close-icon" picking-mode="Ignore"/>
                 </ui:Button>
-                <ui:Label text="Backend Settings" class="backend-title"/>
+
                 <ui:VisualElement class="backend-row">
-                    <ui:Label text="Server Preset" class="backend-section-label"/>
+                    <ui:Label text="Server Preset" class="field-label"/>
                     <ui:Label name="lbl-backend-status" text="--" class="backend-status"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="backend-preset-row">
-                    <ui:Button name="btn-preset-railway" class="btn-preset btn-preset-active">
-                        <ui:Label text="Railway"/>
+                    <ui:Button name="btn-preset-railway" class="btn-preset sl-button btn-preset-active">
+                        <ui:Label text="Railway" picking-mode="Ignore"/>
                     </ui:Button>
-                    <ui:Button name="btn-preset-custom" class="btn-preset">
-                        <ui:Label text="Custom"/>
+                    <ui:Button name="btn-preset-custom" class="btn-preset sl-button">
+                        <ui:Label text="Custom" picking-mode="Ignore"/>
                     </ui:Button>
                 </ui:VisualElement>
-                <ui:Label text="Backend URL" class="backend-section-label"/>
-                <ui:VisualElement class="backend-url-row">
-                    <ui:TextField name="input-backend-url" label="" class="input-field input-url"/>
+
+                <ui:VisualElement class="field-group">
+                    <ui:Label text="Backend URL" class="field-label"/>
+                    <ui:TextField name="input-backend-url" label="" class="lr-field input-url"/>
                 </ui:VisualElement>
-                <ui:VisualElement class="backend-footer-row">
-                    <ui:Button name="btn-backend-cancel" class="btn-secondary btn-half">
-                        <ui:Label text="Cancel" class="btn-secondary-label"/>
+
+                <ui:VisualElement class="action-row backend-footer-row">
+                    <ui:Button name="btn-backend-cancel" class="lr-action-btn lr-action-btn--small sl-button-wide">
+                        <ui:Label text="Cancel" class="lr-action-label" picking-mode="Ignore"/>
                     </ui:Button>
-                    <ui:Button name="btn-backend-save" class="btn-primary btn-half">
-                        <ui:Label text="Save" class="btn-primary-label"/>
+                    <ui:Button name="btn-backend-save" class="lr-action-btn lr-action-btn--small sl-button-wide">
+                        <ui:Label text="Save" class="lr-action-label" picking-mode="Ignore"/>
                     </ui:Button>
                 </ui:VisualElement>
                 <ui:Label text="Railway is the default. Use custom IP if Railway doesn't connect." class="backend-help"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:Button name="btn-dev-backend" class="btn-dev hidden">
-            <ui:Label text="⚙ Dev" class="btn-dev-label"/>
+
+        <!-- Small dev entry point, bottom-left. Shown only when showDeveloperBackendControls is on. -->
+        <ui:Button name="btn-dev-backend" class="btn-dev sl-button hidden">
+            <ui:VisualElement class="btn-dev-icon" picking-mode="Ignore"/>
+            <ui:Label text="Dev" class="btn-dev-label" picking-mode="Ignore"/>
         </ui:Button>
     </ui:VisualElement>
 </ui:UXML>

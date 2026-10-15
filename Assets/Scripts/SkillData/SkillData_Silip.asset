@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Silip
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: SILIP
+  englishName: INSPECT
   riaSecLetter: C
   buttonLabel: SILIP
   description: Look at an object to see what it needs.

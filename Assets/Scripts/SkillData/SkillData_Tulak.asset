@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: SkillData_Tulak
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: TULAK
+  englishName: PUSH
   riaSecLetter: R
   buttonLabel: TULAK
   description: Push a heavy object out of the way.
   icon: {fileID: 0}
   capabilityTags:
   - push
+  level: 1

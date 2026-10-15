@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkillData_Pinta
   m_EditorClassIdentifier: Assembly-CSharp::vc_SkillData
   skillName: PINTA
+  englishName: PAINT
   riaSecLetter: A
   buttonLabel: PINTA
   description: Paint an object to mark or change it.
