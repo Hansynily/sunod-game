@@ -32,6 +32,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game_Scene.unity
     guid: ad5b7f436b1026742b7af18d9e393f30
+  - enabled: 1
+    path: Assets/Scenes/Towns/Game_Scene_Town.unity
+    guid: c616f73a901aca64aae244ba9d23262e
+  - enabled: 1
+    path: Assets/Scenes/Towns/Town_Elementary.unity
+    guid: 1c47d89b92bbb8b4dad800e4304b479e
+  - enabled: 1
+    path: Assets/Scenes/Towns/Town_HighSchool.unity
+    guid: 3ded39b45f7976440b3beb1fb73191fc
+  - enabled: 1
+    path: Assets/Scenes/Towns/Town_College.unity
+    guid: e517097e77f4d434c9149ed982ad8929
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
