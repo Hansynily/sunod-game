@@ -635,6 +635,111 @@
    "h": 16,
    "base": 16
   },
+  "house_peach2_home0": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_peach2_home1": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_peach2_home2": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_peach2_home3": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_slate_home0": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_slate_home1": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_slate_home2": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_slate_home3": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_red_home0": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_red_home1": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_red_home2": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "house_red_home3": {
+   "w": 63,
+   "h": 48,
+   "base": 16,
+   "top": true
+  },
+  "debris0": {
+   "w": 18,
+   "h": 10,
+   "base": 10
+  },
+  "debris1": {
+   "w": 18,
+   "h": 10,
+   "base": 10
+  },
+  "debris2": {
+   "w": 18,
+   "h": 10,
+   "base": 10
+  },
+  "shrine": {
+   "w": 24,
+   "h": 30,
+   "base": 9,
+   "top": true
+  },
+  "shrine_glow": {
+   "w": 40,
+   "h": 40,
+   "base": 40,
+   "marker": true
+  },
+  "sign_shrine": {
+   "w": 31,
+   "h": 17,
+   "base": 6,
+   "top": true
+  },
   "marker_quest": {
    "w": 11,
    "h": 15,

@@ -30,6 +30,21 @@ public class vc_TownNPC : MonoBehaviour
     public Sprite markerSoon;
 
     public bool HasQuest => questPrefab != null;
+
+    /// <summary>The quest's id (vc_QuestRoom.QuestId) - what the save and progress track.</summary>
+    public string QuestId
+    {
+        get
+        {
+            if (_questId == null)
+            {
+                vc_QuestRoom room = questPrefab != null ? questPrefab.GetComponentInChildren<vc_QuestRoom>(true) : null;
+                _questId = room != null && !string.IsNullOrEmpty(room.QuestId) ? room.QuestId : npcId;
+            }
+            return _questId;
+        }
+    }
+    private string _questId;
     public bool Attempted { get; private set; }
 
     private float _frameTimer;

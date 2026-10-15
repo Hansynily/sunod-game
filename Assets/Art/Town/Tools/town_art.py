@@ -270,7 +270,94 @@ def gen_marker(name, glyph, fill, edge):
     meta[name] = {"w": 11, "h": 15, "base": 15, "marker": True}
 
 
+def gen_damaged_home(name, seed):
+    """4 rebuild stages of a house: 0 = wrecked (dream vision) ... 3 = as new."""
+    import random
+    src = clean(A.crop(CROPS[name][:4]))
+    base_px = CROPS[name][4]
+    w, h = src.size
+    for k in range(4):
+        rnd = random.Random(seed)
+        im = src.copy()
+        sev = 3 - k                      # 3 = worst
+        if sev:
+            px = im.load()
+            # darken + desaturate with damage
+            for y in range(h):
+                for x in range(w):
+                    r, g, b, a = px[x, y]
+                    if a == 0:
+                        continue
+                    grey = (r + g + b) // 3
+                    f = 0.18 * sev
+                    r = int((r * (1 - f) + grey * f) * (1 - 0.07 * sev))
+                    g = int((g * (1 - f) + grey * f) * (1 - 0.07 * sev))
+                    b = int((b * (1 - f) + grey * f) * (1 - 0.05 * sev))
+                    px[x, y] = (r, g, b, a)
+            d = ImageDraw.Draw(im)
+            roof_h = h - base_px
+            # roof holes
+            for _ in range(sev * 2):
+                cx, cy = rnd.randint(6, w - 7), rnd.randint(3, max(4, roof_h - 5))
+                rw, rh = rnd.randint(4, 8), rnd.randint(3, 5)
+                d.ellipse([cx - rw // 2, cy - rh // 2, cx + rw // 2, cy + rh // 2], fill=(28, 20, 26, 255))
+                d.line([cx - rw // 2 - 1, cy, cx + rw // 2 + 1, cy - 1], fill=(120, 80, 50, 255))
+            # cracks
+            for _ in range(sev * 3):
+                x0, y0 = rnd.randint(2, w - 3), rnd.randint(2, h - 3)
+                pts = [(x0, y0)]
+                for _ in range(3):
+                    x0 += rnd.randint(-2, 2); y0 += rnd.randint(1, 3)
+                    pts.append((x0, y0))
+                d.line(pts, fill=(40, 28, 26, 255))
+            # boarded-up wall
+            for _ in range(sev):
+                y0 = rnd.randint(h - base_px + 2, h - 4)
+                x0 = rnd.randint(2, w - 18)
+                d.line([x0, y0, x0 + rnd.randint(10, 16), y0 + rnd.randint(-3, 3)], fill=(150, 104, 62, 255), width=2)
+        im.save(os.path.join(OUT, f"{name}_home{k}_full.png"))
+        save_split(f"{name}_home{k}", im, base_px)
+
+
+def gen_debris():
+    import random
+    rnd = random.Random(7)
+    for i in range(3):
+        im = Image.new("RGBA", (18, 10), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+        for _ in range(4):
+            x0, y0 = rnd.randint(0, 10), rnd.randint(3, 8)
+            d.line([x0, y0, x0 + rnd.randint(5, 8), y0 + rnd.randint(-2, 1)], fill=(140, 96, 58, 255), width=2)
+        for _ in range(3):
+            x0, y0 = rnd.randint(1, 14), rnd.randint(5, 8)
+            d.rectangle([x0, y0, x0 + 2, y0 + 1], fill=(120, 116, 120, 255))
+        save_split(f"debris{i}", im, 10)
+
+
+def gen_shrine():
+    im = Image.new("RGBA", (24, 30), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    stone, dark, light = (150, 146, 160, 255), (70, 66, 84, 255), (196, 192, 206, 255)
+    d.rectangle([2, 22, 21, 29], fill=dark); d.rectangle([3, 23, 20, 28], fill=stone)
+    d.rectangle([6, 12, 17, 22], fill=dark); d.rectangle([7, 13, 16, 22], fill=stone)
+    d.line([7, 13, 7, 21], fill=light); d.line([3, 23, 20, 23], fill=light)
+    cols = [(217, 58, 74), (240, 138, 36), (142, 79, 214), (47, 163, 90), (47, 111, 214), (34, 179, 196)]
+    for i, c in enumerate(cols):                      # RIASEC band
+        d.point((8 + i + (i > 2), 17), fill=c + (255,))
+    d.ellipse([7, 2, 16, 11], fill=(120, 230, 255, 255), outline=(40, 90, 140, 255))
+    d.ellipse([9, 4, 12, 7], fill=(235, 255, 255, 255))
+    save_split("shrine", im, 9)
+    g = Image.new("RGBA", (40, 40), (0, 0, 0, 0)); gd = ImageDraw.Draw(g)
+    for r, a in ((19, 40), (14, 70), (9, 110)):
+        gd.ellipse([20 - r, 20 - r, 20 + r, 20 + r], fill=(140, 230, 255, a))
+    g.save(os.path.join(OUT, "shrine_glow.png"))
+    meta["shrine_glow"] = {"w": 40, "h": 40, "base": 40, "marker": True}
+
+
 gen_swing(); gen_slide(); gen_flagpole(); gen_drumstage(); gen_garden_bed(); gen_dock()
+for i, hn in enumerate(("house_peach2", "house_slate", "house_red")):
+    gen_damaged_home(hn, 100 + i)
+gen_debris(); gen_shrine()
+gen_signboard = signboard
+signboard("sign_shrine", "SKILLS")
 gen_marker("marker_quest", "!", (255, 214, 64, 255), (90, 50, 10, 255))
 gen_marker("marker_done", "check", (140, 220, 120, 255), (30, 80, 30, 255))
 gen_marker("marker_soon", "dots", (200, 200, 200, 255), (90, 90, 90, 255))

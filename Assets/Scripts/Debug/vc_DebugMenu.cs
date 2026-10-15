@@ -58,7 +58,8 @@ public class vc_DebugMenu : MonoBehaviour
         GUI.skin.label.fontSize = 13;
         GUI.skin.box.fontSize = 13;
 
-        if (GUI.Button(new Rect(w / 2f - 40f, 2f, 80f, 22f), _open ? "CLOSE" : "DEBUG"))
+        // Left edge, mid-height: clear of the quest panel, progress banner and pause button.
+        if (GUI.Button(new Rect(2f, h * 0.42f, 64f, 22f), _open ? "CLOSE" : "DEBUG"))
             _open = !_open;
 
         if (!_open) return;
@@ -140,6 +141,14 @@ public class vc_DebugMenu : MonoBehaviour
             GUILayout.EndHorizontal();
 
             if (GUILayout.Button("Reset town progress")) { town.DebugResetProgress(); Say("Progress reset"); }
+            if (GUILayout.Button($"End day {town.Day} now (summary + dream)")) { town.DebugEndDay(); _open = false; }
+            if (GUILayout.Button("Play stage-end dream") && vc_TownFlow.Instance != null)
+            {
+                var stages = vc_TownFlow.Instance.Stages;
+                int idx = Mathf.Max(0, vc_TownFlow.Instance.CurrentStageIndex);
+                if (idx < stages.Length) vc_RunProgressUI.Instance?.PlayDream(stages[idx].title, stages[idx].dreamAfter, idx, null);
+                _open = false;
+            }
             GUI.enabled = true;
             return;
         }
@@ -180,6 +189,11 @@ public class vc_DebugMenu : MonoBehaviour
     private void DrawGameSection()
     {
         Header("GAME");
+        if (GUILayout.Button(SceneLoader.UseTownFlow ? "Run mode: TOWNS (tap for corridor)" : "Run mode: CORRIDOR (tap for towns)"))
+        {
+            SceneLoader.UseTownFlow = !SceneLoader.UseTownFlow;
+            Say("New Game now uses the " + (SceneLoader.UseTownFlow ? "towns" : "corridor"));
+        }
         GUILayout.BeginHorizontal();
         foreach (float ts in new[] { 1f, 2f, 4f })
             if (GUILayout.Button(Mathf.Approximately(Time.timeScale, ts) ? $"[Time x{ts}]" : $"Time x{ts}"))

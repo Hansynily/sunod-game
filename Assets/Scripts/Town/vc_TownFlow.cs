@@ -1,33 +1,64 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using SunodGame.Core;
 
 /// <summary>
 /// Life-stage flow for the town version of the game (Game_Scene_Town). Loads the
 /// Elementary, High School and College towns one after another, additively, the same
-/// way vc_FloorLoader loads floors in the corridor version. After the last town the
-/// run ends through the normal End Run screen (results + prediction).
+/// way vc_FloorLoader loads floors in the corridor version. Between stages it plays a
+/// short dream; after the last one it submits the run and shows the results.
+///
+/// Progress is keyed by quest id (vc_QuestRoom.QuestId), the same ids the run-state
+/// checkpoint already stores, so Continue can restore which NPCs were helped.
 /// </summary>
 public class vc_TownFlow : MonoBehaviour
 {
     public const string GameSceneName = "Game_Scene_Town";
     public static readonly string[] TownScenes = { "Town_Elementary", "Town_HighSchool", "Town_College" };
 
+    [Serializable]
+    public class StageInfo
+    {
+        public string scene;
+        public string title;
+        [Tooltip("Question codes of the stage's built quests, in NPC order (filled by vc_TownBuilder).")]
+        public string[] codes;
+        [Tooltip("Quest ids matching codes (filled by vc_TownBuilder).")]
+        public string[] questIds;
+        [TextArea(2, 4)] public string[] dreamAfter;
+    }
+
     public static vc_TownFlow Instance { get; private set; }
 
-    /// <summary>Which NPC quests have been attempted this run (pass or fail).</summary>
-    private static readonly HashSet<string> Attempted = new HashSet<string>();
+    // ── run state (survives town scene loads; reset on a new run) ──────────
+    private static readonly HashSet<string> Completed = new HashSet<string>();
 
-    public static bool IsAttempted(string npcId) => !string.IsNullOrEmpty(npcId) && Attempted.Contains(npcId);
-    public static void MarkAttempted(string npcId) { if (!string.IsNullOrEmpty(npcId)) Attempted.Add(npcId); }
-    public static void ResetRun() => Attempted.Clear();
+    /// <summary>Set by the main menu's Continue before Game_Scene_Town loads.</summary>
+    public static string PendingStartTown;
+    public static List<string> PendingCompletedQuestIds;
 
-    [Tooltip("Index into TownScenes to start from.")]
+    public static bool IsQuestDone(string questId) => !string.IsNullOrEmpty(questId) && Completed.Contains(questId);
+    public static void MarkQuestDone(string questId) { if (!string.IsNullOrEmpty(questId)) Completed.Add(questId); }
+    public static void ResetRun() => Completed.Clear();
+
+    /// <summary>Fired whenever overall progress changes (quest done, town loaded).</summary>
+    public static event Action ProgressChanged;
+    public static void RaiseProgressChanged() => ProgressChanged?.Invoke();
+
+    [Tooltip("Index into TownScenes to start a new run from.")]
     [SerializeField] private int startTown;
+    [SerializeField] private StageInfo[] stages = new StageInfo[0];
 
     private string _currentTown;
     private bool _loading;
+
+    public StageInfo[] Stages => stages;
+    public int CurrentStageIndex => Array.IndexOf(TownScenes, _currentTown);
+    public string CurrentTown => _currentTown;
+    public bool IsLoading => _loading;
 
     private void Awake()
     {
@@ -42,6 +73,13 @@ public class vc_TownFlow : MonoBehaviour
 
     private void Start()
     {
+        // Every run in this scene is a real session: make sure telemetry is recording. Only
+        // start one if none is open - StartSession() on a live session would wipe the quest
+        // records Continue just restored.
+        vc_SessionTelemetry telemetry = vc_SessionTelemetry.Instance;
+        if (telemetry != null && string.IsNullOrWhiteSpace(telemetry.SessionId))
+            telemetry.StartSession();
+
         // Dev: a town scene was opened and played directly - use it.
         foreach (string town in TownScenes)
         {
@@ -54,8 +92,20 @@ public class vc_TownFlow : MonoBehaviour
             }
         }
 
+        string first = TownScenes[Mathf.Clamp(startTown, 0, TownScenes.Length - 1)];
         ResetRun();
-        LoadTown(TownScenes[Mathf.Clamp(startTown, 0, TownScenes.Length - 1)]);
+
+        // Continue: restore the playthrough's progress and resume in the saved town.
+        if (!string.IsNullOrEmpty(PendingStartTown) && Array.IndexOf(TownScenes, PendingStartTown) >= 0)
+        {
+            first = PendingStartTown;
+            if (PendingCompletedQuestIds != null)
+                foreach (string id in PendingCompletedQuestIds) MarkQuestDone(id);
+        }
+        PendingStartTown = null;
+        PendingCompletedQuestIds = null;
+
+        LoadTown(first);
     }
 
     public void LoadTown(string sceneName)
@@ -64,19 +114,35 @@ public class vc_TownFlow : MonoBehaviour
         StartCoroutine(LoadTownRoutine(sceneName));
     }
 
+    /// <summary>Called when a stage is finished: dream, then the next town (or the results).</summary>
     public void LoadNextTown()
     {
-        int idx = System.Array.IndexOf(TownScenes, _currentTown);
-        if (idx >= 0 && idx + 1 < TownScenes.Length)
+        if (_loading) return;
+        int idx = CurrentStageIndex;
+        StageInfo info = idx >= 0 && idx < stages.Length ? stages[idx] : null;
+        string[] dream = info != null ? info.dreamAfter : null;
+        bool last = idx < 0 || idx + 1 >= TownScenes.Length;
+
+        vc_RunProgressUI ui = vc_RunProgressUI.Instance;
+        if (ui != null && dream != null && dream.Length > 0)
+            ui.PlayDream(info.title, dream, last ? 3 : idx, () => AfterDream(idx, last));
+        else
+            AfterDream(idx, last);
+    }
+
+    private void AfterDream(int idx, bool last)
+    {
+        if (!last)
         {
             LoadTown(TownScenes[idx + 1]);
             return;
         }
 
-        // Last stage done: hand over to the normal end-of-run flow.
+        // Last stage done: submit the run and show the results.
         vc_QuestHUD.Instance?.HideQuestInfo();
         vc_EndRunUI ui = vc_EndRunUI.Instance ?? FindFirstObjectByType<vc_EndRunUI>();
-        ui?.Show();
+        if (ui != null) ui.SubmitNow();
+        else SceneLoader.GoToEnd();
     }
 
     private IEnumerator LoadTownRoutine(string sceneName)
@@ -108,5 +174,19 @@ public class vc_TownFlow : MonoBehaviour
         }
 
         stage.Enter();
+        RaiseProgressChanged();
     }
+
+    // ── progress queries (used by the progress bar) ───────────────────────
+
+    public int StageQuestCount(int stage) =>
+        stage >= 0 && stage < stages.Length && stages[stage].questIds != null ? stages[stage].questIds.Length : 0;
+
+    public bool StageQuestDone(int stage, int i) =>
+        stage >= 0 && stage < stages.Length && stages[stage].questIds != null && i < stages[stage].questIds.Length
+        && IsQuestDone(stages[stage].questIds[i]);
+
+    public string StageQuestCode(int stage, int i) =>
+        stage >= 0 && stage < stages.Length && stages[stage].codes != null && i < stages[stage].codes.Length
+            ? stages[stage].codes[i] : "";
 }

@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Builds the three life-stage town scenes (Elementary / High School / College) and the
@@ -45,6 +46,10 @@ public static class vc_TownBuilder
             "mush_green", "mush_purple", "mush_orange", "mush_brown",
         };
         public float decorDensity = 0.085f;
+        public string home;                 // house sprite used for the rebuildable home
+        public Vector2 homePos, shrinePos;
+        public string[] nightDreams = new string[0];
+        public string[] dreamAfter = new string[0];
 
         public void Path(string mat, int x, int y, int w, int h) => paths.Add((mat, new RectInt(x, y, w, h)));
         public void Water(int x, int y, int w, int h) => water.Add(new RectInt(x, y, w, h));
@@ -70,18 +75,51 @@ public static class vc_TownBuilder
 
     // ── menu ──────────────────────────────────────────────────────────────
 
-    [MenuItem("SUNOD/Towns/Build All Towns")]
+    /// <summary>
+    /// Safe build: only creates town scenes that don't exist yet, so hand edits are never
+    /// overwritten. Always refreshes Game_Scene_Town (stage data, progress UI) and the paint
+    /// tiles / prefabs.
+    /// </summary>
+    [MenuItem("SUNOD/Towns/Build Missing Towns (safe)")]
     public static void BuildAll()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+        Build(false);
+    }
 
+    [MenuItem("SUNOD/Towns/Rebuild All Towns (overwrites hand edits!)")]
+    public static void RebuildAll()
+    {
+        if (!EditorUtility.DisplayDialog("Rebuild all towns?",
+                "This regenerates Town_Elementary, Town_HighSchool and Town_College from the layouts in vc_TownBuilder.cs.\n\n" +
+                "ANY CHANGES YOU MADE TO THOSE SCENES BY HAND WILL BE LOST.",
+                "Rebuild and overwrite", "Cancel"))
+            return;
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+        Build(true);
+    }
+
+    /// <summary>For the Unity CLI: rebuilds without the confirmation dialog.</summary>
+    public static void RebuildAllNoPrompt() => Build(true);
+
+    private static void Build(bool overwrite)
+    {
         ImportSprites();
         Directory.CreateDirectory(SceneDir);
-        BuildTown(Elementary());
-        BuildTown(HighSchool());
-        BuildTown(College());
-        BuildGameScene();
+        var towns = new[] { Elementary(), HighSchool(), College() };
+        foreach (Town t in towns)
+        {
+            if (!overwrite && File.Exists($"{SceneDir}/{t.scene}.unity"))
+            {
+                Debug.Log($"[vc_TownBuilder] {t.scene} exists - left untouched (use Rebuild to overwrite).");
+                continue;
+            }
+            BuildTown(t);
+        }
+        BuildGameScene(towns);
         AddToBuildSettings();
+        MakePaintTiles();
+        MakePropPrefabs();
         AssetDatabase.SaveAssets();
         Debug.Log("[vc_TownBuilder] Towns built.");
     }
@@ -155,6 +193,8 @@ public static class vc_TownBuilder
         stage.stageTitle = t.title;
         stage.introLine = t.intro;
         stage.completeLine = t.complete;
+        stage.nightDreams = t.nightDreams;
+        stage.questsPerDay = 4;
 
         // ground + paths
         var grid = new GameObject("Grid", typeof(Grid));
@@ -204,6 +244,18 @@ public static class vc_TownBuilder
         {
             GameObject go = PlaceSprite(objRoot, s, x, y, collide);
             if (go != null) MarkSprite(occ, s, x, y);
+        }
+
+        // the rebuildable home + the skill shrine
+        if (!string.IsNullOrEmpty(t.home))
+        {
+            PlaceHome(objRoot, t.home, t.homePos.x, t.homePos.y);
+            MarkSprite(occ, t.home + "_home3", t.homePos.x, t.homePos.y);
+        }
+        if (t.shrinePos != Vector2.zero)
+        {
+            PlaceShrine(objRoot, t.shrinePos.x, t.shrinePos.y);
+            MarkRect(occ, t.shrinePos.x - 1.5f, t.shrinePos.y - 0.6f, t.shrinePos.x + 1.5f, t.shrinePos.y + 2.4f);
         }
 
         // NPCs
@@ -525,27 +577,275 @@ public static class vc_TownBuilder
         mr.sprite = npc.questPrefab == null ? mSoon : mQuest;
     }
 
-    private static void BuildGameScene()
+    private static void PlaceHome(Transform parent, string house, float x, float y)
+    {
+        GameObject go = PlaceSprite(parent, house + "_home3", x, y, true);
+        if (go == null) return;
+        go.name = "Home";
+        var home = go.AddComponent<vc_TownHome>();
+        home.baseRenderer = go.transform.Find("Base").GetComponent<SpriteRenderer>();
+        Transform top = go.transform.Find("Top");
+        home.topRenderer = top != null ? top.GetComponent<SpriteRenderer>() : null;
+        home.baseStages = new Sprite[4];
+        home.topStages = new Sprite[4];
+        for (int k = 0; k < 4; k++)
+        {
+            home.baseStages[k] = LoadSprite($"{house}_home{k}_base");
+            home.topStages[k] = LoadSprite($"{house}_home{k}_top");
+        }
+        home.baseRenderer.sprite = home.baseStages[0];
+        if (home.topRenderer != null) home.topRenderer.sprite = home.topStages[0];
+
+        var debris = new List<GameObject>();
+        float[] dx = { -1.6f, 0.4f, 1.9f };
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject d = PlaceSprite(go.transform, "debris" + i, x + dx[i], y - 0.55f - 0.25f * (i % 2), false);
+            if (d != null) debris.Add(d);
+        }
+        home.debris = debris.ToArray();
+        PlaceSprite(parent, "sign_home", x + 3.4f, y + 0.1f, true);
+    }
+
+    private static void PlaceShrine(Transform parent, float x, float y)
+    {
+        GameObject go = PlaceSprite(parent, "shrine", x, y, true);
+        if (go == null) return;
+        go.name = "SkillShrine";
+        var trigger = go.AddComponent<CircleCollider2D>();
+        trigger.isTrigger = true;
+        trigger.radius = 1.1f;
+        trigger.offset = new Vector2(0f, 0.5f);
+
+        var glowGo = new GameObject("Glow", typeof(SpriteRenderer));
+        glowGo.transform.SetParent(go.transform, false);
+        glowGo.transform.localPosition = new Vector3(0f, 0.4f, 0f);
+        var glow = glowGo.GetComponent<SpriteRenderer>();
+        glow.sprite = LoadSprite("shrine_glow");
+        glow.sortingLayerName = "Default";
+        glow.sortingOrder = 9;
+
+        // the trigger must not be the solid collider PlaceSprite added
+        var shrine = go.AddComponent<vc_TownSkillShrine>();
+        shrine.glow = glow;
+        PlaceSprite(parent, "sign_shrine", x - 2.2f, y, true);
+    }
+
+    private static void BuildGameScene(Town[] towns)
     {
         string path = $"{SceneDir}/Game_Scene_Town.unity";
         if (!File.Exists(path))
             AssetDatabase.CopyAsset("Assets/Scenes/Game_Scene.unity", path);
 
         var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+        UIDocument anyDoc = null;
         foreach (GameObject r in scene.GetRootGameObjects())
         {
             // The corridor's floor system stays in Game_Scene; the town flow replaces it here.
             foreach (var fl in r.GetComponentsInChildren<SunodGame.Core.vc_FloorLoader>(true)) fl.enabled = false;
             foreach (var fi in r.GetComponentsInChildren<SunodGame.Core.vc_FloorInitializer>(true)) fi.enabled = false;
+            if (anyDoc == null) anyDoc = r.GetComponentInChildren<UIDocument>(true);
         }
 
-        bool hasFlow = false;
+        vc_TownFlow flow = null;
+        vc_RunProgressUI progress = null;
         foreach (GameObject r in scene.GetRootGameObjects())
-            if (r.GetComponentInChildren<vc_TownFlow>(true) != null) hasFlow = true;
-        if (!hasFlow) new GameObject("TownFlow").AddComponent<vc_TownFlow>();
+        {
+            if (flow == null) flow = r.GetComponentInChildren<vc_TownFlow>(true);
+            if (progress == null) progress = r.GetComponentInChildren<vc_RunProgressUI>(true);
+        }
+        if (flow == null) flow = new GameObject("TownFlow").AddComponent<vc_TownFlow>();
+
+        // stage data for the progress bar + Continue
+        var stages = new List<vc_TownFlow.StageInfo>();
+        foreach (Town t in towns)
+        {
+            var codes = new List<string>();
+            var ids = new List<string>();
+            foreach (Npc n in t.npcs)
+            {
+                if (string.IsNullOrEmpty(n.prefab)) continue;
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{RoomDir}/{n.prefab}.prefab");
+                var room = prefab != null ? prefab.GetComponentInChildren<vc_QuestRoom>(true) : null;
+                if (room == null) continue;
+                codes.Add(n.code);
+                ids.Add(room.QuestId);
+            }
+            stages.Add(new vc_TownFlow.StageInfo
+            {
+                scene = t.scene, title = t.title, codes = codes.ToArray(), questIds = ids.ToArray(), dreamAfter = t.dreamAfter,
+            });
+        }
+        var so = new SerializedObject(flow);
+        var prop = so.FindProperty("stages");
+        prop.arraySize = stages.Count;
+        for (int i = 0; i < stages.Count; i++)
+        {
+            var e = prop.GetArrayElementAtIndex(i);
+            e.FindPropertyRelative("scene").stringValue = stages[i].scene;
+            e.FindPropertyRelative("title").stringValue = stages[i].title;
+            SetStrings(e.FindPropertyRelative("codes"), stages[i].codes);
+            SetStrings(e.FindPropertyRelative("questIds"), stages[i].questIds);
+            SetStrings(e.FindPropertyRelative("dreamAfter"), stages[i].dreamAfter);
+        }
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        // progress banner / day summary / dream overlay
+        if (progress == null)
+        {
+            var go = new GameObject("UIToolkit_RunProgress", typeof(UIDocument));
+            progress = go.AddComponent<vc_RunProgressUI>();
+        }
+        var doc = progress.GetComponent<UIDocument>();
+        if (anyDoc != null) doc.panelSettings = anyDoc.panelSettings;
+        doc.sortingOrder = 5;
+        var pso = new SerializedObject(progress);
+        pso.FindProperty("styleSheet").objectReferenceValue = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Art/UI/RunProgress.uss");
+        string[] bgs =
+        {
+            "Assets/Art/Cutscenes/Cut04_HouseWrecked/Cutscene04_Background_px.png",
+            "Assets/Art/Cutscenes/Cut05_MysteriousMan/Cutscene05_Background_px.png",
+            "Assets/Art/Cutscenes/Cut03_HouseNight/Cutscene03_Background_px.png",
+            "Assets/Art/Cutscenes/Cut06_Symbols/Cutscene06_Background_px.png",
+        };
+        var bgProp = pso.FindProperty("dreamBackgrounds");
+        bgProp.arraySize = bgs.Length;
+        for (int i = 0; i < bgs.Length; i++)
+            bgProp.GetArrayElementAtIndex(i).objectReferenceValue = AssetDatabase.LoadAssetAtPath<Texture2D>(bgs[i]);
+        pso.ApplyModifiedPropertiesWithoutUndo();
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
+    }
+
+    private static void SetStrings(SerializedProperty arr, string[] values)
+    {
+        values = values ?? new string[0];
+        arr.arraySize = values.Length;
+        for (int i = 0; i < values.Length; i++) arr.GetArrayElementAtIndex(i).stringValue = values[i];
+    }
+
+    // ── hand-editing support: rule tiles, palette, prop prefabs ──────────
+
+    private const string PaintDir = "Assets/Art/Town/Paint";
+
+    /// <summary>
+    /// One RuleTile per ground material (dirt, sand, cobble, plaza, water): paint with it and
+    /// the grass edges and corners fill themselves, the same way the builder autotiles.
+    /// Also makes a "Town" tile palette holding them plus the plain grass tile.
+    /// </summary>
+    [MenuItem("SUNOD/Towns/Make Paint Tiles + Palette")]
+    public static void MakePaintTiles()
+    {
+        Directory.CreateDirectory(PaintDir);
+        var tiles = new List<TileBase>();
+        foreach (var kv in Materials)
+        {
+            var m = kv.Value;
+            string path = $"{PaintDir}/{kv.Key}_auto.asset";
+            var rule = AssetDatabase.LoadAssetAtPath<RuleTile>(path);
+            if (rule == null)
+            {
+                rule = ScriptableObject.CreateInstance<RuleTile>();
+                AssetDatabase.CreateAsset(rule, path);
+            }
+            rule.m_DefaultSprite = SpriteOf(m.bx + 1, m.by + 1);
+            rule.m_DefaultColliderType = kv.Key == "water" ? Tile.ColliderType.Sprite : Tile.ColliderType.None;
+            rule.m_TilingRules = new List<RuleTile.TilingRule>
+            {
+                // outer edges/corners: "not" = no same tile on that side
+                Rule(SpriteOf(m.bx, m.by),         ("N", false), ("W", false), ("E", true), ("S", true)),
+                Rule(SpriteOf(m.bx + 2, m.by),     ("N", false), ("E", false), ("W", true), ("S", true)),
+                Rule(SpriteOf(m.bx, m.by + 2),     ("S", false), ("W", false), ("E", true), ("N", true)),
+                Rule(SpriteOf(m.bx + 2, m.by + 2), ("S", false), ("E", false), ("W", true), ("N", true)),
+                Rule(SpriteOf(m.bx + 1, m.by),     ("N", false), ("W", true), ("E", true), ("S", true)),
+                Rule(SpriteOf(m.bx + 1, m.by + 2), ("S", false), ("W", true), ("E", true), ("N", true)),
+                Rule(SpriteOf(m.bx, m.by + 1),     ("W", false), ("N", true), ("S", true), ("E", true)),
+                Rule(SpriteOf(m.bx + 2, m.by + 1), ("E", false), ("N", true), ("S", true), ("W", true)),
+                // inner corners: all four sides present, one diagonal missing
+                Rule(SpriteOf(m.ix, m.iy),         ("N", true), ("S", true), ("E", true), ("W", true), ("NW", false)),
+                Rule(SpriteOf(m.ix + 1, m.iy),     ("N", true), ("S", true), ("E", true), ("W", true), ("NE", false)),
+                Rule(SpriteOf(m.ix, m.iy + 1),     ("N", true), ("S", true), ("E", true), ("W", true), ("SW", false)),
+                Rule(SpriteOf(m.ix + 1, m.iy + 1), ("N", true), ("S", true), ("E", true), ("W", true), ("SE", false)),
+            };
+            foreach (var r in rule.m_TilingRules)
+                r.m_ColliderType = rule.m_DefaultColliderType;
+            EditorUtility.SetDirty(rule);
+            tiles.Add(rule);
+        }
+        tiles.Add(Cell(GrassCell.x, GrassCell.y));
+        AssetDatabase.SaveAssets();
+
+        string palettePath = $"{PaintDir}/Town Palette.prefab";
+        if (!File.Exists(palettePath))
+        {
+            GameObject pal = UnityEditor.Tilemaps.GridPaletteUtility.CreateNewPalette(
+                PaintDir, "Town Palette", GridLayout.CellLayout.Rectangle,
+                UnityEditor.GridPalette.CellSizing.Automatic, Vector3.one, GridLayout.CellSwizzle.XYZ);
+            palettePath = AssetDatabase.GetAssetPath(pal);
+        }
+        GameObject contents = PrefabUtility.LoadPrefabContents(palettePath);
+        var tm = contents.GetComponentInChildren<Tilemap>();
+        tm.ClearAllTiles();
+        for (int i = 0; i < tiles.Count; i++)
+            tm.SetTile(new Vector3Int(i, 0, 0), tiles[i]);
+        PrefabUtility.SaveAsPrefabAsset(contents, palettePath);
+        PrefabUtility.UnloadPrefabContents(contents);
+    }
+
+    private static Sprite SpriteOf(int col, int row) => (Cell(col, row) as Tile)?.sprite;
+
+    private static readonly Dictionary<string, Vector3Int> Dir = new Dictionary<string, Vector3Int>
+    {
+        { "N", new Vector3Int(0, 1, 0) }, { "S", new Vector3Int(0, -1, 0) },
+        { "E", new Vector3Int(1, 0, 0) }, { "W", new Vector3Int(-1, 0, 0) },
+        { "NE", new Vector3Int(1, 1, 0) }, { "NW", new Vector3Int(-1, 1, 0) },
+        { "SE", new Vector3Int(1, -1, 0) }, { "SW", new Vector3Int(-1, -1, 0) },
+    };
+
+    private static RuleTile.TilingRule Rule(Sprite sprite, params (string dir, bool same)[] conditions)
+    {
+        var rule = new RuleTile.TilingRule { m_Sprites = new[] { sprite } };
+        var positions = new List<Vector3Int>();
+        var neighbors = new List<int>();
+        foreach (var (dir, same) in conditions)
+        {
+            positions.Add(Dir[dir]);
+            neighbors.Add(same ? RuleTile.TilingRuleOutput.Neighbor.This : RuleTile.TilingRuleOutput.Neighbor.NotThis);
+        }
+        rule.m_NeighborPositions = positions;
+        rule.m_Neighbors = neighbors;
+        return rule;
+    }
+
+    /// <summary>
+    /// One prefab per building / tree / prop (base + top + collider, ready to drag into a
+    /// town scene) in Assets/Art/Town/Prefabs.
+    /// </summary>
+    [MenuItem("SUNOD/Towns/Make Prop Prefabs")]
+    public static void MakePropPrefabs()
+    {
+        string dir = "Assets/Art/Town/Prefabs";
+        Directory.CreateDirectory(dir);
+        var names = new HashSet<string>();
+        foreach (string guid in AssetDatabase.FindAssets("t:Sprite", new[] { SpriteDir }))
+        {
+            string file = Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(guid));
+            if (!file.EndsWith("_base")) continue;
+            string name = file.Substring(0, file.Length - 5);
+            if (name.Contains("_home")) continue;
+            names.Add(name);
+        }
+        foreach (string name in names)
+        {
+            bool small = name.StartsWith("tuft") || name.StartsWith("flower") || name.StartsWith("tiny_") || name.StartsWith("grass_")
+                || name.StartsWith("mush") || name.StartsWith("bloom") || name.StartsWith("clover") || name.StartsWith("pebble")
+                || name.StartsWith("debris") || name == "bush";
+            GameObject go = PlaceSprite(null, name, 0f, 0f, !small);
+            if (go == null) continue;
+            PrefabUtility.SaveAsPrefabAsset(go, $"{dir}/{name}.prefab");
+            Object.DestroyImmediate(go);
+        }
     }
 
     private static void AddToBuildSettings()
@@ -597,8 +897,20 @@ public static class vc_TownBuilder
         t.Obj("house_peach", 16f, 19f);
         t.Obj("house_slate", 6f, 9.4f);
         t.Obj("house_red_window", 16f, 9.4f);
-        t.Obj("house_peach2", 17f, 3.2f);
-        t.Obj("sign_home", 20.4f, 3.3f);
+        t.home = "house_peach2"; t.homePos = new Vector2(16.4f, 3.2f);
+        t.shrinePos = new Vector2(17.5f, 22.3f);
+        t.nightDreams = new[]
+        {
+            "You dream of your house again - the roof torn open, the street empty. It feels far away... for now.",
+            "In the dream, the shadowy figure points at the sky. \"Learn,\" it says. \"Learn everything you can.\"",
+            "Tonight the dream is quiet. Just the sound of wind, and a clock ticking somewhere.",
+        };
+        t.dreamAfter = new[]
+        {
+            "The years pass. Grade school ends, and you start to grow up.",
+            "The dreams don't stop. If anything, they're clearer now: cracked walls, flooded streets, people running.",
+            "Whatever is coming, you're not a little kid anymore. High school is next.",
+        };
         // fair + toy store (east of plaza)
         t.Obj("stall_orange", 30.6f, 17.6f);
         t.Obj("stall_green", 34.2f, 17.6f);
@@ -696,7 +1008,20 @@ public static class vc_TownBuilder
         t.Obj("stall_blue", 6.4f, 11.4f);
         t.Obj("sign_market", 6.4f, 15.4f);
         t.Obj("house_red_tall", 44f, 10.4f);
-        t.Obj("house_slate", 31f, 10.4f);
+        t.home = "house_slate"; t.homePos = new Vector2(31f, 10.4f);
+        t.shrinePos = new Vector2(20.5f, 24.3f);
+        t.nightDreams = new[]
+        {
+            "You dream of the town square, but the buildings are leaning, and the river is far too high.",
+            "The shadowy figure is closer tonight. \"You're getting stronger,\" it says. \"Keep going.\"",
+            "In the dream you see your friends, helping each other carry things to higher ground.",
+        };
+        t.dreamAfter = new[]
+        {
+            "High school is over. The town you grew up in feels smaller now.",
+            "Every night the dream is the same, and every night it's a little closer.",
+            "You leave for college. You can feel it: the day is almost here.",
+        };
         t.Obj("dock", 25f, 5f, false);
         t.Obj("sign_river", 29f, 8.2f);
         t.Obj("lamp_red", 18.5f, 14f); t.Obj("lamp_red", 31.5f, 14f);
@@ -785,8 +1110,20 @@ public static class vc_TownBuilder
         t.Obj("house_peach_tall", 18f, 12.6f);
         t.Obj("sign_realty", 18f, 17.4f);
         t.Obj("cabin", 5.8f, 4.4f);
-        t.Obj("house_red", 16f, 3.6f);
-        t.Obj("sign_home", 19.6f, 3.6f);
+        t.home = "house_red"; t.homePos = new Vector2(15.4f, 3.6f);
+        t.shrinePos = new Vector2(21.4f, 26.4f);
+        t.nightDreams = new[]
+        {
+            "You dream of the city at night. The lights flicker, then go out, one street at a time.",
+            "\"It's almost time,\" the shadowy figure whispers. \"Everything you've learned will matter.\"",
+            "You dream of the port. The water is still. Too still.",
+        };
+        t.dreamAfter = new[]
+        {
+            "And then, just before you become an adult... it happens. The disaster strikes.",
+            "But this time, you're ready. Every person you helped, every skill you learned, is part of who you are now.",
+            "Let's see what path all of that has opened for you.",
+        };
         t.Obj("cabin", 34f, 10f);
         t.Obj("sign_workshop", 30.6f, 10f);
         t.Obj("tent_blue", 44f, 11f);

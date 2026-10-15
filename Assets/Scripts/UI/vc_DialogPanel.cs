@@ -11,6 +11,9 @@ public class vc_DialogPanel : MonoBehaviour
     // When true, PlayerController.MoveAction is disabled while the dialog is open.
     public bool pausePlayerOnShow = true;
 
+    /// <summary>True while a message or choice is on screen.</summary>
+    public bool IsOpen => _dialogRoot != null && _dialogRoot.style.display != UnityEngine.UIElements.DisplayStyle.None;
+
     private VisualElement _dialogRoot;
     private VisualElement _dialogIcon;
     private Label         _titleLabel;

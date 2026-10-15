@@ -278,14 +278,26 @@ namespace SunodGame.UI
             // The checkpoint's floor_scene is where the player left off; Game_Scene isn't a
             // valid floor (that used to be the bug - Continue always dropped onto Level1
             // because the checkpoint stored the active-but-not-a-floor scene name).
-            string floor = !string.IsNullOrWhiteSpace(_cachedRunState.floor_scene)
-                && _cachedRunState.floor_scene != SceneLoader.SCENE_GAME
-                    ? _cachedRunState.floor_scene
+            TelemetryManager.Instance?.TagButtonClick("Continue");
+
+            // Town run: the checkpoint's floor_scene is the town the player was in.
+            string saved = _cachedRunState.floor_scene;
+            if (!string.IsNullOrWhiteSpace(saved) && System.Array.IndexOf(vc_TownFlow.TownScenes, saved) >= 0)
+            {
+                vc_TownFlow.PendingStartTown = saved;
+                vc_TownFlow.PendingCompletedQuestIds = _cachedRunState.completed_quest_ids != null
+                    ? new List<string>(_cachedRunState.completed_quest_ids)
+                    : new List<string>();
+                SceneLoader.LoadByName(SceneLoader.SCENE_GAME_TOWN);
+                return;
+            }
+
+            string floor = !string.IsNullOrWhiteSpace(saved)
+                && saved != SceneLoader.SCENE_GAME && saved != SceneLoader.SCENE_GAME_TOWN
+                    ? saved
                     : fallbackContinueScene;
 
             SunodGame.Core.vc_FloorLoader.PendingStartFloor = floor;
-
-            TelemetryManager.Instance?.TagButtonClick("Continue");
             SceneLoader.LoadByName(SceneLoader.SCENE_GAME);
         }
 

@@ -471,6 +471,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3593213208766460056}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: questionCode
+      value: S2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: 
       objectReference: {fileID: 0}

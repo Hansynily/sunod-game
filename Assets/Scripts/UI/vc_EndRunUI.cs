@@ -30,6 +30,13 @@ public class vc_EndRunUI : MonoBehaviour
     public void Show() => _root?.SetDisplay(true);
     public void Hide() => _root?.SetDisplay(false);
 
+    /// <summary>Submits the run and goes to the results, skipping the End Run button (town mode's final stage).</summary>
+    public void SubmitNow()
+    {
+        if (_isSubmitting) return;
+        StartCoroutine(SubmitAndGoToEnd());
+    }
+
     private void OnClicked()
     {
         if (_isSubmitting) return;

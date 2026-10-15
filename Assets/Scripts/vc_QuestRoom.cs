@@ -187,6 +187,31 @@ public class vc_QuestRoom : MonoBehaviour
 
     private static readonly string[] RiasecOrder = { "R", "I", "A", "S", "E", "C" };
 
+    /// <summary>
+    /// Town mode: a failed quest still counts as attempted (one try per quest), so it must
+    /// survive Continue too. Saves the attempt and pushes the checkpoint without touching
+    /// the local RIASEC scores or stars. Passed quests are already saved by OnQuestComplete.
+    /// </summary>
+    public void WriteAttemptCheckpoint()
+    {
+        if (questCompletionNotified) return;
+
+        vc_SaveManager.SaveData data = vc_SaveManager.Load() ?? new vc_SaveManager.SaveData { riasecScores = new int[6] };
+        if (!string.IsNullOrWhiteSpace(questId) && !data.completedQuestIds.Contains(questId))
+            data.completedQuestIds.Add(questId);
+
+        if (vc_PlayerInventory.Instance != null)
+        {
+            data.unlockedSkills.Clear();
+            foreach (vc_SkillData owned in vc_PlayerInventory.Instance.GatheredSkills)
+                if (owned != null && !string.IsNullOrWhiteSpace(owned.skillName))
+                    data.unlockedSkills.Add(owned.skillName);
+        }
+
+        vc_SaveManager.Save(data);
+        PushRunStateCheckpoint(data);
+    }
+
     private void WriteQuestSave(int starsEarned)
     {
         vc_SaveManager.SaveData data = vc_SaveManager.Load() ?? new vc_SaveManager.SaveData

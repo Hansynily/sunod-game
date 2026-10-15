@@ -67,6 +67,13 @@ public class vc_QuestTimer : MonoBehaviour
         UpdateDebugText();
     }
 
+    /// <summary>Shows or hides the star row (town mode hides it while exploring).</summary>
+    public void SetStarsVisible(bool visible)
+    {
+        foreach (Image star in starImages)
+            if (star != null) star.enabled = visible;
+    }
+
     /// <summary>Debug menu: stops the countdown while true.</summary>
     public bool DebugFrozen { get; set; }
 

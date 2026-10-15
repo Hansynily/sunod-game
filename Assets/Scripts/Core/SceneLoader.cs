@@ -13,6 +13,23 @@ namespace SunodGame.Core
         public const string SCENE_PLAY     = "Level1_Scene";
         public const string SCENE_TUTORIAL = "Level0_Tutorial";
         public const string SCENE_END      = "EndScene";
+        public const string SCENE_GAME_TOWN = "Game_Scene_Town";
+
+        private const string CorridorModePrefKey = "sunod.use_corridor";
+
+        /// <summary>
+        /// True = runs use the life-stage towns (Game_Scene_Town). False = the original corridor
+        /// (Game_Scene + Level1-3), kept as a backup. Switch it from the debug menu; it's
+        /// remembered on the device.
+        /// </summary>
+        public static bool UseTownFlow
+        {
+            get => PlayerPrefs.GetInt(CorridorModePrefKey, 0) == 0;
+            set { PlayerPrefs.SetInt(CorridorModePrefKey, value ? 0 : 1); PlayerPrefs.Save(); }
+        }
+
+        /// <summary>The gameplay scene a run plays in, for the current mode.</summary>
+        public static string RunGameScene => UseTownFlow ? SCENE_GAME_TOWN : SCENE_GAME;
 
         public static void GoToLogin()    => SceneManager.LoadScene(SCENE_LOGIN);
         public static void GoToMainMenu() => SceneManager.LoadScene(SCENE_MAINMENU);
@@ -23,7 +40,7 @@ namespace SunodGame.Core
         public static void GoToPlay()
         {
             ResetForNewRun();
-            SceneManager.LoadScene(SCENE_GAME);
+            SceneManager.LoadScene(RunGameScene);
         }
 
         public static void LoadByName(string sceneName)

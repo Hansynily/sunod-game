@@ -2932,6 +2932,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 431620336}
   m_CullTransparentMesh: 1
+--- !u!1 &435762259
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 435762262}
+  - component: {fileID: 435762261}
+  - component: {fileID: 435762260}
+  m_Layer: 0
+  m_Name: UIToolkit_RunProgress
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &435762260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 435762259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b05ec88a5b65b344a8ba975215dfe00c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_RunProgressUI
+  styleSheet: {fileID: 7433441132597879392, guid: b33756eacf029b248a400340a31678c0, type: 3}
+  dreamBackgrounds:
+  - {fileID: 2800000, guid: 83485d8a7d78d1041904562341125ab3, type: 3}
+  - {fileID: 2800000, guid: 431bd33701db163479e4a60aab62b9b4, type: 3}
+  - {fileID: 2800000, guid: d5375ba91ee60ed46b8475eff66eb636, type: 3}
+  - {fileID: 2800000, guid: 428fcd41158a6f8478ecd5d00aefa7eb, type: 3}
+  charsPerSecond: 40
+--- !u!114 &435762261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 435762259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 92fe7a1354ef3fc40943539487e235be, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 0}
+  m_SortingOrder: 5
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!4 &435762262
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 435762259}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &447427273
 GameObject:
   m_ObjectHideFlags: 0
@@ -4883,6 +4958,57 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_TownFlow
   startTown: 0
+  stages:
+  - scene: Town_Elementary
+    title: Elementary
+    codes:
+    - R6
+    - R2
+    - R8
+    - I2
+    - A3
+    - C2
+    - S6
+    questIds:
+    - r_pump
+    - r2_stones
+    - r8_floor
+    - i2_rabbits
+    - a3_poster
+    - L2_MissingKey
+    - L1_LostFriend
+    dreamAfter:
+    - The years pass. Grade school ends, and you start to grow up.
+    - 'The dreams don''t stop. If anything, they''re clearer now: cracked walls,
+      flooded streets, people running.'
+    - Whatever is coming, you're not a little kid anymore. High school is next.
+  - scene: Town_HighSchool
+    title: High School
+    codes:
+    - R4
+    - A8
+    - S2
+    questIds:
+    - r4_radio
+    - a_mural
+    - L3_FallenSparrow
+    dreamAfter:
+    - High school is over. The town you grew up in feels smaller now.
+    - Every night the dream is the same, and every night it's a little closer.
+    - 'You leave for college. You can feel it: the day is almost here.'
+  - scene: Town_College
+    title: College
+    codes:
+    - I5
+    - I4
+    questIds:
+    - i5_mushrooms
+    - L2_CatMedicine
+    dreamAfter:
+    - And then, just before you become an adult... it happens. The disaster strikes.
+    - But this time, you're ready. Every person you helped, every skill you learned,
+      is part of who you are now.
+    - Let's see what path all of that has opened for you.
 --- !u!4 &715964249
 Transform:
   m_ObjectHideFlags: 0
@@ -14429,3 +14555,4 @@ SceneRoots:
   - {fileID: 491930505}
   - {fileID: 999433487}
   - {fileID: 715964249}
+  - {fileID: 435762262}

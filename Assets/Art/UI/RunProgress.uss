@@ -1,0 +1,256 @@
+/* =================================================================
+   SUNOD - Life-stage progress bar, end-of-day summary, dream overlay
+   (vc_RunProgressUI builds the tree in code; Sprout Lands look from SunodTheme)
+   ================================================================= */
+
+.rp-root {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* ---------- progress banner ---------- */
+.rp-banner {
+    position: absolute;
+    top: 8px;
+    left: 24%;
+    right: 24%;
+    padding: 14px 30px 14px 30px;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.rp-caption-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.rp-caption {
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+}
+
+.rp-caption-right {
+    font-size: 21px;
+    color: rgb(168, 92, 30);
+}
+
+.rp-track {
+    flex-direction: row;
+    align-items: center;
+    height: 50px;
+}
+
+.rp-segment {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    height: 50px;
+}
+
+/* the rail behind the pips */
+.rp-rail {
+    flex-grow: 1;
+    height: 22px;
+    margin: 0 -2px;
+    background-color: rgb(72, 50, 36);
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-color: rgb(40, 26, 18);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    overflow: hidden;
+}
+
+.rp-rail-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background-color: rgb(255, 202, 92);
+    border-right-width: 3px;
+    border-color: rgb(255, 240, 190);
+    transition-property: width;
+    transition-duration: 0.8s;
+    transition-timing-function: ease-out-back;
+}
+
+.rp-pip {
+    width: 13px;
+    height: 13px;
+    rotate: 45deg;
+    background-color: rgb(120, 98, 82);
+    border-width: 2px;
+    border-color: rgb(40, 26, 18);
+    transition-property: scale, background-color;
+    transition-duration: 0.4s;
+    transition-timing-function: ease-out-back;
+}
+.rp-pip--done {
+    scale: 1.35 1.35;
+    border-color: rgb(255, 250, 230);
+}
+.rp-pip--R { background-color: rgb(217, 58, 74); }
+.rp-pip--I { background-color: rgb(240, 138, 36); }
+.rp-pip--A { background-color: rgb(142, 79, 214); }
+.rp-pip--S { background-color: rgb(47, 163, 90); }
+.rp-pip--E { background-color: rgb(47, 111, 214); }
+.rp-pip--C { background-color: rgb(34, 179, 196); }
+.rp-pip--empty-stage { background-color: rgb(80, 66, 58); }
+
+/* milestone badges between segments */
+.rp-milestone {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    border-width: 4px;
+    border-color: rgb(40, 26, 18);
+    background-color: rgb(140, 116, 96);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.4s;
+}
+.rp-milestone-label {
+    font-size: 21px;
+    color: rgb(255, 248, 230);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(40, 26, 18);
+}
+.rp-milestone--current {
+    background-color: rgb(255, 180, 60);
+    border-color: rgb(120, 60, 10);
+    scale: 1.18 1.18;
+}
+.rp-milestone--done {
+    background-color: rgb(96, 180, 90);
+}
+.rp-milestone--storm {
+    background-color: rgb(70, 60, 110);
+    border-color: rgb(20, 16, 40);
+}
+.rp-milestone--storm-near {
+    background-color: rgb(170, 50, 60);
+    scale: 1.12 1.12;
+}
+
+/* little player marker riding the rail */
+.rp-marker {
+    position: absolute;
+    top: -12px;
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    background-color: rgb(250, 238, 215);
+    border-width: 2px;
+    border-color: rgb(46, 34, 24);
+    border-radius: 6px;
+    transition-property: left;
+    transition-duration: 0.6s;
+    transition-timing-function: ease-out-cubic;
+}
+
+.rp-stage-names {
+    flex-direction: row;
+    margin-top: 6px;
+    padding: 0 40px;
+}
+.rp-stage-name {
+    flex-grow: 1;
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    color: rgb(130, 98, 70);
+}
+.rp-stage-name--current {
+    color: rgb(190, 96, 20);
+}
+
+/* ---------- day summary card ---------- */
+.rp-dim {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(10, 8, 20, 0.55);
+    align-items: center;
+    justify-content: center;
+}
+
+.rp-card {
+    width: 560px;
+    padding: 28px 34px 26px 34px;
+    align-items: center;
+}
+
+.rp-card-title {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    margin-bottom: 14px;
+    -unity-text-align: middle-center;
+}
+
+.rp-card-body {
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin-bottom: 20px;
+}
+
+.rp-card-btn {
+    min-width: 200px;
+    height: 52px;
+    padding: 0 22px;
+}
+.rp-card-btn-label {
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+}
+
+/* ---------- dream overlay ---------- */
+.rp-dream {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgb(6, 6, 16);
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(120, 110, 170);
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.8s;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 70px;
+}
+.rp-dream--shown { opacity: 1; }
+
+.rp-dream-title {
+    position: absolute;
+    top: 60px;
+    left: 0; right: 0;
+    font-size: 28px;
+    color: rgb(200, 190, 255);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(10, 8, 20);
+}
+
+.rp-dream-text {
+    width: 70%;
+    font-size: 30px;
+    color: rgb(240, 236, 255);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("/Assets/Art/Fonts/DotGothic16/DotGothic16-Regular.ttf");
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(10, 8, 20);
+    margin-bottom: 18px;
+}
+
+.rp-dream-hint {
+    font-size: 14px;
+    color: rgb(170, 160, 210);
+}
+
+.rp-hidden { display: none; }
