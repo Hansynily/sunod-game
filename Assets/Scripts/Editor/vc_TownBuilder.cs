@@ -1020,11 +1020,11 @@ public static class vc_TownBuilder
             "The radio club's old radio stopped working. Can you put it back together?", "We're back on the air!");
         t.N("A8", "Ate Carla", "amelia_1", 36.2f, 28.8f, R + "House_MuralQuestNew",
             "We need a set painted for the town play. Want to design it?", "The stage looks amazing!");
-        t.N("A1", "Mr. Santos", "bob_0", 40.6f, 28.8f, null,
+        t.N("A1", "Mr. Santos", "bob_0", 40.6f, 28.8f, R + "School_ChoirPractice",
             "The school choir needs someone to lead them today. Can you do it?", "What a performance!");
         t.N("S2", "Liza", "alex_2", 33f, 7.6f, R + "Forest_FallenSparrowQuest",
             "We're volunteering to clean up by the river. Want to join?", "The riverbank looks so much better!");
-        t.N("I8", "Prof. Lim", "bob_1", 27.8f, 7.6f, null,
+        t.N("I8", "Prof. Lim", "bob_1", 27.8f, 7.6f, R + "River_RiverbedMap",
             "Help me map the bottom of the river for our field trip?", "This map is perfect for the class!");
         t.N("C8", "Mang Tonyo", "bob_3", 20.4f, 7.6f, R + "River_DocksideLedger",
             "Boats keep coming in. Can you keep track of what we ship and receive?", "Every box accounted for!");
@@ -1036,7 +1036,7 @@ public static class vc_TownBuilder
             "The student records are all mixed up. Can you sort them?", "Everything's filed. Thank you!");
         t.N("R7", "Joy", "alex_0", 15.5f, 9.3f, R + "School_FundraiserKits",
             "We're putting together kits for the fundraiser. Can you help assemble them?", "We'll raise so much with these!");
-        t.N("E1", "Marco", "adam_2", 20.5f, 8.9f, null,
+        t.N("E1", "Marco", "adam_2", 20.5f, 8.9f, R + "School_StallPitch",
             "I want to pitch my food stall idea to the fair committee. Help me sell it?", "They said yes!");
         t.N("C5", "Aling Nena", "amelia_2", 6.4f, 10.7f, R + "River_HarvestTally",
             "Can you help me tally today's harvest and write down the numbers?", "Neat and exact. Salamat!");
@@ -1044,7 +1044,7 @@ public static class vc_TownBuilder
             "Opening night is tonight! Can you help me direct the class play?", "Standing ovation!");
         t.N("S8", "Lola Ising", "amelia_1", 44f, 9.7f, R + "House_WalkLolaHome",
             "Could you walk me home and help me with my chores today?", "You're such a kind young one.");
-        t.N("E4", "Mang Ramil", "bob_2", 35f, 18.9f, null,
+        t.N("E4", "Mang Ramil", "bob_2", 35f, 18.9f, R + "House_Barbershop",
             "My barbershop has a long line today. Can you help me run it?", "Every customer left smiling!");
         t.N("E6", "Ate Joan", "alex_3", 43f, 18.9f, null,
             "Can you run a shift at the thrift shop while I'm out?", "Best sales day this month!");

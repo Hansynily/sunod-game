@@ -251340,7 +251340,7 @@ MonoBehaviour:
   npcId: highschool_E4
   npcName: Mang Ramil
   questCode: E4
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: d0ee546eee5b5ed4489f87d039b06602, type: 3}
   askLine: My barbershop has a long line today. Can you help me run it?
   thanksLine: Every customer left smiling!
   idleFrames:
@@ -317558,7 +317558,7 @@ MonoBehaviour:
   npcId: highschool_E1
   npcName: Marco
   questCode: E1
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 08fca83e9b9ae7d4c966080eebda04dd, type: 3}
   askLine: I want to pitch my food stall idea to the fair committee. Help me sell
     it?
   thanksLine: They said yes!
@@ -363415,7 +363415,7 @@ MonoBehaviour:
   npcId: highschool_A1
   npcName: Mr. Santos
   questCode: A1
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: c7e60afb98292274f93fa07b8879b37b, type: 3}
   askLine: The school choir needs someone to lead them today. Can you do it?
   thanksLine: What a performance!
   idleFrames:
@@ -367163,7 +367163,7 @@ MonoBehaviour:
   npcId: highschool_I8
   npcName: Prof. Lim
   questCode: I8
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: d631d6d967c1521419346da85a1c25a4, type: 3}
   askLine: Help me map the bottom of the river for our field trip?
   thanksLine: This map is perfect for the class!
   idleFrames:
