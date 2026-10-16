@@ -9,26 +9,28 @@ using UnityEngine;
 /// RIASEC letter as a fallback for skills added later):
 ///
 ///   build    - a ladder appears under the tree, you climb and bring the kite down
-///   repair   - you fix the snapped string and reel the kite in
+///   repair   - the snapped string is tied back (string grows to the kite), Tala reels it in
 ///   push     - you shake the tree until the kite drops
 ///   plan     - you wait for the right gust; the kite floats down
-///   unlock   - you untangle the knot and the kite slides free
-///   survey   - a sparkle shows where the string is snagged; it wiggles loose
-///   craft    - you make a hook pole and pull the kite down
-///   paint    - you paint the tail bright so Tala sees where to pull
+///   unlock   - the string appears, the knot wiggles loose, the kite comes in on it
+///   survey   - a sparkle searches the tree, finds the snag; Tala tugs it the right way
+///   craft    - a hook pole reaches up, hooks the kite and carries it down
+///   paint    - the string is painted red so Tala can see it; she pulls the kite in
 ///   barrier  - you shape a soft cushion; the kite drops onto it
-///   teach    - you show Tala how to tug gently; she frees it herself
-///   guide    - you guide Tala up the low branch safely
-///   heal     - you patch Tala's scraped knee; feeling brave, she gets it
+///   teach    - you show Tala gentle tugs; she does three, the kite jerks, then comes free
+///   guide    - Tala climbs to the low branch step by step, gets it, climbs down
+///   heal     - you patch Tala's knee (heart); feeling brave, she climbs up for it
 ///   persuade - you convince the janitor to lend his tall broom
 ///   map      - you read the wind; a gust lifts the kite free
-///   charm    - you cheer the kids up; a tall kid happily grabs it
+///   charm    - your friendliness brings the janitor over to help
 ///   summon   - you call the janitor over to reach it
-///   command  - you get the bigger kids to form a human ladder
-///   direct   - arrows show Tala which way to pull
+///   command  - you give the janitor clear steps; he follows them and gets the kite
+///   direct   - arrows mark the route; the kite slides along them to Tala
 ///   collect  - you pull the kite straight down to you
 ///   inspect  - a closer look: it's only looped on a twig; one flick frees it
 ///
+/// Rule for every reaction: the player must SEE the skill cause the result (a tool, a
+/// person, a string being pulled), not just a message and a kite flying down.
 /// When the kite is back, Tala cheers and steps off the path.
 /// Tutorial-only - standalone, does NOT use vc_QuestRoom / vc_IQuestLogic.
 /// </summary>
@@ -158,9 +160,10 @@ public class vc_TutorialQuest : MonoBehaviour
                 break;
 
             case "repair":
-                Say($"The kite's string snapped. You tie it back together and reel it in for {k}.");
-                yield return Wobble(kite, 0.5f, 10f);
-                yield return KitePull(KidHands, 0.9f);
+                Say($"The kite's string snapped. You tie it back together, then {k} reels it in.");
+                yield return GrowString(0.6f);
+                yield return Tug(2);
+                yield return KitePullOnString(KidHands, 0.8f);
                 break;
 
             case "push":
@@ -177,27 +180,31 @@ public class vc_TutorialQuest : MonoBehaviour
 
             case "unlock":
                 Say("The string is tangled in a knot. You work it loose, loop by loop.");
+                yield return GrowString(0.3f);
                 yield return Wobble(kite, 0.8f, 18f);
-                yield return KitePull(KidHands, 0.7f);
+                yield return KitePullOnString(KidHands, 0.7f);
                 break;
 
             case "survey":
-                Say("You look around and spot exactly where the string is snagged.");
-                yield return ShowProp(sparkleSprite, KitePos + new Vector3(0.3f, -0.2f, 0f), blink: true);
-                yield return Wobble(kite, 0.4f, 12f);
-                yield return KiteArc(KidHands, 0.7f);
+                Say($"You search the tree branch by branch... there! One twig holds the string. {k} tugs it the right way.");
+                yield return Search(0.6f);
+                yield return ShowProp(sparkleSprite, KitePos + new Vector3(0.25f, -0.25f, 0f), blink: true);
+                yield return GrowString(0.3f);
+                yield return Tug(1);
+                yield return KitePullOnString(KidHands, 0.7f);
                 break;
 
             case "craft":
-                Say("You craft a hook from a long stick and pull the kite down.");
-                yield return ShowProp(hookSprite, KidPos + new Vector3(0.9f, 1.3f, 0f));
-                yield return KitePull(KidHands, 0.9f);
+                Say("You craft a hook pole from a long stick, reach up, and hook the kite down.");
+                yield return ReachWithProp(hookSprite, 0.6f, 0.8f);
                 break;
 
             case "paint":
-                Say($"You paint the kite's tail bright red so {k} can see where to pull.");
-                yield return Tint(kite, new Color(1f, 0.55f, 0.55f), 0.5f);
-                yield return KitePull(KidHands, 0.8f);
+                Say($"You paint the kite's string bright red so {k} can see it in the leaves, and she pulls it free.");
+                yield return Tint(kite, new Color(1f, 0.55f, 0.55f), 0.4f);
+                yield return GrowString(0.5f, new Color32(220, 60, 60, 255));
+                yield return Tug(1);
+                yield return KitePullOnString(KidHands, 0.7f);
                 break;
 
             case "barrier":
@@ -209,21 +216,21 @@ public class vc_TutorialQuest : MonoBehaviour
                 break;
 
             case "teach":
-                Say($"You show {k} how to tug the string gently. She frees it herself!");
-                yield return Hop(obstacleBlocker != null ? obstacleBlocker.transform : null, 2);
-                yield return KitePull(KidHands, 1.0f);
+                Say($"You show {k} the trick: small, gentle tugs, not one big yank. She tries it herself... tug, tug, free!");
+                yield return GrowString(0.4f);
+                yield return Tug(3);
+                yield return KitePullOnString(KidHands, 0.8f);
                 break;
 
             case "guide":
                 Say($"You guide {k} up the low branch, one careful step at a time.");
-                yield return Hop(obstacleBlocker != null ? obstacleBlocker.transform : null, 1);
-                yield return KiteArc(KidHands, 0.6f);
+                yield return KidClimb();
                 break;
 
             case "heal":
-                Say($"{k} scraped her knee trying to climb. You patch it up. Feeling brave, she gets her kite.");
+                Say($"{k} scraped her knee trying to climb. You patch it up. Feeling brave, she climbs up for her kite.");
                 yield return ShowProp(heartSprite, KidPos + new Vector3(0f, 1.5f, 0f), blink: true);
-                yield return KitePull(KidHands, 0.8f);
+                yield return KidClimb();
                 break;
 
             case "persuade":
@@ -238,8 +245,9 @@ public class vc_TutorialQuest : MonoBehaviour
                 break;
 
             case "charm":
-                Say($"You cheer everyone up. A tall kid happily grabs the kite for {k}.");
-                yield return ShowProp(heartSprite, KidPos + new Vector3(0.6f, 1.5f, 0f), blink: true);
+                Say($"Your friendly wave gets the janitor smiling. He happily comes over and gets the kite for {k}.");
+                yield return ShowProp(heartSprite, PlayerPos + new Vector3(0f, 1.3f, 0f), blink: true);
+                yield return HelperReach();
                 yield return KiteArc(KidHands, 0.6f);
                 break;
 
@@ -250,15 +258,15 @@ public class vc_TutorialQuest : MonoBehaviour
                 break;
 
             case "command":
-                Say("You get the bigger kids to make a human ladder. Teamwork!");
+                Say("You give the janitor clear steps: bring the broom, stand there, reach up. He follows them and the kite comes down.");
+                yield return HelperReach();
                 yield return Shake(tree, 0.3f, 0.05f);
                 yield return KiteArc(KidHands, 0.7f);
                 break;
 
             case "direct":
-                Say($"You point {k} which way to pull. The kite slides right off the branch.");
-                yield return ShowProp(arrowSprite, KidPos + new Vector3(0.8f, 0.9f, 0f), blink: true);
-                yield return KitePull(KidHands, 0.8f);
+                Say($"You mark the way with arrows. {k} pulls exactly along them, and the kite slides off the branch.");
+                yield return ArrowPath(3);
                 break;
 
             case "collect":
@@ -269,11 +277,14 @@ public class vc_TutorialQuest : MonoBehaviour
 
             default: // inspect
                 Say("You take a closer look. The string is only looped on a twig. One flick and it's free!");
+                yield return Search(0.4f);
                 yield return ShowProp(sparkleSprite, KitePos + new Vector3(-0.2f, -0.3f, 0f), blink: true);
+                yield return Wobble(kite, 0.25f, 14f);
                 yield return KiteArc(KidHands, 0.6f);
                 break;
         }
 
+        HideString();
         yield return KidCelebrateAndMove();
         CompleteQuest();
     }
@@ -422,6 +433,258 @@ public class vc_TutorialQuest : MonoBehaviour
     private void HideProp()
     {
         if (prop != null) prop.enabled = false;
+    }
+
+    // ── kite string: a dotted line from Tala's hands to the kite ───────────
+    // Makes "pull", "tug" and "tie" readable: the player sees the string, sees Tala lean
+    // back on it, and sees the kite jerk with each tug.
+
+    private const int StringDots = 14;
+    private readonly System.Collections.Generic.List<SpriteRenderer> _stringDots = new System.Collections.Generic.List<SpriteRenderer>();
+    private static Sprite _pixel;
+
+    private static Sprite Pixel
+    {
+        get
+        {
+            if (_pixel != null) return _pixel;
+            var tex = new Texture2D(1, 1) { filterMode = FilterMode.Point };
+            tex.SetPixel(0, 0, Color.white);
+            tex.Apply();
+            _pixel = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 16f);
+            return _pixel;
+        }
+    }
+
+    private void EnsureString(Color color)
+    {
+        SpriteRenderer kiteSr = kite != null ? kite.GetComponentInChildren<SpriteRenderer>() : null;
+        while (_stringDots.Count < StringDots)
+        {
+            var go = new GameObject("KiteString");
+            go.transform.SetParent(transform, false);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = Pixel;
+            if (kiteSr != null) { sr.sortingLayerID = kiteSr.sortingLayerID; sr.sortingOrder = kiteSr.sortingOrder - 1; }
+            _stringDots.Add(sr);
+        }
+        foreach (SpriteRenderer d in _stringDots) d.color = color;
+    }
+
+    /// <summary>Places the string dots between the hands and the kite; visible = fraction drawn (from the hands).</summary>
+    private void LayString(float visible)
+    {
+        if (kite == null) return;
+        Vector3 a = KidHands, b = kite.position;
+        for (int i = 0; i < _stringDots.Count; i++)
+        {
+            float t = (i + 0.5f) / _stringDots.Count;
+            Vector3 p = Vector3.Lerp(a, b, t);
+            p.y -= Mathf.Sin(t * Mathf.PI) * 0.18f;   // a little slack
+            _stringDots[i].transform.position = p;
+            _stringDots[i].enabled = t <= visible;
+        }
+    }
+
+    private void HideString()
+    {
+        foreach (SpriteRenderer d in _stringDots) if (d != null) d.enabled = false;
+    }
+
+    /// <summary>The string appears, running from Tala's hands up to the kite.</summary>
+    private IEnumerator GrowString(float duration, Color? color = null)
+    {
+        EnsureString(color ?? new Color32(250, 244, 230, 255));
+        for (float t = 0f; t < duration; t += Time.deltaTime)
+        {
+            LayString(t / duration);
+            yield return null;
+        }
+        LayString(1f);
+    }
+
+    /// <summary>Tala leans back on the string; the kite jerks toward her each time.</summary>
+    private IEnumerator Tug(int tugs)
+    {
+        Transform kid = obstacleBlocker != null ? obstacleBlocker.transform : null;
+        if (kid == null || kite == null) yield break;
+        float away = Mathf.Sign(KidPos.x - TreeFoot.x);
+        if (away == 0f) away = -1f;
+        Vector3 home = kid.position;
+        for (int n = 0; n < tugs; n++)
+        {
+            Vector3 kiteFrom = kite.position;
+            Vector3 kiteTo = Vector3.Lerp(kiteFrom, KidHands, 0.12f);
+            for (float t = 0f; t < 0.14f; t += Time.deltaTime)
+            {
+                float k = t / 0.14f;
+                kid.position = home + new Vector3(away * 0.16f * k, 0f, 0f);
+                kite.position = Vector3.Lerp(kiteFrom, kiteTo, k);
+                kite.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(k * Mathf.PI) * 15f);
+                LayString(1f);
+                yield return null;
+            }
+            for (float t = 0f; t < 0.16f; t += Time.deltaTime)
+            {
+                kid.position = home + new Vector3(away * 0.16f * (1f - t / 0.16f), 0f, 0f);
+                LayString(1f);
+                yield return null;
+            }
+            kid.position = home;
+            kite.localRotation = Quaternion.identity;
+            yield return new WaitForSeconds(0.12f);
+        }
+    }
+
+    /// <summary>KitePull with the string staying attached (it shortens as the kite comes in).</summary>
+    private IEnumerator KitePullOnString(Vector3 to, float duration)
+    {
+        if (kite == null) yield break;
+        Vector3 from = kite.position;
+        for (float t = 0f; t < duration; t += Time.deltaTime)
+        {
+            float k = t / duration;
+            kite.position = Vector3.Lerp(from, to, 1f - (1f - k) * (1f - k));
+            LayString(1f);
+            yield return null;
+        }
+        kite.position = to;
+        HideString();
+    }
+
+    /// <summary>A sparkle sweeps over the tree, branch by branch, and settles on the kite.</summary>
+    private IEnumerator Search(float duration)
+    {
+        if (prop == null || sparkleSprite == null) yield break;
+        prop.sprite = sparkleSprite;
+        prop.transform.localScale = _propScale;
+        prop.enabled = true;
+        Vector3 low = TreeFoot + new Vector3(0f, 0.6f, 0f);
+        Vector3 high = KitePos;
+        for (float t = 0f; t < duration; t += Time.deltaTime)
+        {
+            float k = t / duration;
+            Vector3 p = Vector3.Lerp(low, high, k);
+            p.x += Mathf.Sin(k * Mathf.PI * 3f) * 0.55f * (1f - k);   // zig-zag across the branches
+            prop.transform.position = p;
+            yield return null;
+        }
+        prop.enabled = false;
+    }
+
+    /// <summary>
+    /// A tool appears in hand, reaches up to the kite, hooks it and brings it back down with it
+    /// (craft: the hook pole). The kite rides on the tool on the way down.
+    /// </summary>
+    private IEnumerator ReachWithProp(Sprite sprite, float reach, float back)
+    {
+        if (prop == null || sprite == null || kite == null) { yield return KitePull(KidHands, 0.8f); yield break; }
+        Vector3 hand = KidHands + new Vector3(0.2f, 0f, 0f);
+        prop.sprite = sprite;
+        prop.transform.position = hand;
+        prop.enabled = true;
+        for (float t = 0f; t < 0.2f; t += Time.deltaTime)
+        {
+            prop.transform.localScale = _propScale * Mathf.Lerp(0.2f, 1f, t / 0.2f);
+            yield return null;
+        }
+        prop.transform.localScale = _propScale;
+
+        Vector3 tip = kite.position + new Vector3(0f, -0.15f, 0f);
+        for (float t = 0f; t < reach; t += Time.deltaTime)
+        {
+            float k = t / reach;
+            prop.transform.position = Vector3.Lerp(hand, tip, k * k * (3f - 2f * k));
+            yield return null;
+        }
+        prop.transform.position = tip;
+        yield return Wobble(kite, 0.25f, 12f);   // hooked
+
+        Vector3 kiteOffset = kite.position - prop.transform.position;
+        for (float t = 0f; t < back; t += Time.deltaTime)
+        {
+            float k = t / back;
+            prop.transform.position = Vector3.Lerp(tip, hand, k * k * (3f - 2f * k));
+            kite.position = prop.transform.position + kiteOffset * (1f - k);
+            yield return null;
+        }
+        kite.position = KidHands;
+        prop.enabled = false;
+    }
+
+    /// <summary>Tala climbs to the low branch, takes her kite, and climbs back down.</summary>
+    private IEnumerator KidClimb()
+    {
+        Transform kid = obstacleBlocker != null ? obstacleBlocker.transform : null;
+        if (kid == null || kite == null) { yield return KiteArc(KidHands, 0.6f); yield break; }
+        Vector3 home = kid.position;
+        Vector3 branch = Vector3.Lerp(home, new Vector3(TreeFoot.x - 0.4f, kite.position.y - 1.0f, home.z), 0.85f);
+        // up in three little steps
+        for (int s = 1; s <= 3; s++)
+        {
+            Vector3 from = kid.position, to = Vector3.Lerp(home, branch, s / 3f);
+            for (float t = 0f; t < 0.22f; t += Time.deltaTime)
+            {
+                float k = t / 0.22f;
+                kid.position = Vector3.Lerp(from, to, k) + new Vector3(0f, Mathf.Sin(k * Mathf.PI) * 0.12f, 0f);
+                yield return null;
+            }
+            kid.position = to;
+        }
+        yield return KitePull(KidHands, 0.4f);
+        kite.SetParent(kid, true);
+        Vector3 top = kid.position;
+        for (float t = 0f; t < 0.5f; t += Time.deltaTime)
+        {
+            kid.position = Vector3.Lerp(top, home, t / 0.5f);
+            yield return null;
+        }
+        kid.position = home;
+    }
+
+    /// <summary>Arrows pop in one by one from the kite to Tala; the kite then slides along them.</summary>
+    private IEnumerator ArrowPath(int count)
+    {
+        if (kite == null) yield break;
+        Vector3 from = kite.position, to = KidHands;
+        Vector3 mid = Vector3.Lerp(from, to, 0.5f) + new Vector3(0f, 0.5f, 0f);
+        System.Func<float, Vector3> curve = k => (1 - k) * (1 - k) * from + 2 * (1 - k) * k * mid + k * k * to;
+
+        var arrows = new System.Collections.Generic.List<SpriteRenderer>();
+        if (prop != null && arrowSprite != null)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float k = (i + 1f) / (count + 1f);
+                SpriteRenderer a = i == 0 ? prop : Instantiate(prop, prop.transform.parent);
+                a.sprite = arrowSprite;
+                a.transform.position = curve(k);
+                Vector3 dir = curve(Mathf.Min(1f, k + 0.05f)) - curve(k);
+                a.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+                a.transform.localScale = _propScale;
+                a.enabled = true;
+                arrows.Add(a);
+                SunodGame.Core.vc_Sfx.Play("page_next", 0.5f);
+                yield return new WaitForSeconds(0.22f);
+            }
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        const float slide = 1.0f;
+        for (float t = 0f; t < slide; t += Time.deltaTime)
+        {
+            float k = t / slide;
+            kite.position = curve(k);
+            for (int i = 0; i < arrows.Count; i++)
+                if (k >= (i + 1f) / (count + 1f)) arrows[i].enabled = false;   // the kite passes each arrow
+            yield return null;
+        }
+        kite.position = to;
+        for (int i = 0; i < arrows.Count; i++)
+        {
+            if (arrows[i] == prop) { prop.enabled = false; prop.transform.rotation = Quaternion.identity; }
+            else Destroy(arrows[i].gameObject);
+        }
     }
 
     private IEnumerator HelperReach()

@@ -1,11 +1,10 @@
 @import url("unity-theme://default");
 
-/* Panels/buttons: original SUNOD art v2 (Assets/Art/UI/Panels/make_ui_v2.py). Font: Sprout Lands (still used). */
-
-/* SproutLands_UI = the Sprout Lands pixel font with a taller line height (the raw .ttf
-   packs wrapped lines too tightly). Letter/word/paragraph spacing keep text from crowding. */
+/* Panels/buttons: original SUNOD art v2 (Assets/Art/UI/Panels/make_ui_v2.py).
+   Font: DotGothic16, the mixed-case pixel font the cutscenes use (the Sprout Lands font was
+   caps-only). Letter/word/paragraph spacing keep text from crowding. */
 Label, Button, TextField, DropdownField {
-    -unity-font-definition: url("/Assets/Art/Fonts/SproutLands/SproutLands_UI.asset");
+    -unity-font-definition: url("/Assets/Art/Fonts/DotGothic16/DotGothic16-Regular.ttf");
     letter-spacing: 1px;
     word-spacing: 4px;
     -unity-paragraph-spacing: 6px;

@@ -38,20 +38,23 @@
 
 .rp-track {
     flex-direction: row;
-    align-items: center;
-    height: 50px;
+    align-items: flex-end;
+    height: 76px;
 }
 
+/* one stage: its name on top, its rail underneath */
 .rp-segment {
     flex-grow: 1;
-    flex-direction: row;
-    align-items: center;
-    height: 50px;
+    flex-basis: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    height: 76px;
+    padding-bottom: 13px;
 }
 
 /* the rail behind the pips */
 .rp-rail {
-    flex-grow: 1;
     height: 22px;
     margin: 0 -2px;
     background-color: rgb(72, 50, 36);
@@ -153,19 +156,29 @@
     transition-timing-function: ease-out-cubic;
 }
 
-.rp-stage-names {
-    flex-direction: row;
-    margin-top: 6px;
-    padding: 0 40px;
-}
 .rp-stage-name {
-    flex-grow: 1;
-    font-size: 14px;
-    -unity-text-align: middle-center;
-    color: rgb(130, 98, 70);
+    font-size: 21px;
+    -unity-text-align: lower-center;
+    color: rgb(250, 238, 215);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(40, 26, 18);
+    margin-bottom: 6px;
+    white-space: nowrap;
 }
 .rp-stage-name--current {
-    color: rgb(190, 96, 20);
+    color: rgb(255, 202, 92);
+    -unity-font-style: bold;
+}
+
+/* life-stage name chip under the corner ring */
+.rp-ring-name {
+    position: absolute;
+    top: 74px;
+    font-size: 14px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+    padding: 4px 10px 6px 10px;
 }
 
 /* ---------- day summary card ---------- */
@@ -314,6 +327,10 @@
     width: 56px;
     height: 52px;
     margin-left: 8px;
+}
+/* at the zoom limit: greyed out so it's clear why nothing happens */
+.rp-zoom-btn:disabled {
+    opacity: 0.45;
 }
 
 /* ---------- progress ring (top-right, left of the pause button) ---------- */

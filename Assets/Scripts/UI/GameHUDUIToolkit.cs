@@ -16,6 +16,8 @@ namespace SunodGame.UI
         private readonly Label[]         _slotEmpties    = new Label[vc_SkillManager.SlotCount];
         private readonly Label[]         _slotCategories = new Label[vc_SkillManager.SlotCount];
         private readonly VisualElement[] _previews       = new VisualElement[6];
+        private readonly VisualElement[] _cooldownShade  = new VisualElement[vc_SkillManager.SlotCount];
+        private readonly Label[]         _cooldownLabel  = new Label[vc_SkillManager.SlotCount];
 
         private readonly vc_SkillData[] _cachedSlots = new vc_SkillData[vc_SkillManager.SlotCount];
 
@@ -61,6 +63,17 @@ namespace SunodGame.UI
                 if (_slotIcons[i] != null)
                     _slotIcons[i].style.backgroundImage =
                         vc_RiasecSymbols.Background(vc_SkillManager.CategoryLetterForSlot(i));
+
+                // Cooldown shade (drains downward) + seconds left, built in code.
+                if (_slotBtns[i] != null && _cooldownShade[i] == null)
+                {
+                    _cooldownShade[i] = new VisualElement { pickingMode = PickingMode.Ignore };
+                    _cooldownShade[i].AddToClassList("slot-cooldown");
+                    _cooldownLabel[i] = new Label("") { pickingMode = PickingMode.Ignore };
+                    _cooldownLabel[i].AddToClassList("slot-cooldown-label");
+                    _slotBtns[i].Add(_cooldownShade[i]);
+                    _slotBtns[i].Add(_cooldownLabel[i]);
+                }
 
                 _slotBtns[i]?.RegisterCallback<ClickEvent>(_       => OnSlotClicked(idx));
                 _slotBtns[i]?.RegisterCallback<PointerDownEvent>(_ => OnSlotPointerDown(idx));
@@ -130,6 +143,21 @@ namespace SunodGame.UI
                     if (uguiBtn != null)
                         _slotBtns[i].SetEnabled(uguiBtn.interactable);
                 }
+
+                float frac = mgr.CooldownFraction(i);
+                bool cooling = frac > 0f && current != null;
+                if (_cooldownShade[i] != null)
+                {
+                    _cooldownShade[i].style.display = cooling ? DisplayStyle.Flex : DisplayStyle.None;
+                    _cooldownShade[i].style.height = Length.Percent(frac * 100f);
+                }
+                if (_cooldownLabel[i] != null)
+                {
+                    float left = mgr.CooldownRemaining(i);
+                    // seconds only on the long rest; the short shared lockout is just a quick shade
+                    _cooldownLabel[i].text = cooling && left >= 1.05f ? Mathf.CeilToInt(left).ToString() : "";
+                }
+                _slotBtns[i]?.EnableInClassList("skill-slot-btn--cooling", cooling);
             }
         }
 

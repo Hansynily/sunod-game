@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using SunodGame.Core;
@@ -62,6 +62,16 @@ namespace SunodGame.UI
         private Button _btnAvatarBoy;
         private Button _btnAvatarGirl;
         private Button _btnSettingsClose;
+
+        // Character overlay (opened by tapping the player card)
+        private VisualElement _characterOverlay;
+        private VisualElement _characterPreview;
+        private Label _lblCharacterName;
+        private Button _btnCharacterClose;
+
+        // Progress page: past playthroughs
+        private VisualElement _historyList;
+        private Label _lblHistoryEmpty;
         private VisualElement _settingsSurveyRow;
         private Button _btnSettingsSurveyLink;
 
@@ -115,6 +125,12 @@ namespace SunodGame.UI
             _btnNamesFilipino = root.Q<Button>("btn-names-filipino");
             _btnAvatarBoy     = root.Q<Button>("btn-avatar-boy");
             _btnAvatarGirl    = root.Q<Button>("btn-avatar-girl");
+            _characterOverlay  = root.Q<VisualElement>("character-overlay");
+            _characterPreview  = root.Q<VisualElement>("character-preview");
+            _lblCharacterName  = root.Q<Label>("lbl-character-name");
+            _btnCharacterClose = root.Q<Button>("btn-character-close");
+            _historyList       = root.Q<VisualElement>("history-list");
+            _lblHistoryEmpty   = root.Q<Label>("lbl-history-empty");
             RefreshAvatarChoice();
             _btnSettingsClose = root.Q<Button>("btn-settings-close");
             _settingsSurveyRow     = root.Q<VisualElement>("settings-survey-row");
@@ -134,6 +150,8 @@ namespace SunodGame.UI
             _btnNamesFilipino?.RegisterCallback<ClickEvent>(OnNamesFilipinoClicked);
             _btnAvatarBoy?.RegisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.RegisterCallback<ClickEvent>(OnAvatarGirlClicked);
+            _rightPanel?.RegisterCallback<ClickEvent>(OnPlayerCardClicked);
+            _btnCharacterClose?.RegisterCallback<ClickEvent>(OnCharacterCloseClicked);
             _btnSettingsClose?.RegisterCallback<ClickEvent>(OnSettingsCloseClicked);
             _btnSettingsSurveyLink?.RegisterCallback<ClickEvent>(OnSettingsSurveyLinkClicked);
             _btnPrivacyAgree?.RegisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
@@ -147,6 +165,7 @@ namespace SunodGame.UI
             _statsOverlay?.SetDisplay(false);
             _newRunConfirmOverlay?.SetDisplay(false);
             _settingsOverlay?.SetDisplay(false);
+            _characterOverlay?.SetDisplay(false);
 
             PopulatePlayerCard();
             RefreshContinueAvailability();
@@ -157,7 +176,7 @@ namespace SunodGame.UI
             _privacyOverlay?.SetDisplay(needsConsent);
         }
 
-        // ── Privacy notice (once per account, per notice version) ───────
+        // â”€â”€ Privacy notice (once per account, per notice version) â”€â”€â”€â”€â”€â”€â”€
         // Bump PrivacyVersion whenever the notice text changes, so every player sees and
         // agrees to the new wording once. The server stores the version agreed to.
 
@@ -220,6 +239,8 @@ namespace SunodGame.UI
             _btnNamesFilipino?.UnregisterCallback<ClickEvent>(OnNamesFilipinoClicked);
             _btnAvatarBoy?.UnregisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.UnregisterCallback<ClickEvent>(OnAvatarGirlClicked);
+            _rightPanel?.UnregisterCallback<ClickEvent>(OnPlayerCardClicked);
+            _btnCharacterClose?.UnregisterCallback<ClickEvent>(OnCharacterCloseClicked);
             _btnSettingsClose?.UnregisterCallback<ClickEvent>(OnSettingsCloseClicked);
             _btnSettingsSurveyLink?.UnregisterCallback<ClickEvent>(OnSettingsSurveyLinkClicked);
             _btnPrivacyAgree?.UnregisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
@@ -246,7 +267,7 @@ namespace SunodGame.UI
                 _playerCardImage.style.backgroundImage = new StyleBackground(playerCharacterSprite);
         }
 
-        // ── Play / Tutorial / Logout / Settings (unchanged) ────────────────
+        // â”€â”€ Play / Tutorial / Logout / Settings (unchanged) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         private void OnPlayClicked(ClickEvent _)
         {
@@ -304,13 +325,12 @@ namespace SunodGame.UI
             SceneLoader.GoToLogin();
         }
 
-        // ── Settings overlay ────────────────────────────────────────────
+        // â”€â”€ Settings overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         private void OnSettingsClicked(ClickEvent _)
         {
             _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
             RefreshNameChoice();
-            RefreshAvatarChoice();
             _settingsOverlay?.SetDisplay(true);
         }
 
@@ -358,9 +378,26 @@ namespace SunodGame.UI
             _btnAvatarBoy?.EnableInClassList("settings-choice-btn--on", !girl);
             _btnAvatarGirl?.EnableInClassList("settings-choice-btn--on", girl);
             _playerCardImage?.EnableInClassList("player-card-image--girl", girl);
+            _characterPreview?.EnableInClassList("character-preview--girl", girl);
         }
 
-        // ── Continue ────────────────────────────────────────────────────
+        // ── Character panel (player card, top-right) ────────────────────
+
+        private void OnPlayerCardClicked(ClickEvent _)
+        {
+            vc_Sfx.Play("click", 0.6f);
+            var session = SessionState.Instance;
+            if (_lblCharacterName != null)
+                _lblCharacterName.text = session != null && !string.IsNullOrWhiteSpace(session.Username)
+                    ? session.Username
+                    : "Adventurer";
+            RefreshAvatarChoice();
+            _characterOverlay?.SetDisplay(true);
+        }
+
+        private void OnCharacterCloseClicked(ClickEvent _) => _characterOverlay?.SetDisplay(false);
+
+        // â”€â”€ Continue â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         private void RefreshContinueAvailability()
         {
@@ -469,7 +506,7 @@ namespace SunodGame.UI
             SceneLoader.LoadByName(SceneLoader.SCENE_GAME);
         }
 
-        // ── My Progress (stats overlay) ─────────────────────────────────
+        // â”€â”€ My Progress (stats overlay) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         private void OnStatsClicked(ClickEvent _)
         {
@@ -477,7 +514,11 @@ namespace SunodGame.UI
             _statsOverlay?.SetDisplay(true);
             _statsContent?.SetDisplay(false);
             _statsEmptyLabel?.SetDisplay(false);
+            _historyList?.Clear();
+            _lblHistoryEmpty?.SetDisplay(false);
             SetStatsError(string.Empty);
+            _statsOverlay?.Q<ScrollView>("progress-scroll")?.schedule.Execute(() =>
+                _statsOverlay.Q<ScrollView>("progress-scroll").scrollOffset = Vector2.zero);
 
             if (TelemetryManager.Instance == null)
             {
@@ -492,6 +533,74 @@ namespace SunodGame.UI
                     Debug.LogWarning($"[MainMenu] Progress fetch failed: {error}");
                     SetStatsError("Couldn't reach the server - check your connection.");
                 });
+
+            TelemetryManager.Instance.GetMyRunHistory(
+                ApplyRunHistory,
+                error =>
+                {
+                    Debug.LogWarning($"[MainMenu] Run history fetch failed: {error}");
+                    _lblHistoryEmpty?.SetDisplay(true);
+                });
+        }
+
+        // One card per finished playthrough, newest on top (numbered oldest = #1).
+        private void ApplyRunHistory(PlayerRunHistoryResponse history)
+        {
+            if (_historyList == null) return;
+            _historyList.Clear();
+            List<PlayerRunHistoryItem> runs = history?.runs ?? new List<PlayerRunHistoryItem>();
+            _lblHistoryEmpty?.SetDisplay(runs.Count == 0);
+
+            for (int i = 0; i < runs.Count; i++)
+            {
+                PlayerRunHistoryItem run = runs[i];
+                if (run == null) continue;
+
+                var card = new VisualElement();
+                card.AddToClassList("history-card");
+                card.AddToClassList("sl-panel-cream");
+
+                var index = new Label($"#{runs.Count - i}");
+                index.AddToClassList("history-index");
+                card.Add(index);
+
+                var body = new VisualElement();
+                body.AddToClassList("history-body");
+                string career = !string.IsNullOrWhiteSpace(run.career_result) ? run.career_result
+                    : !string.IsNullOrWhiteSpace(run.career_family) ? run.career_family
+                    : "No career result";
+                var careerLabel = new Label(career);
+                careerLabel.AddToClassList("history-career");
+                body.Add(careerLabel);
+
+                var parts = new List<string>();
+                if (!string.IsNullOrWhiteSpace(run.career_family) && run.career_family != career) parts.Add(run.career_family);
+                string when = FormatRunDate(run.finished_at);
+                if (!string.IsNullOrEmpty(when)) parts.Add(when);
+                parts.Add($"{run.quests_completed}/{run.quests_attempted} quests");
+                parts.Add($"{run.total_stars} stars");
+                if (run.play_seconds >= 60f) parts.Add($"{Mathf.RoundToInt(run.play_seconds / 60f)} min");
+                var sub = new Label(string.Join("  -  ", parts));
+                sub.AddToClassList("history-sub");
+                body.Add(sub);
+                card.Add(body);
+
+                var code = new Label(string.IsNullOrWhiteSpace(run.holland_code) ? "---" : run.holland_code);
+                code.AddToClassList("history-code");
+                card.Add(code);
+
+                _historyList.Add(card);
+            }
+        }
+
+        private static string FormatRunDate(string iso)
+        {
+            if (string.IsNullOrWhiteSpace(iso)) return string.Empty;
+            if (System.DateTime.TryParse(iso, System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
+                    out System.DateTime utc))
+                return utc.ToLocalTime().ToString("MMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            return string.Empty;
         }
 
         private void ApplyProgressResponse(PlayerProgressResponse progress)

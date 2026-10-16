@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using SunodGame.Core;
 
@@ -50,6 +50,18 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
     [Tooltip("Walk frame indices where a foot lands (one footstep sound each).")]
     [SerializeField] private int[] footstepFrames = { 1, 4 };
     [SerializeField] private float footstepVolume = 0.55f;
+
+    // Footsteps stay well under the UI sounds: the serialized volume (0.55 in the scenes) is
+    // scaled down here, and the pitch only wobbles a little (the old wide jitter made long
+    // walks grating).
+    private const float FootstepVolumeScale = 0.45f;
+
+    private void PlayFootstep()
+    {
+        float vol = footstepVolume * FootstepVolumeScale * UnityEngine.Random.Range(0.85f, 1f);
+        string clip = $"footstep_{UnityEngine.Random.Range(0, 4)}";
+        vc_Sfx.Play(clip, vol, 0.02f);
+    }
 
     private Facing _facing = Facing.Down;
     private Facing _lastSide = Facing.Right;
@@ -111,7 +123,7 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
             _frameClock -= 1f;
             _frame++;
             if (walking && IsFootstepFrame(_frame % frames.Length))
-                vc_Sfx.PlayRandom("footstep", 4, footstepVolume, 0.08f);
+                PlayFootstep();
         }
 
         body.sprite = frames[_frame % frames.Length];

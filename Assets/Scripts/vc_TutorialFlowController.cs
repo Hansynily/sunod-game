@@ -17,7 +17,7 @@ public class vc_TutorialFlowController : MonoBehaviour
 {
     public static vc_TutorialFlowController Instance { get; private set; }
 
-    private enum Phase { Intro, TeachMove, Explore, ChooseSkill, GoToZone, QuestActive, Done }
+    private enum Phase { Intro, TeachMove, Explore, ChooseSkill, GoToZone, QuestActive, LifeStages, Done }
 
     // Quest objective indices (order must match the steps array in ShowQuestInfo).
     private const int OBJ_MOVE   = 0;
@@ -25,11 +25,12 @@ public class vc_TutorialFlowController : MonoBehaviour
     private const int OBJ_CHOOSE = 2;
     private const int OBJ_ZONE   = 3;
     private const int OBJ_CLEAR  = 4;
+    private const int OBJ_STAGES = 5;
 
-    private const int TotalSteps = 5;
+    private const int TotalSteps = 6;
 
     private const string IntroText =
-        "Welcome to SUNOD! Solve problems any way you like.";
+        "Welcome to SUNOD! In the real game you grow up through 3 life stages - Elementary, High School and College - helping people along the way. First, let's learn the basics.";
 
     [Header("Scene Refs")]
     [SerializeField] private vc_TutorialSkillMarker[] markers;
@@ -110,6 +111,7 @@ public class vc_TutorialFlowController : MonoBehaviour
                 "Look at each skill, then pick one",
                 "Step into the glowing skill zone",
                 "Use your skill to get Tala's kite back",
+                "Learn about the 3 life stages",
             });
 
         vc_QuestHUD.Instance?.SetCounter($"Step 1 of {TotalSteps}");
@@ -249,11 +251,49 @@ public class vc_TutorialFlowController : MonoBehaviour
 
     private void OnQuestCompleted()
     {
-        _phase = Phase.Done;
         if (quest != null) quest.Completed -= OnQuestCompleted;
 
         vc_QuestHUD.Instance?.CheckObjective(OBJ_CLEAR);
         AdvanceStep(OBJ_CLEAR);
+
+        // Short pause so the kite / "Step done!" lands before the next dialog.
+        Invoke(nameof(EnterLifeStages), 1.2f);
+    }
+
+    // ── Life stages: how a real run is shaped ─────────────────────────────
+
+    private void EnterLifeStages()
+    {
+        _phase = Phase.LifeStages;
+        vc_FloatingMessage.Instance?.Show("One more thing: how a full game works.");
+
+        vc_DialogPanel.Instance?.ShowMessage(
+            "Your 3 Life Stages",
+            "A full game takes you through 3 life stages, one town each:\n\n" +
+            "1  Elementary\n" +
+            "2  High School\n" +
+            "3  College\n\n" +
+            "You grow up as you go. Finish a stage and you move on to the next one.",
+            () => vc_DialogPanel.Instance?.ShowMessage(
+                "Days and Energy",
+                "Each stage lasts 4 days. People with a \"!\" above their head need help.\n\n" +
+                "Every quest you take uses 1 energy, and you get 4 energy a day. When it runs out, tap Sleep to start the next day.",
+                () => vc_DialogPanel.Instance?.ShowMessage(
+                    "There Are No Wrong Answers",
+                    "When someone asks for help, you can say Help, Later, or \"Not for me\".\n\n" +
+                    "What you choose to do - and what you skip - shows what you really enjoy. Pick what feels right to you.",
+                    () => vc_DialogPanel.Instance?.ShowMessage(
+                        "Watch Your Progress",
+                        "The ring in the top-right corner shows your life stage and the day. Tap it to see all 3 stages.\n\n" +
+                        "After College, SUNOD shows the careers that fit you best.",
+                        OnLifeStagesLearned))));
+    }
+
+    private void OnLifeStagesLearned()
+    {
+        _phase = Phase.Done;
+        vc_QuestHUD.Instance?.CheckObjective(OBJ_STAGES);
+        AdvanceStep(OBJ_STAGES);
 
         string letter = _chosen != null ? _chosen.riaSecLetter : string.Empty;
         string name   = _chosen != null ? _chosen.DisplayName : "your skill";

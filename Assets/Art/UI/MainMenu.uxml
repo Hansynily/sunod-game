@@ -44,12 +44,13 @@
             <ui:VisualElement class="corner-icon icon-settings" picking-mode="Ignore"/>
         </ui:Button>
 
-        <!-- Top-right: player avatar + greeting -->
-        <ui:VisualElement name="right-panel" class="right-panel intro-item intro-hidden" picking-mode="Ignore">
-            <ui:VisualElement name="player-card" class="player-card">
-                <ui:VisualElement name="player-card-image" class="player-card-image"/>
+        <!-- Top-right: player avatar + greeting. Tap it to open the character panel. -->
+        <ui:VisualElement name="right-panel" class="right-panel intro-item intro-hidden">
+            <ui:VisualElement name="player-card" class="player-card" picking-mode="Ignore">
+                <ui:VisualElement name="player-card-image" class="player-card-image" picking-mode="Ignore"/>
+                <ui:Label text="Edit" class="player-card-edit" picking-mode="Ignore"/>
             </ui:VisualElement>
-            <ui:Label name="lbl-username" class="username-label"/>
+            <ui:Label name="lbl-username" class="username-label" picking-mode="Ignore"/>
         </ui:VisualElement>
 
         <!-- Bottom-right corner: logout. MUST render on top to receive clicks. -->
@@ -70,7 +71,10 @@
                     <ui:Label text="Your Progress" class="header-text sl-text-outline"/>
                 </ui:VisualElement>
 
-                <ui:Label name="lbl-stats-empty" text="Play your first quests to see your career forming." class="empty-state-label"/>
+                <ui:ScrollView name="progress-scroll" class="progress-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden">
+
+                <ui:Label text="This run" class="history-heading"/>
+                <ui:Label name="lbl-stats-empty" text="No run in progress. Start a New Game to see your career forming." class="empty-state-label"/>
 
                 <ui:VisualElement name="stats-content" class="stats-content">
 
@@ -105,6 +109,13 @@
                     </ui:VisualElement>
 
                 </ui:VisualElement>
+
+                <ui:VisualElement class="divider"/>
+                <ui:Label text="Past playthroughs" class="history-heading"/>
+                <ui:Label name="lbl-history-empty" text="Finish a run to see it here." class="empty-state-label"/>
+                <ui:VisualElement name="history-list" class="history-list"/>
+
+                </ui:ScrollView>
 
                 <ui:Label name="lbl-stats-error" text="" class="error-note"/>
 
@@ -154,6 +165,32 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <!-- Character overlay. Opened by tapping the player card (top-right). -->
+        <ui:VisualElement name="character-overlay" class="overlay-root">
+            <ui:VisualElement class="confirm-box settings-box character-box sl-panel-wood">
+                <ui:Label text="Your Character" class="settings-title"/>
+                <ui:VisualElement class="character-stage">
+                    <ui:VisualElement name="character-preview" class="character-preview" picking-mode="Ignore"/>
+                </ui:VisualElement>
+                <ui:Label name="lbl-character-name" text="" class="character-name"/>
+                <ui:VisualElement class="character-choice-row">
+                    <ui:Button name="btn-avatar-boy" class="wood-btn settings-choice-btn character-choice-btn">
+                        <ui:VisualElement class="character-choice-icon character-choice-icon--boy" picking-mode="Ignore"/>
+                        <ui:Label text="Boy" class="character-choice-label" picking-mode="Ignore"/>
+                    </ui:Button>
+                    <ui:Button name="btn-avatar-girl" class="wood-btn settings-choice-btn character-choice-btn">
+                        <ui:VisualElement class="character-choice-icon character-choice-icon--girl" picking-mode="Ignore"/>
+                        <ui:Label text="Girl" class="character-choice-label" picking-mode="Ignore"/>
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement class="confirm-button-row">
+                    <ui:Button name="btn-character-close" class="action-btn btn-main-menu sl-button-wide">
+                        <ui:Label text="Done" class="action-btn-label sl-text-outline"/>
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <!-- Settings overlay. Opened by btn-settings (bottom-left gear). -->
         <ui:VisualElement name="settings-overlay" class="overlay-root">
             <ui:VisualElement class="confirm-box settings-box sl-panel-wood">
@@ -169,14 +206,6 @@
                     <ui:VisualElement class="settings-choice-row">
                         <ui:Button name="btn-names-english" text="English" class="wood-btn settings-choice-btn"/>
                         <ui:Button name="btn-names-filipino" text="Filipino" class="wood-btn settings-choice-btn"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-
-                <ui:VisualElement class="settings-row">
-                    <ui:Label text="Character" class="settings-label"/>
-                    <ui:VisualElement class="settings-choice-row">
-                        <ui:Button name="btn-avatar-boy" text="Boy" class="wood-btn settings-choice-btn"/>
-                        <ui:Button name="btn-avatar-girl" text="Girl" class="wood-btn settings-choice-btn"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
 
