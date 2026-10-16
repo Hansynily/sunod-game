@@ -468,6 +468,11 @@
     scale: 0.95 0.95;
     translate: 0 2px;
 }
+/* the next-stage button is centred with translate -50%; keep that while pressed, otherwise the
+   button jumps half its width sideways, the release lands outside it and the click is lost */
+.rp-next-btn:active, .rp-next-btn.sl-button-wide:active {
+    translate: -50% 2px;
+}
 .rp-zoom-btn .rp-card-btn-label {
     font-size: 28px;
 }
