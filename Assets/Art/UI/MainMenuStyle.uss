@@ -550,3 +550,37 @@
     white-space: normal;
     -unity-text-align: upper-left;
 }
+.privacy-check {
+    margin: 0 0 10px 0;
+    align-items: center;
+}
+.privacy-check .unity-toggle__input {
+    flex-shrink: 0;
+}
+.privacy-check .unity-toggle__checkmark {
+    width: 28px;
+    height: 28px;
+    background-color: rgb(250, 240, 220);
+    border-width: 2px;
+    border-color: rgb(72, 52, 34);
+    border-radius: 3px;
+}
+/* Ticked = green box, so the state reads even if the theme has no checkmark image. */
+.privacy-check:checked .unity-toggle__checkmark {
+    background-color: rgb(95, 159, 82);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+.privacy-check .unity-toggle__text,
+.privacy-check .unity-label {
+    font-size: 18px;
+    color: rgb(72, 52, 34);
+    white-space: normal;
+    flex-shrink: 1;
+    margin-left: 10px;
+}
+.privacy-btn {
+    margin: 8px 10px 0 10px;
+}
+.privacy-btn:disabled {
+    opacity: 0.45;
+}

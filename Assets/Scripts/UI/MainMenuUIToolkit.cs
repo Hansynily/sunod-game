@@ -53,6 +53,9 @@ namespace SunodGame.UI
         private VisualElement _settingsOverlay;
         private VisualElement _privacyOverlay;
         private Button _btnPrivacyAgree;
+        private Button _btnPrivacyDecline;
+        private Toggle _privacyCheckRead;
+        private Toggle _privacyCheckAgree;
         private Slider _sfxSlider;
         private Button _btnNamesEnglish;
         private Button _btnNamesFilipino;
@@ -102,6 +105,9 @@ namespace SunodGame.UI
             _settingsOverlay  = root.Q<VisualElement>("settings-overlay");
             _privacyOverlay   = root.Q<VisualElement>("privacy-overlay");
             _btnPrivacyAgree  = root.Q<Button>("btn-privacy-agree");
+            _btnPrivacyDecline = root.Q<Button>("btn-privacy-decline");
+            _privacyCheckRead  = root.Q<Toggle>("privacy-check-read");
+            _privacyCheckAgree = root.Q<Toggle>("privacy-check-agree");
             _sfxSlider        = root.Q<Slider>("settings-sfx-slider");
             _btnNamesEnglish  = root.Q<Button>("btn-names-english");
             _btnNamesFilipino = root.Q<Button>("btn-names-filipino");
@@ -125,6 +131,9 @@ namespace SunodGame.UI
             _btnAvatarGirl?.RegisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.RegisterCallback<ClickEvent>(OnSettingsCloseClicked);
             _btnPrivacyAgree?.RegisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
+            _btnPrivacyDecline?.RegisterCallback<ClickEvent>(OnPrivacyDeclineClicked);
+            _privacyCheckRead?.RegisterValueChangedCallback(OnPrivacyCheckChanged);
+            _privacyCheckAgree?.RegisterValueChangedCallback(OnPrivacyCheckChanged);
             _sfxSlider?.RegisterValueChangedCallback(OnSfxSliderChanged);
             // Dragger releases pointer capture on release - play a click so the level is audible.
             _sfxSlider?.RegisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
@@ -135,16 +144,24 @@ namespace SunodGame.UI
 
             PopulatePlayerCard();
             RefreshContinueAvailability();
-            _privacyOverlay?.SetDisplay(!HasAcceptedPrivacy());
+            bool needsConsent = !HasAcceptedPrivacy();
+            _privacyCheckRead?.SetValueWithoutNotify(false);
+            _privacyCheckAgree?.SetValueWithoutNotify(false);
+            RefreshPrivacyAgreeButton();
+            _privacyOverlay?.SetDisplay(needsConsent);
         }
 
-        // ── Privacy notice (once per account) ───────────────────────────
+        // ── Privacy notice (once per account, per notice version) ───────
+        // Bump PrivacyVersion whenever the notice text changes, so every player sees and
+        // agrees to the new wording once. The server stores the version agreed to.
+
+        private const string PrivacyVersion = "2";
 
         private static string PrivacyKey()
         {
             var session = SessionState.Instance;
             string who = session != null && !string.IsNullOrWhiteSpace(session.Username) ? session.Username : "guest";
-            return "sunod.privacy_ok." + who;
+            return $"sunod.privacy_ok.v{PrivacyVersion}." + who;
         }
 
         private static bool HasAcceptedPrivacy()
@@ -153,10 +170,33 @@ namespace SunodGame.UI
             catch { return false; }
         }
 
+        private bool PrivacyBoxesTicked() =>
+            (_privacyCheckRead == null || _privacyCheckRead.value) &&
+            (_privacyCheckAgree == null || _privacyCheckAgree.value);
+
+        private void RefreshPrivacyAgreeButton() => _btnPrivacyAgree?.SetEnabled(PrivacyBoxesTicked());
+
+        private void OnPrivacyCheckChanged(ChangeEvent<bool> _) => RefreshPrivacyAgreeButton();
+
         private void OnPrivacyAgreeClicked(ClickEvent _)
         {
+            if (!PrivacyBoxesTicked()) return;
             try { PlayerPrefs.SetInt(PrivacyKey(), 1); PlayerPrefs.Save(); } catch { }
+            TelemetryManager.Instance?.PostMyPrivacyConsent(PrivacyVersion);
             _privacyOverlay?.SetDisplay(false);
+        }
+
+        // Declining means no game: sign out and leave. Back to Login where the scene is in
+        // the build; otherwise quit (Quit is a no-op on WebGL, hence Login first).
+        private void OnPrivacyDeclineClicked(ClickEvent _)
+        {
+            TelemetryManager.Instance?.TagButtonClick("PrivacyDecline");
+            vc_PlayTimeTracker.Instance?.EndSession();
+            SessionState.Instance?.ClearUser();
+            if (Application.CanStreamedLevelBeLoaded(SceneLoader.SCENE_LOGIN))
+                SceneLoader.GoToLogin();
+            else
+                Application.Quit();
         }
 
         private void OnDisable()
@@ -176,6 +216,9 @@ namespace SunodGame.UI
             _btnAvatarGirl?.UnregisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.UnregisterCallback<ClickEvent>(OnSettingsCloseClicked);
             _btnPrivacyAgree?.UnregisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
+            _btnPrivacyDecline?.UnregisterCallback<ClickEvent>(OnPrivacyDeclineClicked);
+            _privacyCheckRead?.UnregisterValueChangedCallback(OnPrivacyCheckChanged);
+            _privacyCheckAgree?.UnregisterValueChangedCallback(OnPrivacyCheckChanged);
             _sfxSlider?.UnregisterValueChangedCallback(OnSfxSliderChanged);
             _sfxSlider?.UnregisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
         }
@@ -249,6 +292,7 @@ namespace SunodGame.UI
         {
             TelemetryManager.Instance?.TagButtonClick("Logout");
             TelemetryManager.Instance?.TagSessionEnd();
+            vc_PlayTimeTracker.Instance?.EndSession();
             SessionState.Instance?.ClearUser();
             SceneLoader.GoToLogin();
         }

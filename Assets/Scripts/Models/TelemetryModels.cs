@@ -250,6 +250,16 @@ namespace SunodGame.Models
         public string message;
     }
 
+    // Reply to the play-time heartbeat: the player's totals across every launch.
+    [Serializable]
+    public class PlayTimeSummaryResponse
+    {
+        public float total_play_seconds;
+        public int session_count;
+        public float avg_session_seconds;
+        public float longest_session_seconds;
+    }
+
     [Serializable]
     public class SessionClusterTelemetryPayload
     {
