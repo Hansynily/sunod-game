@@ -90,11 +90,13 @@
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownNPC.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_StallPitchQuest.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ClassSongQuest.cs" />
     <Compile Include="Assets\Scripts\vc_MarkerGlow.cs" />
     <Compile Include="Assets\Scripts\UI\vc_FloatingJoystick.cs" />
     <Compile Include="Assets\Scripts\Debug\vc_DebugMenu.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_ChoirPracticeQuest.cs" />
     <Compile Include="Assets\Scripts\Core\GameSessionData.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillManager.cs" />
@@ -143,6 +145,7 @@
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
     <Compile Include="Assets\Scripts\Core\vc_PlayerOptions.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_RiverbedMapQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\Conventional\PlanSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSpawner.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerSkillInput.cs" />
@@ -156,6 +159,7 @@
     <Compile Include="Assets\Scripts\vc_BlockedPathQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Bootstrap.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\ScriptableObjects\Scan.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_BarbershopQuest.cs" />
     <Compile Include="Assets\Scripts\vc_QuestRoom.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_DoAction.cs" />
