@@ -220,7 +220,7 @@ namespace SunodGame.UI
                     ShowLogin();
                     ShowError(
                         txt_ErrorLogin,
-                        GetAuthMessage(auth, "Account created. Wait for admin approval."));
+                        GetAuthMessage(auth, "Account created. Check your email to verify it, then log in."));
                 },
                 onError: (err) =>
                 {
