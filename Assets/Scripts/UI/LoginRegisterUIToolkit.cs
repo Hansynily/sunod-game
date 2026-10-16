@@ -268,7 +268,7 @@ namespace SunodGame.UI
                 {
                     SetLoading(false);
                     ShowLogin();
-                    ShowError(_lblErrorLogin, GetAuthMessage(auth, "Account created. Wait for admin approval."));
+                    ShowError(_lblErrorLogin, GetAuthMessage(auth, "Account created. Check your email to verify it, then log in."));
                 },
                 onError: (err) => { SetLoading(false); ShowError(_lblErrorRegister, err); });
         }
