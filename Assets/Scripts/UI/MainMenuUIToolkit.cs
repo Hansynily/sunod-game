@@ -51,6 +51,8 @@ namespace SunodGame.UI
 
         // Settings overlay
         private VisualElement _settingsOverlay;
+        private VisualElement _privacyOverlay;
+        private Button _btnPrivacyAgree;
         private Slider _sfxSlider;
         private Button _btnNamesEnglish;
         private Button _btnNamesFilipino;
@@ -98,6 +100,8 @@ namespace SunodGame.UI
             _btnNewRunCancel      = root.Q<Button>("btn-newrun-cancel");
 
             _settingsOverlay  = root.Q<VisualElement>("settings-overlay");
+            _privacyOverlay   = root.Q<VisualElement>("privacy-overlay");
+            _btnPrivacyAgree  = root.Q<Button>("btn-privacy-agree");
             _sfxSlider        = root.Q<Slider>("settings-sfx-slider");
             _btnNamesEnglish  = root.Q<Button>("btn-names-english");
             _btnNamesFilipino = root.Q<Button>("btn-names-filipino");
@@ -120,6 +124,7 @@ namespace SunodGame.UI
             _btnAvatarBoy?.RegisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.RegisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.RegisterCallback<ClickEvent>(OnSettingsCloseClicked);
+            _btnPrivacyAgree?.RegisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
             _sfxSlider?.RegisterValueChangedCallback(OnSfxSliderChanged);
             // Dragger releases pointer capture on release - play a click so the level is audible.
             _sfxSlider?.RegisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
@@ -130,6 +135,28 @@ namespace SunodGame.UI
 
             PopulatePlayerCard();
             RefreshContinueAvailability();
+            _privacyOverlay?.SetDisplay(!HasAcceptedPrivacy());
+        }
+
+        // ── Privacy notice (once per account) ───────────────────────────
+
+        private static string PrivacyKey()
+        {
+            var session = SessionState.Instance;
+            string who = session != null && !string.IsNullOrWhiteSpace(session.Username) ? session.Username : "guest";
+            return "sunod.privacy_ok." + who;
+        }
+
+        private static bool HasAcceptedPrivacy()
+        {
+            try { return PlayerPrefs.GetInt(PrivacyKey(), 0) == 1; }
+            catch { return false; }
+        }
+
+        private void OnPrivacyAgreeClicked(ClickEvent _)
+        {
+            try { PlayerPrefs.SetInt(PrivacyKey(), 1); PlayerPrefs.Save(); } catch { }
+            _privacyOverlay?.SetDisplay(false);
         }
 
         private void OnDisable()
@@ -148,6 +175,7 @@ namespace SunodGame.UI
             _btnAvatarBoy?.UnregisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.UnregisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.UnregisterCallback<ClickEvent>(OnSettingsCloseClicked);
+            _btnPrivacyAgree?.UnregisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
             _sfxSlider?.UnregisterValueChangedCallback(OnSfxSliderChanged);
             _sfxSlider?.UnregisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
         }

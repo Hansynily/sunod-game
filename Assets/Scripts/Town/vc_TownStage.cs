@@ -499,8 +499,15 @@ public class vc_TownStage : MonoBehaviour
             CheckStageComplete();
         };
 
-        if (ui != null) ui.ShowDaySummary($"{stageTitle} - Day {_day} done", body, dream, wake, OfferSkillPick);
-        else vc_DialogPanel.Instance?.ShowMessage($"Day {_day} done", body, () => OfferSkillPick(wake));
+        // No new-skill pick when this night leads straight to the results (last stage, leaving
+        // town or its final day): a skill you can never use is just noise before the ending.
+        int stageIdx = vc_TownFlow.Instance != null ? vc_TownFlow.Instance.CurrentStageIndex : -1;
+        bool lastStage = stageIdx < 0 || stageIdx + 1 >= vc_TownFlow.TownScenes.Length;
+        bool endingRun = lastStage && (afterSleep != null || _day >= daysPerStage);
+        System.Action<System.Action> pick = endingRun ? (System.Action<System.Action>)(then => then?.Invoke()) : OfferSkillPick;
+
+        if (ui != null) ui.ShowDaySummary($"{stageTitle} - Day {_day} done", body, dream, wake, pick);
+        else vc_DialogPanel.Instance?.ShowMessage($"Day {_day} done", body, () => pick(wake));
     }
 
     /// <summary>Requests nobody answered today: those NPCs leave for good (not scored).</summary>
@@ -620,6 +627,8 @@ public class vc_TownStage : MonoBehaviour
         if (ui == null) return;
         ui.SetEnergy(Energy, questsPerDay);
         ui.SetSleepVisible(!_inQuest && !_busy && !_stageCompleted && BuiltQuestCount > 0);
+        bool canSleep = !_inQuest && !_busy && !_stageCompleted && BuiltQuestCount > 0;
+        ui.SetSleepGlow(canSleep && !(BuiltQuestCount > 0 && StageDone) && (Energy <= 0 || RequestsLeftToday == 0));
     }
 
     private void RefreshHomes()

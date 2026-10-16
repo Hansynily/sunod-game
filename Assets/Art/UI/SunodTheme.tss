@@ -173,3 +173,20 @@ Label, Button, TextField, DropdownField {
     scale: 0.96 0.96;
     translate: 0 2px;
 }
+
+/* gold swallowtail title ribbon (dialog titles, "done" banners, result header) */
+.sl-ribbon {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    letter-spacing: 2px;
+    align-self: center;
+    background-image: none;
+    background-color: rgba(0,0,0,0);
+    -unity-text-outline-width: 0;
+    border-width: 0;
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(210, 150, 64);
+    padding: 0 18px 6px 18px;
+}

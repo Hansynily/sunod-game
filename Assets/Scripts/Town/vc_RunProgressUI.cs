@@ -418,9 +418,14 @@ public class vc_RunProgressUI : MonoBehaviour
         _nextLabel.text = label;
         _nextBtn.clickable = new Clickable(() => onClick?.Invoke());
         _nextBtn.RemoveFromClassList("rp-hidden");
+        SetGlow(_nextBtn, true);
     }
 
-    public void HideNextStageButton() => _nextBtn?.AddToClassList("rp-hidden");
+    public void HideNextStageButton()
+    {
+        _nextBtn?.AddToClassList("rp-hidden");
+        SetGlow(_nextBtn, false);
+    }
 
     // ── side controls: energy, Sleep, camera zoom, quest "Not for me" ─────
 
@@ -488,6 +493,28 @@ public class vc_RunProgressUI : MonoBehaviour
     }
 
     public void SetSleepVisible(bool visible) => _sleepBtn?.EnableInClassList("rp-hidden", !visible);
+
+    /// <summary>Sleep pulses when the day is used up (no energy, or nobody left asking).</summary>
+    public void SetSleepGlow(bool glow) => SetGlow(_sleepBtn, glow);
+
+    // ── "do this now" glow: the button breathes between two states ─────────
+    private readonly System.Collections.Generic.List<VisualElement> _glowing = new System.Collections.Generic.List<VisualElement>();
+    private IVisualElementScheduledItem _glowTick;
+    private bool _glowPhase;
+
+    private void SetGlow(VisualElement el, bool on)
+    {
+        if (el == null) return;
+        if (on && !_glowing.Contains(el)) _glowing.Add(el);
+        if (!on) { _glowing.Remove(el); el.RemoveFromClassList("rp-glow"); el.RemoveFromClassList("rp-glow--hi"); }
+        else el.AddToClassList("rp-glow");
+        if (_glowTick == null && _glowing.Count > 0)
+            _glowTick = el.schedule.Execute(() =>
+            {
+                _glowPhase = !_glowPhase;
+                foreach (var g in _glowing) g.EnableInClassList("rp-glow--hi", _glowPhase);
+            }).Every(550);
+    }
 
     /// <summary>Shows the in-quest "Not for me" button.</summary>
     public void ShowQuestCancel(Action onClick)
@@ -664,7 +691,7 @@ public class vc_RunProgressUI : MonoBehaviour
 
         var ribbon = new VisualElement();
         ribbon.AddToClassList("rp-done-ribbon");
-        ribbon.AddToClassList("sl-panel-wood");
+        ribbon.AddToClassList("sl-ribbon");
         _doneTitle = new Label("Quest complete!");
         _doneTitle.AddToClassList("rp-done-title");
         ribbon.Add(_doneTitle);

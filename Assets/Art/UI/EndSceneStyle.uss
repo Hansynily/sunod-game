@@ -39,21 +39,15 @@
 /* Header Badge */
 .panel-header {
     align-items: center;
-    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
-    -unity-background-scale-mode: stretch-to-fill;
+    align-self: center;
+    background-image: none;
     background-color: rgba(0,0,0,0);
     border-width: 0;
-    -unity-background-image-tint-color: rgb(235, 210, 170);
-    margin-top: -22px;
-    margin-left: 100px;
-    margin-right: 100px;
-    padding: 12px 24px;
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(210, 150, 64);
+    margin-top: 28px;
     margin-bottom: 24px;
-    -unity-slice-left: 10;
-    -unity-slice-top: 10;
-    -unity-slice-right: 10;
-    -unity-slice-bottom: 10;
-    -unity-slice-scale: 1px;
+    padding: 0 18px 6px 18px;
 }
 .header-text {
     font-size: 20px;

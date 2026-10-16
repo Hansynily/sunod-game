@@ -396,20 +396,17 @@
 /* ---------- quest-done panel ---------- */
 .rp-done-card {
     width: 520px;
-    padding-top: 46px;
+    padding-top: 30px;
 }
 .rp-done-ribbon {
-    position: absolute;
-    top: -26px;
-    left: 50%;
-    translate: -50% 0;
-    padding: 10px 34px 14px 34px;
+    align-self: center;
+    margin-bottom: 10px;
 }
 .rp-done-title {
     font-size: 28px;
-    color: rgb(255, 245, 225);
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(46, 34, 24);
+    color: rgb(72, 52, 34);
+    -unity-text-outline-width: 0;
+    white-space: nowrap;
     -unity-text-align: middle-center;
 }
 .rp-done-name {
@@ -475,4 +472,18 @@
 }
 .rp-zoom-btn .rp-card-btn-label {
     font-size: 28px;
+}
+
+/* ---------- "do this now" glow (Sleep when the day is used up, next-stage button) ---------- */
+.rp-glow {
+    transition-property: scale, -unity-background-image-tint-color;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in-out;
+}
+.rp-glow--hi {
+    scale: 1.06 1.06;
+    -unity-background-image-tint-color: rgb(255, 236, 160);
+}
+.rp-glow--hi .rp-card-btn-label {
+    color: rgb(120, 60, 10);
 }

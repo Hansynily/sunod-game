@@ -181,13 +181,18 @@
     margin-top: 4px;
     width: 116px;
     font-size: 18px;
-    color: rgb(250, 238, 215);
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(46, 34, 24);
+    -unity-font-style: bold;
+    color: rgb(255, 250, 235);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(40, 26, 18);
+    text-shadow: 2px 2px 0 rgb(40, 26, 18);
     -unity-text-align: upper-center;
     white-space: normal;
     overflow: hidden;
-    max-height: 48px;
+    max-height: 52px;
+    padding: 2px 4px 4px 4px;
+    background-color: rgba(40, 26, 18, 0.55);
+    border-radius: 4px;
 }
 
 /* Neutralise Unity's default button hover/focus/disabled chrome */

@@ -133,6 +133,21 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <!-- Privacy notice: shown once per account, the first time that player reaches the menu. -->
+        <ui:VisualElement name="privacy-overlay" class="overlay-root">
+            <ui:VisualElement class="confirm-box settings-box privacy-box sl-panel-wood">
+                <ui:Label text="Your privacy" class="settings-title"/>
+                <ui:ScrollView class="privacy-scroll">
+                    <ui:Label class="privacy-text" text="SUNOD is part of a thesis study on career exploration. Here is what we collect and why.&#10;&#10;What we collect: the name, username, email, birthdate and gender you gave when you signed up, and how you play: which quests you take, turn down or finish, how long they take, the stars you earn and the skills you use.&#10;&#10;Why: to suggest career paths that match your interests (RIASEC), and to study how well the game measures them. Results are only used for this research.&#10;&#10;Who can see it: only the SUNOD research team. We never sell it or share it with anyone else. Reports in the study never show your name.&#10;&#10;Your choice: you can stop playing at any time. To have your account and data deleted, ask the SUNOD team.&#10;&#10;Tap I agree to continue."/>
+                </ui:ScrollView>
+                <ui:VisualElement class="confirm-button-row">
+                    <ui:Button name="btn-privacy-agree" class="action-btn btn-main-menu sl-button-wide">
+                        <ui:Label text="I agree" class="action-btn-label sl-text-outline"/>
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <!-- Settings overlay. Opened by btn-settings (bottom-left gear). -->
         <ui:VisualElement name="settings-overlay" class="overlay-root">
             <ui:VisualElement class="confirm-box settings-box sl-panel-wood">

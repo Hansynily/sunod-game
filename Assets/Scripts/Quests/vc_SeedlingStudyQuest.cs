@@ -60,6 +60,7 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
     private Transform _player;
     private Vector3[] _potRest;
     private Vector3 _awningRest;
+    private GameObject _lens;
 
     protected override Vector3 BarWorldPosition => _barPos;
 
@@ -92,6 +93,12 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
             "Seedling Study",
             "Find out what makes the seedlings grow.",
             new[] { "Study the seedlings" });
+    }
+
+    protected override void OnWorkCancelled()
+    {
+        if (_lens != null) Destroy(_lens);
+        _lens = null;
     }
 
     private Vector3 Center() => pots[pots.Length / 2].transform.position;
@@ -247,9 +254,10 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
         Grow(0, 3); Grow(1, 2); Grow(2, Wilt);
 
         Transform potC = pots[pots.Length - 1].transform;
-        GameObject lens = new GameObject("Magnifier");
-        lens.transform.SetParent(transform, true);
-        var lr = lens.AddComponent<SpriteRenderer>();
+        if (_lens != null) Destroy(_lens);
+        _lens = new GameObject("Magnifier");
+        _lens.transform.SetParent(transform, true);
+        var lr = _lens.AddComponent<SpriteRenderer>();
         lr.sprite = magnifier; lr.sortingLayerName = sortingLayer; lr.sortingOrder = 22;
 
         bool q = false, lift = false, bulb = false, perk = false;
@@ -260,7 +268,7 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
             SetBar(t / solveTime);
             // magnifier sweeps over the wilted pot
             float sway = Mathf.Sin(t * 3f) * 0.25f;
-            lens.transform.position = Snap(potC.position + new Vector3(sway, 0.55f, 0f));
+            if (_lens != null) _lens.transform.position = Snap(potC.position + new Vector3(sway, 0.55f, 0f));
             if (!q && t >= 1.4f) { q = true; Fx(questionFrames, potC.position + new Vector3(0.2f, 1.4f, 0f), 2f, 0.3f); SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f); }
             if (!lift && t >= 2.8f)
             {
@@ -272,14 +280,16 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
             if (!bulb && t >= solveTime - 1.2f)
             {
                 bulb = true;
-                Destroy(lens);
+                if (_lens != null) Destroy(_lens);
+                _lens = null;
                 Fx(bulbFrames, potC.position + new Vector3(0f, 1.6f, 0f), 2f, 0.3f, 25);
                 SunodGame.Core.vc_Sfx.Play("idea", 0.7f);
             }
             if (!perk && t >= solveTime - 0.6f) { perk = true; Grow(2, 2); }
             yield return null;
         }
-        if (lens != null) Destroy(lens);
+        if (_lens != null) Destroy(_lens);
+        _lens = null;
         Finish("Too little light! Back in the sun, it perks right up.");
     }
 

@@ -200,3 +200,34 @@ notched(badge, 1, 1, 12, 10, GOLD_SH, 1)
 notched(badge, 1, 1, 12, 8, GOLD, 1)
 hline(badge, 2, 11, 1, GOLD_HI)
 save(badge, "badge.png", (4, 4, 4, 4))
+
+
+# ---- title ribbon (dialog titles, "done" banners, result header) ---------
+# Gold banner with folded swallowtail ends. 9-slice: L 11, B 7, R 11, T 4 (ends stay fixed).
+RIB = (240, 190, 92, 255); RIB_HI = (255, 224, 146, 255); RIB_SH = (210, 150, 64, 255)
+TAIL = (196, 126, 52, 255); TAIL_DK = (150, 90, 40, 255)
+rows = [
+    "........KKKKKKKKKKKKKKKKKKKKKKKK........",
+    ".......KhhhhhhhhhhhhhhhhhhhhhhhhK.......",
+    ".......KgggggggggggggggggggggggggK......",
+    ".......KgggggggggggggggggggggggggK......",
+    ".......KgggggggggggggggggggggggggK......",
+    "KKKKK..KgggggggggggggggggggggggggK..KKKKK",
+    "KttttKKKgggggggggggggggggggggggggKKKttttK",
+    ".KtttttKgggggggggggggggggggggggggKtttttK.",
+    "..KttttKgggggggggggggggggggggggggKttttK..",
+    "...KtttKgggggggggggggggggggggggggKtttK...",
+    "..KttttKgggggggggggggggggggggggggKttttK..",
+    ".KtttttKsssssssssssssssssssssssssKtttttK.",
+    "KttttttKKKKKKKKKKKKKKKKKKKKKKKKKKKttttttK",
+    "KttttttdK.......................KdttttttK",
+    "KKKKKKKKK.......................KKKKKKKKK",
+]
+rows = [r[:41].ljust(41, ".") for r in rows]
+W = max(len(r) for r in rows)
+rib = new(W, len(rows))
+pal = {"K": INK, "h": RIB_HI, "g": RIB, "s": RIB_SH, "t": TAIL, "d": TAIL_DK}
+for y, r in enumerate(rows):
+    for x, ch in enumerate(r):
+        if ch in pal: rib.putpixel((x, y), pal[ch])
+save(rib, "ribbon.png", (11, 7, 11, 4))

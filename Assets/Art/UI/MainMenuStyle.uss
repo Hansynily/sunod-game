@@ -528,3 +528,20 @@
 #btn-settings-close Label {
     font-size: 21px;
 }
+
+/* ---------- privacy notice (first visit per account) ---------- */
+.privacy-box {
+    max-width: 720px;
+    width: 80%;
+    max-height: 86%;
+}
+.privacy-scroll {
+    max-height: 420px;
+    margin-bottom: 18px;
+}
+.privacy-text {
+    font-size: 18px;
+    color: rgb(72, 52, 34);
+    white-space: normal;
+    -unity-text-align: upper-left;
+}

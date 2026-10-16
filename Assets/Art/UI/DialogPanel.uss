@@ -55,22 +55,19 @@
 /* ---------- TITLE (small wood tab on top) ---------- */
 .dialog-title {
     font-size: 28px;
-    color: rgb(255, 245, 225);
-    -unity-text-align: upper-center;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
     white-space: normal;
     letter-spacing: 2px;
-    margin-bottom: 14px;
     align-self: center;
-    background-image: url("/Assets/Art/UI/Panels/plate.png");
-    -unity-background-scale-mode: stretch-to-fill;
-    padding: 8px 32px 12px 32px;
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(58, 40, 30);
-    -unity-slice-left: 5;
-    -unity-slice-top: 5;
-    -unity-slice-right: 5;
-    -unity-slice-bottom: 6;
-    -unity-slice-scale: 1px;
+    background-image: none;
+    background-color: rgba(0,0,0,0);
+    -unity-text-outline-width: 0;
+    border-width: 0;
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(210, 150, 64);
+    padding: 0 18px 6px 18px;
+    margin-bottom: 16px;
 }
 
 /* ---------- TITLE / BODY DIVIDER ---------- */
