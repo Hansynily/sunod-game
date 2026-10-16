@@ -5211,7 +5211,6 @@ GameObject:
   - component: {fileID: 5546030161497660060}
   - component: {fileID: 7992593235269875436}
   - component: {fileID: 1827108205386348534}
-  - component: {fileID: 2708084278541363163}
   m_Layer: 0
   m_Name: QuestTrigger
   m_TagString: Untagged
@@ -5292,7 +5291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99785dd0848a4afcb4c26847ad4c5d50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
-  questLogic: {fileID: 2708084278541363163}
+  questLogic: {fileID: 2651740515897549264}
   questId: c_e7_house
   questName: Open House
   primaryRiasec: E
@@ -5301,116 +5300,19 @@ MonoBehaviour:
   questDescription: Agent Mel's open house is today and a buyer just walked in. Close
     the deal!
   questHints:
-  - Show the buyer the best spot.
-  - Or convince them it's the one.
+  - Close the deal with the buyer.
+  - Or show them what the house offers.
   nextQuestId: 
   lockType: 1
   requiredSkillTag: 
   isExposureEligible: 0
   requiredComboTags: []
   solvableWithTags:
-  - map
   - persuade
+  - charm
+  - map
   - command
---- !u!114 &2708084278541363163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3831515952528008836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04213a4ea219f0f4c8fa7c7345082c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_GenericQuestEngine
-  hudCounter: Quest
-  hudTitle: Open House
-  hudObjectives:
-  - Sell the house
-  skillPaths:
-  - skillTag: map
-    successMessage: The buyer loves the view! Sold!
-    interactionType: 3
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 1535642594667647189}
-    destination: {fileID: 5706018723315659140}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: persuade
-    successMessage: Deal! They bought the house.
-    interactionType: 0
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 1
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: command
-    successMessage: You led the tour like a pro. Sold!
-    interactionType: 3
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 1535642594667647189}
-    destination: {fileID: 5706018723315659140}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  globalMarkersToHide:
-  - {fileID: 316119752495117273}
-  globalObjectsToDestroy: []
-  propAnimDuration: 0.4
+  - paint
 --- !u!1 &4199325092526589879
 GameObject:
   m_ObjectHideFlags: 0
@@ -5446,6 +5348,7 @@ Transform:
   - {fileID: 8603824659861388503}
   - {fileID: 9207289154714750313}
   - {fileID: 5706018723315659140}
+  - {fileID: 7953186785241362639}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4903092916818546207
@@ -5617,6 +5520,92 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!1 &5234384313808195891
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7953186785241362639}
+  - component: {fileID: 2651740515897549264}
+  m_Layer: 0
+  m_Name: OpenHouseQuest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7953186785241362639
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5234384313808195891}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 243768541778223181}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2651740515897549264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5234384313808195891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b973f35a2ab4b5449a72d87c17bc52b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_OpenHouseQuest
+  mainMarker: {fileID: 316119752495117273}
+  helperWalk: []
+  sortingLayer: Default
+  buyer: {fileID: 8687282451257757585}
+  buyerWalk:
+  - {fileID: 21300000, guid: f242b5ffcdbd9ad47ace9bb91f3d4a68, type: 3}
+  - {fileID: 21300000, guid: 1014086250c7cb643a36078d71c2c67d, type: 3}
+  - {fileID: 21300000, guid: f9351f2f5753ede42b0e4f55f47bc9f2, type: 3}
+  - {fileID: 21300000, guid: 85d5428579c13a741bdeb15e992a7f49, type: 3}
+  - {fileID: 21300000, guid: 297a5353e5eff2d4c82a2158231b4ea3, type: 3}
+  - {fileID: 21300000, guid: fc436926b744ad54f8b0417f1f49a453, type: 3}
+  sign: {fileID: 3388993901824002146}
+  window: {fileID: 4712613101144045476}
+  bestRoom: {fileID: 5706018723315659140}
+  tourStops:
+  - {fileID: 5382068401761142792}
+  - {fileID: 8384449713167519785}
+  - {fileID: 5706018723315659140}
+  soldBanner: {fileID: 21300000, guid: 26b9285cd884ea44b865e0e22fd99212, type: 3}
+  keyRing: {fileID: 21300000, guid: 71194cee0ac9ad14bb7a6e1de8424cb3, type: 3}
+  bubbleQuestion: {fileID: 21300000, guid: 20f4dae0fe19aec46b090fc63feded1a, type: 3}
+  bubbleSmile: {fileID: 21300000, guid: be5a2480402ab544c95b8c60f39bb6c8, type: 3}
+  bubbleDeal: {fileID: 21300000, guid: 4f08b6b377b96b241836206288a9f665, type: 3}
+  bubbleDots: {fileID: 21300000, guid: 1d67da8dd11d4504badb2624557e7f4c, type: 3}
+  paintStripe: {fileID: 21300000, guid: 5e7f6bcc7f13b074f83ac367f1b4d7e9, type: 3}
+  paintRoller: {fileID: 21300000, guid: 68d0c74c9a820ca47b5061d9d23bb73d, type: 3}
+  heartFrames:
+  - {fileID: 21300000, guid: b11db6528dfa89d4598908fd18a5aacf, type: 3}
+  - {fileID: 21300000, guid: 3cb966b2be768e340ac7c20f80f741c7, type: 3}
+  coinFrames:
+  - {fileID: 21300000, guid: b0a8593c6d4ba644d88dd9efca67d56e, type: 3}
+  - {fileID: 21300000, guid: 0dc106c29d9a0a241bf53c9f650faeb1, type: 3}
+  - {fileID: 21300000, guid: 4c712d5bd6daf1d41a1cbfe1f771c15d, type: 3}
+  sparkFrames:
+  - {fileID: 21300000, guid: 00cf2db3b37a98548b8fc7f65404d651, type: 3}
+  checkFrames:
+  - {fileID: 21300000, guid: 9d9ec95cb6f28c54ca43bf569976cb12, type: 3}
+  persuadeTime: 1.5
+  charmTime: 3
+  mapTime: 4
+  commandTime: 4
+  paintTime: 8
 --- !u!1 &5319182558331758145
 GameObject:
   m_ObjectHideFlags: 0
@@ -7051,15 +7040,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.x
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.y
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.z
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7104,34 +7093,21 @@ PrefabInstance:
     - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -4628225620171276779, guid: a72c1c5cf135dcf46b1b9fa0ea88a3fd, type: 3}
+      objectReference: {fileID: 21300000, guid: f242b5ffcdbd9ad47ace9bb91f3d4a68, type: 3}
+    - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1535642594667647189}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
---- !u!1 &7640818471574446242 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+--- !u!212 &8687282451257757585 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
   m_PrefabInstance: {fileID: 7245053774870687738}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1535642594667647189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7640818471574446242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f8647317f76d9947b1a7b7e10e916d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_NPC_GoTo
-  moveSpeed: 2
-  arrivalThreshold: 0.3
 --- !u!4 &9207289154714750313 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}

@@ -3595,6 +3595,92 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &2679676475929412900
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1289605810686052111}
+  - component: {fileID: 6039742894159991314}
+  m_Layer: 0
+  m_Name: CareerFairQuest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1289605810686052111
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2679676475929412900}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 243768541778223181}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6039742894159991314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2679676475929412900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d57b8381642b7f04280c6e7676ec8faa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_CareerFairQuest
+  mainMarker: {fileID: 5878086109050796914}
+  helperWalk: []
+  sortingLayer: Default
+  student: {fileID: 6969271177684461837}
+  studentWalk:
+  - {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
+  - {fileID: 21300000, guid: d3ccb4c40a96dd742a713936be2dd143, type: 3}
+  - {fileID: 21300000, guid: 145d647df8ca4034384904bc57325590, type: 3}
+  - {fileID: 21300000, guid: 83feba27aeb62814987620c1cd86ce9b, type: 3}
+  - {fileID: 21300000, guid: 535ddd05877846d49a7a49fcb9a44ab8, type: 3}
+  - {fileID: 21300000, guid: 73e673bdebd315a45bf32904e71e6923, type: 3}
+  rightBooth: {fileID: 3186492826452970999}
+  booths:
+  - {fileID: 4661076149130248233}
+  - {fileID: 5041210517244199512}
+  - {fileID: 8019052382558990721}
+  bubbleQuestion: {fileID: 21300000, guid: 20f4dae0fe19aec46b090fc63feded1a, type: 3}
+  bubbleSmile: {fileID: 21300000, guid: be5a2480402ab544c95b8c60f39bb6c8, type: 3}
+  worryCloud: {fileID: 21300000, guid: 0431b02fcebe61a49ad4eb53d0c0b605, type: 3}
+  boardSprite: {fileID: 21300000, guid: 9960f9888f3650e4c9b3c24b6b693313, type: 3}
+  arrowSprite: {fileID: 21300000, guid: b2aacab0253cea64b81806392063696c, type: 3}
+  careerIcons:
+  - {fileID: 21300000, guid: a1ff9815e526a6c47a3b64c54de8d1ea, type: 3}
+  - {fileID: 21300000, guid: a5f85749ba191be4a9db169b7b7d4a77, type: 3}
+  - {fileID: 21300000, guid: f667eb2e2d1743841bbb7c839a1c9f47, type: 3}
+  heartFrames:
+  - {fileID: 21300000, guid: b11db6528dfa89d4598908fd18a5aacf, type: 3}
+  - {fileID: 21300000, guid: 3cb966b2be768e340ac7c20f80f741c7, type: 3}
+  bulbFrames:
+  - {fileID: 21300000, guid: 4530f5b93b2e20e4399b21d32e0f7cea, type: 3}
+  ringFrames:
+  - {fileID: 21300000, guid: fa75fb0c901e31042a8664fb993724f1, type: 3}
+  checkFrames:
+  - {fileID: 21300000, guid: 9d9ec95cb6f28c54ca43bf569976cb12, type: 3}
+  sparkFrames:
+  - {fileID: 21300000, guid: 00cf2db3b37a98548b8fc7f65404d651, type: 3}
+  teachTime: 3
+  healTime: 5
+  mapTime: 8
+  followSpeed: 3.2
+  followDistance: 1
+  arriveRange: 1.3
 --- !u!1 &3332151683372134456
 GameObject:
   m_ObjectHideFlags: 0
@@ -4370,6 +4456,7 @@ Transform:
   - {fileID: 538337199158415220}
   - {fileID: 7493535538043972597}
   - {fileID: 3186492826452970999}
+  - {fileID: 1289605810686052111}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4468672405681211710
@@ -5877,7 +5964,7 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questLogic
       value: 
-      objectReference: {fileID: 7769203218505386535}
+      objectReference: {fileID: 6039742894159991314}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questionCode
       value: S1
@@ -5901,15 +5988,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'questHints.Array.data[0]'
-      value: Walk them to the booth that fits. They'll follow you.
+      value: The student needs someone to lead the way.
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'questHints.Array.data[1]'
-      value: Or calm their worries and talk it through.
+      value: Or help them figure out where to go.
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: solvableWithTags.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[0]'
@@ -5922,6 +6009,10 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[2]'
       value: heal
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[3]'
+      value: map
       objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5966,115 +6057,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 117847549305033849, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7769203218505386535}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
---- !u!1 &1310400521671971202 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 117847549305033849, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
-  m_PrefabInstance: {fileID: 1409019667691111931}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7769203218505386535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1310400521671971202}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04213a4ea219f0f4c8fa7c7345082c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_GenericQuestEngine
-  hudCounter: Quest
-  hudTitle: Career Fair
-  hudObjectives:
-  - Guide the student
-  skillPaths:
-  - skillTag: guide
-    successMessage: The student follows you through the fair.
-    interactionType: 2
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 5262032606150478238}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 3186492826452970999}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 3186492826452970999}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0
-    npcArrivalRange: 1.5
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: teach
-    successMessage: You explained the health careers. They know where to go now!
-    interactionType: 0
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 1.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: heal
-    successMessage: You calmed their worries. They know where to go now!
-    interactionType: 0
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 1.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  globalMarkersToHide:
-  - {fileID: 5878086109050796914}
-  globalObjectsToDestroy: []
-  propAnimDuration: 0.4
 --- !u!4 &6491156227399233087 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
@@ -6237,15 +6221,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.x
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.y
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.z
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6290,39 +6274,26 @@ PrefabInstance:
     - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 6428056806411725142, guid: f29ccd4f613366341882c41fb52c66b1, type: 3}
+      objectReference: {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
+    - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7028674236883424996}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5262032606150478238}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+--- !u!212 &6969271177684461837 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+  m_PrefabInstance: {fileID: 8985565741066553702}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7493535538043972597 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
   m_PrefabInstance: {fileID: 8985565741066553702}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &8228390431462000190 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
-  m_PrefabInstance: {fileID: 8985565741066553702}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &5262032606150478238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8228390431462000190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 239eaf577f90ecf4e8336b30ccfb5f9e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_NPC_Follow
-  moveSpeed: 2
-  followDistance: 1.5

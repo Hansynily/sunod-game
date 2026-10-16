@@ -50,6 +50,8 @@
     <Analyzer Include="F:\Users\HANY\Desktop\Thesis\SUNOD\Project\sunod-game\Library\PackageCache\com.unity.pipeline@ab05e9cd7f74\Runtime\Analyzers\IlInterpreterAnalyzer.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Quests\vc_SparrowRescueQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_HotelCheckInQuest.cs" />
     <Compile Include="Assets\Scripts\Town\vc_RunProgressUI.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownAmbience.cs" />
     <Compile Include="Assets\Scripts\Core\SceneLoader.cs" />
@@ -79,6 +81,7 @@
     <Compile Include="Assets\Scripts\Skills\SkillController.cs" />
     <Compile Include="Assets\Scripts\Core\LocalRubricFallback.cs" />
     <Compile Include="Assets\Scripts\vc_ChartBankQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_BioLabQuest.cs" />
     <Compile Include="Assets\Scripts\vc_DebugSkipToEnd.cs" />
     <Compile Include="Assets\Scripts\vc_HopWander.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FairPosterQuest.cs" />
@@ -113,14 +116,17 @@
     <Compile Include="Assets\Scripts\vc_CharmSkill.cs" />
     <Compile Include="Assets\Scripts\vc_ConveySkill.cs" />
     <Compile Include="Assets\Scripts\vc_StrengthSkill.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_OpeningNightQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FishCountQuest.cs" />
     <Compile Include="Assets\Scripts\UI\InventoryPanelUIToolkit.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_RadioRepairQuest.cs" />
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickup.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUIToolkit.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SaveManager.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_CatCureQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_RoomSlot.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
     <Compile Include="Assets\Scripts\vc_SkillAwardPopup.cs" />
@@ -131,6 +137,7 @@
     <Compile Include="Assets\Scripts\Town\vc_TownHome.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorLoader.cs" />
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_OpenHouseQuest.cs" />
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
     <Compile Include="Assets\Scripts\Core\vc_PlayerOptions.cs" />
@@ -141,6 +148,7 @@
     <Compile Include="Assets\Scripts\vc_HintSystem.cs" />
     <Compile Include="Assets\Scripts\vc_RunCompleteZone.cs" />
     <Compile Include="Assets\Scripts\vc_BrokenPumpQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_PaydayQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\HUD\HudSystem.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSlot.cs" />
     <Compile Include="Assets\Scripts\vc_BlockedPathQuest.cs" />
@@ -156,6 +164,7 @@
     <Compile Include="Assets\Scripts\NPC\vc_NPC_Follow.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Telemetry.cs" />
     <Compile Include="Assets\Scripts\Cutscene\vc_CutsceneData.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_GlowMushroomQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.LegacyBridge.cs" />
     <Compile Include="Assets\Scripts\vc_PlayerInventory.cs" />
     <Compile Include="Assets\Scripts\NPCs\NPCController.cs" />
@@ -164,6 +173,7 @@
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
     <Compile Include="Assets\Scripts\UI\vc_EndRunUI.cs" />
     <Compile Include="Assets\Scripts\vc_MissingKeyQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_LostFriendFitQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_MedicalAttentionQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_TestHarness.cs" />
@@ -174,6 +184,7 @@
     <Compile Include="Assets\Scripts\UI\vc_InventoryUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickupPopup.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\Environment\EnvironmentSystem.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_DockLedgerQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_RiasecSymbols.cs" />
     <Compile Include="Assets\Scripts\Core\vc_HallwaySlot.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_SeedlingStudyQuest.cs" />
@@ -183,6 +194,7 @@
     <Compile Include="Assets\Scripts\Town\vc_TownStage.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialAreaTrigger.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_MuralWorkQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorInitializer.cs" />
     <Compile Include="Assets\Scripts\vc_GenericSkill.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUIToolkit.cs" />
@@ -192,6 +204,7 @@
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Bootstrap.cs" />
     <Compile Include="Assets\Scripts\vc_QuestHUD.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Pause.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_HarvestTallyQuest.cs" />
     <Compile Include="Assets\Scripts\vc_FallenSparrowQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
@@ -219,12 +232,15 @@
     <Compile Include="Assets\Scripts\vc_SkillSelectionMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RabbitWatchQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_StoryTimeQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_CareerFairQuest.cs" />
     <Compile Include="Assets\Scripts\vc_RiasecAdapter.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\CatAI\CatAiSystem.cs" />
     <Compile Include="Assets\Scripts\vc_QuestDonePopup.cs" />
     <Compile Include="Assets\Scripts\UI\vc_PauseMenu.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_LolaWalkQuest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

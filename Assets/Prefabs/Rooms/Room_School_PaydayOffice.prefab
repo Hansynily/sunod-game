@@ -5408,7 +5408,6 @@ GameObject:
   - component: {fileID: 5546030161497660060}
   - component: {fileID: 7992593235269875436}
   - component: {fileID: 1827108205386348534}
-  - component: {fileID: 2708084278541363163}
   m_Layer: 0
   m_Name: QuestTrigger
   m_TagString: Untagged
@@ -5489,7 +5488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99785dd0848a4afcb4c26847ad4c5d50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
-  questLogic: {fileID: 2708084278541363163}
+  questLogic: {fileID: 6103416943189276337}
   questId: c_c1_payday
   questName: Payday Envelopes
   primaryRiasec: C
@@ -5498,8 +5497,8 @@ MonoBehaviour:
   questDescription: It's payday and Mr. Go's desk is a mess of envelopes. Get every
     one ready before the staff arrives.
   questHints:
-  - Check each stack of envelopes.
-  - Or put them all in order at once.
+  - Check every stack carefully.
+  - Or sort the envelopes in an orderly way.
   nextQuestId: 
   lockType: 0
   requiredSkillTag: 
@@ -5509,111 +5508,7 @@ MonoBehaviour:
   - inspect
   - collect
   - direct
---- !u!114 &2708084278541363163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3831515952528008836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04213a4ea219f0f4c8fa7c7345082c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_GenericQuestEngine
-  hudCounter: Quest
-  hudTitle: Payday Envelopes
-  hudObjectives:
-  - Prepare the envelopes
-  skillPaths:
-  - skillTag: inspect
-    successMessage: Stack checked.
-    interactionType: 4
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 1349441389843554033}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0
-    npcArrivalRange: 0
-    counterGroup: stacks
-    counterTarget: 3
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: collect
-    successMessage: All envelopes collected and ready!
-    interactionType: 4
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 1349441389843554033}
-    propsToHide:
-    - {fileID: 5654296016195185973}
-    - {fileID: 133840989480421199}
-    - {fileID: 2535255219559167792}
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 1
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: direct
-    successMessage: You sorted every envelope by name!
-    interactionType: 4
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 1349441389843554033}
-    propsToHide:
-    - {fileID: 5654296016195185973}
-    - {fileID: 133840989480421199}
-    - {fileID: 2535255219559167792}
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 1
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  globalMarkersToHide:
-  - {fileID: 316119752495117273}
-  globalObjectsToDestroy: []
-  propAnimDuration: 0.4
+  - plan
 --- !u!1 &4199325092526589879
 GameObject:
   m_ObjectHideFlags: 0
@@ -5648,8 +5543,86 @@ Transform:
   - {fileID: 5382068401761142792}
   - {fileID: 2187915108843254765}
   - {fileID: 8603824659861388503}
+  - {fileID: 5616053057169118396}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4972315097647356201
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5616053057169118396}
+  - component: {fileID: 6103416943189276337}
+  m_Layer: 0
+  m_Name: PaydayQuest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5616053057169118396
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4972315097647356201}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 243768541778223181}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6103416943189276337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4972315097647356201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cceb6a983de902478030e6b65d82248, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_PaydayQuest
+  mainMarker: {fileID: 316119752495117273}
+  helperWalk: []
+  sortingLayer: Default
+  desk: {fileID: 4403421329875938832}
+  stacks:
+  - {fileID: 367981679581502985}
+  - {fileID: 3141598761820445148}
+  - {fileID: 1816301406886425016}
+  trayGroup: {fileID: 1349441389843554033}
+  trayPoint: {fileID: 5861654020749938136}
+  envelope: {fileID: 21300000, guid: caa90ef0ee1616840aadb15217068b26, type: 3}
+  stampUp: {fileID: 21300000, guid: 451c5f023cceb70448f99a556c78d3cd, type: 3}
+  stampDown: {fileID: 21300000, guid: 8ba143d131ff6dc48a7440adb1e198cc, type: 3}
+  stampOk: {fileID: 21300000, guid: 4e4c2d7cdb9a2ad4db64d1ead743b3aa, type: 3}
+  nameTag: {fileID: 21300000, guid: b2e8a6434df90a8429b7a2a87733de1c, type: 3}
+  scheduleSheet: {fileID: 21300000, guid: cd8621119c56f0943b81393e58c8d931, type: 3}
+  rowCheck: {fileID: 21300000, guid: 18443d3e7544eed4bb40b57a4900d5b1, type: 3}
+  coinFrames:
+  - {fileID: 21300000, guid: b0a8593c6d4ba644d88dd9efca67d56e, type: 3}
+  - {fileID: 21300000, guid: 0dc106c29d9a0a241bf53c9f650faeb1, type: 3}
+  - {fileID: 21300000, guid: 4c712d5bd6daf1d41a1cbfe1f771c15d, type: 3}
+  sparkFrames:
+  - {fileID: 21300000, guid: 00cf2db3b37a98548b8fc7f65404d651, type: 3}
+  checkFrames:
+  - {fileID: 21300000, guid: 9d9ec95cb6f28c54ca43bf569976cb12, type: 3}
+  dustFrames:
+  - {fileID: 21300000, guid: bcb883b91d5bf06408da92ac7a590511, type: 3}
+  - {fileID: 21300000, guid: dcceee5e38714a142bd3038598744bd1, type: 3}
+  - {fileID: 21300000, guid: 55c61a2805544ce468fe388b61801a44, type: 3}
+  inspectTime: 2
+  collectTime: 4
+  directTime: 5
+  planTime: 8
 --- !u!1 &4998903429346262980
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,5 +1,97 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &666012454010243376
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4940154968692343002}
+  - component: {fileID: 7257988240312849847}
+  m_Layer: 0
+  m_Name: HotelCheckInQuest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4940154968692343002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666012454010243376}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 243768541778223181}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7257988240312849847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666012454010243376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b4bf712379a4154a9a991d4cfcf1009, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_HotelCheckInQuest
+  mainMarker: {fileID: 316119752495117273}
+  helperWalk:
+  - {fileID: 21300000, guid: 380d21287af166846b0c01ec2903fa41, type: 3}
+  - {fileID: 21300000, guid: 867d005c40063554183b5ca49796fb5c, type: 3}
+  - {fileID: 21300000, guid: 8f7aab4671b6f53449ce10b98118d3a0, type: 3}
+  - {fileID: 21300000, guid: 3231e105478f33c43b647bc6a838ca35, type: 3}
+  - {fileID: 21300000, guid: 35e5ce1c095a1304384dfe43437c3394, type: 3}
+  - {fileID: 21300000, guid: 2ecc22a1e19591043928becdb168652e, type: 3}
+  sortingLayer: Default
+  guest: {fileID: 3453044124566901422}
+  guestWalk:
+  - {fileID: 21300000, guid: 13f6f60dc4659714e82aa3c508931b32, type: 3}
+  - {fileID: 21300000, guid: f7b9f75156303b14a995a329490eb26b, type: 3}
+  - {fileID: 21300000, guid: 7c7dd174e8f402442a99924ffda4e49e, type: 3}
+  - {fileID: 21300000, guid: be9f43f6481b79e41b93c6c11f6e6d08, type: 3}
+  - {fileID: 21300000, guid: 678dc7b015ec4b24ead08f39b90105a2, type: 3}
+  - {fileID: 21300000, guid: b9afa467b90cc7447a4393fdde8cb73a, type: 3}
+  desk: {fileID: 5382068401761142792}
+  room: {fileID: 4788435820245293403}
+  cartSprite: {fileID: 21300000, guid: 815e4a5e306ecc64c96abab3690e699f, type: 3}
+  cartScale: {x: 1.4, y: 1.4, z: 1}
+  bubbleDots: {fileID: 21300000, guid: 1d67da8dd11d4504badb2624557e7f4c, type: 3}
+  bubbleAngry: {fileID: 21300000, guid: fb5da8020b49f744082610770594ca7e, type: 3}
+  bubbleSmile: {fileID: 21300000, guid: be5a2480402ab544c95b8c60f39bb6c8, type: 3}
+  keycard: {fileID: 21300000, guid: 588822c88bfc8b44eb3e21c7c2ad51e4, type: 3}
+  suitcase: {fileID: 21300000, guid: dc4701523fd9334489c6ef84bb568fc4, type: 3}
+  routeDot: {fileID: 21300000, guid: cc583d3f5a128b74a989bda8190f1d64, type: 3}
+  papers:
+  - {fileID: 21300000, guid: 9e4c2f09241e5214e847c02d64325dbf, type: 3}
+  - {fileID: 21300000, guid: d742e04faa6a56a4f840517b093f34cc, type: 3}
+  - {fileID: 21300000, guid: e84345da22aea14409be20f5f2459cde, type: 3}
+  bellFrames:
+  - {fileID: 21300000, guid: 0c66d56546ba026418b29742afea6cdf, type: 3}
+  - {fileID: 21300000, guid: 06dee847e56927c48baa8488965e3d86, type: 3}
+  - {fileID: 21300000, guid: 0c66d56546ba026418b29742afea6cdf, type: 3}
+  ringFrames:
+  - {fileID: 21300000, guid: fa75fb0c901e31042a8664fb993724f1, type: 3}
+  checkFrames:
+  - {fileID: 21300000, guid: 9d9ec95cb6f28c54ca43bf569976cb12, type: 3}
+  sparkFrames:
+  - {fileID: 21300000, guid: 00cf2db3b37a98548b8fc7f65404d651, type: 3}
+  commandWalk: 1.5
+  persuadeTime: 3
+  charmTime: 3
+  callTime: 4
+  mapTime: 4
+  directTime: 8
+  guideTime: 8
 --- !u!1 &1765713898971654127
 GameObject:
   m_ObjectHideFlags: 0
@@ -5198,7 +5290,6 @@ GameObject:
   - component: {fileID: 5546030161497660060}
   - component: {fileID: 7992593235269875436}
   - component: {fileID: 1827108205386348534}
-  - component: {fileID: 2708084278541363163}
   m_Layer: 0
   m_Name: QuestTrigger
   m_TagString: Untagged
@@ -5279,7 +5370,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99785dd0848a4afcb4c26847ad4c5d50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
-  questLogic: {fileID: 2708084278541363163}
+  questLogic: {fileID: 7257988240312849847}
   questId: c_e3_hotel
   questName: Hotel Check-In
   primaryRiasec: E
@@ -5288,8 +5379,8 @@ MonoBehaviour:
   questDescription: Guests are arriving all at once and Mr. Lee's lobby is packed.
     Help run the front desk.
   questHints:
-  - Tell the staff what to do.
-  - Or plan the fastest way to the room.
+  - The lobby needs someone in charge.
+  - Or smooth things over with the guest.
   nextQuestId: 
   lockType: 1
   requiredSkillTag: 
@@ -5297,107 +5388,12 @@ MonoBehaviour:
   requiredComboTags: []
   solvableWithTags:
   - command
-  - map
   - persuade
---- !u!114 &2708084278541363163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3831515952528008836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04213a4ea219f0f4c8fa7c7345082c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_GenericQuestEngine
-  hudCounter: Quest
-  hudTitle: Hotel Check-In
-  hudObjectives:
-  - Check in the guest
-  skillPaths:
-  - skillTag: command
-    successMessage: Your staff takes the guest to their room!
-    interactionType: 3
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 4418566618501721251}
-    destination: {fileID: 4788435820245293403}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: map
-    successMessage: You planned the route. The guest is settled in!
-    interactionType: 3
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 4418566618501721251}
-    destination: {fileID: 4788435820245293403}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: persuade
-    successMessage: You talked the guest through a smooth check-in!
-    interactionType: 0
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 1
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  globalMarkersToHide:
-  - {fileID: 316119752495117273}
-  globalObjectsToDestroy: []
-  propAnimDuration: 0.4
+  - charm
+  - summon
+  - map
+  - direct
+  - guide
 --- !u!1 &4170862323207288914
 GameObject:
   m_ObjectHideFlags: 0
@@ -5524,6 +5520,7 @@ Transform:
   - {fileID: 8603824659861388503}
   - {fileID: 2927934312784269398}
   - {fileID: 4788435820245293403}
+  - {fileID: 4940154968692343002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4998903429346262980
@@ -7137,15 +7134,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.x
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.y
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.z
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7190,39 +7187,26 @@ PrefabInstance:
     - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 6428056806411725142, guid: f29ccd4f613366341882c41fb52c66b1, type: 3}
+      objectReference: {fileID: 21300000, guid: 13f6f60dc4659714e82aa3c508931b32, type: 3}
+    - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4418566618501721251}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
 --- !u!4 &2927934312784269398 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
   m_PrefabInstance: {fileID: 3742308836275286725}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &4426303824298999197 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+--- !u!212 &3453044124566901422 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
   m_PrefabInstance: {fileID: 3742308836275286725}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4418566618501721251
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4426303824298999197}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f8647317f76d9947b1a7b7e10e916d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_NPC_GoTo
-  moveSpeed: 2
-  arrivalThreshold: 0.3
 --- !u!1001 &8148481079194577819
 PrefabInstance:
   m_ObjectHideFlags: 0

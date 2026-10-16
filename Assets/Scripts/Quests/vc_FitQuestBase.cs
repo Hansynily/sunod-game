@@ -156,6 +156,12 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         if (on) SetBar(0f);
     }
 
+    /// <summary>Re-anchors a visible progress bar (for bars that follow a moving character).</summary>
+    protected void MoveBar(Vector3 worldPos)
+    {
+        if (_bar != null && _bar.gameObject.activeSelf) _bar.position = worldPos;
+    }
+
     protected void SetBar(float k)
     {
         if (_barFill == null) return;
