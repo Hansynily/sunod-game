@@ -8,7 +8,7 @@
         <!-- Top center: SUNOD title banner -->
         <ui:VisualElement name="left-panel" class="left-panel" picking-mode="Ignore">
             <ui:VisualElement class="brand-area intro-item intro-hidden">
-                <ui:VisualElement class="brand-banner sl-panel-wood">
+                <ui:VisualElement class="brand-banner">
                     <ui:Label text="SUNOD" class="brand-title"/>
                 </ui:VisualElement>
             </ui:VisualElement>

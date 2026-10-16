@@ -125,15 +125,20 @@
     align-items: center;
 }
 .brand-banner {
-    padding: 28px 88px;
+    padding: 12px 40px;
     align-items: center;
     justify-content: center;
 }
+/* game-logo title: big gold letters, thick ink outline, hard drop shadow - no box */
 .brand-title {
-    font-size: 84px;
-    color: rgb(90, 62, 38);
+    font-size: 112px;
+    -unity-font-style: bold;
+    color: rgb(255, 214, 102);
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgb(58, 40, 30);
+    text-shadow: 6px 6px 0 rgb(58, 40, 30);
     -unity-text-align: middle-center;
-    letter-spacing: 10px;
+    letter-spacing: 14px;
 }
 
 /* ============================
