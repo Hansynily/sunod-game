@@ -311,7 +311,6 @@ namespace SunodGame.UI
             _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
             RefreshNameChoice();
             RefreshAvatarChoice();
-            _settingsSurveyRow?.SetDisplay(vc_Survey.IsUnlocked);
             _settingsOverlay?.SetDisplay(true);
         }
 

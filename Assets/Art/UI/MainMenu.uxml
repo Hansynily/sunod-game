@@ -180,7 +180,6 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
 
-                <!-- Shown only after the player has finished a run (vc_Survey.IsUnlocked). -->
                 <ui:VisualElement name="settings-survey-row" class="settings-row">
                     <ui:Label text="Survey" class="settings-label"/>
                     <ui:VisualElement class="settings-survey-body">
