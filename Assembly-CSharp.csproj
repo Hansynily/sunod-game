@@ -53,6 +53,7 @@
     <Compile Include="Assets\Scripts\Town\vc_RunProgressUI.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownAmbience.cs" />
     <Compile Include="Assets\Scripts\Core\SceneLoader.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_SteppingStonesQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Debug.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownFlow.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillData.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.SceneBinding.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoSceneReferences.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SceneBootstrapper.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_ToyStoreQuest.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMessage.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillPickup.cs" />
     <Compile Include="Assets\Scripts\vc_SkillZone.cs" />
@@ -79,6 +81,7 @@
     <Compile Include="Assets\Scripts\vc_ChartBankQuest.cs" />
     <Compile Include="Assets\Scripts\vc_DebugSkipToEnd.cs" />
     <Compile Include="Assets\Scripts\vc_HopWander.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_FairPosterQuest.cs" />
     <Compile Include="Assets\Scripts\vc_InstructSkill.cs" />
     <Compile Include="Assets\Scripts\UI\vc_KeyboardAvoider.cs" />
     <Compile Include="Assets\Scripts\vc_CatMedicineQuest.cs" />
@@ -101,6 +104,7 @@
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
     <Compile Include="Assets\Scripts\vc_CheatUnlockAll.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_ParadeDrumQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUIToolkit.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_GenericQuestEngine.cs" />
     <Compile Include="Assets\Scripts\QuestData.cs" />
@@ -109,6 +113,7 @@
     <Compile Include="Assets\Scripts\vc_CharmSkill.cs" />
     <Compile Include="Assets\Scripts\vc_ConveySkill.cs" />
     <Compile Include="Assets\Scripts\vc_StrengthSkill.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_FishCountQuest.cs" />
     <Compile Include="Assets\Scripts\UI\InventoryPanelUIToolkit.cs" />
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
@@ -145,6 +150,7 @@
     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_DoAction.cs" />
     <Compile Include="Assets\Scripts\vc_LockpickSkill.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_SupplyKeyQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_MainMenuBackground.cs" />
     <Compile Include="Assets\Scripts\Core\vc_AppStartup.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_Follow.cs" />
@@ -170,6 +176,7 @@
     <Compile Include="Assets\Scripts\Demo\Systems\Environment\EnvironmentSystem.cs" />
     <Compile Include="Assets\Scripts\UI\vc_RiasecSymbols.cs" />
     <Compile Include="Assets\Scripts\Core\vc_HallwaySlot.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_SeedlingStudyQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\UI\vc_DialogPanel.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
@@ -198,16 +205,20 @@
     <Compile Include="Assets\Scripts\vc_HelpSkill.cs" />
     <Compile Include="Assets\Scripts\vc_CheckboxItem.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_SnackStallQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_TutorialEndScreen.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_CreakyFloorQuest.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
     <Compile Include="Assets\Scripts\vc_CollectSkill.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialFlowController.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_FitQuestBase.cs" />
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
     <Compile Include="Assets\Scripts\Player\vc_SpriteFrameAnimator.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSelectionMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_RabbitWatchQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
     <Compile Include="Assets\Scripts\vc_RiasecAdapter.cs" />

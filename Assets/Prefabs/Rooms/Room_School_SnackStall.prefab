@@ -3919,6 +3919,97 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
+--- !u!1 &2181484624577896224
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1215491536887512275}
+  - component: {fileID: 5494457013687694652}
+  m_Layer: 0
+  m_Name: Prop_FancySign
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1215491536887512275
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2181484624577896224}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.45, y: 0.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 243768541778223181}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &5494457013687694652
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2181484624577896224}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 12
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: 7910f48f40a08ae459a2f261cdc6a17b, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1.2727273, y: 1.5454545}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &2913220630324467244
 GameObject:
   m_ObjectHideFlags: 0
@@ -4893,6 +4984,8 @@ Transform:
   - {fileID: 538337199158415220}
   - {fileID: 8982941936787149413}
   - {fileID: 1102338733770770859}
+  - {fileID: 1215491536887512275}
+  - {fileID: 3025673056560456267}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4468672405681211710
@@ -5585,7 +5678,7 @@ Transform:
   m_GameObject: {fileID: 4991582475009571339}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2, y: -0.9, z: 0}
+  m_LocalPosition: {x: 2, y: -0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5994,6 +6087,138 @@ Transform:
   - {fileID: 707680896881517493}
   m_Father: {fileID: 538337199158415220}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7234496634374896352
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3025673056560456267}
+  - component: {fileID: 7652109485939035412}
+  m_Layer: 0
+  m_Name: SnackStallQuest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3025673056560456267
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234496634374896352}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 243768541778223181}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7652109485939035412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234496634374896352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d1bad83a3fd5e45b2714cf85c23d02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SnackStallQuest
+  mainMarker: {fileID: 5878086109050796914}
+  helperWalk: []
+  sortingLayer: Default
+  stallParts:
+  - {fileID: 7322641450779958378}
+  - {fileID: 7009764139592890985}
+  - {fileID: 3252109326578217825}
+  - {fileID: 4334598724478645589}
+  buySpot: {fileID: 1102338733770770859}
+  jars: {fileID: 7009764139592890985}
+  stallMoveOffset: {x: 0, y: -1.3, z: 0}
+  fancySign: {fileID: 5494457013687694652}
+  signStages:
+  - {fileID: 21300000, guid: 7910f48f40a08ae459a2f261cdc6a17b, type: 3}
+  - {fileID: 21300000, guid: 323d8931a85351e4791b277db470a4fd, type: 3}
+  - {fileID: 21300000, guid: 58deffea38bc3614591fa82af3bfdba3, type: 3}
+  lookShopper:
+  - {fileID: 21300000, guid: 0a3f5fcb7a7b33d4abca96555655da9a, type: 3}
+  - {fileID: 21300000, guid: 887995e6c542cc340a6563a464989a97, type: 3}
+  - {fileID: 21300000, guid: 348657b631a3caa42be63c1e09898b3a, type: 3}
+  - {fileID: 21300000, guid: b475f034eaf30844ea3bbfc73d6968e8, type: 3}
+  - {fileID: 21300000, guid: d138b627481123546aa2ed25a12290f2, type: 3}
+  - {fileID: 21300000, guid: 3a2319dd415537148ab5113579773d05, type: 3}
+  lookKid:
+  - {fileID: 21300000, guid: 5d4f798eee7e3564d9bfd42e627d53bf, type: 3}
+  - {fileID: 21300000, guid: d9300bc79b8d94949b259aeb436b957b, type: 3}
+  - {fileID: 21300000, guid: 447894c6bc533e248ae727e85568124c, type: 3}
+  - {fileID: 21300000, guid: cec7cc3d2bdda7040a3f8e61fdc831f4, type: 3}
+  - {fileID: 21300000, guid: 364a4fe9e2b0dc84aac6255c5938d478, type: 3}
+  - {fileID: 21300000, guid: f2b4d5220968af641be44c25ecd1fab3, type: 3}
+  lookCaller:
+  - {fileID: 21300000, guid: 13f6f60dc4659714e82aa3c508931b32, type: 3}
+  - {fileID: 21300000, guid: f7b9f75156303b14a995a329490eb26b, type: 3}
+  - {fileID: 21300000, guid: 7c7dd174e8f402442a99924ffda4e49e, type: 3}
+  - {fileID: 21300000, guid: be9f43f6481b79e41b93c6c11f6e6d08, type: 3}
+  - {fileID: 21300000, guid: 678dc7b015ec4b24ead08f39b90105a2, type: 3}
+  - {fileID: 21300000, guid: b9afa467b90cc7447a4393fdde8cb73a, type: 3}
+  lookPasserA:
+  - {fileID: 21300000, guid: e97e92d5a28762040ba8007d40a77408, type: 3}
+  - {fileID: 21300000, guid: c14cacfb981595249928293af373763c, type: 3}
+  - {fileID: 21300000, guid: 4326f7a6a8ee30342bee52d2e60c68fa, type: 3}
+  - {fileID: 21300000, guid: 106efd5ce0e85464abfee0ac6a0b2821, type: 3}
+  - {fileID: 21300000, guid: f2814f1002d0500409e8371a5723e3b0, type: 3}
+  - {fileID: 21300000, guid: 22e2bada653bca041aeea557a9cd1025, type: 3}
+  lookPasserB:
+  - {fileID: 21300000, guid: aeb5bccf5f44bdc47be8c57cc50c5fc2, type: 3}
+  - {fileID: 21300000, guid: ad0eee2df1a48e94b86f1d1dcac539ac, type: 3}
+  - {fileID: 21300000, guid: 93535adc41af08d4cb6e3e22ea552310, type: 3}
+  - {fileID: 21300000, guid: 963ad0d257d0ed24498eb7b7c5137f23, type: 3}
+  - {fileID: 21300000, guid: e4dfba54221c09341b35abb8341ab1e2, type: 3}
+  - {fileID: 21300000, guid: 806273e74dba37b4a8606e918663497a, type: 3}
+  laneY: -2.2
+  shopperRest: {x: -1.4, y: -1.5}
+  coinFrames:
+  - {fileID: 21300000, guid: b0a8593c6d4ba644d88dd9efca67d56e, type: 3}
+  - {fileID: 21300000, guid: 0dc106c29d9a0a241bf53c9f650faeb1, type: 3}
+  - {fileID: 21300000, guid: 4c712d5bd6daf1d41a1cbfe1f771c15d, type: 3}
+  - {fileID: 21300000, guid: df5d4e2e1e9646c42bb9d7d138372cda, type: 3}
+  steamFrames:
+  - {fileID: 21300000, guid: 3cb4a7112ec7a52459bb0bb0aed3a214, type: 3}
+  - {fileID: 21300000, guid: a579bce29e403d24c966f63decd384b3, type: 3}
+  - {fileID: 21300000, guid: 3a2d5249735901d46a3c158837400c28, type: 3}
+  dustFrames:
+  - {fileID: 21300000, guid: bcb883b91d5bf06408da92ac7a590511, type: 3}
+  - {fileID: 21300000, guid: dcceee5e38714a142bd3038598744bd1, type: 3}
+  - {fileID: 21300000, guid: 55c61a2805544ce468fe388b61801a44, type: 3}
+  sparkFrames:
+  - {fileID: 21300000, guid: 00cf2db3b37a98548b8fc7f65404d651, type: 3}
+  hammerFrames:
+  - {fileID: 21300000, guid: 76c9e7fbb6f302a428d8c60c4f908a13, type: 3}
+  - {fileID: 21300000, guid: 4468ee0f495cd5341967a04f3f9216b9, type: 3}
+  exclaimFrames:
+  - {fileID: 21300000, guid: 85385549cfb79b8499c48b91facae15b, type: 3}
+  bubbleSmile:
+  - {fileID: 21300000, guid: be5a2480402ab544c95b8c60f39bb6c8, type: 3}
+  bubblePitch:
+  - {fileID: 21300000, guid: 34710a8dbdeb4a24595ebf393778736e, type: 3}
+  bubbleShout:
+  - {fileID: 21300000, guid: b131a9a3dac83374c9b03c2949c87076, type: 3}
+  bubbleHeart:
+  - {fileID: 21300000, guid: 509abd74add321f4fb199c1d07e6241c, type: 3}
+  cookieIcon:
+  - {fileID: 21300000, guid: 113e90c34e6975749acc246e3da6c8ae, type: 3}
+  persuadeTime: 1.5
+  charmTime: 3
+  callTime: 4
+  mapTime: 5
+  craftTime: 8
 --- !u!1 &7675773343183485181
 GameObject:
   m_ObjectHideFlags: 0
@@ -6293,7 +6518,7 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questLogic
       value: 
-      objectReference: {fileID: 7769203218505386535}
+      objectReference: {fileID: 7652109485939035412}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questionCode
       value: E2
@@ -6316,27 +6541,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'questHints.Array.data[0]'
-      value: Smile and wave to get noticed.
+      value: Convince someone the cookies are worth it.
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'questHints.Array.data[1]'
-      value: Or tell them why your snacks are the best.
+      value: Get people to notice the stall.
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: solvableWithTags.Array.size
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[0]'
-      value: charm
+      value: persuade
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[1]'
-      value: persuade
+      value: charm
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[2]'
       value: summon
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[3]'
+      value: map
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[4]'
+      value: craft
       objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6381,115 +6614,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 117847549305033849, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7769203218505386535}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
---- !u!1 &1310400521671971202 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 117847549305033849, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
-  m_PrefabInstance: {fileID: 1409019667691111931}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7769203218505386535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1310400521671971202}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04213a4ea219f0f4c8fa7c7345082c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::vc_GenericQuestEngine
-  hudCounter: Quest
-  hudTitle: Snack Stall
-  hudObjectives:
-  - Sell a snack
-  skillPaths:
-  - skillTag: charm
-    successMessage: Your big smile works! A kid comes to buy.
-    interactionType: 3
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 113023563981139865}
-    destination: {fileID: 1102338733770770859}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: persuade
-    successMessage: Sold! You told them the cookies are yummy.
-    interactionType: 0
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 0}
-    destination: {fileID: 0}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 1
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  - skillTag: summon
-    successMessage: You called them over. Sold!
-    interactionType: 3
-    targetTransform: {fileID: 0}
-    proximityRange: 0
-    npcFollow: {fileID: 0}
-    npcGoTo: {fileID: 113023563981139865}
-    destination: {fileID: 1102338733770770859}
-    propToReveal: {fileID: 0}
-    propsToHide: []
-    objectsToDestroy: []
-    markersToHide: []
-    animTrigger: 
-    ticksObjective: 0
-    objectiveIndex: 0
-    arrowTarget: {fileID: 0}
-    hasPrerequisite: 0
-    requiresPathIndex: 0
-    completionDelay: 0.5
-    npcArrivalRange: 0
-    counterGroup: 
-    counterTarget: 0
-    npcAction: {fileID: 0}
-    actionDuration: 0
-    isStageStep: 0
-    startsActive: 0
-  globalMarkersToHide:
-  - {fileID: 5878086109050796914}
-  globalObjectsToDestroy: []
-  propAnimDuration: 0.4
 --- !u!4 &6491156227399233087 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
@@ -6645,6 +6771,10 @@ PrefabInstance:
     - target: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_Name
       value: NPC_Customer
+      objectReference: {fileID: 0}
+    - target: {fileID: 1045461764087811928, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1967306340515799699, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_LocalScale.x
