@@ -407,6 +407,48 @@ public class vc_SessionTelemetry : MonoBehaviour
         onResult?.Invoke(PredictedCluster);
     }
 
+    /// <summary>
+    /// Mid-run "leaning career" preview. Same /api/predict call as the end of the run, but
+    /// nothing is stored: the Predicted* fields and GameSessionData are left alone, the
+    /// session-cluster write is skipped, and a "_preview" session id keeps the server from
+    /// stamping a prediction source on the real session run. onDone gets null on failure.
+    /// </summary>
+    public IEnumerator PreviewPrediction(Action<PredictionResponsePayload> onDone)
+    {
+        EnsureSessionStarted();
+        RefreshPlayerIdentity();
+        SessionSummary summary = GetSessionSummary();
+        float[] features = vc_RiasecAdapter.BuildModelInput(GetAllRecords(), false).Features;
+        string baseUrl = ResolvePredictionBaseUrl();
+        if (string.IsNullOrWhiteSpace(baseUrl) || string.IsNullOrWhiteSpace(summary.playerId))
+        {
+            onDone?.Invoke(null);
+            yield break;
+        }
+
+        var payload = new PredictionRequestPayload
+        {
+            player_id = summary.playerId,
+            session_id = (summary.sessionId ?? "run") + "_preview",
+            features = features
+        };
+
+        using UnityWebRequest request = new UnityWebRequest(baseUrl + "/api/predict", UnityWebRequest.kHttpVerbPOST);
+        request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload)));
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.timeout = 10;
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogWarning($"[vc_SessionTelemetry] Preview prediction failed: {BuildRequestError(request)}");
+            onDone?.Invoke(null);
+            yield break;
+        }
+        onDone?.Invoke(JsonUtility.FromJson<PredictionResponsePayload>(request.downloadHandler.text));
+    }
+
     public IEnumerator SubmitRunSummary(Action<RunSummaryTelemetryOut> onSuccess = null, Action<string> onError = null)
     {
         EnsureSessionStarted();

@@ -1,4 +1,4 @@
-/* ============================
+﻿/* ============================
    Root - animated sky is drawn behind everything by vc_MainMenuBackground
    ============================ */
 .root-container {
@@ -218,12 +218,94 @@
     background-image: url("/Assets/Art/UI/Menu/avatar_boy.png");
     -unity-background-scale-mode: scale-to-fit;
 }
-/* follows Settings > Character (vc_PlayerOptions.UseGirlAvatar) */
+/* follows the character panel (vc_PlayerOptions.UseGirlAvatar) */
 .player-card-image--girl {
     background-image: url("/Assets/Art/UI/Menu/avatar_girl.png");
 }
-.username-label {
+/* the card is a button now: press feedback + a small "Edit" tag in its corner */
+.right-panel {
+    transition-property: scale;
+    transition-duration: 0.08s;
+}
+.right-panel:active {
+    scale: 0.96 0.96;
+}
+.player-card-edit {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
     font-size: 14px;
+    color: rgb(72, 52, 34);
+    padding: 3px 9px 5px 9px;
+    background-image: url("/Assets/Art/UI/Panels/chip.png");
+    -unity-slice-left: 5;
+    -unity-slice-top: 5;
+    -unity-slice-right: 5;
+    -unity-slice-bottom: 5;
+    -unity-slice-scale: 1px;
+}
+
+/* ============================
+   Character panel (opened from the player card)
+   ============================ */
+.settings-box.character-box {
+    align-items: center;
+}
+.character-stage {
+    width: 220px;
+    height: 220px;
+    padding: 20px;
+    margin-bottom: 12px;
+    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    -unity-slice-scale: 1px;
+}
+.character-preview {
+    flex-grow: 1;
+    background-image: url("/Assets/Art/UI/Menu/avatar_boy.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+.character-preview--girl {
+    background-image: url("/Assets/Art/UI/Menu/avatar_girl.png");
+}
+.character-name {
+    font-size: 28px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    margin-bottom: 18px;
+}
+.character-choice-row {
+    flex-direction: row;
+    align-self: stretch;
+    width: 100%;
+    margin-bottom: 22px;
+}
+.settings-choice-btn.character-choice-btn {
+    height: 84px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.character-choice-icon {
+    width: 52px;
+    height: 52px;
+    margin-right: 10px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+.character-choice-icon--boy { background-image: url("/Assets/Art/UI/Menu/avatar_boy.png"); }
+.character-choice-icon--girl { background-image: url("/Assets/Art/UI/Menu/avatar_girl.png"); }
+.character-choice-label {
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+}
+.settings-choice-btn--on .character-choice-label {
+    color: rgb(40, 80, 30);
+}
+.username-label {
+    font-size: 21px;
     color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
     margin-top: 10px;
@@ -269,6 +351,67 @@
     padding: 0 48px 36px 48px;
     align-items: stretch;
 }
+/* everything between the header and Back scrolls (current run + all past playthroughs) */
+.progress-scroll {
+    flex-shrink: 1;
+    flex-grow: 1;
+}
+.progress-scroll #unity-content-container {
+    padding-right: 10px;
+}
+.history-heading {
+    font-size: 21px;
+    color: rgb(245, 210, 130);
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+.history-list {
+    flex-direction: column;
+}
+/* one past playthrough */
+.history-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 18px 18px 18px;
+    margin-bottom: 12px;
+}
+.history-index {
+    width: 52px;
+    height: 52px;
+    margin-right: 16px;
+    flex-shrink: 0;
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    -unity-text-align: middle-center;
+    background-image: url("/Assets/Art/UI/Panels/chip.png");
+    -unity-slice-left: 5;
+    -unity-slice-top: 5;
+    -unity-slice-right: 5;
+    -unity-slice-bottom: 5;
+    -unity-slice-scale: 1px;
+}
+.history-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+.history-career {
+    font-size: 21px;
+    color: rgb(72, 52, 34);
+    white-space: normal;
+}
+.history-sub {
+    font-size: 14px;
+    color: rgb(110, 84, 58);
+    white-space: normal;
+    margin-top: 4px;
+}
+.history-code {
+    font-size: 28px;
+    color: rgb(168, 92, 30);
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
 .progress-page-actions {
     flex-direction: row;
     justify-content: center;
@@ -378,7 +521,7 @@
     margin-right: 10px;
 }
 .action-btn-label {
-    font-size: 14px;
+    font-size: 21px;
     color: rgb(72, 52, 34);
     -unity-text-align: middle-center;
 }

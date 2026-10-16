@@ -170,6 +170,28 @@ namespace SunodGame.Models
         public string bundle_key;
     }
 
+    /// <summary>One finished playthrough (GET /users/me/runs).</summary>
+    [Serializable]
+    public class PlayerRunHistoryItem
+    {
+        public string session_id;
+        public string finished_at;     // ISO-8601 UTC
+        public string career_result;
+        public string career_family;
+        public string holland_code;
+        public int quests_attempted;
+        public int quests_completed;
+        public int total_stars;
+        public float play_seconds;
+        public int riasec_r, riasec_i, riasec_a, riasec_s, riasec_e, riasec_c;   // 0-10 rubric
+    }
+
+    [Serializable]
+    public class PlayerRunHistoryResponse
+    {
+        public List<PlayerRunHistoryItem> runs = new List<PlayerRunHistoryItem>();
+    }
+
     [Serializable]
     public class PlayerProgressResponse
     {

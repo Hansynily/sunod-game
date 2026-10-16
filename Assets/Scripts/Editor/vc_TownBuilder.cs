@@ -898,7 +898,6 @@ public static class vc_TownBuilder
         t.Obj("shop_reddoor", 43f, 17.6f);
         t.Obj("sign_toys", 39.9f, 17.7f);
         // plaza
-        t.Obj("drum_stage", 21.9f, 17.8f);
         t.Obj("lamp_white", 19.5f, 12.2f); t.Obj("lamp_white", 28.5f, 12.2f);
         t.Obj("lamp_white", 19.5f, 19.6f); t.Obj("lamp_white", 28.5f, 19.6f);
         t.Obj("bench", 26.5f, 18.1f);

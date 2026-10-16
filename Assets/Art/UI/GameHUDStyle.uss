@@ -200,3 +200,23 @@
     background-color: rgba(0,0,0,0);
     border-width: 0;
 }
+
+/* ---------- skill cooldown (shade drains downward, seconds in the middle) ---------- */
+.slot-cooldown {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 0%;
+    background-color: rgba(20, 14, 10, 0.62);
+}
+.slot-cooldown-label {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    font-size: 28px;
+    color: rgb(255, 248, 230);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(20, 14, 10);
+}
+.skill-slot-btn--cooling .slot-icon {
+    opacity: 0.55;
+}

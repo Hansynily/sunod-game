@@ -317,6 +317,7 @@ public class vc_SkillManager : MonoBehaviour
 
     public void ResetUsageCounts()
     {
+        ClearCooldowns();   // a new quest never starts with skills still resting
         int slotCount = skillSlots != null ? skillSlots.Length : 0;
         if (usageCount == null || usageCount.Length != slotCount)
         {
@@ -325,6 +326,52 @@ public class vc_SkillManager : MonoBehaviour
         }
 
         Array.Clear(usageCount, 0, usageCount.Length);
+    }
+
+    // ── Cooldowns ─────────────────────────────────────────────────────────
+    // Stops button-mashing every skill to find the right one. The pressed skill rests for a
+    // while, and every other skill briefly too. During a quest the rest is longer: the star
+    // timer keeps running, so a guessed (wrong) press costs real time - that is the penalty.
+
+    [Header("Cooldowns (seconds)")]
+    [SerializeField] private float cooldownInQuest = 4f;
+    [SerializeField] private float cooldownOutsideQuest = 1.5f;
+    [Tooltip("All OTHER skills are locked this long after any press.")]
+    [SerializeField] private float sharedLockout = 1f;
+
+    private readonly float[] _cooldownUntil = new float[SlotCount];
+    private readonly float[] _cooldownLength = new float[SlotCount];
+
+    public bool IsOnCooldown(int slot) =>
+        slot >= 0 && slot < _cooldownUntil.Length && Time.time < _cooldownUntil[slot];
+
+    public float CooldownRemaining(int slot) =>
+        slot >= 0 && slot < _cooldownUntil.Length ? Mathf.Max(0f, _cooldownUntil[slot] - Time.time) : 0f;
+
+    /// <summary>1 right after the press, 0 when ready again.</summary>
+    public float CooldownFraction(int slot)
+    {
+        if (slot < 0 || slot >= _cooldownUntil.Length || _cooldownLength[slot] <= 0f) return 0f;
+        return Mathf.Clamp01(CooldownRemaining(slot) / _cooldownLength[slot]);
+    }
+
+    private void StartCooldown(int pressed)
+    {
+        vc_QuestTimer timer = vc_QuestTimer.Instance;
+        bool inQuest = timer != null && timer.IsRunning();
+        float main = inQuest ? cooldownInQuest : cooldownOutsideQuest;
+        for (int i = 0; i < _cooldownUntil.Length; i++)
+        {
+            float len = i == pressed ? main : sharedLockout;
+            float until = Time.time + len;
+            if (until > _cooldownUntil[i]) { _cooldownUntil[i] = until; _cooldownLength[i] = len; }
+        }
+    }
+
+    public void ClearCooldowns()
+    {
+        Array.Clear(_cooldownUntil, 0, _cooldownUntil.Length);
+        Array.Clear(_cooldownLength, 0, _cooldownLength.Length);
     }
 
     private void HandleSkillPressed(vc_SkillSlot skillSlot)
@@ -340,8 +387,11 @@ public class vc_SkillManager : MonoBehaviour
             return;
         }
 
+        if (IsOnCooldown(index)) return;
+
         vc_PlayerSkill assignedSkill = skillSlot.AssignedSkill;
         vc_SkillData assignedSkillData = skillSlot.AssignedSkillData;
+        StartCooldown(index);
         usageCount[index]++;
         Debug.Log($"{assignedSkillData.skillName} used - RIASEC: {assignedSkillData.riaSecLetter}");
         SkillUsed?.Invoke(index, assignedSkill);

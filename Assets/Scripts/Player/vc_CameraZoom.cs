@@ -32,7 +32,32 @@ public class vc_CameraZoom : MonoBehaviour
     private int _level;
 
     public int Level => _level;
-    public int LevelCount => levels == null ? 0 : (maxLevel >= 0 ? Mathf.Min(maxLevel + 1, levels.Length) : levels.Length);
+
+    /// <summary>
+    /// Usable zoom levels. With a Pixel Perfect Camera a level only counts if its whole pixel
+    /// ratio differs from the one before it; on short screens the far levels all fall to x1,
+    /// and "-" used to do nothing there (it looked like the button couldn't be pressed).
+    /// </summary>
+    public int LevelCount
+    {
+        get
+        {
+            if (levels == null || levels.Length == 0) return 0;
+            int count = maxLevel >= 0 ? Mathf.Min(maxLevel + 1, levels.Length) : levels.Length;
+            if (_ppc == null) return count;
+            int prev = int.MaxValue;
+            for (int i = 0; i < count; i++)
+            {
+                int r = RatioFor(i);
+                if (r >= prev) return i;
+                prev = r;
+            }
+            return count;
+        }
+    }
+
+    public bool CanZoomOut => _level < LevelCount - 1;
+    public bool CanZoomIn => _level > 0;
 
     /// <summary>Fired after the zoom level changes (keeps the pause slider and +/- in sync).</summary>
     public static event System.Action<int> LevelChanged;
@@ -67,23 +92,53 @@ public class vc_CameraZoom : MonoBehaviour
         row.style.position = UnityEngine.UIElements.Position.Absolute;
         row.style.top = 150; row.style.right = 24;
         row.style.flexDirection = UnityEngine.UIElements.FlexDirection.Row;
-        row.Add(MakeButton("-", +1));   // zoom out
-        row.Add(MakeButton("+", -1));   // zoom in
+        var minus = new UnityEngine.UIElements.Button { text = "-" };
+        var plus = new UnityEngine.UIElements.Button { text = "+" };
+        foreach (var b in new[] { minus, plus })
+        {
+            b.AddToClassList("sl-button");
+            b.style.width = 56; b.style.height = 52; b.style.marginLeft = 8;
+            b.style.fontSize = 28;
+            b.style.color = (Color)new Color32(72, 52, 34, 255);
+        }
+        BindButtons(minus, plus);
+        row.Add(minus);
+        row.Add(plus);
         root.Insert(1, row);            // under the pause overlay so the paused menu covers it
     }
 
-    private UnityEngine.UIElements.Button MakeButton(string text, int step)
+    /// <summary>
+    /// Wires a -/+ pair: fires on pointer DOWN (a click needs press and release inside the
+    /// button, and a thumb sliding off it on a phone silently lost the press) and greys out
+    /// whichever direction is at its limit. Used by the town HUD and the tutorial row.
+    /// </summary>
+    public static void BindButtons(UnityEngine.UIElements.VisualElement zoomOut, UnityEngine.UIElements.VisualElement zoomIn)
     {
-        var b = new UnityEngine.UIElements.Button(() =>
+        void Press(int step)
         {
+            var z = Instance;
+            if (z == null) return;
+            if (step > 0 ? !z.CanZoomOut : !z.CanZoomIn) return;
             SunodGame.Core.vc_Sfx.Play("click", 0.6f);
-            Step(step);
-        }) { text = text };
-        b.AddToClassList("sl-button");
-        b.style.width = 56; b.style.height = 52; b.style.marginLeft = 8;
-        b.style.fontSize = 28;
-        b.style.color = (Color)new Color32(72, 52, 34, 255);
-        return b;
+            z.Step(step);
+        }
+
+        void Sync(int _ = 0)
+        {
+            var z = Instance;
+            zoomOut.SetEnabled(z != null && z.CanZoomOut);
+            zoomIn.SetEnabled(z != null && z.CanZoomIn);
+        }
+
+        if (zoomOut is UnityEngine.UIElements.Button bo) bo.clickable = null;
+        if (zoomIn is UnityEngine.UIElements.Button bi) bi.clickable = null;
+        zoomOut.RegisterCallback<UnityEngine.UIElements.PointerDownEvent>(_ => Press(+1), UnityEngine.UIElements.TrickleDown.TrickleDown);
+        zoomIn.RegisterCallback<UnityEngine.UIElements.PointerDownEvent>(_ => Press(-1), UnityEngine.UIElements.TrickleDown.TrickleDown);
+
+        LevelChanged += Sync;
+        zoomOut.RegisterCallback<UnityEngine.UIElements.DetachFromPanelEvent>(_ => LevelChanged -= Sync);
+        zoomOut.RegisterCallback<UnityEngine.UIElements.GeometryChangedEvent>(_ => Sync());
+        Sync();
     }
 
     private void OnDestroy()

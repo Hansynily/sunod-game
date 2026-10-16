@@ -232,6 +232,24 @@ namespace SunodGame.Telemetry
             ));
         }
 
+        /// <summary>Every finished playthrough of the signed-in player, newest first.</summary>
+        public void GetMyRunHistory(Action<PlayerRunHistoryResponse> onSuccess,
+                                    Action<string> onError = null)
+        {
+            if (SessionState.Instance == null || string.IsNullOrWhiteSpace(SessionState.Instance.AccessToken))
+            {
+                onError?.Invoke("Not signed in.");
+                return;
+            }
+
+            StartCoroutine(GetAuthorizedJson(
+                "/api/telemetry/users/me/runs",
+                SessionState.Instance.AccessToken,
+                onSuccess,
+                onError ?? ((e) => Debug.LogWarning($"[Telemetry] Run history fetch error: {e}"))
+            ));
+        }
+
         private IEnumerator GetAuthorizedJson<TRes>(string path, string accessToken,
                                                       Action<TRes>   onSuccess,
                                                       Action<string> onError)

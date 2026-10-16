@@ -110,17 +110,7 @@ public class vc_RunProgressUI : MonoBehaviour
         _track = new VisualElement { pickingMode = PickingMode.Ignore };
         _track.AddToClassList("rp-track");
         _banner.Add(_track);
-
-        var names = new VisualElement { pickingMode = PickingMode.Ignore };
-        names.AddToClassList("rp-stage-names");
-        _banner.Add(names);
-        for (int i = 0; i < StageNames.Length; i++)
-        {
-            var n = new Label(StageNames[i]) { pickingMode = PickingMode.Ignore };
-            n.AddToClassList("rp-stage-name");
-            names.Add(n);
-            _stageNames.Add(n);
-        }
+        // stage names sit on their own rail segment (built in RebuildTrack)
     }
 
     private void RebuildTrack(vc_TownFlow flow)
@@ -130,6 +120,7 @@ public class vc_RunProgressUI : MonoBehaviour
         _milestoneLabels.Clear();
         _fills.Clear();
         _pips.Clear();
+        _stageNames.Clear();
 
         for (int s = 0; s < StageNames.Length; s++)
         {
@@ -137,6 +128,10 @@ public class vc_RunProgressUI : MonoBehaviour
 
             var seg = new VisualElement { pickingMode = PickingMode.Ignore };
             seg.AddToClassList("rp-segment");
+            var stageName = new Label(StageNames[s]) { pickingMode = PickingMode.Ignore };
+            stageName.AddToClassList("rp-stage-name");
+            seg.Add(stageName);
+            _stageNames.Add(stageName);
             var rail = new VisualElement { pickingMode = PickingMode.Ignore };
             rail.AddToClassList("rp-rail");
             var fill = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -468,8 +463,11 @@ public class vc_RunProgressUI : MonoBehaviour
 
         var zoomRow = new VisualElement { pickingMode = PickingMode.Ignore };
         zoomRow.AddToClassList("rp-zoom-row");
-        zoomRow.Add(MakeSideButton("-", "rp-zoom-btn", () => vc_CameraZoom.Instance?.Step(+1)));   // zoom out
-        zoomRow.Add(MakeSideButton("+", "rp-zoom-btn", () => vc_CameraZoom.Instance?.Step(-1)));   // zoom in
+        Button zoomOut = MakeSideButton("-", "rp-zoom-btn", null);
+        Button zoomIn = MakeSideButton("+", "rp-zoom-btn", null);
+        zoomRow.Add(zoomOut);
+        zoomRow.Add(zoomIn);
+        vc_CameraZoom.BindButtons(zoomOut, zoomIn);
         _side.Add(zoomRow);
     }
 
@@ -538,7 +536,7 @@ public class vc_RunProgressUI : MonoBehaviour
     // ── progress ring (top-right corner; tap to open the full banner) ─────
 
     private ProgressRing _ring;
-    private Label _ringStage, _ringDay;
+    private Label _ringStage, _ringDay, _ringName;
     private Button _partialBtn;
 
     private void BuildRing(VisualElement parent)
@@ -551,6 +549,11 @@ public class vc_RunProgressUI : MonoBehaviour
         _ringDay.AddToClassList("rp-ring-day");
         _ring.Add(_ringStage);
         _ring.Add(_ringDay);
+        // life-stage name under the ring, so "1 / 2 / 3" is never the only hint
+        _ringName = new Label("") { pickingMode = PickingMode.Ignore };
+        _ringName.AddToClassList("rp-ring-name");
+        _ringName.AddToClassList("sl-chip");
+        _ring.Add(_ringName);
         _ring.RegisterCallback<PointerUpEvent>(_ => ToggleBanner());
         parent.Add(_ring);
 
@@ -562,8 +565,8 @@ public class vc_RunProgressUI : MonoBehaviour
             ToggleBanner();
         });
 
-        // Partial results: inside the banner, shown once half the run's quests are answered.
-        _partialBtn = MakeSideButton("See my results so far", "rp-partial-btn", RequestPartialResults);
+        // Leaning-career peek: inside the banner, shown once half the run's quests are answered.
+        _partialBtn = MakeSideButton("My leaning career", "rp-partial-btn", RequestPartialResults);
         _partialBtn.AddToClassList("rp-hidden");
         _banner.Add(_partialBtn);
     }
@@ -594,6 +597,11 @@ public class vc_RunProgressUI : MonoBehaviour
         _ring.StageIndex = Mathf.Max(0, current);
         _ringStage.text = current >= 0 ? StageShort[Mathf.Min(current, StageShort.Length - 1)] : "-";
         _ringDay.text = stage != null ? $"Day {stage.Day}" : "";
+        if (_ringName != null)
+        {
+            _ringName.text = current >= 0 ? StageNames[Mathf.Min(current, StageNames.Length - 1)] : "";
+            _ringName.EnableInClassList("rp-hidden", current < 0);
+        }
 
         // Partial results once half of all built quests (all stages) have been answered.
         int total = 0, answered = 0;
@@ -613,27 +621,58 @@ public class vc_RunProgressUI : MonoBehaviour
 
     private int _partialAnswered, _partialTotal;
 
+    private bool _previewBusy;
+
+    /// <summary>
+    /// "My leaning career": a peek at where the answers point so far. It never ends the run;
+    /// the real result still comes at the end of College.
+    /// </summary>
     private void RequestPartialResults()
     {
-        if (vc_DialogPanel.Instance == null) return;
+        if (vc_DialogPanel.Instance == null || _previewBusy) return;
         _bannerOpen = false;
         _banner.AddToClassList("rp-hidden");
-        vc_DialogPanel.Instance.ShowChoice(
-            "See results now?",
-            $"This ends your run. Your results will be based on {_partialAnswered} of {_partialTotal} quests, so they are less certain than a full run.",
-            null,
-            "See results",
-            "Keep playing",
-            onConfirm: () =>
-            {
-                SunodGame.Core.GameSessionData.partialRunNote =
-                    $"Partial result: based on {_partialAnswered} of {_partialTotal} quests. Finish a full run for a surer result.";
-                vc_QuestHUD.Instance?.HideQuestInfo();
-                vc_EndRunUI ui = vc_EndRunUI.Instance ?? FindFirstObjectByType<vc_EndRunUI>();
-                if (ui != null) ui.SubmitNow();
-                else SunodGame.Core.SceneLoader.GoToEnd();
-            },
-            onCancel: null);
+        SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+
+        string leaning = LeaningText();
+        string basis = $"Based on {_partialAnswered} of {_partialTotal} people so far. This is only a peek - keep playing, your answers can still change it.";
+
+        vc_SessionTelemetry t = vc_SessionTelemetry.Instance;
+        if (t == null)
+        {
+            ShowLeaning(null, leaning, basis);
+            return;
+        }
+
+        _previewBusy = true;
+        ShowToast("Checking your path...", 0f);
+        StartCoroutine(t.PreviewPrediction(result =>
+        {
+            _previewBusy = false;
+            HideToast();
+            ShowLeaning(result, leaning, basis);
+        }));
+    }
+
+    private static void ShowLeaning(SunodGame.Models.PredictionResponsePayload result, string leaning, string basis)
+    {
+        string career = result != null ? result.career_result : null;
+        string family = result != null ? result.career_family : null;
+        var body = new System.Text.StringBuilder();
+        if (!string.IsNullOrWhiteSpace(career) && !career.StartsWith("Cluster"))
+        {
+            body.Append($"You are leaning toward: {career}");
+            if (!string.IsNullOrWhiteSpace(family)) body.Append($" ({family})");
+            body.Append(".\n\n");
+        }
+        else if (!string.IsNullOrWhiteSpace(family))
+        {
+            body.Append($"You are leaning toward the {family} path.\n\n");
+        }
+        if (!string.IsNullOrEmpty(leaning)) body.Append($"Your strongest interests: {leaning}.\n\n");
+        if (body.Length == 0) body.Append("Nothing stands out yet - help a few more people first.\n\n");
+        body.Append(basis);
+        vc_DialogPanel.Instance?.ShowMessage("Your path so far", body.ToString(), null);
     }
 
     // ── toast (replaces the old feedback text) ────────────────────────────
