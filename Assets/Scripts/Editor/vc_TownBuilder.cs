@@ -923,7 +923,7 @@ public static class vc_TownBuilder
             "The stones in my garden path got all crooked. Can you help me set them back?", "Now I can walk to my garden again!");
         t.N("R8", "Lolo Ador", "bob_3", 6f, 8.7f, R + "House_CreakyFloorboards",
             "My floor creaks every time I take a step. Can you fix the loose boards?", "So quiet now. Salamat, apo!");
-        t.N("S4", "Tita Lorna", "amelia_2", 16f, 8.7f, null,
+        t.N("S4", "Tita Lorna", "amelia_2", 16f, 8.7f, R + "Forest_MorningExercise",
             "Can you show me some morning stretches? I always forget how!", "I feel so awake now!");
         t.N("I2", "Kuya Migs", "adam_1", 30f, 6.6f, R + "Forest_WatchTheRabbits",
             "There are rabbits in the meadow! Want to watch what they do?", "You noticed so much about them!");
@@ -941,13 +941,13 @@ public static class vc_TownBuilder
             "We need a poster for the school fair. Will you make one?", "That poster is beautiful!");
         t.N("C2", "Principal Reyes", "bob_0", 26f, 28.2f, R + "House_MissingKeyQuest",
             "I can't find the key to the supply room. Can you help me look?", "Everything's back in order. Thank you!");
-        t.N("A4", "Bea", "alex_3", 14.3f, 30.2f, null,
+        t.N("A4", "Bea", "alex_3", 14.3f, 30.2f, R + "School_ClassSong",
             "Our class needs a song for the program. Will you help me write it?", "Everyone's humming our song!");
         t.N("S6", "Ate Mia", "amelia_0", 32f, 29.4f, R + "School_LostFriendQuest",
             "Can you help me look after the younger kids at the playground?", "They had so much fun with you!");
         t.N("S7", "Toto", "adam_3", 9.6f, 27.8f, R + "School_StoryTime",
             "Can you help me read this storybook? Some words are hard.", "I read the whole book!");
-        t.N("C6", "Manang Fe", "amelia_2", 37.6f, 27.3f, null,
+        t.N("C6", "Manang Fe", "amelia_2", 37.6f, 27.3f, R + "School_CanteenChange",
             "The canteen is so busy! Can you help me count the change?", "Not a single peso missing!");
         return t;
     }
@@ -1028,13 +1028,13 @@ public static class vc_TownBuilder
             "Help me map the bottom of the river for our field trip?", "This map is perfect for the class!");
         t.N("C8", "Mang Tonyo", "bob_3", 20.4f, 7.6f, R + "River_DocksideLedger",
             "Boats keep coming in. Can you keep track of what we ship and receive?", "Every box accounted for!");
-        t.N("R1", "Coach Ramon", "adam_3", 10.2f, 28.8f, null,
+        t.N("R1", "Coach Ramon", "adam_3", 10.2f, 28.8f, R + "School_RoboticsParts",
             "Our robotics team needs every part checked before the contest. Can you test them?", "Not a single bad part!");
-        t.N("I1", "Ms. Garcia", "amelia_3", 13.8f, 28.8f, null,
+        t.N("I1", "Ms. Garcia", "amelia_3", 13.8f, 28.8f, R + "School_SkeletonModel",
             "Can you help me put the skeleton model together for biology class?", "You know your bones!");
         t.N("C4", "Mrs. Ong", "amelia_0", 17.4f, 28.8f, null,
             "The student records are all mixed up. Can you sort them?", "Everything's filed. Thank you!");
-        t.N("R7", "Joy", "alex_0", 15.5f, 9.3f, null,
+        t.N("R7", "Joy", "alex_0", 15.5f, 9.3f, R + "School_FundraiserKits",
             "We're putting together kits for the fundraiser. Can you help assemble them?", "We'll raise so much with these!");
         t.N("E1", "Marco", "adam_2", 20.5f, 8.9f, null,
             "I want to pitch my food stall idea to the fair committee. Help me sell it?", "They said yes!");

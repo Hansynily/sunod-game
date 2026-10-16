@@ -206512,7 +206512,7 @@ MonoBehaviour:
   npcId: highschool_I1
   npcName: Ms. Garcia
   questCode: I1
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: d922ae82056e695409ad60da62a09d7c, type: 3}
   askLine: Can you help me put the skeleton model together for biology class?
   thanksLine: You know your bones!
   idleFrames:
@@ -273026,7 +273026,7 @@ MonoBehaviour:
   npcId: highschool_R1
   npcName: Coach Ramon
   questCode: R1
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 29fc9c20d4502e94198b629a383faeed, type: 3}
   askLine: Our robotics team needs every part checked before the contest. Can you
     test them?
   thanksLine: Not a single bad part!
@@ -374521,7 +374521,7 @@ MonoBehaviour:
   npcId: highschool_R7
   npcName: Joy
   questCode: R7
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 00d5745745a7fd3489339f6f8c0b8e66, type: 3}
   askLine: We're putting together kits for the fundraiser. Can you help assemble
     them?
   thanksLine: We'll raise so much with these!

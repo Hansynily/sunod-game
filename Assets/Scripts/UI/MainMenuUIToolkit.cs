@@ -62,6 +62,8 @@ namespace SunodGame.UI
         private Button _btnAvatarBoy;
         private Button _btnAvatarGirl;
         private Button _btnSettingsClose;
+        private VisualElement _settingsSurveyRow;
+        private Button _btnSettingsSurveyLink;
 
         private const int TotalQuestSlots = 48;
 
@@ -115,6 +117,9 @@ namespace SunodGame.UI
             _btnAvatarGirl    = root.Q<Button>("btn-avatar-girl");
             RefreshAvatarChoice();
             _btnSettingsClose = root.Q<Button>("btn-settings-close");
+            _settingsSurveyRow     = root.Q<VisualElement>("settings-survey-row");
+            _btnSettingsSurveyLink = root.Q<Button>("btn-settings-survey-link");
+            if (_btnSettingsSurveyLink != null) _btnSettingsSurveyLink.text = vc_Survey.DisplayUrl;
 
             _btnPlay?    .RegisterCallback<ClickEvent>(OnPlayClicked);
             _btnTutorial?.RegisterCallback<ClickEvent>(OnTutorialClicked);
@@ -130,6 +135,7 @@ namespace SunodGame.UI
             _btnAvatarBoy?.RegisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.RegisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.RegisterCallback<ClickEvent>(OnSettingsCloseClicked);
+            _btnSettingsSurveyLink?.RegisterCallback<ClickEvent>(OnSettingsSurveyLinkClicked);
             _btnPrivacyAgree?.RegisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
             _btnPrivacyDecline?.RegisterCallback<ClickEvent>(OnPrivacyDeclineClicked);
             _privacyCheckRead?.RegisterValueChangedCallback(OnPrivacyCheckChanged);
@@ -215,6 +221,7 @@ namespace SunodGame.UI
             _btnAvatarBoy?.UnregisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.UnregisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.UnregisterCallback<ClickEvent>(OnSettingsCloseClicked);
+            _btnSettingsSurveyLink?.UnregisterCallback<ClickEvent>(OnSettingsSurveyLinkClicked);
             _btnPrivacyAgree?.UnregisterCallback<ClickEvent>(OnPrivacyAgreeClicked);
             _btnPrivacyDecline?.UnregisterCallback<ClickEvent>(OnPrivacyDeclineClicked);
             _privacyCheckRead?.UnregisterValueChangedCallback(OnPrivacyCheckChanged);
@@ -304,7 +311,14 @@ namespace SunodGame.UI
             _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
             RefreshNameChoice();
             RefreshAvatarChoice();
+            _settingsSurveyRow?.SetDisplay(vc_Survey.IsUnlocked);
             _settingsOverlay?.SetDisplay(true);
+        }
+
+        private void OnSettingsSurveyLinkClicked(ClickEvent _)
+        {
+            TelemetryManager.Instance?.TagButtonClick("SurveyLink");
+            vc_Survey.Open();
         }
 
         private void OnSettingsCloseClicked(ClickEvent _) => _settingsOverlay?.SetDisplay(false);

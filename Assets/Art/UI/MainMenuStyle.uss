@@ -525,6 +525,45 @@
     color: rgb(40, 80, 30);
 }
 
+/* Survey row: white QR square in a dark pixel frame + link button */
+.settings-survey-body {
+    flex-direction: row;
+    align-items: center;
+}
+.settings-survey-qr-frame {
+    width: 148px;
+    height: 148px;
+    flex-shrink: 0;
+    padding: 6px;
+    margin-right: 16px;
+    background-color: rgb(255, 255, 255);
+    border-width: 4px;
+    border-color: rgb(72, 52, 34);
+    border-radius: 0;
+}
+.settings-survey-qr {
+    flex-grow: 1;
+    background-image: url("/Assets/Art/UI/Menu/survey_qr.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+.settings-survey-text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    justify-content: center;
+}
+.settings-survey-note {
+    font-size: 14px;
+    color: rgb(72, 52, 34);
+    white-space: normal;
+    margin-bottom: 8px;
+}
+.settings-survey-link {
+    flex-grow: 0;
+    font-size: 14px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
 /* Settings close button: bigger label, real button size */
 #btn-settings-close {
     min-width: 220px;

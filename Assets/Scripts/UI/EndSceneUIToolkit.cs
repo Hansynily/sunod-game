@@ -22,6 +22,7 @@ namespace SunodGame.UI
 
         private Button _btnPlayAgain;
         private Button _btnMainMenu;
+        private Button _btnSurveyLink;
 
         private void Start()
         {
@@ -67,17 +68,38 @@ namespace SunodGame.UI
                 partial.style.display = string.IsNullOrWhiteSpace(partial.text) ? DisplayStyle.None : DisplayStyle.Flex;
             }
 
-            _btnPlayAgain = root.Q<Button>("btn-play-again");
-            _btnMainMenu  = root.Q<Button>("btn-main-menu");
+            // Survey: only once the game is really done (full run), never on partial results.
+            bool fullRun = string.IsNullOrWhiteSpace(GameSessionData.partialRunNote);
+            VisualElement surveyCard = root.Q<VisualElement>("survey-card");
+            if (surveyCard != null)
+                surveyCard.style.display = fullRun ? DisplayStyle.Flex : DisplayStyle.None;
+            if (fullRun)
+                vc_Survey.Unlock();
 
-            _btnPlayAgain?.RegisterCallback<ClickEvent>(OnPlayAgainClicked);
-            _btnMainMenu? .RegisterCallback<ClickEvent>(OnMainMenuClicked);
+            Label surveyLink = root.Q<Label>("lbl-survey-link");
+            if (surveyLink != null)
+                surveyLink.text = vc_Survey.DisplayUrl;
+
+            _btnPlayAgain  = root.Q<Button>("btn-play-again");
+            _btnMainMenu   = root.Q<Button>("btn-main-menu");
+            _btnSurveyLink = root.Q<Button>("btn-survey-link");
+
+            _btnPlayAgain? .RegisterCallback<ClickEvent>(OnPlayAgainClicked);
+            _btnMainMenu?  .RegisterCallback<ClickEvent>(OnMainMenuClicked);
+            _btnSurveyLink?.RegisterCallback<ClickEvent>(OnSurveyLinkClicked);
         }
 
         private void OnDisable()
         {
-            _btnPlayAgain?.UnregisterCallback<ClickEvent>(OnPlayAgainClicked);
-            _btnMainMenu? .UnregisterCallback<ClickEvent>(OnMainMenuClicked);
+            _btnPlayAgain? .UnregisterCallback<ClickEvent>(OnPlayAgainClicked);
+            _btnMainMenu?  .UnregisterCallback<ClickEvent>(OnMainMenuClicked);
+            _btnSurveyLink?.UnregisterCallback<ClickEvent>(OnSurveyLinkClicked);
+        }
+
+        private void OnSurveyLinkClicked(ClickEvent _)
+        {
+            TelemetryManager.Instance?.TagButtonClick("SurveyLink");
+            vc_Survey.Open();
         }
 
         private void OnPlayAgainClicked(ClickEvent _)
