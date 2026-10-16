@@ -133,15 +133,21 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Privacy notice: shown once per account, the first time that player reaches the menu. -->
+        <!-- Privacy notice: shown once per account (per notice version) when that player reaches the menu.
+             Both boxes must be ticked to play. Decline signs the player out (no game without consent). -->
         <ui:VisualElement name="privacy-overlay" class="overlay-root">
             <ui:VisualElement class="confirm-box settings-box privacy-box sl-panel-wood">
                 <ui:Label text="Your privacy" class="settings-title"/>
                 <ui:ScrollView class="privacy-scroll">
-                    <ui:Label class="privacy-text" text="SUNOD is part of a thesis study on career exploration. Here is what we collect and why.&#10;&#10;What we collect: the name, username, email, birthdate and gender you gave when you signed up, and how you play: which quests you take, turn down or finish, how long they take, the stars you earn and the skills you use.&#10;&#10;Why: to suggest career paths that match your interests (RIASEC), and to study how well the game measures them. Results are only used for this research.&#10;&#10;Who can see it: only the SUNOD research team. We never sell it or share it with anyone else. Reports in the study never show your name.&#10;&#10;Your choice: you can stop playing at any time. To have your account and data deleted, ask the SUNOD team.&#10;&#10;Tap I agree to continue."/>
+                    <ui:Label class="privacy-text" text="SUNOD is part of a thesis study on career exploration. Here is what we collect and why.&#10;&#10;What we collect: the name, username, email, birthdate and gender you gave when you signed up, and how you play: which quests you take, turn down or finish, how long they take, the stars you earn and the skills you use. We also record how long you play (each time you open the game and in total), which parts of the game you spend time in, and the kind of device and game version you use.&#10;&#10;Why: to suggest career paths that match your interests (RIASEC), and to study how well the game measures them. Results are only used for this research.&#10;&#10;Who can see it: only the SUNOD research team. We never sell it or share it with anyone else. Reports in the study never show your name.&#10;&#10;Your choice: you can stop playing at any time. To have your account and data deleted, ask the SUNOD team. If you do not agree, tap Decline. You will be signed out and the game will not start."/>
                 </ui:ScrollView>
+                <ui:Toggle name="privacy-check-read" class="privacy-check" text="I have read what SUNOD collects and why."/>
+                <ui:Toggle name="privacy-check-agree" class="privacy-check" text="I agree to let the SUNOD team use my play data for this study."/>
                 <ui:VisualElement class="confirm-button-row">
-                    <ui:Button name="btn-privacy-agree" class="action-btn btn-main-menu sl-button-wide">
+                    <ui:Button name="btn-privacy-decline" class="action-btn btn-main-menu sl-button-wide privacy-btn">
+                        <ui:Label text="Decline" class="action-btn-label sl-text-outline"/>
+                    </ui:Button>
+                    <ui:Button name="btn-privacy-agree" class="action-btn btn-main-menu sl-button-wide privacy-btn">
                         <ui:Label text="I agree" class="action-btn-label sl-text-outline"/>
                     </ui:Button>
                 </ui:VisualElement>

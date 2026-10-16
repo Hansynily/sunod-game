@@ -360,6 +360,44 @@ namespace SunodGame.Telemetry
             ));
         }
 
+        // Play-time heartbeat (vc_PlayTimeTracker). Silent on failure: the next beat carries
+        // the same cumulative totals, so a dropped one loses nothing.
+        public void PutMyPlaySession(string json,
+                                     Action<PlayTimeSummaryResponse> onSuccess = null,
+                                     Action<string>                  onError   = null)
+        {
+            if (IsBypassEnabled() || SessionState.Instance == null ||
+                string.IsNullOrWhiteSpace(SessionState.Instance.AccessToken))
+            {
+                onError?.Invoke("Not signed in.");
+                return;
+            }
+
+            StartCoroutine(PutJsonAuthorized(
+                "/api/telemetry/users/me/play-session",
+                json,
+                SessionState.Instance.AccessToken,
+                onSuccess,
+                onError ?? ((e) => Debug.LogWarning($"[Telemetry] Play-session push error: {e}"))
+            ));
+        }
+
+        // Records which privacy notice version the player agreed to.
+        public void PostMyPrivacyConsent(string version)
+        {
+            if (IsBypassEnabled() || SessionState.Instance == null ||
+                string.IsNullOrWhiteSpace(SessionState.Instance.AccessToken))
+                return;
+
+            StartCoroutine(PostAuthorizedNoBody<RunStateResetResponse>(
+                "/api/telemetry/users/me/privacy-consent",
+                SessionState.Instance.AccessToken,
+                (r) => Debug.Log($"[Telemetry] Privacy consent v{version} -> {r?.message}"),
+                (e) => Debug.LogWarning($"[Telemetry] Privacy consent error: {e}"),
+                $"{{\"version\":\"{EscapeJson(version)}\"}}"
+            ));
+        }
+
         private static string BuildRunStateJson(RunStatePayload payload, Dictionary<string, float> riasecScores)
         {
             var sb = new StringBuilder();
@@ -491,13 +529,14 @@ namespace SunodGame.Telemetry
 
         private IEnumerator PostAuthorizedNoBody<TRes>(string path, string accessToken,
                                                          Action<TRes>   onSuccess,
-                                                         Action<string> onError)
+                                                         Action<string> onError,
+                                                         string         jsonBody = "{}")
         {
             string requestUrl = ActiveBaseUrl + path;
             Debug.Log($"[Telemetry] POST {requestUrl}");
 
             using var req = new UnityWebRequest(requestUrl, "POST");
-            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes("{}"));
+            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonBody ?? "{}"));
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
             req.SetRequestHeader("Authorization", $"Bearer {accessToken}");
