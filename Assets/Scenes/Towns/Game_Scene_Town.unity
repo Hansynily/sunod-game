@@ -5942,7 +5942,7 @@ Transform:
   m_GameObject: {fileID: 880342817}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 609.00006, y: 736, z: 0}
+  m_LocalPosition: {x: 384.00006, y: 736, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -8607,6 +8607,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::vc_CameraZoom
   levels: 87000000b4000000e10000000e010000
   defaultLevel: 1
+  ownButtons: 0
+  maxLevel: -1
 --- !u!1 &1208003323
 GameObject:
   m_ObjectHideFlags: 0
@@ -11739,10 +11741,84 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8e4cfa9b5d98d574f8e10d097b7ffeed, type: 3}
   - {fileID: 21300000, guid: 00863bdb9adbf6b41bded36aea918ee2, type: 3}
   - {fileID: 21300000, guid: e21dffe9035212b4d965fb9dd72e040c, type: 3}
+  idleUp:
+  - {fileID: 21300000, guid: 13adf234dfcd2d84b8343c642db5584d, type: 3}
+  - {fileID: 21300000, guid: 1a93717fa787e3c46bee7e52e3c4146a, type: 3}
+  - {fileID: 21300000, guid: 229bdb3b5248aa84682dc0a68f39a8c1, type: 3}
+  - {fileID: 21300000, guid: c898371fa45d1c243b1e05ecaf29a937, type: 3}
+  idleDown:
+  - {fileID: 21300000, guid: b3c4487de4e9e6e42ac34007dd9381e7, type: 3}
+  - {fileID: 21300000, guid: 778cd11ebf8f5b140a16b49e1b3f1fa9, type: 3}
+  - {fileID: 21300000, guid: 265f8c2ace13f1847950ee7a1b26965e, type: 3}
+  - {fileID: 21300000, guid: 78ebefe6ef045074fa9e38b8ba9e135b, type: 3}
+  walkUp:
+  - {fileID: 21300000, guid: 8fcfd859394e411408592a0955c6bf33, type: 3}
+  - {fileID: 21300000, guid: 6f7f642c1d1a6004c90dea5cc6557882, type: 3}
+  - {fileID: 21300000, guid: d6a8fd381ab420c4ebedaaac3f4df8e1, type: 3}
+  - {fileID: 21300000, guid: 15212d11b35900c4e824917d253158c3, type: 3}
+  - {fileID: 21300000, guid: 4fbc48c896713fc4db3aed1afb9ebba0, type: 3}
+  - {fileID: 21300000, guid: 4f3b2f9c6e2b194478746a70be963e50, type: 3}
+  walkDown:
+  - {fileID: 21300000, guid: 82ca0e17598971b4899ee5c1ff779bfe, type: 3}
+  - {fileID: 21300000, guid: 2119b5d044a4aee4da1a752d2708ed66, type: 3}
+  - {fileID: 21300000, guid: d1d0c909e4d521e45b8e6282d7191c55, type: 3}
+  - {fileID: 21300000, guid: c8bab911f108e3f4197aa7d6e9062b33, type: 3}
+  - {fileID: 21300000, guid: 72319cce6d3c5674a97c639b9a613d5a, type: 3}
+  - {fileID: 21300000, guid: 866adb3ab1dc90643bee7683ce225c1b, type: 3}
+  girl:
+    idleRight:
+    - {fileID: 21300000, guid: a1b48d7144f32ae47affc678ce243668, type: 3}
+    - {fileID: 21300000, guid: 2f199d350edad754dbab44012ed67c4c, type: 3}
+    - {fileID: 21300000, guid: 3d34f95699c71284585df3a42223cfb2, type: 3}
+    - {fileID: 21300000, guid: c0b693554971ac3438b3ba622444cfad, type: 3}
+    idleLeft:
+    - {fileID: 21300000, guid: e95115491ea3e9446bb96fc3cc9f9a67, type: 3}
+    - {fileID: 21300000, guid: f5eb7346434e12d4aba95ab55146ab55, type: 3}
+    - {fileID: 21300000, guid: c0a42d221e2a9864d99de4496cea6f83, type: 3}
+    - {fileID: 21300000, guid: 3eacbd57d1cba444294e6f1623dfc6c3, type: 3}
+    idleUp:
+    - {fileID: 21300000, guid: 232f55968e5741b419f6d88de4c05d97, type: 3}
+    - {fileID: 21300000, guid: 58c1f0bb273db344bb53cbf9fb0a6eba, type: 3}
+    - {fileID: 21300000, guid: 69b90e6075d5a9249be9bd78721bfb30, type: 3}
+    - {fileID: 21300000, guid: 2bd88bb50a4438a4ba06c291caac2bff, type: 3}
+    idleDown:
+    - {fileID: 21300000, guid: 4f10279085bfb2941b784b0e10f6c547, type: 3}
+    - {fileID: 21300000, guid: 4e586978d4510814a8070b2facd321d8, type: 3}
+    - {fileID: 21300000, guid: f4d26ab3175efbc4aac6df8ca02b20bd, type: 3}
+    - {fileID: 21300000, guid: 60df8ab9377ff3d498014243004c1844, type: 3}
+    walkRight:
+    - {fileID: 21300000, guid: 5ecd13fd3a815fa41af57501fec88d64, type: 3}
+    - {fileID: 21300000, guid: aec1f09a5202b7846adb86b48593c499, type: 3}
+    - {fileID: 21300000, guid: 1d28e7e0dbbbd004e8494cb9650b88d3, type: 3}
+    - {fileID: 21300000, guid: 3a11fc8e346dc884b9a827d26e80f279, type: 3}
+    - {fileID: 21300000, guid: 4b544bc793dd5cb4797f4493961f23a7, type: 3}
+    - {fileID: 21300000, guid: 15e4ff0f67f9ef24dbc06ee3d392057f, type: 3}
+    walkLeft:
+    - {fileID: 21300000, guid: 23bcf5c32f6815e428c3e2875b901404, type: 3}
+    - {fileID: 21300000, guid: b0fa525b595354c4185f1854e412a76b, type: 3}
+    - {fileID: 21300000, guid: 485abc4327a61f149922fbe20bf29e06, type: 3}
+    - {fileID: 21300000, guid: e2cc88694424b2743a570c5d9053e63e, type: 3}
+    - {fileID: 21300000, guid: aa4f709e8ca828940b8f9eb96a703632, type: 3}
+    - {fileID: 21300000, guid: e2ea1f45838d5484985f93ca2f36d3d7, type: 3}
+    walkUp:
+    - {fileID: 21300000, guid: be0c224bf0cdbbc46b6449f8c8f7ed0f, type: 3}
+    - {fileID: 21300000, guid: 764a6e54e36e95246a78f3c5243c2e95, type: 3}
+    - {fileID: 21300000, guid: a51f6dd48ec09234cb88eff35e1de2fb, type: 3}
+    - {fileID: 21300000, guid: bb1180e8cf4f10546ae50c290bd93e2d, type: 3}
+    - {fileID: 21300000, guid: 9864e186387931940ba0ccb33121c5f3, type: 3}
+    - {fileID: 21300000, guid: ad040d58307808448b0f045be64dc74e, type: 3}
+    walkDown:
+    - {fileID: 21300000, guid: 0f269cc1e8593eb4686dd5cb0c580f4a, type: 3}
+    - {fileID: 21300000, guid: d81ddea23d945fd4ab253762772ade3a, type: 3}
+    - {fileID: 21300000, guid: 8f3da7410e9b8ae47b3c88f1c0cad0ce, type: 3}
+    - {fileID: 21300000, guid: d16a348dda133194e915b3ac0670fcf2, type: 3}
+    - {fileID: 21300000, guid: 938d5b7538fc49a458ffb847a33c74e5, type: 3}
+    - {fileID: 21300000, guid: b5cdc4c2d3d7bea4795476010ee19b3e, type: 3}
   walkFps: 9
   idleFps: 4
   minWalkRate: 0.5
   moveThreshold: 0.05
+  verticalBias: 1.15
   footstepFrames: 0100000004000000
   footstepVolume: 0.55
 --- !u!212 &1685680473

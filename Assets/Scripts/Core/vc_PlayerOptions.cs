@@ -31,6 +31,31 @@ public static class vc_PlayerOptions
         }
     }
 
+    private const string AvatarKey = "sunod.avatar_girl";
+
+    /// <summary>
+    /// Play as the girl instead of the boy. Until the player picks one, it follows the
+    /// gender given at sign-up (female = girl).
+    /// </summary>
+    public static bool UseGirlAvatar
+    {
+        get
+        {
+            try
+            {
+                if (PlayerPrefs.HasKey(AvatarKey)) return PlayerPrefs.GetInt(AvatarKey, 0) == 1;
+            }
+            catch { }
+            string gender = SunodGame.Core.SessionState.Instance != null ? SunodGame.Core.SessionState.Instance.Gender : null;
+            return string.Equals(gender, "female", StringComparison.OrdinalIgnoreCase);
+        }
+        set
+        {
+            try { PlayerPrefs.SetInt(AvatarKey, value ? 1 : 0); PlayerPrefs.Save(); } catch { }
+            Changed?.Invoke();
+        }
+    }
+
     public static float SfxVolume
     {
         get => SunodGame.Core.vc_Sfx.Volume;

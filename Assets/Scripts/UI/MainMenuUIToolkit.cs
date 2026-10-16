@@ -54,6 +54,8 @@ namespace SunodGame.UI
         private Slider _sfxSlider;
         private Button _btnNamesEnglish;
         private Button _btnNamesFilipino;
+        private Button _btnAvatarBoy;
+        private Button _btnAvatarGirl;
         private Button _btnSettingsClose;
 
         private const int TotalQuestSlots = 48;
@@ -99,6 +101,9 @@ namespace SunodGame.UI
             _sfxSlider        = root.Q<Slider>("settings-sfx-slider");
             _btnNamesEnglish  = root.Q<Button>("btn-names-english");
             _btnNamesFilipino = root.Q<Button>("btn-names-filipino");
+            _btnAvatarBoy     = root.Q<Button>("btn-avatar-boy");
+            _btnAvatarGirl    = root.Q<Button>("btn-avatar-girl");
+            RefreshAvatarChoice();
             _btnSettingsClose = root.Q<Button>("btn-settings-close");
 
             _btnPlay?    .RegisterCallback<ClickEvent>(OnPlayClicked);
@@ -112,6 +117,8 @@ namespace SunodGame.UI
             _btnNewRunCancel? .RegisterCallback<ClickEvent>(OnNewRunCancelClicked);
             _btnNamesEnglish? .RegisterCallback<ClickEvent>(OnNamesEnglishClicked);
             _btnNamesFilipino?.RegisterCallback<ClickEvent>(OnNamesFilipinoClicked);
+            _btnAvatarBoy?.RegisterCallback<ClickEvent>(OnAvatarBoyClicked);
+            _btnAvatarGirl?.RegisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.RegisterCallback<ClickEvent>(OnSettingsCloseClicked);
             _sfxSlider?.RegisterValueChangedCallback(OnSfxSliderChanged);
             // Dragger releases pointer capture on release - play a click so the level is audible.
@@ -138,6 +145,8 @@ namespace SunodGame.UI
             _btnNewRunCancel? .UnregisterCallback<ClickEvent>(OnNewRunCancelClicked);
             _btnNamesEnglish? .UnregisterCallback<ClickEvent>(OnNamesEnglishClicked);
             _btnNamesFilipino?.UnregisterCallback<ClickEvent>(OnNamesFilipinoClicked);
+            _btnAvatarBoy?.UnregisterCallback<ClickEvent>(OnAvatarBoyClicked);
+            _btnAvatarGirl?.UnregisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _btnSettingsClose?.UnregisterCallback<ClickEvent>(OnSettingsCloseClicked);
             _sfxSlider?.UnregisterValueChangedCallback(OnSfxSliderChanged);
             _sfxSlider?.UnregisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
@@ -222,6 +231,7 @@ namespace SunodGame.UI
         {
             _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
             RefreshNameChoice();
+            RefreshAvatarChoice();
             _settingsOverlay?.SetDisplay(true);
         }
 
@@ -246,6 +256,23 @@ namespace SunodGame.UI
             bool filipino = vc_PlayerOptions.UseBaybayinNames;
             _btnNamesEnglish?.EnableInClassList("settings-choice-btn--on", !filipino);
             _btnNamesFilipino?.EnableInClassList("settings-choice-btn--on", filipino);
+        }
+
+        private void OnAvatarBoyClicked(ClickEvent _)  => SetGirlAvatar(false);
+        private void OnAvatarGirlClicked(ClickEvent _) => SetGirlAvatar(true);
+
+        private void SetGirlAvatar(bool girl)
+        {
+            vc_PlayerOptions.UseGirlAvatar = girl;   // always store, so the choice beats the sign-up default
+            RefreshAvatarChoice();
+        }
+
+        private void RefreshAvatarChoice()
+        {
+            bool girl = vc_PlayerOptions.UseGirlAvatar;
+            _btnAvatarBoy?.EnableInClassList("settings-choice-btn--on", !girl);
+            _btnAvatarGirl?.EnableInClassList("settings-choice-btn--on", girl);
+            _playerCardImage?.EnableInClassList("player-card-image--girl", girl);
         }
 
         // ── Continue ────────────────────────────────────────────────────

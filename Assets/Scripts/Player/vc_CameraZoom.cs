@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Camera zoom for the towns. Zoom levels are Pixel Perfect Camera reference resolutions
@@ -19,6 +20,10 @@ public class vc_CameraZoom : MonoBehaviour
     [SerializeField] private int[] levels = { 135, 180, 225, 270 };
     [Tooltip("Default level index (higher = more zoomed out).")]
     [SerializeField] private int defaultLevel = 1;
+    [Tooltip("Add its own -/+ buttons under the pause button (scenes without the town HUD, e.g. the tutorial).")]
+    [SerializeField] private bool ownButtons;
+    [Tooltip("Furthest zoom-out level allowed in this scene (-1 = all). Small maps (tutorial) cap it so the void past the edge never shows.")]
+    [SerializeField] private int maxLevel = -1;
 
     private Camera _cam;
     private PixelPerfectCamera _ppc;
@@ -27,6 +32,10 @@ public class vc_CameraZoom : MonoBehaviour
     private int _level;
 
     public int Level => _level;
+    public int LevelCount => levels == null ? 0 : (maxLevel >= 0 ? Mathf.Min(maxLevel + 1, levels.Length) : levels.Length);
+
+    /// <summary>Fired after the zoom level changes (keeps the pause slider and +/- in sync).</summary>
+    public static event System.Action<int> LevelChanged;
 
     private void Awake()
     {
@@ -41,6 +50,42 @@ public class vc_CameraZoom : MonoBehaviour
         Apply(saved, false);
     }
 
+    private void Start()
+    {
+        if (ownButtons) BuildOwnButtons();
+    }
+
+    /// <summary>-/+ row hung on the pause menu's UI document (top-right, under the pause button).</summary>
+    private void BuildOwnButtons()
+    {
+        var pause = FindFirstObjectByType<vc_PauseMenu>();
+        var doc = pause != null ? pause.GetComponent<UnityEngine.UIElements.UIDocument>() : null;
+        var root = doc != null ? doc.rootVisualElement?.Q("pause-root") ?? doc.rootVisualElement : null;
+        if (root == null) return;
+
+        var row = new UnityEngine.UIElements.VisualElement { pickingMode = UnityEngine.UIElements.PickingMode.Ignore };
+        row.style.position = UnityEngine.UIElements.Position.Absolute;
+        row.style.top = 150; row.style.right = 24;
+        row.style.flexDirection = UnityEngine.UIElements.FlexDirection.Row;
+        row.Add(MakeButton("-", +1));   // zoom out
+        row.Add(MakeButton("+", -1));   // zoom in
+        root.Insert(1, row);            // under the pause overlay so the paused menu covers it
+    }
+
+    private UnityEngine.UIElements.Button MakeButton(string text, int step)
+    {
+        var b = new UnityEngine.UIElements.Button(() =>
+        {
+            SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+            Step(step);
+        }) { text = text };
+        b.AddToClassList("sl-button");
+        b.style.width = 56; b.style.height = 52; b.style.marginLeft = 8;
+        b.style.fontSize = 28;
+        b.style.color = (Color)new Color32(72, 52, 34, 255);
+        return b;
+    }
+
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
@@ -49,16 +94,23 @@ public class vc_CameraZoom : MonoBehaviour
     /// <summary>+1 = zoom out one level, -1 = zoom in one level.</summary>
     public void Step(int delta) => Apply(_level + delta, true);
 
+    /// <summary>Jump straight to a level (0 = most zoomed in). Used by the pause menu slider.</summary>
+    public void SetLevel(int level) => Apply(level, true);
+
     private void Apply(int level, bool save)
     {
         if (levels == null || levels.Length == 0) return;
-        _level = Mathf.Clamp(level, 0, levels.Length - 1);
+        int previous = _level;
+        _level = Mathf.Clamp(level, 0, LevelCount - 1);
         int h = levels[_level];
 
         if (_ppc != null)
         {
-            _ppc.refResolutionY = h;
-            _ppc.refResolutionX = Mathf.RoundToInt(h * 16f / 9f);
+            // Pick a whole pixel ratio per level and make each level's ratio distinct for this
+            // screen, so every step visibly changes the zoom (225 and 270 both gave x4 at 1080p).
+            int r = RatioFor(_level);
+            _ppc.refResolutionY = Mathf.Max(1, Screen.height / r);
+            _ppc.refResolutionX = Mathf.Max(1, Screen.width / r);
         }
         else if (_baseHeight > 0)
         {
@@ -67,6 +119,20 @@ public class vc_CameraZoom : MonoBehaviour
 
         if (!save) return;
         try { PlayerPrefs.SetInt(PrefKey, _level); PlayerPrefs.Save(); } catch { }
+        if (_level != previous) LevelChanged?.Invoke(_level);
+    }
+
+    private int RatioFor(int level)
+    {
+        int prev = int.MaxValue;
+        int r = 1;
+        for (int i = 0; i <= level; i++)
+        {
+            r = Mathf.Max(1, Mathf.RoundToInt(Screen.height / (float)levels[i]));
+            if (r >= prev) r = Mathf.Max(1, prev - 1);
+            prev = r;
+        }
+        return r;
     }
 
     private void Update()

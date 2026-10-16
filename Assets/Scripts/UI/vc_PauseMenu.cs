@@ -33,6 +33,8 @@ public class vc_PauseMenu : MonoBehaviour
     private Button        _btnExitNo;
 
     private Slider        _sfxSlider;
+    private SliderInt     _zoomSlider;
+    private Label         _zoomLabel;
     private Button        _btnNamesEn;
     private Button        _btnNamesFil;
 
@@ -77,6 +79,17 @@ public class vc_PauseMenu : MonoBehaviour
             _sfxSlider.RegisterValueChangedCallback(e => vc_PlayerOptions.SfxVolume = e.newValue);
             _sfxSlider.RegisterCallback<PointerCaptureOutEvent>(_ => vc_Sfx.Play("click", 0.6f));
         }
+        _zoomSlider   = root.Q<SliderInt>("pause-zoom-slider");
+        _zoomLabel    = root.Q<Label>("pause-zoom-label");
+        if (_zoomSlider != null)
+        {
+            // slider runs far (left) -> near (right); zoom levels run near (0) -> far
+            _zoomSlider.RegisterValueChangedCallback(e => { var z = vc_CameraZoom.Instance; if (z != null) z.SetLevel(z.LevelCount - 1 - e.newValue); });
+            _zoomSlider.RegisterCallback<PointerCaptureOutEvent>(_ => vc_Sfx.Play("click", 0.6f));
+        }
+        vc_CameraZoom.LevelChanged += OnZoomLevelChanged;
+        RefreshZoomSlider();
+
         _btnNamesEn?.RegisterCallback<ClickEvent>(_ => SetNameLanguage(false));
         _btnNamesFil?.RegisterCallback<ClickEvent>(_ => SetNameLanguage(true));
         RefreshNameButtons();
@@ -105,7 +118,11 @@ public class vc_PauseMenu : MonoBehaviour
             OpenPauseMenu();
     }
 
-    private void OnDisable()  => ForceRestoreGameState();
+    private void OnDisable()
+    {
+        vc_CameraZoom.LevelChanged -= OnZoomLevelChanged;
+        ForceRestoreGameState();
+    }
     private void OnDestroy()  => ForceRestoreGameState();
 
     // ── Public API ────────────────────────────────────────────────────────
@@ -123,6 +140,7 @@ public class vc_PauseMenu : MonoBehaviour
 
         _pauseOpen = true;
         _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
+        RefreshZoomSlider();
         RefreshNameButtons();
         ShowMainButtons();
         _pauseOverlay?.SetDisplay(true);
@@ -151,6 +169,25 @@ public class vc_PauseMenu : MonoBehaviour
         vc_Sfx.Play("click", 0.6f);
         vc_PlayerOptions.UseBaybayinNames = filipino;
         RefreshNameButtons();
+    }
+
+    private void OnZoomLevelChanged(int level)
+    {
+        var z = vc_CameraZoom.Instance;
+        if (z != null) _zoomSlider?.SetValueWithoutNotify(z.LevelCount - 1 - level);
+    }
+
+    /// <summary>Zoom slider only shows where a vc_CameraZoom exists (the towns).</summary>
+    private void RefreshZoomSlider()
+    {
+        vc_CameraZoom zoom = vc_CameraZoom.Instance;
+        bool show = zoom != null && zoom.LevelCount > 1;
+        _zoomSlider?.SetDisplay(show);
+        _zoomLabel?.SetDisplay(show);
+        if (!show || _zoomSlider == null) return;
+        _zoomSlider.lowValue  = 0;
+        _zoomSlider.highValue = zoom.LevelCount - 1;
+        _zoomSlider.SetValueWithoutNotify(zoom.LevelCount - 1 - zoom.Level);
     }
 
     private void RefreshNameButtons()

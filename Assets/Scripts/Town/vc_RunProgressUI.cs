@@ -426,6 +426,7 @@ public class vc_RunProgressUI : MonoBehaviour
 
     private VisualElement _side;
     private Label _energyLabel;
+    private VisualElement _energyChip;
     private Button _sleepBtn;
     private Button _cancelQuestBtn;
 
@@ -435,11 +436,18 @@ public class vc_RunProgressUI : MonoBehaviour
         _side.AddToClassList("rp-side");
         parent.Add(_side);
 
+        // chip = row of [bolt icon][label]; a Label with children stops sizing to its text
+        _energyChip = new VisualElement { pickingMode = PickingMode.Ignore };
+        _energyChip.AddToClassList("rp-energy");
+        _energyChip.AddToClassList("sl-chip");
+        _energyChip.AddToClassList("rp-hidden");
+        var bolt = new VisualElement { pickingMode = PickingMode.Ignore };
+        bolt.AddToClassList("rp-energy-icon");
+        _energyChip.Add(bolt);
         _energyLabel = new Label("") { pickingMode = PickingMode.Ignore };
-        _energyLabel.AddToClassList("rp-energy");
-        _energyLabel.AddToClassList("sl-panel-cream");
-        _energyLabel.AddToClassList("rp-hidden");
-        _side.Add(_energyLabel);
+        _energyLabel.AddToClassList("rp-energy-label");
+        _energyChip.Add(_energyLabel);
+        _side.Add(_energyChip);
 
         _sleepBtn = MakeSideButton("Sleep", "rp-side-btn", () =>
         {
@@ -475,8 +483,8 @@ public class vc_RunProgressUI : MonoBehaviour
     public void SetEnergy(int energy, int max)
     {
         if (_energyLabel == null) return;
-        _energyLabel.text = $"Energy {energy}/{max}";
-        _energyLabel.RemoveFromClassList("rp-hidden");
+        _energyLabel.text = $"{energy}/{max}";
+        _energyChip?.RemoveFromClassList("rp-hidden");
     }
 
     public void SetSleepVisible(bool visible) => _sleepBtn?.EnableInClassList("rp-hidden", !visible);
@@ -487,13 +495,13 @@ public class vc_RunProgressUI : MonoBehaviour
         if (_cancelQuestBtn == null) return;
         _cancelQuestBtn.clickable = new Clickable(() => onClick?.Invoke());
         _cancelQuestBtn.RemoveFromClassList("rp-hidden");
-        _energyLabel?.AddToClassList("rp-hidden");
+        _energyChip?.AddToClassList("rp-hidden");
     }
 
     public void HideQuestCancel()
     {
         _cancelQuestBtn?.AddToClassList("rp-hidden");
-        _energyLabel?.RemoveFromClassList("rp-hidden");
+        _energyChip?.RemoveFromClassList("rp-hidden");
     }
 
     public bool IsShowingOverlay =>
@@ -610,7 +618,7 @@ public class vc_RunProgressUI : MonoBehaviour
     {
         _toast = new Label("") { pickingMode = PickingMode.Ignore };
         _toast.AddToClassList("rp-toast");
-        _toast.AddToClassList("sl-panel-cream");
+        _toast.AddToClassList("sl-chip");
         _toast.AddToClassList("rp-toast--hidden");
         parent.Add(_toast);
     }

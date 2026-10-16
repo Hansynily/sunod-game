@@ -189,6 +189,7 @@ public static class vc_TownBuilder
 
         var root = new GameObject("Town_" + t.id);
         var stage = root.AddComponent<vc_TownStage>();
+        root.AddComponent<vc_TownAmbience>();   // wind, butterflies, leaves, cloud shadows, water glints
         stage.stageId = t.id;
         stage.stageTitle = t.title;
         stage.introLine = t.intro;
@@ -319,7 +320,9 @@ public static class vc_TownBuilder
                 }
                 else if (roll < t.decorDensity + 0.012)
                 {
-                    PlaceSprite(floraRoot, rocks[rng.Next(rocks.Length)], x + 0.5f, y + 0.15f, false);
+                    string rock = rocks[rng.Next(rocks.Length)];
+                    // real rocks inside the town are solid (same as the rock prefabs); pebbles stay walk-over
+                    PlaceSprite(floraRoot, rock, x + 0.5f, y + 0.15f, inTown && !rock.StartsWith("pebble"));
                     if (inTown) occ[x, y] = true;
                 }
             }
@@ -898,7 +901,7 @@ public static class vc_TownBuilder
         t.Obj("drum_stage", 21.9f, 17.8f);
         t.Obj("lamp_white", 19.5f, 12.2f); t.Obj("lamp_white", 28.5f, 12.2f);
         t.Obj("lamp_white", 19.5f, 19.6f); t.Obj("lamp_white", 28.5f, 19.6f);
-        t.Obj("bench", 26.5f, 18.1f, false);
+        t.Obj("bench", 26.5f, 18.1f);
         // park + garden (south-east)
         t.Obj("sign_park", 38.6f, 12.4f);
         t.Obj("bench", 41.5f, 10.4f);
@@ -1003,7 +1006,7 @@ public static class vc_TownBuilder
         t.Obj("sign_river", 29f, 8.2f);
         t.Obj("lamp_red", 18.5f, 14f); t.Obj("lamp_red", 31.5f, 14f);
         t.Obj("lamp_red", 18.5f, 21.6f); t.Obj("lamp_red", 31.5f, 21.6f);
-        t.Obj("bench_long", 22f, 20.6f, false); t.Obj("bench_long", 28f, 20.6f, false);
+        t.Obj("bench_long", 22f, 20.6f); t.Obj("bench_long", 28f, 20.6f);
         t.Obj("plant_pot", 23f, 14.4f); t.Obj("plant_pot2", 27f, 14.4f);
         t.Obj("crates", 17.8f, 7.9f);
 
@@ -1111,7 +1114,7 @@ public static class vc_TownBuilder
         foreach (float x in new[] { 4f, 13.5f, 22.5f, 30f, 37f, 46.5f }) t.Obj("lamp_white", x, 18.2f);
         foreach (float x in new[] { 13.6f, 23.6f, 36f }) t.Obj("lamp_white", x, 22.4f);   // kept clear of the shop signs
         t.Obj("plant_pot", 24f, 31.2f); t.Obj("plant_pot2", 29f, 31.2f);
-        t.Obj("bench_long", 16f, 28.2f, false); t.Obj("bench_long", 36f, 28.2f, false);
+        t.Obj("bench_long", 16f, 28.2f); t.Obj("bench_long", 36f, 28.2f);
 
         t.Trees(2, 27, 4, 9, 3, "tree_pine", "tree_round");
         t.Trees(38, 31, 10, 6, 4, "tree_round", "tree_pine");

@@ -1,23 +1,41 @@
+using System;
 using UnityEngine;
 using SunodGame.Core;
 
 /// <summary>
 /// Stardew-style frame-based character animation: swaps whole PNG frames on a
 /// SpriteRenderer at a fixed frame rate - no bones, no Animator. Picks walk/idle and
-/// left/right from PlayerController.Move; vertical-only movement keeps the last facing.
+/// facing (right/left/up/down) from PlayerController.Move; the dominant axis wins.
 /// Walk speed scales with joystick tilt so a light push steps slower.
+/// Two frame sets: the boy (fields below) and the girl, switched by vc_PlayerOptions.UseGirlAvatar.
 /// </summary>
 [DisallowMultipleComponent]
 public class vc_SpriteFrameAnimator : MonoBehaviour
 {
+    [Serializable]
+    public class FrameSet
+    {
+        public Sprite[] idleRight, idleLeft, idleUp, idleDown;
+        public Sprite[] walkRight, walkLeft, walkUp, walkDown;
+    }
+
+    private enum Facing { Right, Left, Up, Down }
+
     [SerializeField] private PlayerController player;
     [SerializeField] private SpriteRenderer body;
 
-    [Header("Frames (PNG sprites, in play order)")]
+    [Header("Boy frames (PNG sprites, in play order)")]
     [SerializeField] private Sprite[] idleRight;
     [SerializeField] private Sprite[] idleLeft;
     [SerializeField] private Sprite[] walkRight;
     [SerializeField] private Sprite[] walkLeft;
+    [SerializeField] private Sprite[] idleUp;
+    [SerializeField] private Sprite[] idleDown;
+    [SerializeField] private Sprite[] walkUp;
+    [SerializeField] private Sprite[] walkDown;
+
+    [Header("Girl frames")]
+    [SerializeField] private FrameSet girl = new FrameSet();
 
     [Header("Timing")]
     [SerializeField] private float walkFps = 9f;
@@ -25,16 +43,20 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
     [Tooltip("Walk frames run at least this fraction of walkFps at tiny tilts.")]
     [Range(0.1f, 1f)] [SerializeField] private float minWalkRate = 0.5f;
     [SerializeField] private float moveThreshold = 0.05f;
+    [Tooltip("Vertical input must beat horizontal by this factor to face up/down (stops flicker on diagonals).")]
+    [SerializeField] private float verticalBias = 1.15f;
 
     [Header("Footsteps")]
     [Tooltip("Walk frame indices where a foot lands (one footstep sound each).")]
     [SerializeField] private int[] footstepFrames = { 1, 4 };
     [SerializeField] private float footstepVolume = 0.55f;
 
-    private bool _facingRight = true;
+    private Facing _facing = Facing.Down;
+    private Facing _lastSide = Facing.Right;
     private bool _walking;
     private float _frameClock;
     private int _frame;
+    private bool _girl;
 
     private void Reset()
     {
@@ -46,7 +68,13 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
     {
         if (player == null) player = GetComponentInParent<PlayerController>();
         if (body == null) body = GetComponent<SpriteRenderer>();
+        _girl = vc_PlayerOptions.UseGirlAvatar;
     }
+
+    private void OnEnable()  => vc_PlayerOptions.Changed += OnOptionsChanged;
+    private void OnDisable() => vc_PlayerOptions.Changed -= OnOptionsChanged;
+
+    private void OnOptionsChanged() => _girl = vc_PlayerOptions.UseGirlAvatar;
 
     private void Update()
     {
@@ -54,8 +82,16 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
         float mag = Mathf.Clamp01(move.magnitude);
         bool walking = mag > moveThreshold;
 
-        if (Mathf.Abs(move.x) > moveThreshold)
-            _facingRight = move.x > 0f;
+        if (walking)
+        {
+            float ax = Mathf.Abs(move.x), ay = Mathf.Abs(move.y);
+            if (ay > ax * verticalBias) _facing = move.y > 0f ? Facing.Up : Facing.Down;
+            else if (ax > moveThreshold)
+            {
+                _facing = move.x > 0f ? Facing.Right : Facing.Left;
+                _lastSide = _facing;
+            }
+        }
 
         if (walking != _walking)
         {
@@ -65,9 +101,7 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
             _frameClock = 0f;
         }
 
-        Sprite[] frames = walking
-            ? (_facingRight ? walkRight : walkLeft)
-            : (_facingRight ? idleRight : idleLeft);
+        Sprite[] frames = Pick(walking);
         if (frames == null || frames.Length == 0 || body == null) return;
 
         float fps = walking ? walkFps * Mathf.Lerp(minWalkRate, 1f, mag) : idleFps;
@@ -82,6 +116,29 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
 
         body.sprite = frames[_frame % frames.Length];
     }
+
+    /// <summary>Frames for the current avatar + facing, falling back to the side frames
+    /// when a set has no up/down art.</summary>
+    private Sprite[] Pick(bool walking)
+    {
+        FrameSet set = _girl && HasFrames(girl.idleRight) ? girl : null;
+
+        Sprite[] r  = walking ? (set != null ? set.walkRight : walkRight) : (set != null ? set.idleRight : idleRight);
+        Sprite[] l  = walking ? (set != null ? set.walkLeft  : walkLeft)  : (set != null ? set.idleLeft  : idleLeft);
+        Sprite[] up = walking ? (set != null ? set.walkUp    : walkUp)    : (set != null ? set.idleUp    : idleUp);
+        Sprite[] dn = walking ? (set != null ? set.walkDown  : walkDown)  : (set != null ? set.idleDown  : idleDown);
+        Sprite[] side = _lastSide == Facing.Right ? r : l;
+
+        switch (_facing)
+        {
+            case Facing.Up:   return HasFrames(up) ? up : side;
+            case Facing.Down: return HasFrames(dn) ? dn : side;
+            case Facing.Left: return l;
+            default:          return r;
+        }
+    }
+
+    private static bool HasFrames(Sprite[] s) => s != null && s.Length > 0;
 
     private bool IsFootstepFrame(int index)
     {

@@ -72,9 +72,9 @@
     margin: 0;
     justify-content: center;
 }
-.btn-back:hover, .btn-back:focus,
-.btn-cheat:hover, .btn-cheat:focus {
-    background-color: rgb(250, 240, 214);
+.btn-back:hover, .btn-back:focus, .btn-back:hover:enabled,
+.btn-cheat:hover, .btn-cheat:focus, .btn-cheat:hover:enabled {
+    background-color: rgb(243, 229, 194);
 }
 .btn-back:active, .btn-cheat:active {
     background-color: rgb(196, 154, 108);
@@ -177,12 +177,12 @@
     height: 104px;
     padding: 0;
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_normal.png");
-    -unity-slice-left: 32;
-    -unity-slice-top: 32;
-    -unity-slice-right: 32;
-    -unity-slice-bottom: 32;
-    -unity-slice-scale: 0.5px;
+    background-image: url("/Assets/Art/UI/Panels/card.png");
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 9;
+    -unity-slice-scale: 1px;
     border-width: 0;
     border-radius: 0;
     align-items: center;
@@ -190,11 +190,11 @@
 }
 .slot-frame:hover {
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_hover.png");
+    background-image: url("/Assets/Art/UI/Panels/card.png");
 }
 .slot-frame:active {
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_pressed.png");
+    background-image: url("/Assets/Art/UI/Panels/card_pressed.png");
 }
 .slot-frame.ready {
     background-color: rgba(0,0,0,0);
@@ -207,7 +207,7 @@
     top: 14px; left: 14px; right: 14px; bottom: 14px;
     align-items: center;
     justify-content: center;
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/icon_ring.png");
+    background-image: url("/Assets/Art/UI/Panels/icon_ring.png");
     -unity-background-scale-mode: scale-to-fit;
 }
 .slot-frame-icon {
@@ -274,23 +274,23 @@
     align-items: center;
     justify-content: flex-start;
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_normal.png");
-    -unity-slice-left: 32;
-    -unity-slice-top: 32;
-    -unity-slice-right: 32;
-    -unity-slice-bottom: 32;
-    -unity-slice-scale: 0.5px;
+    background-image: url("/Assets/Art/UI/Panels/card.png");
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 9;
+    -unity-slice-scale: 1px;
     border-width: 0;
     border-radius: 0;
     padding: 12px 8px 8px 8px;
 }
 .skill-row:hover {
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_hover.png");
+    background-image: url("/Assets/Art/UI/Panels/card.png");
 }
 .skill-row.selected {
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_pressed.png");
+    background-image: url("/Assets/Art/UI/Panels/card_selected.png");
     -unity-background-image-tint-color: rgb(210, 235, 150);
     border-width: 0;
 }
@@ -299,7 +299,7 @@
     width: 72px;
     height: 72px;
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/icon_ring.png");
+    background-image: url("/Assets/Art/UI/Panels/icon_ring.png");
     -unity-background-scale-mode: scale-to-fit;
     border-width: 0;
     margin-bottom: 4px;
@@ -395,7 +395,7 @@
     width: 56px;
     height: 56px;
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/icon_ring.png");
+    background-image: url("/Assets/Art/UI/Panels/icon_ring.png");
     -unity-background-scale-mode: scale-to-fit;
     border-width: 0;
     margin-right: 12px;
@@ -442,12 +442,12 @@
     font-size: 14px;
     color: rgb(100, 85, 82);
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/level_badge.png");
-    -unity-slice-left: 20;
-    -unity-slice-top: 20;
-    -unity-slice-right: 20;
-    -unity-slice-bottom: 20;
-    -unity-slice-scale: 0.4px;
+    background-image: url("/Assets/Art/UI/Panels/badge.png");
+    -unity-slice-: 4;
+    -unity-slice-: 4;
+    -unity-slice-: 4;
+    -unity-slice-: 4;
+    -unity-slice-scale: 1px;
     border-width: 0;
     padding: 3px 12px;
 }

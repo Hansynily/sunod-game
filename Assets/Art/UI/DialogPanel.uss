@@ -16,7 +16,7 @@
     display: none;
 }
 
-/* ---------- CENTERED CARD (Sprout Lands dialog frame, 9-sliced) ---------- */
+/* ---------- CENTERED CARD (SUNOD v2 dialog frame, 9-sliced) ---------- */
 .dialog-box {
     min-width: 720px;
     max-width: 900px;
@@ -24,14 +24,14 @@
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0,0,0,0);
     border-width: 0;
-    padding: 48px 56px 44px 68px;
+    padding: 44px 56px 44px 56px;
     flex-direction: column;
     align-items: stretch;
     -unity-slice-left: 10;
-    -unity-slice-top: 14;
-    -unity-slice-right: 6;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
     -unity-slice-bottom: 8;
-    -unity-slice-scale: 2px;
+    -unity-slice-scale: 1px;
 }
 
 /* ---------- OPTIONAL ICON ---------- */
@@ -49,7 +49,7 @@
     -unity-slice-top: 6;
     -unity-slice-right: 6;
     -unity-slice-bottom: 6;
-    -unity-slice-scale: 2px;
+    -unity-slice-scale: 1px;
 }
 
 /* ---------- TITLE (small wood tab on top) ---------- */
@@ -61,14 +61,16 @@
     letter-spacing: 2px;
     margin-bottom: 14px;
     align-self: center;
-    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
+    background-image: url("/Assets/Art/UI/Panels/plate.png");
     -unity-background-scale-mode: stretch-to-fill;
-    padding: 10px 32px;
-    -unity-slice-left: 10;
-    -unity-slice-top: 10;
-    -unity-slice-right: 10;
-    -unity-slice-bottom: 10;
-    -unity-slice-scale: 2px;
+    padding: 8px 32px 12px 32px;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(58, 40, 30);
+    -unity-slice-left: 5;
+    -unity-slice-top: 5;
+    -unity-slice-right: 5;
+    -unity-slice-bottom: 6;
+    -unity-slice-scale: 1px;
 }
 
 /* ---------- TITLE / BODY DIVIDER ---------- */
@@ -115,7 +117,7 @@
     -unity-slice-top: 6;
     -unity-slice-right: 6;
     -unity-slice-bottom: 8;
-    -unity-slice-scale: 2px;
+    -unity-slice-scale: 1px;
 }
 .dialog-btn:active {
     background-image: url("/Assets/Art/UI/Panels/button_pressed.png");

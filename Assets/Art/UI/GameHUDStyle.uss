@@ -34,7 +34,7 @@
     -unity-slice-top: 6;
     -unity-slice-right: 6;
     -unity-slice-bottom: 8;
-    -unity-slice-scale: 2px;
+    -unity-slice-scale: 1px;
 }
 .inventory-preview-btn:active {
     background-image: url("/Assets/Art/UI/Panels/button_pressed.png");
@@ -101,12 +101,12 @@
     padding: 0;
     overflow: hidden;
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_normal.png");
-    -unity-slice-left: 32;
-    -unity-slice-top: 32;
-    -unity-slice-right: 32;
-    -unity-slice-bottom: 32;
-    -unity-slice-scale: 0.5px;
+    background-image: url("/Assets/Art/UI/Panels/card.png");
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 9;
+    -unity-slice-scale: 1px;
     border-width: 0;
     border-bottom-width: 5px;
     border-radius: 0;
@@ -115,18 +115,18 @@
 }
 .skill-slot-btn:hover {
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_hover.png");
+    background-image: url("/Assets/Art/UI/Panels/card.png");
 }
 .skill-slot-btn:active {
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_pressed.png");
+    background-image: url("/Assets/Art/UI/Panels/card_pressed.png");
 }
 .skill-slot-btn:focus {
     background-color: rgba(0,0,0,0);
 }
 .skill-slot-btn:disabled {
     background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/MenuReference/SkillSlotUIKit/backgrounds/skill_card_disabled.png");
+    background-image: url("/Assets/Art/UI/Panels/card_disabled.png");
     opacity: 1;
 }
 

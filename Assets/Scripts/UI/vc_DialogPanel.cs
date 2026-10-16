@@ -137,7 +137,12 @@ public class vc_DialogPanel : MonoBehaviour
     private void Populate(string title, string body, Sprite icon,
                           string confirmLabel, string cancelLabel)
     {
-        if (_titleLabel != null) _titleLabel.text = title  ?? string.Empty;
+        if (_titleLabel != null)
+        {
+            _titleLabel.text = title ?? string.Empty;
+            // no empty title plate when a dialog has no title
+            _titleLabel.style.display = string.IsNullOrWhiteSpace(title) ? DisplayStyle.None : DisplayStyle.Flex;
+        }
         if (_bodyLabel  != null) _bodyLabel.text  = body   ?? string.Empty;
         if (_confirmBtn != null) _confirmBtn.text = confirmLabel ?? "Confirm";
         if (_cancelBtn  != null) _cancelBtn.text  = cancelLabel  ?? "Cancel";

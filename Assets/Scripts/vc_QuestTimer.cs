@@ -54,6 +54,7 @@ public class vc_QuestTimer : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        CacheStarScales();
         EnsureDebugTextReference();
     }
 
@@ -63,6 +64,8 @@ public class vc_QuestTimer : MonoBehaviour
         isRunning = true;
         isComplete = false;
         _shownStars = -1;
+        StopAllCoroutines();
+        ResetStarTransforms();
         ResetFinalState();
         UpdateDisplayedStars();
         UpdateDebugText();
@@ -71,6 +74,7 @@ public class vc_QuestTimer : MonoBehaviour
     /// <summary>Shows or hides the star row (town mode hides it while exploring).</summary>
     public void SetStarsVisible(bool visible)
     {
+        if (!visible) { StopAllCoroutines(); ResetStarTransforms(); }
         foreach (Image star in starImages)
             if (star != null) star.enabled = visible;
     }
@@ -204,12 +208,38 @@ public class vc_QuestTimer : MonoBehaviour
     }
 
     private int _shownStars = -1;
+    private Vector3[] _starBaseScale;
+
+    /// <summary>Remember each star's authored scale once (they're 0.4 in the town HUD), and make
+    /// the stars click-through so they never block the pause button.</summary>
+    private void CacheStarScales()
+    {
+        if (_starBaseScale != null && _starBaseScale.Length == starImages.Length) return;
+        _starBaseScale = new Vector3[starImages.Length];
+        for (int i = 0; i < starImages.Length; i++)
+        {
+            if (starImages[i] == null) continue;
+            _starBaseScale[i] = starImages[i].rectTransform.localScale;
+            starImages[i].raycastTarget = false;
+        }
+    }
+
+    private void ResetStarTransforms()
+    {
+        CacheStarScales();
+        for (int i = 0; i < starImages.Length; i++)
+        {
+            if (starImages[i] == null) continue;
+            starImages[i].rectTransform.localScale = _starBaseScale[i];
+            starImages[i].rectTransform.localRotation = Quaternion.identity;
+        }
+    }
 
     private void SetStarsForCount(int stars)
     {
         // A star just went out: give it a little drop so the player notices.
         if (isRunning && _shownStars > stars && stars >= 0 && stars < starImages.Length && starImages[stars] != null)
-            StartCoroutine(PopLostStar(starImages[stars].rectTransform));
+            StartCoroutine(PopLostStar(starImages[stars].rectTransform, stars));
         _shownStars = stars;
 
         for (int i = 0; i < starImages.Length; i++)
@@ -223,11 +253,12 @@ public class vc_QuestTimer : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator PopLostStar(RectTransform star)
+    private System.Collections.IEnumerator PopLostStar(RectTransform star, int index)
     {
         if (star == null) yield break;
         vc_Sfx.Play("timer_tick", 0.5f);
-        Vector3 baseScale = Vector3.one;
+        CacheStarScales();
+        Vector3 baseScale = _starBaseScale[index];
         const float dur = 0.35f;
         for (float t = 0f; t < dur; t += Time.unscaledDeltaTime)
         {

@@ -82,8 +82,8 @@
     transition-property: translate, border-color, background-color;
     transition-duration: 0.08s;
 }
-.award-card:hover, .award-card:focus {
-    background-color: rgb(250, 240, 214);
+.award-card:hover, .award-card:focus, .award-card:hover:enabled {
+    background-color: rgb(243, 229, 194);
 }
 .award-card:active {
     background-color: rgb(232, 207, 166);
@@ -188,8 +188,8 @@
     border-right-color: rgb(110, 140, 50);
     border-bottom-color: rgb(80, 105, 40);
 }
-.award-confirm:hover, .award-confirm:focus {
-    background-color: rgb(205, 224, 130);
+.award-confirm:hover, .award-confirm:focus, .award-confirm:hover:enabled {
+    background-color: rgb(192, 212, 112);
 }
 .award-confirm:active {
     background-color: rgb(165, 190, 90);

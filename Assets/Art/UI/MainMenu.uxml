@@ -151,6 +151,14 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
 
+                <ui:VisualElement class="settings-row">
+                    <ui:Label text="Character" class="settings-label"/>
+                    <ui:VisualElement class="settings-choice-row">
+                        <ui:Button name="btn-avatar-boy" text="Boy" class="wood-btn settings-choice-btn"/>
+                        <ui:Button name="btn-avatar-girl" text="Girl" class="wood-btn settings-choice-btn"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
                 <ui:VisualElement class="confirm-button-row">
                     <ui:Button name="btn-settings-close" class="action-btn btn-main-menu sl-button-wide">
                         <ui:Label text="Close" class="action-btn-label sl-text-outline"/>
