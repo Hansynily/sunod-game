@@ -180,6 +180,20 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
 
+                <!-- Shown only after the player has finished a run (vc_Survey.IsUnlocked). -->
+                <ui:VisualElement name="settings-survey-row" class="settings-row">
+                    <ui:Label text="Survey" class="settings-label"/>
+                    <ui:VisualElement class="settings-survey-body">
+                        <ui:VisualElement class="settings-survey-qr-frame">
+                            <ui:VisualElement class="settings-survey-qr" picking-mode="Ignore"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="settings-survey-text">
+                            <ui:Label text="Scan the code, or tap the link:" class="settings-survey-note"/>
+                            <ui:Button name="btn-settings-survey-link" text="tinyurl.com/sunodgamesurvey" class="wood-btn settings-choice-btn settings-survey-link"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
                 <ui:VisualElement class="confirm-button-row">
                     <ui:Button name="btn-settings-close" class="action-btn btn-main-menu sl-button-wide">
                         <ui:Label text="Close" class="action-btn-label sl-text-outline"/>

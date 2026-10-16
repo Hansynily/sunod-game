@@ -33214,7 +33214,7 @@ MonoBehaviour:
   npcId: elementary_S4
   npcName: Tita Lorna
   questCode: S4
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: aad0508f5bab20c46b0e0d6ada1f8b1e, type: 3}
   askLine: Can you show me some morning stretches? I always forget how!
   thanksLine: I feel so awake now!
   idleFrames:
@@ -43500,7 +43500,7 @@ MonoBehaviour:
   npcId: elementary_C6
   npcName: Manang Fe
   questCode: C6
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: dc486c2ba1a39c547bebebb2f1dd1413, type: 3}
   askLine: The canteen is so busy! Can you help me count the change?
   thanksLine: Not a single peso missing!
   idleFrames:
@@ -116190,7 +116190,7 @@ MonoBehaviour:
   npcId: elementary_A4
   npcName: Bea
   questCode: A4
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 9aec21cc1bd04a84dba6e05ac4c94e42, type: 3}
   askLine: Our class needs a song for the program. Will you help me write it?
   thanksLine: Everyone's humming our song!
   idleFrames:

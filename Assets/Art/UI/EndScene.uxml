@@ -45,6 +45,21 @@
                 <ui:VisualElement class="divider" />
 
             </ui:VisualElement>
+
+            <!-- Survey card: full runs only (EndSceneUIToolkit hides it on partial results). -->
+            <ui:VisualElement name="survey-card" class="survey-card">
+                <ui:VisualElement class="panel-header">
+                    <ui:Label text="Help us improve SUNOD!" class="header-text" />
+                </ui:VisualElement>
+                <ui:Label text="Scan to answer a quick survey." class="survey-note" />
+                <ui:VisualElement class="survey-qr-frame">
+                    <ui:VisualElement class="survey-qr" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:Label text="No scanner? Go to:" class="survey-note" />
+                <ui:Button name="btn-survey-link" class="action-btn survey-link-btn">
+                    <ui:Label name="lbl-survey-link" text="tinyurl.com/sunodgamesurvey" class="action-btn-label survey-link-label" />
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement class="action-row">

@@ -91,6 +91,7 @@
     <Compile Include="Assets\Scripts\Town\vc_TownNPC.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUI.cs" />
     <Compile Include="Assets\Scripts\Core\GameBootstrap.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_ClassSongQuest.cs" />
     <Compile Include="Assets\Scripts\vc_MarkerGlow.cs" />
     <Compile Include="Assets\Scripts\UI\vc_FloatingJoystick.cs" />
     <Compile Include="Assets\Scripts\Debug\vc_DebugMenu.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickup.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_Survey.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUIToolkit.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SaveManager.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
@@ -188,6 +190,7 @@
     <Compile Include="Assets\Scripts\UI\vc_RiasecSymbols.cs" />
     <Compile Include="Assets\Scripts\Core\vc_HallwaySlot.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_SeedlingStudyQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_FundraiserKitsQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\UI\vc_DialogPanel.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
@@ -200,6 +203,7 @@
     <Compile Include="Assets\Scripts\UI\LoginRegisterUIToolkit.cs" />
     <Compile Include="Assets\Scripts\UI\GameHUDUIToolkit.cs" />
     <Compile Include="Assets\Scripts\vc_DirectionalArrow.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_RoboticsPartsQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XrayEffect.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Bootstrap.cs" />
     <Compile Include="Assets\Scripts\vc_QuestHUD.cs" />
@@ -211,8 +215,10 @@
     <Compile Include="Assets\Scripts\Player\vc_CameraZoom.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorExit.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_GoTo.cs" />
+    <Compile Include="Assets\Scripts\Telemetry\vc_PlayTimeTracker.cs" />
     <Compile Include="Assets\Scripts\vc_QuestAvailabilityFilter.cs" />
     <Compile Include="Assets\Scripts\vc_MoldingSkill.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_CanteenChangeQuest.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialQuest.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialSkillMarker.cs" />
     <Compile Include="Assets\Scripts\vc_HelpSkill.cs" />
@@ -228,6 +234,7 @@
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FitQuestBase.cs" />
     <Compile Include="Assets\Scripts\vc_SlipperyWayQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_SkeletonModelQuest.cs" />
     <Compile Include="Assets\Scripts\Player\vc_SpriteFrameAnimator.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSelectionMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
@@ -237,6 +244,7 @@
     <Compile Include="Assets\Scripts\UI\CutsceneUI.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_CareerFairQuest.cs" />
     <Compile Include="Assets\Scripts\vc_RiasecAdapter.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_MorningExerciseQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\CatAI\CatAiSystem.cs" />
     <Compile Include="Assets\Scripts\vc_QuestDonePopup.cs" />
     <Compile Include="Assets\Scripts\UI\vc_PauseMenu.cs" />

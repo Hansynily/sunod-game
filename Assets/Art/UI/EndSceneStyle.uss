@@ -14,6 +14,8 @@
 /* Center */
 .center-wrapper {
     flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -34,6 +36,57 @@
     -unity-slice-right: 10;
     -unity-slice-bottom: 10;
     -unity-slice-scale: 1px;
+}
+
+/* Survey card - same wood frame as the result panel, sits to its right */
+.survey-card {
+    width: 360px;
+    margin-left: 24px;
+    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    padding: 0 28px 28px 28px;
+    align-items: center;
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    -unity-slice-scale: 1px;
+}
+.survey-note {
+    font-size: 14px;
+    color: rgb(90, 70, 50);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 10px;
+}
+/* Dark brown pixel frame, then a plain white square so the code always scans */
+.survey-qr-frame {
+    width: 268px;
+    height: 268px;
+    padding: 10px;
+    margin-bottom: 14px;
+    background-color: rgb(255, 255, 255);
+    border-width: 4px;
+    border-color: rgb(72, 52, 34);
+    border-radius: 0;
+}
+.survey-qr {
+    flex-grow: 1;
+    background-image: url("/Assets/Art/UI/Menu/survey_qr.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+.survey-link-btn {
+    height: 64px;
+    min-width: 0;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0 12px;
+}
+.survey-link-label {
+    font-size: 14px;
 }
 
 /* Header Badge */
