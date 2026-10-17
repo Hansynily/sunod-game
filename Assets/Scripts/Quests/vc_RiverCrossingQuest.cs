@@ -1,9 +1,9 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// R quest (R2). Get across the river. Any APPROPRIATE skill makes a way across - how well it
+/// R quest (R2) "River Crossing" (was "Stepping Stones"). Get across the river. Any APPROPRIATE skill makes a way across - how well it
 /// fits decides how fast it goes (and so the stars); skills that make no sense do nothing.
 ///
 ///   build    R  best fit     lay a clean stone path, slab by slab, splash each one      ~2s
@@ -17,7 +17,7 @@ using UnityEngine;
 /// While a slow fix is running the best fit (build) takes over at once.
 /// </summary>
 [DisallowMultipleComponent]
-public class vc_SteppingStonesQuest : vc_FitQuestBase
+public class vc_RiverCrossingQuest : vc_FitQuestBase
 {
     [Header("Bridge (repair / call paths)")]
     [SerializeField] private SpriteRenderer bridge;
@@ -97,12 +97,12 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
 
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
-            "Stepping Stones",
+            "River Crossing",
             "The river is too deep to wade. Make a way across.",
             new[] { "Get across the river" });
     }
 
-    // ── Idle life + walk-around ──────────────────────────────────────────
+    // â”€â”€ Idle life + walk-around â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void Update()
     {
@@ -133,7 +133,7 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
         }
     }
 
-    // ── Skill handling ───────────────────────────────────────────────────
+    // â”€â”€ Skill handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     protected override void OnSkill(vc_SkillData d)
     {
@@ -163,7 +163,7 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
         ClearPrints();
     }
 
-    // ── Build: slabs laid left to right ──────────────────────────────────
+    // â”€â”€ Build: slabs laid left to right â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private IEnumerator BuildRoutine()
     {
@@ -202,7 +202,7 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
         if (sr != null) sr.color = Color.white;
     }
 
-    // ── Push: one boulder rolled into the river per press ────────────────
+    // â”€â”€ Push: one boulder rolled into the river per press â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void PushBoulder()
     {
@@ -250,7 +250,7 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
         }
     }
 
-    // ── Repair: mend the old plank bridge ────────────────────────────────
+    // â”€â”€ Repair: mend the old plank bridge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private IEnumerator BridgeRepairRoutine()
     {
@@ -294,7 +294,7 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
         Fx(sparkFrames, bridge.transform.position + new Vector3(0f, 0.1f, 0f), 12f, 0.15f);
     }
 
-    // ── Plan: footprints reveal a shallow ford ───────────────────────────
+    // â”€â”€ Plan: footprints reveal a shallow ford â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private IEnumerator PlanRoutine()
     {
@@ -353,7 +353,7 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
         _prints.Clear();
     }
 
-    // ── Call: helper walks over and lays new planks ──────────────────────
+    // â”€â”€ Call: helper walks over and lays new planks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private IEnumerator HelperRoutine()
     {
@@ -374,7 +374,7 @@ public class vc_SteppingStonesQuest : vc_FitQuestBase
         Finish("Mang Ben's helper laid new planks. Thanks!");
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────
+    // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private IEnumerator BarStep(float seconds, float k0, float k1)
     {

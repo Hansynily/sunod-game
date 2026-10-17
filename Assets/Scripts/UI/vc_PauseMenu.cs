@@ -33,6 +33,7 @@ public class vc_PauseMenu : MonoBehaviour
     private Button        _btnExitNo;
 
     private Slider        _sfxSlider;
+    private Slider        _musicSlider;
     private SliderInt     _zoomSlider;
     private Label         _zoomLabel;
     private Button        _btnNamesEn;
@@ -70,6 +71,12 @@ public class vc_PauseMenu : MonoBehaviour
         _btnExitNo    = root.Q<Button>("btn-exit-no");
 
         _sfxSlider    = root.Q<Slider>("pause-sfx-slider");
+        _musicSlider  = root.Q<Slider>("pause-music-slider");
+        if (_musicSlider != null)
+        {
+            _musicSlider.SetValueWithoutNotify(vc_PlayerOptions.MusicVolume);
+            _musicSlider.RegisterValueChangedCallback(e => vc_PlayerOptions.MusicVolume = e.newValue);
+        }
         _btnNamesEn   = root.Q<Button>("pause-names-en");
         _btnNamesFil  = root.Q<Button>("pause-names-fil");
 
@@ -140,6 +147,7 @@ public class vc_PauseMenu : MonoBehaviour
 
         _pauseOpen = true;
         _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
+        _musicSlider?.SetValueWithoutNotify(vc_PlayerOptions.MusicVolume);
         RefreshZoomSlider();
         RefreshNameButtons();
         ShowMainButtons();

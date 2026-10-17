@@ -55,7 +55,7 @@
 /* ---------- TITLE (small wood tab on top) ---------- */
 .dialog-title {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     white-space: normal;
     letter-spacing: 2px;
@@ -82,7 +82,7 @@
 /* ---------- BODY TEXT ---------- */
 .dialog-body {
     font-size: 24px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: upper-center;
     white-space: normal;
     margin-bottom: 28px;
@@ -122,7 +122,7 @@
 
 /* ---------- CONFIRM BUTTON (primary) ---------- */
 .dialog-confirm-btn {
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     margin-right: 18px;
 }
 

@@ -29,6 +29,17 @@ public class vc_DebugMenu : MonoBehaviour
     private string _status = "";
     private float _statusUntil;
 
+    private const string HideButtonKey = "sunod.debug_button_hidden";
+    private int _hiddenTaps;
+    private float _lastHiddenTap;
+
+    /// <summary>Remembered on the device.</summary>
+    private static bool ButtonHidden
+    {
+        get { try { return PlayerPrefs.GetInt(HideButtonKey, 0) == 1; } catch { return false; } }
+        set { try { PlayerPrefs.SetInt(HideButtonKey, value ? 1 : 0); PlayerPrefs.Save(); } catch { } }
+    }
+
     private static readonly string[] Floors = { "Level1_Scene", "Level2_Scene", "Level3_Scene" };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -59,8 +70,18 @@ public class vc_DebugMenu : MonoBehaviour
         GUI.skin.box.fontSize = 13;
 
         // Left edge, mid-height: clear of the quest panel, progress banner and pause button.
-        if (GUI.Button(new Rect(2f, h * 0.42f, 64f, 22f), _open ? "CLOSE" : "DEBUG"))
+        // The on-screen button can be hidden (for clean playtests / recordings); F1 always works.
+        var buttonRect = new Rect(2f, h * 0.42f, 64f, 22f);
+        if (!ButtonHidden && GUI.Button(buttonRect, _open ? "CLOSE" : "DEBUG"))
             _open = !_open;
+
+        // Phones have no F1: when hidden, 3 quick taps on the empty spot bring the button back.
+        if (ButtonHidden && Event.current.type == EventType.MouseDown && buttonRect.Contains(Event.current.mousePosition))
+        {
+            _hiddenTaps = Time.unscaledTime - _lastHiddenTap < 0.6f ? _hiddenTaps + 1 : 1;
+            _lastHiddenTap = Time.unscaledTime;
+            if (_hiddenTaps >= 3) { ButtonHidden = false; _hiddenTaps = 0; }
+        }
 
         if (!_open) return;
 
@@ -70,6 +91,13 @@ public class vc_DebugMenu : MonoBehaviour
 
         GUILayout.Label($"Scene: {SceneManager.GetActiveScene().name}   FPS: {_fps:0}");
         if (Time.unscaledTime < _statusUntil) GUILayout.Label("> " + _status);
+
+        bool hide = GUILayout.Toggle(ButtonHidden, " Hide the DEBUG button (F1, or 3 quick taps where it was, brings it back)");
+        if (hide != ButtonHidden)
+        {
+            ButtonHidden = hide;
+            if (hide) _open = false;
+        }
 
         DrawQuestSection();
         DrawStageSection();

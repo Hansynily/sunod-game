@@ -55,7 +55,6 @@
     <Compile Include="Assets\Scripts\Town\vc_RunProgressUI.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownAmbience.cs" />
     <Compile Include="Assets\Scripts\Core\SceneLoader.cs" />
-    <Compile Include="Assets\Scripts\Quests\vc_SteppingStonesQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Debug.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownFlow.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillData.cs" />
@@ -106,6 +105,7 @@
     <Compile Include="Assets\Scripts\vc_BuildSkill.cs" />
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ClubActivityQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_RiverCrossingQuest.cs" />
     <Compile Include="Assets\Scripts\vc_GameSettings.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
@@ -121,6 +121,7 @@
     <Compile Include="Assets\Scripts\vc_StrengthSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_OpeningNightQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FishCountQuest.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_Music.cs" />
     <Compile Include="Assets\Scripts\UI\InventoryPanelUIToolkit.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RadioRepairQuest.cs" />
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />

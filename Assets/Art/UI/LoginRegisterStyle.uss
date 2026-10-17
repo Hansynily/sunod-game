@@ -194,7 +194,7 @@
     min-height: 0;
     flex-grow: 0;
     flex-shrink: 0;
-    --unity-cursor-color: rgb(72, 52, 34);
+    --unity-cursor-color: rgb(60, 54, 66);
     --unity-selection-color: rgba(201, 151, 59, 0.45);
 }
 .root-container .lr-field .unity-base-field__label {
@@ -221,7 +221,7 @@
     border-right-color: rgb(122, 86, 58);
     border-top-color: rgb(122, 86, 58);
     border-bottom-color: rgb(122, 86, 58);
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     font-size: 28px;
     -unity-text-align: middle-left;
     justify-content: center;
@@ -233,12 +233,12 @@
 }
 .root-container .lr-field .unity-text-element,
 .root-container .lr-field .unity-base-popup-field__text {
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     font-size: 28px;
     -unity-text-align: middle-left;
 }
 .root-container .lr-field .unity-base-popup-field__arrow {
-    -unity-background-image-tint-color: rgb(72, 52, 34);
+    -unity-background-image-tint-color: rgb(60, 54, 66);
 }
 
 /* Kill Unity's grey hover / focus / active chrome; focus gets a gold border instead */
@@ -341,7 +341,7 @@
 }
 .lr-action-label {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin: 0;
     padding: 0;
@@ -414,7 +414,7 @@
     height: 28px;
     background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_cross");
     -unity-background-scale-mode: scale-to-fit;
-    -unity-background-image-tint-color: rgb(72, 52, 34);
+    -unity-background-image-tint-color: rgb(60, 54, 66);
 }
 .backend-row {
     flex-direction: row;
@@ -498,11 +498,11 @@
     height: 28px;
     background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_gear");
     -unity-background-scale-mode: scale-to-fit;
-    -unity-background-image-tint-color: rgb(72, 52, 34);
+    -unity-background-image-tint-color: rgb(60, 54, 66);
 }
 .btn-dev-label {
     font-size: 14px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin: 0;
     padding: 0;

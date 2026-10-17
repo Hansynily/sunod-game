@@ -4264,7 +4264,7 @@ GameObject:
   - component: {fileID: 4757079285059066563}
   - component: {fileID: 3011667852277797813}
   m_Layer: 0
-  m_Name: SteppingStonesQuest
+  m_Name: RiverCrossingQuest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4605,7 +4605,7 @@ GameObject:
   m_Component:
   - component: {fileID: 243768541778223181}
   m_Layer: 0
-  m_Name: Room_River_SteppingStones
+  m_Name: Room_River_RiverCrossing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7607,7 +7607,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questName
-      value: Stepping Stones
+      value: River Crossing
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: questLogic

@@ -32,6 +32,8 @@
                     <ui:VisualElement name="pause-settings" class="pause-settings">
                         <ui:Label text="Sound effects" class="pause-setting-label" picking-mode="Ignore" />
                         <ui:Slider name="pause-sfx-slider" class="pause-slider" low-value="0" high-value="1" value="1" />
+                        <ui:Label text="Music" class="pause-setting-label" picking-mode="Ignore" />
+                        <ui:Slider name="pause-music-slider" class="pause-slider" low-value="0" high-value="1" value="0.5" />
                         <ui:Label name="pause-zoom-label" text="Camera zoom (far - near)" class="pause-setting-label" picking-mode="Ignore" />
                         <ui:SliderInt name="pause-zoom-slider" class="pause-slider" low-value="0" high-value="3" value="1" />
                         <ui:Label text="Skill names" class="pause-setting-label" picking-mode="Ignore" />
