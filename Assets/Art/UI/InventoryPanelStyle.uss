@@ -18,7 +18,7 @@
 .panel-root {
     width: 90%;
     max-width: 1040px;
-    height: 90%;
+    height: 96%;
     max-height: 900px;
     background-color: rgb(232, 207, 166);
     border-radius: 0;
@@ -83,7 +83,7 @@
 }
 .btn-back-label,
 .btn-cheat-label {
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
@@ -100,7 +100,7 @@
     letter-spacing: 3px;
 }
 .panel-sub {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(140, 115, 105);
     -unity-text-align: middle-center;
 }
@@ -123,7 +123,7 @@
     flex-shrink: 0;
 }
 .equipped-title {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(140, 115, 105);
     -unity-text-align: middle-center;
     letter-spacing: 3px;
@@ -145,18 +145,18 @@
 .slot-wrapper {
     align-items: center;
     flex-direction: column;
-    width: 128px;
+    width: 150px;
     margin-left: 6px;
     margin-right: 6px;
 }
 
 /* category name, small tag above the card */
 .slot-number {
-    font-size: 13px;
+    font-size: 18px; letter-spacing: 0;
     color: rgb(100, 85, 82);
     -unity-text-align: middle-center;
     margin-bottom: 4px;
-    width: 124px;
+    width: 150px;
     padding: 0;
     background-color: rgba(0,0,0,0);
     border-width: 0;
@@ -222,7 +222,7 @@
 }
 
 .slot-name-label {
-    font-size: 15px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-top: 4px;
@@ -235,12 +235,12 @@
 .body {
     flex-grow: 1;
     flex-direction: column;
-    min-height: 200px;
+    min-height: 90px;
     margin-bottom: 10px;
 }
 
 .pane-header {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(140, 115, 105);
     background-color: rgba(0,0,0,0);
     -unity-text-align: middle-left;
@@ -316,7 +316,7 @@
     justify-content: center;
 }
 .row-name {
-    font-size: 15px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     white-space: nowrap;
@@ -340,7 +340,7 @@
     border-color: rgb(100, 85, 82);
 }
 .row-tag-letter {
-    font-size: 13px;
+    font-size: 22px;
     color: white;
     -unity-text-align: middle-center;
 }
@@ -360,7 +360,7 @@
     border-width: 3px;
     border-color: rgb(196, 154, 108);
     padding: 10px 14px;
-    height: 170px;
+    height: 130px;
     flex-shrink: 0;
     flex-direction: column;
 }
@@ -372,13 +372,13 @@
     flex-direction: column;
 }
 .detail-empty-title {
-    font-size: 18px;
+    font-size: 22px;
     color: rgb(140, 115, 105);
     letter-spacing: 2px;
     margin-bottom: 4px;
 }
 .detail-empty-sub {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(160, 135, 120);
 }
 
@@ -430,16 +430,16 @@
     border-radius: 0;
 }
 .detail-tag-letter {
-    font-size: 14px;
+    font-size: 22px;
     color: white;
     margin-right: 4px;
 }
 .detail-tag-name {
-    font-size: 13px;
+    font-size: 22px;
     color: white;
 }
 .detail-level {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(100, 85, 82);
     background-color: rgba(0,0,0,0);
     background-image: url("/Assets/Art/UI/Panels/badge.png");
@@ -472,14 +472,14 @@
     flex-direction: column;
 }
 .detail-section-label {
-    font-size: 12px;
+    font-size: 22px;
     color: rgb(140, 115, 105);
     letter-spacing: 2px;
     margin-bottom: 2px;
 }
 .detail-desc,
 .detail-action {
-    font-size: 15px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: normal;
     overflow: hidden;
@@ -489,7 +489,7 @@
     flex-grow: 1;
 }
 .detail-hint {
-    font-size: 13px;
+    font-size: 22px;
     color: rgb(90, 120, 40);
     -unity-text-align: middle-center;
     letter-spacing: 1px;

@@ -44,7 +44,7 @@
 }
 
 .quest-counter {
-    font-size: 18px;
+    font-size: 22px;
     color: rgb(90, 62, 38);
     -unity-text-align: upper-left;
 }
@@ -63,7 +63,7 @@
     background-color: rgba(0,0,0,0);
     border-width: 0;
     color: rgb(60, 54, 66);
-    font-size: 20px;
+    font-size: 22px;
     margin-left: 18px;
     padding: 4px 8px;
     align-self: flex-start;
@@ -95,7 +95,7 @@
 }
 
 .quest-active-label {
-    font-size: 20px;
+    font-size: 22px;
     color: rgb(60, 42, 26);
     white-space: normal;
     flex-shrink: 1;
@@ -129,7 +129,7 @@
 
 /* Check/bullet icon */
 .quest-obj-check {
-    font-size: 20px;
+    font-size: 22px;
     color: rgb(70, 140, 55);
     margin-right: 14px;
     margin-top: 2px;
@@ -143,7 +143,7 @@
 
 /* Objective label text */
 .quest-obj-text {
-    font-size: 20px;
+    font-size: 22px;
     color: rgb(80, 62, 46);
     white-space: normal;
     flex-shrink: 1;
@@ -158,7 +158,7 @@
 
 /* Feedback toast at bottom of panel */
 .quest-feedback {
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(180, 90, 30);
     white-space: normal;
     flex-shrink: 1;

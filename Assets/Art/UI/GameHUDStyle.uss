@@ -179,8 +179,11 @@
 /* Skill name under the card */
 .slot-name {
     margin-top: 4px;
-    width: 116px;
-    font-size: 18px;
+    width: 136px;
+    margin-left: -10px;
+    margin-right: -10px;
+    letter-spacing: 0;
+    font-size: 20px;
     -unity-font-style: bold;
     color: rgb(255, 250, 235);
     -unity-text-outline-width: 2px;

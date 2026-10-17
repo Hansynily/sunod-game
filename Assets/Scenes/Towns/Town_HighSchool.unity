@@ -57306,7 +57306,7 @@ MonoBehaviour:
   npcId: highschool_C4
   npcName: Mrs. Ong
   questCode: C4
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 37d31e59c4b569141bf9fb767c751b04, type: 3}
   askLine: The student records are all mixed up. Can you sort them?
   thanksLine: Everything's filed. Thank you!
   idleFrames:
@@ -373109,7 +373109,7 @@ MonoBehaviour:
   npcId: highschool_E6
   npcName: Ate Joan
   questCode: E6
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 3d71479ededdb2f4081bb8c193e363e0, type: 3}
   askLine: Can you run a shift at the thrift shop while I'm out?
   thanksLine: Best sales day this month!
   idleFrames:

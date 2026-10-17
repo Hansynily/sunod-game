@@ -163,7 +163,7 @@
     margin-bottom: 18px;
 }
 .field-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(150, 116, 82);
     -unity-text-align: middle-left;
     white-space: nowrap;
@@ -307,14 +307,14 @@
    ============================ */
 .error-label {
     color: rgb(160, 40, 30);
-    font-size: 21px;
+    font-size: 22px;
     -unity-text-align: middle-center;
     white-space: normal;
     margin: 0 10px 10px 10px;
 }
 .loading-label {
     color: rgb(120, 92, 66);
-    font-size: 21px;
+    font-size: 22px;
     -unity-text-align: middle-center;
     margin: 0 0 10px 0;
 }
@@ -423,7 +423,7 @@
     margin-bottom: 8px;
 }
 .backend-status {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(120, 92, 66);
     flex-grow: 1;
     flex-shrink: 1;
@@ -449,7 +449,7 @@
     -unity-background-image-tint-color: rgb(192, 212, 112);
 }
 .btn-preset > .unity-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(120, 92, 66);
     -unity-text-align: middle-center;
     margin: 0;
@@ -462,16 +462,16 @@
     margin-bottom: 14px;
 }
 .backend-help {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(150, 116, 82);
     -unity-text-align: middle-center;
     white-space: normal;
 }
 .root-container .input-url > .unity-base-text-field__input {
-    font-size: 21px;
+    font-size: 22px;
 }
 .root-container .input-url .unity-text-element {
-    font-size: 21px;
+    font-size: 22px;
 }
 
 /* ============================
@@ -501,7 +501,7 @@
     -unity-background-image-tint-color: rgb(60, 54, 66);
 }
 .btn-dev-label {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin: 0;

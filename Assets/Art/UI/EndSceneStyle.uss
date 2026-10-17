@@ -55,7 +55,7 @@
     -unity-slice-scale: 1px;
 }
 .survey-note {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(90, 70, 50);
     -unity-text-align: middle-center;
     white-space: normal;
@@ -63,8 +63,7 @@
 }
 /* Dark brown pixel frame, then a plain white square so the code always scans */
 .survey-qr-frame {
-    width: 268px;
-    height: 268px;
+    width: 200px; height: 200px;
     padding: 10px;
     margin-bottom: 14px;
     background-color: rgb(255, 255, 255);
@@ -86,7 +85,7 @@
     padding: 0 12px;
 }
 .survey-link-label {
-    font-size: 14px;
+    font-size: 22px;
 }
 
 /* Header Badge */
@@ -98,12 +97,11 @@
     border-width: 0;
     border-bottom-width: 3px;
     border-bottom-color: rgb(210, 150, 64);
-    margin-top: 28px;
-    margin-bottom: 24px;
+    margin-top: 12px; margin-bottom: 10px;
     padding: 0 18px 6px 18px;
 }
 .header-text {
-    font-size: 20px;
+    font-size: 22px;
     color: rgb(90, 62, 38);
     -unity-text-align: middle-center;
 }
@@ -114,7 +112,7 @@
     margin-bottom: 12px;
 }
 .recommended-label {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(90, 70, 50);
     -unity-text-align: middle-center;
     margin-bottom: 6px;
@@ -126,7 +124,7 @@
     margin-bottom: 8px;
 }
 .riasec-note {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(90, 70, 50);
     -unity-text-align: middle-center;
 }
@@ -136,8 +134,7 @@
     height: 2px;
     background-color: rgb(150, 105, 60);
     opacity: 0.5;
-    margin-top: 16px;
-    margin-bottom: 16px;
+    margin-top: 8px; margin-bottom: 8px;
 }
 
 /* Stats */
@@ -147,17 +144,16 @@
 .stat-row {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 16px;
-    min-height: 40px;
+    margin-bottom: 2px; min-height: 40px;
 }
 .stat-label {
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(90, 70, 50);
     width: 200px;
 }
 .stat-value {
     flex-grow: 1;
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
 }
 .stat-gold {
@@ -169,7 +165,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding-bottom: 36px;
+    padding-bottom: 12px;
     width: 100%;
 }
 .action-btn {
@@ -196,7 +192,7 @@
     background-image: url("/Assets/Art/UI/Panels/button_wide_pressed.png");
 }
 .action-btn-label {
-    font-size: 18px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
@@ -213,3 +209,7 @@
     background-color: rgba(0,0,0,0);
     border-width: 0;
 }
+
+.survey-link-label { font-size: 18px; letter-spacing: 0; white-space: nowrap; }
+.result-panel, .survey-card { max-height: 84%; }
+

@@ -217321,7 +217321,7 @@ MonoBehaviour:
   npcId: college_R5
   npcName: Mang Erning
   questCode: R5
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: b199373012dc82f4080fd6d4e3f5151a, type: 3}
   askLine: Can you grind and fit this part on the workshop machine?
   thanksLine: A perfect fit!
   idleFrames:
@@ -311644,7 +311644,7 @@ MonoBehaviour:
   npcId: college_R3
   npcName: Engr. Paz
   questCode: R3
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 7fcfdbe47dc403147aba11cecaaa2958, type: 3}
   askLine: The port generator broke down. Can you help me get it running?
   thanksLine: Power's back on. Great work!
   idleFrames:

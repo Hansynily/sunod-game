@@ -32,7 +32,7 @@
     color: rgb(60, 54, 66);
 }
 .rp-banner-day {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     padding: 6px 14px 9px 14px;
 }
@@ -78,7 +78,7 @@
     height: 34px;
     margin-right: 10px;
     flex-shrink: 0;
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(255, 248, 230);
     -unity-text-align: middle-center;
     background-color: rgb(150, 124, 100);
@@ -88,7 +88,7 @@
 .rp-stage--current .rp-stage-badge { background-color: rgb(230, 150, 50); }
 .rp-stage--done .rp-stage-badge { background-color: rgb(96, 170, 84); }
 .rp-stage-name {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: nowrap;
     flex-shrink: 1;
@@ -116,7 +116,7 @@
 .rp-seg--C { background-color: rgb(34, 179, 196); }
 
 .rp-stage-count {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(110, 84, 58);
 }
 
@@ -143,8 +143,8 @@
 /* life-stage name chip under the corner ring */
 .rp-ring-name {
     position: absolute;
-    top: 74px;
-    font-size: 14px;
+    top: 100px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     white-space: nowrap;
@@ -174,7 +174,7 @@
 }
 
 .rp-card-body {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: normal;
     -unity-text-align: middle-center;
@@ -187,7 +187,7 @@
     padding: 0 22px;
 }
 .rp-card-btn-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
@@ -232,7 +232,7 @@
 }
 
 .rp-dream-hint {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(170, 160, 210);
 }
 
@@ -275,7 +275,7 @@
     margin-bottom: 10px;
 }
 .rp-energy-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-left;
     margin: 0;
@@ -307,9 +307,9 @@
 .rp-ring {
     position: absolute;
     top: 20px;
-    right: 120px;
-    width: 84px;
-    height: 84px;
+    right: 140px;
+    width: 108px;
+    height: 108px;
     align-items: center;
     justify-content: center;
     transition-property: scale;
@@ -323,7 +323,7 @@
     margin-top: 6px;
 }
 .rp-ring-day {
-    font-size: 14px;
+    font-size: 18px;
     color: rgb(130, 98, 70);
     -unity-text-align: middle-center;
     margin-top: -4px;
@@ -345,7 +345,7 @@
     translate: -50% 0;
     max-width: 640px;
     padding: 14px 30px 20px 30px;
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: normal;
     -unity-text-align: middle-center;
@@ -361,7 +361,7 @@
 
 /* ---------- live RIASEC chart (day summary) ---------- */
 .rp-chart-caption {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(130, 98, 70);
     -unity-text-align: middle-center;
     margin-bottom: 2px;
@@ -374,7 +374,7 @@
 .rp-chart-label {
     position: absolute;
     width: 20px;
-    font-size: 21px;
+    font-size: 22px;
     -unity-text-align: middle-center;
     -unity-text-outline-width: 1px;
     -unity-text-outline-color: rgb(42, 40, 52);
@@ -428,7 +428,7 @@
     opacity: 1;
 }
 .rp-done-note {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(168, 92, 30);
     -unity-text-align: middle-center;
     margin-bottom: 18px;

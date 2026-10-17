@@ -42,7 +42,7 @@
 }
 
 .award-subtitle {
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(140, 115, 105);
     -unity-text-align: middle-center;
     margin-bottom: 18px;
@@ -115,7 +115,7 @@
     margin-bottom: 16px;
 }
 .award-cat-label {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(255, 250, 240);
     letter-spacing: 2px;
     -unity-text-align: middle-center;
@@ -159,7 +159,7 @@
     margin-bottom: 8px;
 }
 .award-desc {
-    font-size: 18px;
+    font-size: 22px;
     color: rgb(100, 85, 82);
     -unity-text-align: upper-center;
     white-space: normal;

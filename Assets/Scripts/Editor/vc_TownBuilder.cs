@@ -1031,7 +1031,7 @@ public static class vc_TownBuilder
             "Our robotics team needs every part checked before the contest. Can you test them?", "Not a single bad part!");
         t.N("I1", "Ms. Garcia", "amelia_3", 13.8f, 28.8f, R + "School_SkeletonModel",
             "Can you help me put the skeleton model together for biology class?", "You know your bones!");
-        t.N("C4", "Mrs. Ong", "amelia_0", 17.4f, 28.8f, null,
+        t.N("C4", "Mrs. Ong", "amelia_0", 17.4f, 28.8f, R + "School_StudentRecords",
             "The student records are all mixed up. Can you sort them?", "Everything's filed. Thank you!");
         t.N("R7", "Joy", "alex_0", 15.5f, 9.3f, R + "School_FundraiserKits",
             "We're putting together kits for the fundraiser. Can you help assemble them?", "We'll raise so much with these!");
@@ -1045,7 +1045,7 @@ public static class vc_TownBuilder
             "Could you walk me home and help me with my chores today?", "You're such a kind young one.");
         t.N("E4", "Mang Ramil", "bob_2", 35f, 18.9f, R + "House_Barbershop",
             "My barbershop has a long line today. Can you help me run it?", "Every customer left smiling!");
-        t.N("E6", "Ate Joan", "alex_3", 43f, 18.9f, null,
+        t.N("E6", "Ate Joan", "alex_3", 43f, 18.9f, R + "House_ThriftShop",
             "Can you run a shift at the thrift shop while I'm out?", "Best sales day this month!");
         return t;
     }
@@ -1147,11 +1147,11 @@ public static class vc_TownBuilder
             "A friend is going through a hard time. Can you help them find support?", "Thank you for being there for them.");
         t.N("S5", "Aling Cora", "amelia_2", 16f, 2.9f, null,
             "My family is having a hard day. Could you help us work things out?", "We feel so much better. Salamat.");
-        t.N("R5", "Mang Erning", "bob_1", 34f, 9.3f, null,
+        t.N("R5", "Mang Erning", "bob_1", 34f, 9.3f, R + "House_WorkshopGrinder",
             "Can you grind and fit this part on the workshop machine?", "A perfect fit!");
         t.N("A7", "Direk Bong", "alex_1", 44f, 10.3f, null,
             "Our student film needs a stunt double. Up for it?", "That stunt was incredible!");
-        t.N("R3", "Engr. Paz", "adam_2", 35.6f, 7.4f, null,
+        t.N("R3", "Engr. Paz", "adam_2", 35.6f, 7.4f, R + "River_PortGenerator",
             "The port generator broke down. Can you help me get it running?", "Power's back on. Great work!");
         return t;
     }
