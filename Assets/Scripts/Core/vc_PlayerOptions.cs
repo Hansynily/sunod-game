@@ -66,6 +66,17 @@ public static class vc_PlayerOptions
         }
     }
 
+    /// <summary>Background music volume (0..1, default 0.5).</summary>
+    public static float MusicVolume
+    {
+        get => SunodGame.Core.vc_Music.Volume;
+        set
+        {
+            SunodGame.Core.vc_Music.Volume = Mathf.Clamp01(value);
+            Changed?.Invoke();
+        }
+    }
+
     /// <summary>The name to show for a skill, per the language option.</summary>
     public static string SkillName(vc_SkillData skill)
     {

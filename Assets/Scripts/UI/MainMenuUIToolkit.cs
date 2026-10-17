@@ -57,6 +57,7 @@ namespace SunodGame.UI
         private Toggle _privacyCheckRead;
         private Toggle _privacyCheckAgree;
         private Slider _sfxSlider;
+        private Slider _musicSlider;
         private Button _btnNamesEnglish;
         private Button _btnNamesFilipino;
         private Button _btnAvatarBoy;
@@ -121,6 +122,7 @@ namespace SunodGame.UI
             _privacyCheckRead  = root.Q<Toggle>("privacy-check-read");
             _privacyCheckAgree = root.Q<Toggle>("privacy-check-agree");
             _sfxSlider        = root.Q<Slider>("settings-sfx-slider");
+            _musicSlider      = root.Q<Slider>("settings-music-slider");
             _btnNamesEnglish  = root.Q<Button>("btn-names-english");
             _btnNamesFilipino = root.Q<Button>("btn-names-filipino");
             _btnAvatarBoy     = root.Q<Button>("btn-avatar-boy");
@@ -161,6 +163,7 @@ namespace SunodGame.UI
             _sfxSlider?.RegisterValueChangedCallback(OnSfxSliderChanged);
             // Dragger releases pointer capture on release - play a click so the level is audible.
             _sfxSlider?.RegisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
+            _musicSlider?.RegisterValueChangedCallback(OnMusicSliderChanged);
 
             _statsOverlay?.SetDisplay(false);
             _newRunConfirmOverlay?.SetDisplay(false);
@@ -249,6 +252,7 @@ namespace SunodGame.UI
             _privacyCheckAgree?.UnregisterValueChangedCallback(OnPrivacyCheckChanged);
             _sfxSlider?.UnregisterValueChangedCallback(OnSfxSliderChanged);
             _sfxSlider?.UnregisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
+            _musicSlider?.UnregisterValueChangedCallback(OnMusicSliderChanged);
         }
 
         private void PopulatePlayerCard()
@@ -330,6 +334,7 @@ namespace SunodGame.UI
         private void OnSettingsClicked(ClickEvent _)
         {
             _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
+            _musicSlider?.SetValueWithoutNotify(vc_PlayerOptions.MusicVolume);
             RefreshNameChoice();
             _settingsOverlay?.SetDisplay(true);
         }
@@ -345,6 +350,8 @@ namespace SunodGame.UI
         private void OnSfxSliderChanged(ChangeEvent<float> evt) => vc_PlayerOptions.SfxVolume = evt.newValue;
 
         private void OnSfxSliderReleased(PointerCaptureOutEvent _) => vc_Sfx.Play("click", 0.6f);
+
+        private void OnMusicSliderChanged(ChangeEvent<float> evt) => vc_PlayerOptions.MusicVolume = evt.newValue;
 
         private void OnNamesEnglishClicked(ClickEvent _)  => SetBaybayinNames(false);
         private void OnNamesFilipinoClicked(ClickEvent _) => SetBaybayinNames(true);

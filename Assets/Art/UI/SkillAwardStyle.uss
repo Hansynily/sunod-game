@@ -35,7 +35,7 @@
 
 .award-title {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     letter-spacing: 3px;
     margin-bottom: 4px;
@@ -153,7 +153,7 @@
 
 .award-name {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     letter-spacing: 2px;
     margin-bottom: 8px;
@@ -170,7 +170,7 @@
 /* ---------- CONFIRM (same chunky square button as the inventory) ---------- */
 .award-confirm {
     font-size: 22px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     height: 60px;
     min-width: 320px;
     padding: 6px 28px;

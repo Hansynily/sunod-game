@@ -8,166 +8,136 @@
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
-/* ---------- progress banner ---------- */
+/* ---------- life-stage banner (opened from the corner ring) ---------- */
 .rp-banner {
     position: absolute;
-    top: 8px;
-    left: 24%;
-    right: 24%;
-    padding: 14px 30px 14px 30px;
+    top: 12px;
+    left: 50%;
+    translate: -50% 0;
+    width: 900px;
+    max-width: 70%;
+    padding: 18px 26px 22px 26px;
     flex-direction: column;
     align-items: stretch;
 }
 
-.rp-caption-row {
+.rp-banner-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 14px;
 }
-
-.rp-caption {
+.rp-banner-title {
+    font-size: 28px;
+    color: rgb(60, 54, 66);
+}
+.rp-banner-day {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
+    padding: 6px 14px 9px 14px;
 }
 
-.rp-caption-right {
-    font-size: 21px;
-    color: rgb(168, 92, 30);
-}
-
-.rp-track {
+/* row of stage cards: [1 Elementary] > [2 High School] > [3 College] [!] */
+.rp-stages {
     flex-direction: row;
-    align-items: flex-end;
-    height: 76px;
+    align-items: stretch;
+}
+.rp-stage-arrow {
+    font-size: 28px;
+    color: rgb(170, 140, 105);
+    -unity-text-align: middle-center;
+    width: 26px;
+    flex-shrink: 0;
 }
 
-/* one stage: its name on top, its rail underneath */
-.rp-segment {
+.rp-stage {
     flex-grow: 1;
     flex-basis: 0;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-end;
-    height: 76px;
-    padding-bottom: 13px;
+    padding: 10px 12px 12px 12px;
+    border-width: 3px;
+    border-color: rgb(196, 162, 120);
+    background-color: rgb(244, 228, 196);
+    transition-property: opacity, scale;
+    transition-duration: 0.3s;
+}
+.rp-stage--current {
+    border-color: rgb(214, 132, 40);
+    background-color: rgb(255, 238, 200);
+}
+.rp-stage--future {
+    opacity: 0.6;
 }
 
-/* the rail behind the pips */
-.rp-rail {
-    height: 22px;
-    margin: 0 -2px;
-    background-color: rgb(72, 50, 36);
-    border-top-width: 3px;
-    border-bottom-width: 3px;
-    border-color: rgb(40, 26, 18);
+.rp-stage-top {
     flex-direction: row;
     align-items: center;
-    justify-content: space-around;
-    overflow: hidden;
+    margin-bottom: 10px;
 }
-
-.rp-rail-fill {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 0%;
-    background-color: rgb(255, 202, 92);
-    border-right-width: 3px;
-    border-color: rgb(255, 240, 190);
-    transition-property: width;
-    transition-duration: 0.8s;
-    transition-timing-function: ease-out-back;
-}
-
-.rp-pip {
-    width: 13px;
-    height: 13px;
-    rotate: 45deg;
-    background-color: rgb(120, 98, 82);
-    border-width: 2px;
-    border-color: rgb(40, 26, 18);
-    transition-property: scale, background-color;
-    transition-duration: 0.4s;
-    transition-timing-function: ease-out-back;
-}
-.rp-pip--done {
-    scale: 1.35 1.35;
-    border-color: rgb(255, 250, 230);
-}
-.rp-pip--R { background-color: rgb(217, 58, 74); }
-.rp-pip--I { background-color: rgb(240, 138, 36); }
-.rp-pip--A { background-color: rgb(142, 79, 214); }
-.rp-pip--S { background-color: rgb(47, 163, 90); }
-.rp-pip--E { background-color: rgb(47, 111, 214); }
-.rp-pip--C { background-color: rgb(34, 179, 196); }
-.rp-pip--empty-stage { background-color: rgb(80, 66, 58); }
-
-/* milestone badges between segments */
-.rp-milestone {
-    width: 48px;
-    height: 48px;
-    border-radius: 24px;
-    border-width: 4px;
-    border-color: rgb(40, 26, 18);
-    background-color: rgb(140, 116, 96);
-    align-items: center;
-    justify-content: center;
+.rp-stage-badge {
+    width: 34px;
+    height: 34px;
+    margin-right: 10px;
     flex-shrink: 0;
-    transition-property: scale, background-color;
-    transition-duration: 0.4s;
-}
-.rp-milestone-label {
     font-size: 21px;
     color: rgb(255, 248, 230);
     -unity-text-align: middle-center;
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(40, 26, 18);
-}
-.rp-milestone--current {
-    background-color: rgb(255, 180, 60);
-    border-color: rgb(120, 60, 10);
-    scale: 1.18 1.18;
-}
-.rp-milestone--done {
-    background-color: rgb(96, 180, 90);
-}
-.rp-milestone--storm {
-    background-color: rgb(70, 60, 110);
-    border-color: rgb(20, 16, 40);
-}
-.rp-milestone--storm-near {
-    background-color: rgb(170, 50, 60);
-    scale: 1.12 1.12;
-}
-
-/* little player marker riding the rail */
-.rp-marker {
-    position: absolute;
-    top: -12px;
-    width: 12px;
-    height: 12px;
-    margin-left: -6px;
-    background-color: rgb(250, 238, 215);
+    background-color: rgb(150, 124, 100);
     border-width: 2px;
-    border-color: rgb(46, 34, 24);
-    border-radius: 6px;
-    transition-property: left;
-    transition-duration: 0.6s;
-    transition-timing-function: ease-out-cubic;
+    border-color: rgb(60, 54, 66);
 }
-
+.rp-stage--current .rp-stage-badge { background-color: rgb(230, 150, 50); }
+.rp-stage--done .rp-stage-badge { background-color: rgb(96, 170, 84); }
 .rp-stage-name {
     font-size: 21px;
-    -unity-text-align: lower-center;
-    color: rgb(250, 238, 215);
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(40, 26, 18);
-    margin-bottom: 6px;
+    color: rgb(60, 54, 66);
     white-space: nowrap;
+    flex-shrink: 1;
 }
-.rp-stage-name--current {
-    color: rgb(255, 202, 92);
-    -unity-font-style: bold;
+
+/* segmented bar: one flush segment per quest */
+.rp-stage-bar {
+    flex-direction: row;
+    height: 16px;
+    padding: 2px;
+    background-color: rgb(60, 54, 66);
+    margin-bottom: 8px;
+}
+.rp-seg {
+    flex-grow: 1;
+    margin: 0 1px;
+    background-color: rgb(120, 98, 82);
+}
+.rp-stage--done .rp-seg { background-color: rgb(150, 190, 120); }
+.rp-seg--R { background-color: rgb(217, 58, 74); }
+.rp-seg--I { background-color: rgb(240, 138, 36); }
+.rp-seg--A { background-color: rgb(142, 79, 214); }
+.rp-seg--S { background-color: rgb(47, 163, 90); }
+.rp-seg--E { background-color: rgb(47, 111, 214); }
+.rp-seg--C { background-color: rgb(34, 179, 196); }
+
+.rp-stage-count {
+    font-size: 14px;
+    color: rgb(110, 84, 58);
+}
+
+/* the disaster at the end of the road */
+.rp-storm {
+    width: 46px;
+    margin-left: 10px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(70, 60, 110);
+    border-width: 3px;
+    border-color: rgb(30, 24, 50);
+}
+.rp-storm--near {
+    background-color: rgb(170, 50, 60);
+}
+.rp-storm-label {
+    font-size: 28px;
+    color: rgb(255, 248, 230);
+    -unity-text-align: middle-center;
 }
 
 /* life-stage name chip under the corner ring */
@@ -175,7 +145,7 @@
     position: absolute;
     top: 74px;
     font-size: 14px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     white-space: nowrap;
     padding: 4px 10px 6px 10px;
@@ -198,14 +168,14 @@
 
 .rp-card-title {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     margin-bottom: 14px;
     -unity-text-align: middle-center;
 }
 
 .rp-card-body {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     white-space: normal;
     -unity-text-align: middle-center;
     margin-bottom: 20px;
@@ -218,7 +188,7 @@
 }
 .rp-card-btn-label {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
 
@@ -306,7 +276,7 @@
 }
 .rp-energy-label {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-left;
     margin: 0;
     padding: 0;
@@ -348,7 +318,7 @@
 .rp-ring:active { scale: 0.94 0.94; }
 .rp-ring-stage {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-top: 6px;
 }
@@ -376,7 +346,7 @@
     max-width: 640px;
     padding: 14px 30px 20px 30px;
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     white-space: normal;
     -unity-text-align: middle-center;
     opacity: 1;
@@ -407,7 +377,7 @@
     font-size: 21px;
     -unity-text-align: middle-center;
     -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(46, 34, 24);
+    -unity-text-outline-color: rgb(42, 40, 52);
 }
 
 /* ---------- quest-done panel ---------- */
@@ -421,14 +391,14 @@
 }
 .rp-done-title {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-outline-width: 0;
     white-space: nowrap;
     -unity-text-align: middle-center;
 }
 .rp-done-name {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     white-space: normal;
     margin-bottom: 14px;

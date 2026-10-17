@@ -358248,9 +358248,9 @@ MonoBehaviour:
   npcName: Mang Ben
   questCode: R2
   questPrefab: {fileID: 4199325092526589879, guid: c343cf974888ac140a27a1f4f47fb619, type: 3}
-  askLine: The stones in my garden path got all crooked. Can you help me set them
-    back?
-  thanksLine: Now I can walk to my garden again!
+  askLine: The river is too deep and my old bridge is broken. Can you help me get
+    across?
+  thanksLine: Now I can get to the other side again!
   idleFrames:
   - {fileID: 21300000, guid: e97e92d5a28762040ba8007d40a77408, type: 3}
   - {fileID: 21300000, guid: c14cacfb981595249928293af373763c, type: 3}

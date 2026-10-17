@@ -202,6 +202,11 @@
                 </ui:VisualElement>
 
                 <ui:VisualElement class="settings-row">
+                    <ui:Label text="Music" class="settings-label"/>
+                    <ui:Slider name="settings-music-slider" class="settings-slider" low-value="0" high-value="1" value="0.5"/>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="settings-row">
                     <ui:Label text="Skill names" class="settings-label"/>
                     <ui:VisualElement class="settings-choice-row">
                         <ui:Button name="btn-names-english" text="English" class="wood-btn settings-choice-btn"/>

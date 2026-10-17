@@ -110,6 +110,7 @@ public class vc_QuestRoom : MonoBehaviour
         }
 
         questStarted = true;
+        ActiveRoom = this;
         questResultRecorded = false;
         questCompletionNotified = false;
 
@@ -149,6 +150,7 @@ public class vc_QuestRoom : MonoBehaviour
     private void HandleQuestEnded(vc_QuestTimer.QuestCompletionResult result)
     {
         Debug.Log($"[QuestRoom] '{questId}' HandleQuestEnded fired. alreadyRecorded={questResultRecorded}, passed={result?.DidPassQuest}");
+        if (ActiveRoom == this) ActiveRoom = null;
         if (questResultRecorded) { UnsubscribeFromQuestTimer(); return; }
 
         questResultRecorded = true;
@@ -166,6 +168,38 @@ public class vc_QuestRoom : MonoBehaviour
             usageSummary);
 
         UnsubscribeFromQuestTimer();
+    }
+
+    /// <summary>The room whose quest is running right now (null between quests).</summary>
+    public static vc_QuestRoom ActiveRoom { get; private set; }
+
+    private void OnDisable()
+    {
+        if (ActiveRoom == this) ActiveRoom = null;
+    }
+
+    /// <summary>
+    /// Does this quest accept the skill? True when one of its tags is in Solvable With Tags or
+    /// Required Combo Tags; a quest that lists no tags accepts skills of its own RIASEC letter.
+    /// Used by the skill cooldown: a fitting press is never penalised.
+    /// </summary>
+    public bool AcceptsSkill(vc_SkillData skill)
+    {
+        if (skill == null) return false;
+        bool anyTags = false;
+        foreach (string[] list in new[] { solvableWithTags, requiredComboTags })
+        {
+            if (list == null) continue;
+            foreach (string t in list)
+            {
+                if (string.IsNullOrWhiteSpace(t)) continue;
+                anyTags = true;
+                if (skill.HasTag(t)) return true;
+            }
+        }
+        if (anyTags) return false;
+        return !string.IsNullOrEmpty(primaryRiasec) && !string.IsNullOrEmpty(skill.riaSecLetter)
+            && primaryRiasec.StartsWith(skill.riaSecLetter.Trim(), System.StringComparison.OrdinalIgnoreCase);
     }
 
     public string QuestId => questId;

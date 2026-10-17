@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -26,7 +26,7 @@ public static class vc_TownBuilder
     private const string TileDir = "Assets/Gif/Super_Retro_Collection/Resources/Environments/TilePalette/Tiles";
     private const int Margin = 9;   // extra grass + trees outside the playable area so the camera never shows the void
 
-    // ── layout data types ─────────────────────────────────────────────────
+    // â”€â”€ layout data types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private class Town
     {
@@ -73,7 +73,7 @@ public static class vc_TownBuilder
         };
     private static readonly Vector2Int GrassCell = new Vector2Int(72, 29);   // flat grass, same green as the path rims
 
-    // ── menu ──────────────────────────────────────────────────────────────
+    // â”€â”€ menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
     /// Safe build: only creates town scenes that don't exist yet, so hand edits are never
@@ -159,7 +159,7 @@ public static class vc_TownBuilder
         }
     }
 
-    // ── scene building ────────────────────────────────────────────────────
+    // â”€â”€ scene building â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static Dictionary<Vector2Int, TileBase> _tiles;
 
@@ -705,7 +705,7 @@ public static class vc_TownBuilder
         for (int i = 0; i < values.Length; i++) arr.GetArrayElementAtIndex(i).stringValue = values[i];
     }
 
-    // ── hand-editing support: rule tiles, palette, prop prefabs ──────────
+    // â”€â”€ hand-editing support: rule tiles, palette, prop prefabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private const string PaintDir = "Assets/Art/Town/Paint";
 
@@ -840,7 +840,7 @@ public static class vc_TownBuilder
         EditorBuildSettings.scenes = list.ToArray();
     }
 
-    // ── layouts ───────────────────────────────────────────────────────────
+    // â”€â”€ layouts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static Town Elementary()
     {
@@ -918,8 +918,8 @@ public static class vc_TownBuilder
         const string R = "Room_";
         t.N("R6", "Aling Rosa", "amelia_0", 6f, 18.3f, R + "House_BrokenPumpQuestNew",
             "Oh no, my faucet is leaking again! Can you help me fix it?", "No more drip-drip-drip. Thank you!");
-        t.N("R2", "Mang Ben", "bob_1", 16f, 18.3f, R + "River_SteppingStones",
-            "The stones in my garden path got all crooked. Can you help me set them back?", "Now I can walk to my garden again!");
+        t.N("R2", "Mang Ben", "bob_1", 16f, 18.3f, R + "River_RiverCrossing",
+            "The river is too deep and my old bridge is broken. Can you help me get across?", "Now I can get to the other side again!");
         t.N("R8", "Lolo Ador", "bob_3", 6f, 8.7f, R + "House_CreakyFloorboards",
             "My floor creaks every time I take a step. Can you fix the loose boards?", "So quiet now. Salamat, apo!");
         t.N("S4", "Tita Lorna", "amelia_2", 16f, 8.7f, R + "Forest_MorningExercise",

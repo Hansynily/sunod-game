@@ -99,7 +99,7 @@ public class vc_CameraZoom : MonoBehaviour
             b.AddToClassList("sl-button");
             b.style.width = 56; b.style.height = 52; b.style.marginLeft = 8;
             b.style.fontSize = 28;
-            b.style.color = (Color)new Color32(72, 52, 34, 255);
+            b.style.color = (Color)new Color32(60, 54, 66, 255);
         }
         BindButtons(minus, plus);
         row.Add(minus);

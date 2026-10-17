@@ -84,7 +84,7 @@
 .btn-back-label,
 .btn-cheat-label {
     font-size: 16px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
 
@@ -95,7 +95,7 @@
 }
 .panel-title {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     letter-spacing: 3px;
 }
@@ -223,7 +223,7 @@
 
 .slot-name-label {
     font-size: 15px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-top: 4px;
     white-space: nowrap;
@@ -317,7 +317,7 @@
 }
 .row-name {
     font-size: 15px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     white-space: nowrap;
     overflow: hidden;
@@ -413,7 +413,7 @@
 }
 .detail-name {
     font-size: 22px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     letter-spacing: 1px;
     white-space: normal;
     margin-bottom: 4px;
@@ -480,7 +480,7 @@
 .detail-desc,
 .detail-action {
     font-size: 15px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     white-space: normal;
     overflow: hidden;
     background-color: rgba(0,0,0,0);

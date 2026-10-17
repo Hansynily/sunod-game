@@ -27,12 +27,15 @@ public class vc_RunProgressUI : MonoBehaviour
     private static readonly string[] StageNames = { "Elementary", "High School", "College" };
 
     private VisualElement _root, _banner, _track;
-    private Label _caption, _captionRight;
-    private readonly List<VisualElement> _milestones = new List<VisualElement>();
-    private readonly List<Label> _milestoneLabels = new List<Label>();
-    private readonly List<VisualElement> _fills = new List<VisualElement>();
+    private Label _bannerDay;
+
+    // one card per life stage
+    private readonly List<VisualElement> _stageCards = new List<VisualElement>();
+    private readonly List<Label> _stageBadges = new List<Label>();
+    private readonly List<Label> _stageCounts = new List<Label>();
+    private readonly List<VisualElement> _stageBars = new List<VisualElement>();
     private readonly List<List<VisualElement>> _pips = new List<List<VisualElement>>();
-    private readonly List<Label> _stageNames = new List<Label>();
+    private VisualElement _stormCard;
 
     private VisualElement _summaryDim;
     private Label _summaryTitle, _summaryBody;
@@ -87,86 +90,97 @@ public class vc_RunProgressUI : MonoBehaviour
 
     private void Start() => Refresh();
 
-    // ── banner ────────────────────────────────────────────────────────────
+    // ── banner: "Your life stages" ────────────────────────────────────────
+    // Header (title + day chip), then one card per stage: number badge + name, a flush
+    // segmented bar (one segment per quest, lit in that quest's RIASEC colour once done)
+    // and a short status line. A small storm card at the end is the disaster.
 
     private void BuildBanner(VisualElement parent)
     {
         _banner = new VisualElement { pickingMode = PickingMode.Ignore };
         _banner.AddToClassList("rp-banner");
-        _banner.AddToClassList("sl-panel-wood");
+        _banner.AddToClassList("sl-panel-cream");
         _banner.AddToClassList("rp-hidden");      // opened by tapping the progress ring
         parent.Add(_banner);
 
-        var captionRow = new VisualElement { pickingMode = PickingMode.Ignore };
-        captionRow.AddToClassList("rp-caption-row");
-        _caption = new Label("") { pickingMode = PickingMode.Ignore };
-        _caption.AddToClassList("rp-caption");
-        _captionRight = new Label("") { pickingMode = PickingMode.Ignore };
-        _captionRight.AddToClassList("rp-caption-right");
-        captionRow.Add(_caption);
-        captionRow.Add(_captionRight);
-        _banner.Add(captionRow);
+        var header = new VisualElement { pickingMode = PickingMode.Ignore };
+        header.AddToClassList("rp-banner-header");
+        var title = new Label("Your life stages") { pickingMode = PickingMode.Ignore };
+        title.AddToClassList("rp-banner-title");
+        _bannerDay = new Label("") { pickingMode = PickingMode.Ignore };
+        _bannerDay.AddToClassList("rp-banner-day");
+        _bannerDay.AddToClassList("sl-chip");
+        header.Add(title);
+        header.Add(_bannerDay);
+        _banner.Add(header);
 
         _track = new VisualElement { pickingMode = PickingMode.Ignore };
-        _track.AddToClassList("rp-track");
+        _track.AddToClassList("rp-stages");
         _banner.Add(_track);
-        // stage names sit on their own rail segment (built in RebuildTrack)
     }
 
     private void RebuildTrack(vc_TownFlow flow)
     {
         _track.Clear();
-        _milestones.Clear();
-        _milestoneLabels.Clear();
-        _fills.Clear();
+        _stageCards.Clear();
+        _stageBadges.Clear();
+        _stageCounts.Clear();
+        _stageBars.Clear();
         _pips.Clear();
-        _stageNames.Clear();
 
         for (int s = 0; s < StageNames.Length; s++)
         {
-            AddMilestone(StageShort[s], false);
+            if (s > 0)
+            {
+                var arrow = new Label(">") { pickingMode = PickingMode.Ignore };
+                arrow.AddToClassList("rp-stage-arrow");
+                _track.Add(arrow);
+            }
 
-            var seg = new VisualElement { pickingMode = PickingMode.Ignore };
-            seg.AddToClassList("rp-segment");
-            var stageName = new Label(StageNames[s]) { pickingMode = PickingMode.Ignore };
-            stageName.AddToClassList("rp-stage-name");
-            seg.Add(stageName);
-            _stageNames.Add(stageName);
-            var rail = new VisualElement { pickingMode = PickingMode.Ignore };
-            rail.AddToClassList("rp-rail");
-            var fill = new VisualElement { pickingMode = PickingMode.Ignore };
-            fill.AddToClassList("rp-rail-fill");
-            rail.Add(fill);
-            _fills.Add(fill);
+            var card = new VisualElement { pickingMode = PickingMode.Ignore };
+            card.AddToClassList("rp-stage");
 
+            var top = new VisualElement { pickingMode = PickingMode.Ignore };
+            top.AddToClassList("rp-stage-top");
+            var badge = new Label(StageShort[s]) { pickingMode = PickingMode.Ignore };
+            badge.AddToClassList("rp-stage-badge");
+            var name = new Label(StageNames[s]) { pickingMode = PickingMode.Ignore };
+            name.AddToClassList("rp-stage-name");
+            top.Add(badge);
+            top.Add(name);
+            card.Add(top);
+
+            var bar = new VisualElement { pickingMode = PickingMode.Ignore };
+            bar.AddToClassList("rp-stage-bar");
             var pips = new List<VisualElement>();
             int count = flow != null ? flow.StageQuestCount(s) : 0;
             for (int q = 0; q < Mathf.Max(1, count); q++)
             {
                 var pip = new VisualElement { pickingMode = PickingMode.Ignore };
-                pip.AddToClassList("rp-pip");
-                if (count == 0) pip.AddToClassList("rp-pip--empty-stage");
-                rail.Add(pip);
+                pip.AddToClassList("rp-seg");
+                bar.Add(pip);
                 pips.Add(pip);
             }
-            _pips.Add(pips);
-            seg.Add(rail);
-            _track.Add(seg);
-        }
-        AddMilestone("!", true);   // the disaster
-    }
+            card.Add(bar);
 
-    private void AddMilestone(string text, bool storm)
-    {
-        var m = new VisualElement { pickingMode = PickingMode.Ignore };
-        m.AddToClassList("rp-milestone");
-        if (storm) m.AddToClassList("rp-milestone--storm");
-        var l = new Label(text) { pickingMode = PickingMode.Ignore };
-        l.AddToClassList("rp-milestone-label");
-        m.Add(l);
-        _track.Add(m);
-        _milestones.Add(m);
-        _milestoneLabels.Add(l);
+            var countLabel = new Label("") { pickingMode = PickingMode.Ignore };
+            countLabel.AddToClassList("rp-stage-count");
+            card.Add(countLabel);
+
+            _track.Add(card);
+            _stageCards.Add(card);
+            _stageBadges.Add(badge);
+            _stageCounts.Add(countLabel);
+            _stageBars.Add(bar);
+            _pips.Add(pips);
+        }
+
+        _stormCard = new VisualElement { pickingMode = PickingMode.Ignore };
+        _stormCard.AddToClassList("rp-storm");
+        var bolt = new Label("!") { pickingMode = PickingMode.Ignore };
+        bolt.AddToClassList("rp-storm-label");
+        _stormCard.Add(bolt);
+        _track.Add(_stormCard);
     }
 
     public void Refresh()
@@ -181,42 +195,40 @@ public class vc_RunProgressUI : MonoBehaviour
         if (_pips.Count != StageNames.Length || havePips != expectedPips) RebuildTrack(flow);
 
         int current = flow != null ? flow.CurrentStageIndex : -1;
-        int totalDone = 0, totalQuests = 0;
 
         for (int s = 0; s < StageNames.Length; s++)
         {
             int count = flow != null ? flow.StageQuestCount(s) : 0;
             int done = 0;
-            for (int q = 0; q < count; q++)
+            for (int q = 0; q < _pips[s].Count; q++)
             {
                 VisualElement pip = _pips[s][q];
+                foreach (string l in new[] { "R", "I", "A", "S", "E", "C" }) pip.RemoveFromClassList("rp-seg--" + l);
+                bool isDone = q < count && flow.StageQuestDone(s, q);
+                pip.EnableInClassList("rp-seg--done", isDone);
+                if (!isDone) continue;
                 string code = flow.StageQuestCode(s, q);
-                string letter = string.IsNullOrEmpty(code) ? "" : code.Substring(0, 1).ToUpperInvariant();
-                bool isDone = flow.StageQuestDone(s, q);
-                foreach (string l in new[] { "R", "I", "A", "S", "E", "C" }) pip.RemoveFromClassList("rp-pip--" + l);
-                pip.EnableInClassList("rp-pip--done", isDone);
-                if (isDone) { pip.AddToClassList("rp-pip--" + letter); done++; }
+                if (!string.IsNullOrEmpty(code)) pip.AddToClassList("rp-seg--" + code.Substring(0, 1).ToUpperInvariant());
+                done++;
             }
-            totalDone += done;
-            totalQuests += count;
 
-            bool stageDone = count > 0 && done >= count && s < current;
-            float pct = count > 0 ? 100f * done / count : (s < current ? 100f : 0f);
-            if (s < current) pct = 100f;
-            _fills[s].style.width = Length.Percent(pct);
+            bool isCurrent = s == current;
+            bool isPast = current >= 0 && s < current;
+            _stageCards[s].EnableInClassList("rp-stage--current", isCurrent);
+            _stageCards[s].EnableInClassList("rp-stage--done", isPast);
+            _stageCards[s].EnableInClassList("rp-stage--future", !isCurrent && !isPast);
+            _stageBadges[s].text = isPast ? "v" : StageShort[s];
 
-            VisualElement badge = _milestones[s];
-            badge.EnableInClassList("rp-milestone--current", s == current);
-            badge.EnableInClassList("rp-milestone--done", s < current || stageDone);
-            _milestoneLabels[s].text = s < current ? "+" : StageShort[s];
-            _stageNames[s].EnableInClassList("rp-stage-name--current", s == current);
+            _stageCounts[s].text = isPast ? $"Done - {done} helped"
+                : isCurrent ? $"{done} of {count} helped"
+                : "Up next";
         }
 
-        _milestones[_milestones.Count - 1].EnableInClassList("rp-milestone--storm-near", current >= StageNames.Length - 1);
+        _stormCard?.EnableInClassList("rp-storm--near", current >= StageNames.Length - 1);
 
         vc_TownStage stage = vc_TownStage.Current;
-        _caption.text = stage != null ? $"{stage.stageTitle}  -  Day {stage.Day}" : "";
-        _captionRight.text = "";
+        _bannerDay.text = stage != null ? $"Day {stage.Day} of {stage.daysPerStage}" : "";
+        _bannerDay.EnableInClassList("rp-hidden", stage == null);
         UpdateRing(flow, stage, current);
     }
 
@@ -317,6 +329,7 @@ public class vc_RunProgressUI : MonoBehaviour
     public void PlayDream(string title, string[] lines, int background, Action onDone)
     {
         SetPlayerFrozen(true);
+        SunodGame.Core.vc_Music.SetMuted(true);   // dreams play in silence; the next cue fades in after
         _dreamLines = lines ?? new string[0];
         _dreamIndex = 0;
         _dreamDone = onDone;
@@ -379,6 +392,9 @@ public class vc_RunProgressUI : MonoBehaviour
             Action done = _dreamDone;
             _dreamDone = null;
             done?.Invoke();
+            // after done: if it moved to the next town / results, that scene's track is the cue.
+            // (done may have started another dream right away - then stay silent.)
+            if (_dreamLines == null) SunodGame.Core.vc_Music.SetMuted(false);
         }).StartingIn(800);
     }
 
@@ -979,14 +995,14 @@ public class vc_RunProgressUI : MonoBehaviour
             p.Arc(rc.center, r + 5f, 0f, 360f);
             p.fillColor = new Color32(250, 236, 205, 255);
             p.Fill();
-            p.strokeColor = new Color32(46, 34, 24, 255);
-            p.lineWidth = 3f;
+            p.strokeColor = new Color32(160, 118, 84, 255);
+            p.lineWidth = 2f;
             p.Stroke();
 
             p.lineWidth = 8f;
             p.BeginPath();
             p.Arc(rc.center, r - 2f, 0f, 360f);
-            p.strokeColor = new Color32(120, 98, 82, 255);
+            p.strokeColor = new Color32(214, 196, 168, 255);
             p.Stroke();
 
             if (_progress > 0.001f)

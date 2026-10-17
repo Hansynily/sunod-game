@@ -138,7 +138,7 @@ Label, Button, TextField, DropdownField {
 }
 .sl-text-outline {
     -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(46, 34, 24);
+    -unity-text-outline-color: rgb(42, 40, 52);
 }
 
 /* Neutralise Unity's default button hover/focus chrome (the default theme tints the
@@ -176,7 +176,7 @@ Label, Button, TextField, DropdownField {
 /* gold swallowtail title ribbon (dialog titles, "done" banners, result header) */
 .sl-ribbon {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     white-space: normal;
     letter-spacing: 2px;

@@ -1,4 +1,4 @@
-﻿/* ============================
+/* ============================
    Root - animated sky is drawn behind everything by vc_MainMenuBackground
    ============================ */
 .root-container {
@@ -95,7 +95,7 @@
     width: 48px;
     height: 48px;
     -unity-background-scale-mode: scale-to-fit;
-    -unity-background-image-tint-color: rgb(72, 52, 34);
+    -unity-background-image-tint-color: rgb(60, 54, 66);
 }
 .btn-logout .corner-icon {
     width: 40px;
@@ -103,7 +103,7 @@
 }
 .btn-logout-label {
     font-size: 14px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-top: 2px;
 }
@@ -169,11 +169,11 @@
     height: 52px;
     margin-bottom: 6px;
     -unity-background-scale-mode: scale-to-fit;
-    -unity-background-image-tint-color: rgb(72, 52, 34);
+    -unity-background-image-tint-color: rgb(60, 54, 66);
 }
 .btn-label {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
 .primary-btn .btn-icon { -unity-background-image-tint-color: rgb(40, 80, 30); }
@@ -235,7 +235,7 @@
     right: 4px;
     bottom: 4px;
     font-size: 14px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     padding: 3px 9px 5px 9px;
     background-image: url("/Assets/Art/UI/Panels/chip.png");
     -unity-slice-left: 5;
@@ -273,7 +273,7 @@
 }
 .character-name {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-bottom: 18px;
 }
@@ -299,14 +299,14 @@
 .character-choice-icon--girl { background-image: url("/Assets/Art/UI/Menu/avatar_girl.png"); }
 .character-choice-label {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
 }
 .settings-choice-btn--on .character-choice-label {
     color: rgb(40, 80, 30);
 }
 .username-label {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-top: 10px;
     padding: 10px 16px;
@@ -381,7 +381,7 @@
     margin-right: 16px;
     flex-shrink: 0;
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     background-image: url("/Assets/Art/UI/Panels/chip.png");
     -unity-slice-left: 5;
@@ -396,7 +396,7 @@
 }
 .history-career {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     white-space: normal;
 }
 .history-sub {
@@ -522,7 +522,7 @@
 }
 .action-btn-label {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
 
@@ -603,7 +603,7 @@
 }
 .settings-title {
     font-size: 28px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-bottom: 21px;
 }
@@ -614,7 +614,7 @@
 }
 .settings-label {
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     margin-bottom: 8px;
 }
 
@@ -629,9 +629,9 @@
     height: 12px;
     margin-top: -6px;
     border-radius: 0;
-    background-color: rgb(72, 52, 34);
+    background-color: rgb(60, 54, 66);
     border-width: 2px;
-    border-color: rgb(46, 34, 24);
+    border-color: rgb(42, 40, 52);
 }
 .settings-slider #unity-dragger {
     width: 26px;
@@ -640,7 +640,7 @@
     border-radius: 0;
     background-color: rgb(255, 214, 120);
     border-width: 3px;
-    border-color: rgb(72, 52, 34);
+    border-color: rgb(60, 54, 66);
 }
 .settings-slider:hover #unity-dragger,
 .settings-slider:focus #unity-dragger {
@@ -658,7 +658,7 @@
     margin-left: 4px;
     margin-right: 4px;
     font-size: 21px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
 .settings-choice-btn--on,
@@ -681,7 +681,7 @@
     margin-right: 16px;
     background-color: rgb(255, 255, 255);
     border-width: 4px;
-    border-color: rgb(72, 52, 34);
+    border-color: rgb(60, 54, 66);
     border-radius: 0;
 }
 .settings-survey-qr {
@@ -696,7 +696,7 @@
 }
 .settings-survey-note {
     font-size: 14px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     white-space: normal;
     margin-bottom: 8px;
 }
@@ -728,7 +728,7 @@
 }
 .privacy-text {
     font-size: 18px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     white-space: normal;
     -unity-text-align: upper-left;
 }
@@ -744,7 +744,7 @@
     height: 28px;
     background-color: rgb(250, 240, 220);
     border-width: 2px;
-    border-color: rgb(72, 52, 34);
+    border-color: rgb(60, 54, 66);
     border-radius: 3px;
 }
 /* Ticked = green box, so the state reads even if the theme has no checkmark image. */
@@ -755,7 +755,7 @@
 .privacy-check .unity-toggle__text,
 .privacy-check .unity-label {
     font-size: 18px;
-    color: rgb(72, 52, 34);
+    color: rgb(60, 54, 66);
     white-space: normal;
     flex-shrink: 1;
     margin-left: 10px;

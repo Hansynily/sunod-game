@@ -330,14 +330,16 @@ public class vc_SkillManager : MonoBehaviour
 
     // ── Cooldowns ─────────────────────────────────────────────────────────
     // Stops button-mashing every skill to find the right one. The pressed skill rests for a
-    // while, and every other skill briefly too. During a quest the rest is longer: the star
+    // while, and every other skill briefly too - unless it is a skill the running quest
+    // accepts (vc_QuestRoom.AcceptsSkill), which never cools down. During a quest the rest is longer: the star
     // timer keeps running, so a guessed (wrong) press costs real time - that is the penalty.
 
     [Header("Cooldowns (seconds)")]
-    [SerializeField] private float cooldownInQuest = 4f;
-    [SerializeField] private float cooldownOutsideQuest = 1.5f;
+    [Tooltip("Rest after a WRONG skill during a quest (a skill the quest accepts has no cooldown).")]
+    [SerializeField] private float cooldownInQuest = 8f;
+    [SerializeField] private float cooldownOutsideQuest = 3f;
     [Tooltip("All OTHER skills are locked this long after any press.")]
-    [SerializeField] private float sharedLockout = 1f;
+    [SerializeField] private float sharedLockout = 2f;
 
     private readonly float[] _cooldownUntil = new float[SlotCount];
     private readonly float[] _cooldownLength = new float[SlotCount];
@@ -359,6 +361,11 @@ public class vc_SkillManager : MonoBehaviour
     {
         vc_QuestTimer timer = vc_QuestTimer.Instance;
         bool inQuest = timer != null && timer.IsRunning();
+
+        // The right skill for the running quest is never penalised: no rest, no lockout.
+        vc_QuestRoom room = vc_QuestRoom.ActiveRoom;
+        vc_SkillData pressedData = pressed >= 0 && pressed < SlotCount ? GetSkillInSlot(pressed) : null;
+        if (inQuest && room != null && room.AcceptsSkill(pressedData)) return;
         float main = inQuest ? cooldownInQuest : cooldownOutsideQuest;
         for (int i = 0; i < _cooldownUntil.Length; i++)
         {
