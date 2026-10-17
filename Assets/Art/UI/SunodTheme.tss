@@ -189,3 +189,31 @@ Label, Button, TextField, DropdownField {
     border-bottom-color: rgb(210, 150, 64);
     padding: 0 18px 6px 18px;
 }
+
+/* ---------- mobile: big readable text + thumb-sized tap targets ---------- */
+Label, Button, TextField, DropdownField {
+    font-size: 26px;
+}
+.sl-button, .sl-button-wide, .unity-button, Toggle, DropdownField {
+    min-height: 80px;
+    min-width: 80px;
+}
+.unity-button {
+    margin: 8px;
+}
+TextField, .unity-text-field {
+    min-height: 80px;
+    font-size: 28px;
+}
+.unity-text-field__input, .unity-base-text-field__input {
+    min-height: 72px;
+    font-size: 28px;
+    padding: 8px 14px;
+}
+.unity-slider__dragger {
+    min-width: 48px;
+    min-height: 48px;
+}
+
+.unity-button { justify-content: center; }
+

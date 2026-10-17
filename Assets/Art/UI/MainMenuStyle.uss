@@ -102,7 +102,7 @@
     height: 40px;
 }
 .btn-logout-label {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-top: 2px;
@@ -234,7 +234,7 @@
     position: absolute;
     right: 4px;
     bottom: 4px;
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     padding: 3px 9px 5px 9px;
     background-image: url("/Assets/Art/UI/Panels/chip.png");
@@ -298,14 +298,14 @@
 .character-choice-icon--boy { background-image: url("/Assets/Art/UI/Menu/avatar_boy.png"); }
 .character-choice-icon--girl { background-image: url("/Assets/Art/UI/Menu/avatar_girl.png"); }
 .character-choice-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
 }
 .settings-choice-btn--on .character-choice-label {
     color: rgb(40, 80, 30);
 }
 .username-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     margin-top: 10px;
@@ -360,7 +360,7 @@
     padding-right: 10px;
 }
 .history-heading {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(245, 210, 130);
     margin-top: 6px;
     margin-bottom: 10px;
@@ -380,7 +380,7 @@
     height: 52px;
     margin-right: 16px;
     flex-shrink: 0;
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
     background-image: url("/Assets/Art/UI/Panels/chip.png");
@@ -395,12 +395,12 @@
     flex-shrink: 1;
 }
 .history-career {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: normal;
 }
 .history-sub {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(110, 84, 58);
     white-space: normal;
     margin-top: 4px;
@@ -418,7 +418,7 @@
     margin-top: 24px;
 }
 .run-complete-note {
-    font-size: 15px;
+    font-size: 22px;
     color: rgb(120, 210, 130);
     -unity-text-align: middle-center;
     white-space: normal;
@@ -444,7 +444,7 @@
 }
 
 .empty-state-label {
-    font-size: 18px;
+    font-size: 22px;
     color: rgb(245, 240, 230);
     -unity-text-align: middle-center;
     white-space: normal;
@@ -456,7 +456,7 @@
 }
 
 .provisional-note {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(80, 60, 20);
     -unity-text-align: middle-center;
     white-space: normal;
@@ -470,7 +470,7 @@
 }
 
 .error-note {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(160, 40, 30);
     -unity-text-align: middle-center;
     white-space: normal;
@@ -493,7 +493,7 @@
     margin-bottom: 14px;
 }
 .confirm-body {
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(225, 218, 205);
     -unity-text-align: middle-center;
     white-space: normal;
@@ -521,7 +521,7 @@
     margin-right: 10px;
 }
 .action-btn-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
@@ -536,7 +536,7 @@
     margin-bottom: 20px;
 }
 .header-text {
-    font-size: 20px;
+    font-size: 22px;
     color: rgb(90, 62, 38);
     -unity-text-align: middle-center;
 }
@@ -545,7 +545,7 @@
     margin-bottom: 10px;
 }
 .recommended-label {
-    font-size: 15px;
+    font-size: 22px;
     color: rgb(225, 218, 205);
     -unity-text-align: middle-center;
     margin-bottom: 6px;
@@ -558,7 +558,7 @@
     margin-bottom: 6px;
 }
 .riasec-note {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(210, 202, 190);
     -unity-text-align: middle-center;
 }
@@ -579,13 +579,13 @@
     min-height: 32px;
 }
 .stat-label {
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(210, 202, 190);
     width: 170px;
 }
 .stat-value {
     flex-grow: 1;
-    font-size: 16px;
+    font-size: 22px;
     color: rgb(245, 240, 230);
 }
 .stat-gold {
@@ -596,24 +596,25 @@
    Settings overlay (cream wood panel, dark-brown text)
    ============================ */
 .settings-box {
-    width: 70%;
-    max-width: 560px;
-    padding: 36px 44px;
+    width: 80%;
+    max-width: 900px;
+    max-height: 96%;
+    padding: 20px 44px;
     align-items: stretch;
 }
 .settings-title {
     font-size: 28px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
-    margin-bottom: 21px;
+    margin-bottom: 8px;
 }
 .settings-row {
     flex-direction: column;
     align-items: stretch;
-    margin-bottom: 21px;
+    margin-bottom: 8px;
 }
 .settings-label {
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     margin-bottom: 8px;
 }
@@ -657,7 +658,7 @@
     height: 56px;
     margin-left: 4px;
     margin-right: 4px;
-    font-size: 21px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     -unity-text-align: middle-center;
 }
@@ -695,14 +696,14 @@
     justify-content: center;
 }
 .settings-survey-note {
-    font-size: 14px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: normal;
     margin-bottom: 8px;
 }
 .settings-survey-link {
     flex-grow: 0;
-    font-size: 14px;
+    font-size: 22px;
     margin-left: 0;
     margin-right: 0;
 }
@@ -713,7 +714,7 @@
     height: 60px;
 }
 #btn-settings-close Label {
-    font-size: 21px;
+    font-size: 22px;
 }
 
 /* ---------- privacy notice (first visit per account) ---------- */
@@ -727,7 +728,7 @@
     margin-bottom: 18px;
 }
 .privacy-text {
-    font-size: 18px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: normal;
     -unity-text-align: upper-left;
@@ -754,7 +755,7 @@
 }
 .privacy-check .unity-toggle__text,
 .privacy-check .unity-label {
-    font-size: 18px;
+    font-size: 22px;
     color: rgb(60, 54, 66);
     white-space: normal;
     flex-shrink: 1;
