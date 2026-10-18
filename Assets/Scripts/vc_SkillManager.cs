@@ -302,8 +302,15 @@ public class vc_SkillManager : MonoBehaviour
         vc_PlayerSkill[] carriedSkills = GetComponentsInChildren<vc_PlayerSkill>(true);
         for (int i = 0; i < carriedSkills.Length; i++)
         {
-            if (carriedSkills[i] != null)
+            // Only the per-skill child objects. Some old skill components sit on the manager's
+            // own object (Game_Scene_Town); destroying "their" GameObject took the whole skill
+            // manager + inventory with it, so Continue came back with empty skill buttons.
+            if (carriedSkills[i] != null && carriedSkills[i].gameObject != gameObject)
+            {
+                // detach first: Destroy is deferred, and ResolveSkill must not reuse a dying one
+                carriedSkills[i].transform.SetParent(null, false);
                 Destroy(carriedSkills[i].gameObject);
+            }
         }
 
         if (skillSlots != null)

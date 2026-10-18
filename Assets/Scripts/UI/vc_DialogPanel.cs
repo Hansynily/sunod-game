@@ -21,6 +21,23 @@ public class vc_DialogPanel : MonoBehaviour
     private Button        _confirmBtn;
     private Button        _cancelBtn;
     private Button        _thirdBtn;    // built in code, only shown by ShowChoice3
+    private VisualElement _divider;
+    private VisualElement _list;        // built in code, only shown by ShowList
+
+    /// <summary>One row of <see cref="ShowList"/>: a coloured badge, a name and a short line.</summary>
+    public readonly struct ListRow
+    {
+        public readonly string Badge, Name, Detail;
+        public ListRow(string badge, string name, string detail) { Badge = badge; Name = name; Detail = detail; }
+    }
+
+    private static readonly System.Collections.Generic.Dictionary<string, Color> BadgeColors =
+        new System.Collections.Generic.Dictionary<string, Color>
+        {
+            { "R", new Color32(217, 58, 74, 255) },  { "I", new Color32(240, 138, 36, 255) },
+            { "A", new Color32(142, 79, 214, 255) }, { "S", new Color32(47, 163, 90, 255) },
+            { "E", new Color32(47, 111, 214, 255) }, { "C", new Color32(34, 179, 196, 255) },
+        };
 
     private Action _onConfirm;
     private Action _onCancel;
@@ -42,6 +59,7 @@ public class vc_DialogPanel : MonoBehaviour
 
         _dialogRoot = root.Q<VisualElement>("dialog-root");
         _dialogIcon = root.Q<VisualElement>("dialog-icon");
+        _divider    = root.Q<VisualElement>(className: "dialog-divider");
         _titleLabel = root.Q<Label>("dialog-title");
         _bodyLabel  = root.Q<Label>("dialog-body");
         _confirmBtn = root.Q<Button>("dialog-confirm-btn");
@@ -121,6 +139,45 @@ public class vc_DialogPanel : MonoBehaviour
         _onThird = onThird;
     }
 
+    /// <summary>
+    /// Message with an aligned list under the intro line (e.g. the 6 kinds of skills): each
+    /// row is a coloured badge, a name and a short line, in columns that line up.
+    /// </summary>
+    public void ShowList(string title, string intro, ListRow[] rows, Action onContinue)
+    {
+        ShowMessage(title, intro, onContinue);
+        if (_bodyLabel == null || rows == null) return;
+
+        if (_list == null)
+        {
+            _list = new VisualElement { name = "dialog-list", pickingMode = PickingMode.Ignore };
+            _list.AddToClassList("dialog-list");
+            _bodyLabel.parent.Insert(_bodyLabel.parent.IndexOf(_bodyLabel) + 1, _list);
+        }
+        _list.Clear();
+        foreach (ListRow r in rows)
+        {
+            var row = new VisualElement { pickingMode = PickingMode.Ignore };
+            row.AddToClassList("dialog-list-row");
+
+            var badge = new Label(r.Badge) { pickingMode = PickingMode.Ignore };
+            badge.AddToClassList("dialog-list-badge");
+            badge.style.backgroundColor = !string.IsNullOrEmpty(r.Badge) && BadgeColors.TryGetValue(r.Badge.ToUpperInvariant(), out Color c)
+                ? c : (Color)new Color32(196, 140, 72, 255);   // numbers etc.: warm wood
+            var name = new Label(r.Name) { pickingMode = PickingMode.Ignore };
+            name.AddToClassList("dialog-list-name");
+            var detail = new Label(r.Detail) { pickingMode = PickingMode.Ignore };
+            detail.AddToClassList("dialog-list-detail");
+
+            row.Add(badge);
+            row.Add(name);
+            row.Add(detail);
+            _list.Add(row);
+        }
+        _list.SetDisplay(true);
+        _bodyLabel.AddToClassList("dialog-body--intro");
+    }
+
     public void Hide()
     {
         _dialogRoot?.SetDisplay(false);
@@ -137,12 +194,18 @@ public class vc_DialogPanel : MonoBehaviour
     private void Populate(string title, string body, Sprite icon,
                           string confirmLabel, string cancelLabel)
     {
+        bool hasTitle = !string.IsNullOrWhiteSpace(title);
         if (_titleLabel != null)
         {
             _titleLabel.text = title ?? string.Empty;
             // no empty title plate when a dialog has no title
-            _titleLabel.style.display = string.IsNullOrWhiteSpace(title) ? DisplayStyle.None : DisplayStyle.Flex;
+            _titleLabel.style.display = hasTitle ? DisplayStyle.Flex : DisplayStyle.None;
         }
+        // The title's own underline already separates it from the body; the extra divider made
+        // two lines under titles and a lone line above untitled messages.
+        _divider?.SetDisplay(false);
+        _list?.SetDisplay(false);
+        _bodyLabel?.RemoveFromClassList("dialog-body--intro");
         if (_bodyLabel  != null) _bodyLabel.text  = body   ?? string.Empty;
         if (_confirmBtn != null) _confirmBtn.text = confirmLabel ?? "Confirm";
         if (_cancelBtn  != null) _cancelBtn.text  = cancelLabel  ?? "Cancel";

@@ -83,6 +83,8 @@ public class vc_RunProgressUI : MonoBehaviour
         BuildSummary(container);
         BuildQuestDone(container);
         BuildDream(container);
+        BuildTimer(container);
+        BuildCinematic(container);
 
         vc_TownFlow.ProgressChanged -= Refresh;
         vc_TownFlow.ProgressChanged += Refresh;
@@ -253,7 +255,7 @@ public class vc_RunProgressUI : MonoBehaviour
         _summaryBtn = new Button();
         _summaryBtn.AddToClassList("rp-card-btn");
         _summaryBtn.AddToClassList("sl-button-wide");
-        var btnLabel = new Label("Sleep");
+        var btnLabel = new Label("Good night");
         btnLabel.AddToClassList("rp-card-btn-label");
         _summaryBtn.Add(btnLabel);
         _summaryChart = new RiasecChart();
@@ -723,74 +725,68 @@ public class vc_RunProgressUI : MonoBehaviour
         _toast?.AddToClassList("rp-toast--hidden");
     }
 
-    // ── quest-done panel ──────────────────────────────────────────────────
+    // ── quest done: banner + "Back to town" button (non-blocking) ─────────
 
-    private VisualElement _doneDim;
-    private Label _doneTitle, _doneName, _doneNote;
+    private VisualElement _doneToast;
+    private Label _doneTitle, _doneNote;
     private readonly List<VisualElement> _doneStars = new List<VisualElement>();
-    private Button _doneBtn;
+    private Button _backBtn;
     private Action _doneContinue;
+    private IVisualElementScheduledItem _doneHide;
 
     private void BuildQuestDone(VisualElement parent)
     {
-        _doneDim = new VisualElement();
-        _doneDim.AddToClassList("rp-dim");
-        _doneDim.AddToClassList("rp-hidden");
-        parent.Add(_doneDim);
+        _doneToast = new VisualElement { pickingMode = PickingMode.Ignore };
+        _doneToast.AddToClassList("rp-done-toast");
+        _doneToast.AddToClassList("sl-panel-cream");
+        _doneToast.AddToClassList("rp-done-toast--hidden");
+        _doneToast.AddToClassList("rp-hidden");
+        parent.Add(_doneToast);
 
-        var card = new VisualElement();
-        card.AddToClassList("rp-card");
-        card.AddToClassList("rp-done-card");
-        card.AddToClassList("sl-panel-cream");
-        _doneDim.Add(card);
-
-        var ribbon = new VisualElement();
-        ribbon.AddToClassList("rp-done-ribbon");
-        ribbon.AddToClassList("sl-ribbon");
-        _doneTitle = new Label("Quest complete!");
+        _doneTitle = new Label("Quest complete!") { pickingMode = PickingMode.Ignore };
         _doneTitle.AddToClassList("rp-done-title");
-        ribbon.Add(_doneTitle);
-        card.Add(ribbon);
+        _doneToast.Add(_doneTitle);
 
-        _doneName = new Label();
-        _doneName.AddToClassList("rp-done-name");
-        card.Add(_doneName);
-
-        var stars = new VisualElement();
+        var stars = new VisualElement { pickingMode = PickingMode.Ignore };
         stars.AddToClassList("rp-done-stars");
         for (int i = 0; i < 5; i++)
         {
-            var s = new VisualElement();
+            var s = new VisualElement { pickingMode = PickingMode.Ignore };
             s.AddToClassList("rp-star");
             stars.Add(s);
             _doneStars.Add(s);
         }
-        card.Add(stars);
+        _doneToast.Add(stars);
 
-        _doneNote = new Label();
+        _doneNote = new Label { pickingMode = PickingMode.Ignore };
         _doneNote.AddToClassList("rp-done-note");
-        card.Add(_doneNote);
+        _doneToast.Add(_doneNote);
 
-        _doneBtn = MakeSideButton("Back to town", "rp-card-btn", () =>
+        // Lives with the side controls, where the in-quest "Not for me" button was.
+        _backBtn = MakeSideButton("Back to town", "rp-side-btn", () =>
         {
             SunodGame.Core.vc_Sfx.Play("click", 0.6f);
-            _doneDim.AddToClassList("rp-hidden");
-            SetPlayerFrozen(false);
+            HideQuestDone();
             Action cb = _doneContinue;
             _doneContinue = null;
             cb?.Invoke();
         });
-        card.Add(_doneBtn);
+        _backBtn.AddToClassList("rp-hidden");
+        _side.Insert(0, _backBtn);
     }
 
-    /// <summary>Town version of the quest-done popup: stars pop in one by one, then "Back to town".</summary>
+    /// <summary>
+    /// Town version of the quest-done popup. It doesn't block: a banner with the stars pops in
+    /// at the top and fades after a few seconds, and a glowing "Back to town" button stays
+    /// until the player taps it, so they can keep looking around the room first.
+    /// </summary>
     public void ShowQuestDone(string questName, int stars, Action onContinue)
     {
-        SetPlayerFrozen(true);
         _doneContinue = onContinue;
-        _doneName.text = questName;
         stars = Mathf.Clamp(stars, 0, 5);
-        _doneNote.text = stars >= 5 ? "Perfect!" : stars >= 3 ? "Nice work!" : "You did it!";
+        _doneTitle.text = string.IsNullOrEmpty(questName) ? "Quest complete!" : $"{questName} - done!";
+        string praise = stars >= 5 ? "Perfect!" : stars >= 3 ? "Nice work!" : "You did it!";
+        _doneNote.text = $"{praise} Look around, then tap \"Back to town\".";
 
         for (int i = 0; i < _doneStars.Count; i++)
         {
@@ -803,12 +799,215 @@ public class vc_RunProgressUI : MonoBehaviour
             {
                 s.AddToClassList("rp-star--shown");
                 if (idx < stars) SunodGame.Core.vc_Sfx.Play("step_done", 0.5f, 0.08f);
-            }).StartingIn(250 + 160 * i);
+            }).StartingIn(350 + 160 * i);
         }
+        HideToast();
 
-        _doneDim.RemoveFromClassList("rp-hidden");
-        PopIn(_doneDim.Q(className: "rp-card"));
+        _doneToast.RemoveFromClassList("rp-hidden");
+        _doneToast.schedule.Execute(() => _doneToast.RemoveFromClassList("rp-done-toast--hidden")).StartingIn(16);
+        _doneHide?.Pause();
+        _doneHide = _doneToast.schedule.Execute(() => _doneToast.AddToClassList("rp-done-toast--hidden")).StartingIn(5000);
+
+        _cancelQuestBtn?.AddToClassList("rp-hidden");
+        _backBtn.RemoveFromClassList("rp-hidden");
+        SetGlow(_backBtn, true);
     }
+
+    private void HideQuestDone()
+    {
+        _doneHide?.Pause();
+        _doneToast.AddToClassList("rp-done-toast--hidden");
+        _doneToast.AddToClassList("rp-hidden");
+        _backBtn.AddToClassList("rp-hidden");
+        SetGlow(_backBtn, false);
+        HideToast();
+    }
+
+    // ── quest timer: 5 stars + a draining bar, top centre ─────────────────
+    // vc_QuestTimer drives it. Tick marks on the bar sit where each star goes out.
+
+    private VisualElement _timer, _timerFill;
+    private readonly List<VisualElement> _timerStars = new List<VisualElement>();
+    private int _timerShown = -1;
+
+    private static readonly Color[] TimerColors =
+    {
+        new Color32(214, 64, 52, 255), new Color32(240, 128, 40, 255), new Color32(240, 190, 50, 255),
+        new Color32(150, 200, 70, 255), new Color32(80, 180, 90, 255),
+    };
+
+    private void BuildTimer(VisualElement parent)
+    {
+        _timer = new VisualElement { pickingMode = PickingMode.Ignore };
+        _timer.AddToClassList("rp-timer");
+        _timer.AddToClassList("sl-panel-cream");
+        _timer.AddToClassList("rp-hidden");
+        parent.Insert(parent.IndexOf(_summaryDim), _timer);
+
+        var row = new VisualElement { pickingMode = PickingMode.Ignore };
+        row.AddToClassList("rp-timer-stars");
+        for (int i = 0; i < 5; i++)
+        {
+            var s = new VisualElement { pickingMode = PickingMode.Ignore };
+            s.AddToClassList("rp-timer-star");
+            row.Add(s);
+            _timerStars.Add(s);
+        }
+        _timer.Add(row);
+
+        var bar = new VisualElement { pickingMode = PickingMode.Ignore };
+        bar.AddToClassList("rp-timer-bar");
+        _timerFill = new VisualElement { pickingMode = PickingMode.Ignore };
+        _timerFill.AddToClassList("rp-timer-fill");
+        bar.Add(_timerFill);
+        for (int i = 1; i <= 4; i++)
+        {
+            var tick = new VisualElement { pickingMode = PickingMode.Ignore };
+            tick.AddToClassList("rp-timer-tick");
+            tick.style.left = Length.Percent(i * 20f);
+            bar.Add(tick);
+        }
+        _timer.Add(bar);
+    }
+
+    /// <summary>The timer element, e.g. for the tutorial pointer.</summary>
+    public VisualElement TimerElement => _timer;
+
+    public void SetTimerVisible(bool visible)
+    {
+        _timer?.EnableInClassList("rp-hidden", !visible);
+        if (visible) _timerShown = -1;
+    }
+
+    /// <summary>Stars left (0..5); a star that just went out wobbles.</summary>
+    public void SetTimerStars(int stars, bool running)
+    {
+        if (_timer == null) return;
+        for (int i = 0; i < _timerStars.Count; i++)
+            _timerStars[i].EnableInClassList("rp-timer-star--full", i < stars);
+        if (running && _timerShown > stars && stars >= 0 && stars < _timerStars.Count)
+        {
+            VisualElement lost = _timerStars[stars];
+            lost.AddToClassList("rp-timer-star--lost");
+            lost.schedule.Execute(() => lost.RemoveFromClassList("rp-timer-star--lost")).StartingIn(380);
+        }
+        _timerShown = stars;
+    }
+
+    /// <summary>Bar fill (0..1), coloured by the stars left; blinks on the last star.</summary>
+    public void SetTimerFill(float ratio, int stars, bool running)
+    {
+        if (_timerFill == null) return;
+        _timerFill.style.width = Length.Percent(Mathf.Round(Mathf.Clamp01(ratio) * 100f));
+        Color c = TimerColors[Mathf.Clamp(stars, 1, 5) - 1];
+        if (stars <= 1 && running && Mathf.Repeat(Time.time, 0.5f) < 0.25f) c = new Color32(255, 236, 210, 255);
+        _timerFill.style.backgroundColor = c;
+    }
+
+    // ── going to bed: letterbox, HUD away, fade, night backdrop ───────────
+
+    private VisualElement _letterTop, _letterBottom, _night, _fade;
+    private readonly List<(VisualElement el, DisplayStyle was)> _hiddenDocs = new List<(VisualElement, DisplayStyle)>();
+    private readonly List<Canvas> _hiddenCanvases = new List<Canvas>();
+    private bool _cinematic;
+
+    private void BuildCinematic(VisualElement parent)
+    {
+        // night sits under the day summary; letterbox over the night; fade on top of all
+        _night = new VisualElement { pickingMode = PickingMode.Position };
+        _night.AddToClassList("rp-night");
+        _night.AddToClassList("rp-hidden");
+        parent.Insert(parent.IndexOf(_summaryDim), _night);
+
+        _letterTop = new VisualElement { pickingMode = PickingMode.Ignore };
+        _letterTop.AddToClassList("rp-letterbox");
+        _letterTop.AddToClassList("rp-letterbox--top");
+        _letterBottom = new VisualElement { pickingMode = PickingMode.Ignore };
+        _letterBottom.AddToClassList("rp-letterbox");
+        _letterBottom.AddToClassList("rp-letterbox--bottom");
+        parent.Insert(parent.IndexOf(_summaryDim), _letterTop);
+        parent.Insert(parent.IndexOf(_summaryDim), _letterBottom);
+
+        _fade = new VisualElement { pickingMode = PickingMode.Ignore };
+        _fade.AddToClassList("rp-fade");
+        parent.Add(_fade);
+    }
+
+    /// <summary>
+    /// Cutscene mode: letterbox bars slide in and every HUD piece (quest panel, skill buttons,
+    /// joystick, pause, progress ring, side buttons) hides. Off restores what was there.
+    /// </summary>
+    public void SetCinematic(bool on)
+    {
+        if (on == _cinematic) return;
+        _cinematic = on;
+        _letterTop?.EnableInClassList("rp-letterbox--on", on);
+        _letterBottom?.EnableInClassList("rp-letterbox--on", on);
+
+        foreach (VisualElement el in new[] { _ring, _banner, _side, _toast, _nextBtn })
+            if (el != null) el.style.visibility = on ? Visibility.Hidden : Visibility.Visible;
+
+        if (on)
+        {
+            _hiddenDocs.Clear();
+            _hiddenCanvases.Clear();
+            UIDocument mine = GetComponent<UIDocument>();
+            foreach (UIDocument doc in FindObjectsByType<UIDocument>(FindObjectsSortMode.None))
+            {
+                if (doc == mine || doc.rootVisualElement == null) continue;
+                if (doc.GetComponent<vc_DialogPanel>() != null || doc.GetComponent<vc_SkillAwardPopup>() != null) continue;
+                VisualElement root = doc.rootVisualElement;
+                _hiddenDocs.Add((root, root.style.display.value));
+                root.style.display = DisplayStyle.None;
+            }
+            foreach (Canvas c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            {
+                if (!c.isRootCanvas || !c.enabled) continue;
+                _hiddenCanvases.Add(c);
+                c.enabled = false;
+            }
+        }
+        else
+        {
+            foreach (var (el, was) in _hiddenDocs) if (el != null) el.style.display = was;
+            foreach (Canvas c in _hiddenCanvases) if (c != null) c.enabled = true;
+            _hiddenDocs.Clear();
+            _hiddenCanvases.Clear();
+        }
+    }
+
+    /// <summary>Fades the screen to black (1) or back (0), in whole steps like the pixel art.</summary>
+    public IEnumerator FadeScreen(float target, float duration)
+    {
+        if (_fade == null) yield break;
+        float from = _fade.resolvedStyle.opacity;
+        for (float t = 0f; t < duration; t += Time.unscaledDeltaTime)
+        {
+            float a = Mathf.Lerp(from, target, t / duration);
+            SetScreenFade(Mathf.Round(a * 8f) / 8f);
+            yield return null;
+        }
+        SetScreenFade(target);
+    }
+
+    public void SetScreenFade(float alpha)
+    {
+        if (_fade == null) return;
+        _fade.style.opacity = alpha;
+        _fade.pickingMode = alpha > 0.01f ? PickingMode.Position : PickingMode.Ignore;
+    }
+
+    /// <summary>The dream picture behind the day summary and skill pick (0..3, as dreamBackgrounds).</summary>
+    public void ShowNight(int background)
+    {
+        if (_night == null) return;
+        Texture2D bg = dreamBackgrounds != null && background >= 0 && background < dreamBackgrounds.Length
+            ? dreamBackgrounds[background] : null;
+        _night.style.backgroundImage = bg != null ? new StyleBackground(bg) : new StyleBackground(StyleKeyword.None);
+        _night.RemoveFromClassList("rp-hidden");
+    }
+
+    public void HideNight() => _night?.AddToClassList("rp-hidden");
 
     // ── juice helpers ─────────────────────────────────────────────────────
 

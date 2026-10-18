@@ -474,3 +474,122 @@
 .rp-glow--hi .rp-card-btn-label {
     color: rgb(120, 60, 10);
 }
+
+/* ---------- going to bed: letterbox bars, fade, night backdrop ---------- */
+.rp-letterbox {
+    position: absolute;
+    left: 0; right: 0;
+    height: 84px;
+    background-color: rgb(8, 6, 14);
+    transition-property: translate;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in-out;
+}
+.rp-letterbox--top { top: 0; translate: 0 -100%; }
+.rp-letterbox--bottom { bottom: 0; translate: 0 100%; }
+.rp-letterbox--on { translate: 0 0; }
+
+.rp-night {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgb(6, 6, 16);
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(120, 110, 170);
+}
+
+.rp-fade {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgb(4, 4, 10);
+    opacity: 0;
+}
+
+/* ---------- quest done: small banner at the top, the player can keep exploring ---------- */
+.rp-done-toast {
+    position: absolute;
+    top: 96px;
+    left: 50%;
+    translate: -50% 0;
+    padding: 12px 34px 18px 34px;
+    align-items: center;
+    opacity: 1;
+    transition-property: opacity, translate, scale;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-out-back;
+}
+.rp-done-toast--hidden {
+    opacity: 0;
+    translate: -50% -20px;
+}
+.rp-done-toast .rp-done-title {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+.rp-done-toast .rp-done-stars {
+    margin-bottom: 2px;
+}
+.rp-done-toast .rp-star {
+    width: 40px;
+    height: 40px;
+    margin: 0 3px;
+}
+.rp-done-toast .rp-done-note {
+    font-size: 18px;
+    margin-bottom: 0;
+}
+
+/* ---------- quest timer (stars + draining bar), top centre ---------- */
+.rp-timer {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    translate: -50% 0;
+    padding: 8px 16px 12px 16px;
+    align-items: center;
+}
+.rp-timer-stars {
+    flex-direction: row;
+    margin-bottom: 6px;
+}
+.rp-timer-star {
+    width: 36px;
+    height: 36px;
+    margin: 0 3px;
+    background-image: url("/Assets/Art/UI/Panels/star_empty.png");
+    -unity-background-scale-mode: scale-to-fit;
+    transition-property: scale, rotate;
+    transition-duration: 0.18s;
+    transition-timing-function: ease-out-back;
+}
+.rp-timer-star--full {
+    background-image: url("/Assets/Art/UI/Panels/star_full.png");
+}
+.rp-timer-star--lost {
+    scale: 1.45 1.45;
+    rotate: 14deg;
+}
+.rp-timer-bar {
+    width: 210px;
+    height: 14px;
+    background-color: rgb(246, 232, 200);
+    border-width: 2px;
+    border-color: rgb(70, 46, 34);
+}
+.rp-timer-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 100%;
+    background-color: rgb(80, 180, 90);
+}
+.rp-timer-tick {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background-color: rgba(70, 46, 34, 0.8);
+}
+
+.rp-done-toast .rp-done-note {
+    white-space: normal;
+    max-width: 330px;
+}

@@ -8,7 +8,10 @@ using UnityEngine.UIElements;
 /// <summary>
 /// UI Toolkit replacement for the legacy uGUI vc_PauseMenuController.
 /// Attach to a GameObject that also has a UIDocument pointing at PauseMenu.uxml.
-/// Pause freezes both time (Time.timeScale = 0) and player input.
+/// Pause freezes both time (Time.timeScale = 0) and player input - except during a town
+/// quest, where the world (and the quest timer) keeps running so pausing can't be used to
+/// stop the clock. The notice under the title says which one applies, and what quitting
+/// does to the save.
 /// The "quit to menu" confirmation is shown through vc_DialogPanel
 /// (same pattern as vc_EndRunUI); a local inline confirm panel is kept as a
 /// fallback for when no DialogPanel exists in the scene.
@@ -27,6 +30,7 @@ public class vc_PauseMenu : MonoBehaviour
     private VisualElement _mainBtns;
     private VisualElement _confirmPanel;
     private Label         _confirmBody;
+    private Label         _notice;
     private Button        _btnResume;
     private Button        _btnExit;
     private Button        _btnExitYes;
@@ -65,6 +69,7 @@ public class vc_PauseMenu : MonoBehaviour
         _mainBtns     = root.Q<VisualElement>("pause-main-btns");
         _confirmPanel = root.Q<VisualElement>("pause-confirm");
         _confirmBody  = root.Q<Label>("confirm-body");
+        _notice       = root.Q<Label>("pause-notice");
         _btnResume    = root.Q<Button>("btn-resume");
         _btnExit      = root.Q<Button>("btn-exit");
         _btnExitYes   = root.Q<Button>("btn-exit-yes");
@@ -153,8 +158,11 @@ public class vc_PauseMenu : MonoBehaviour
         ShowMainButtons();
         _pauseOverlay?.SetDisplay(true);
 
-        // Freeze time AND player input so the background is fully locked
-        Time.timeScale = 0f;
+        // Outside a quest the background is fully locked. During a town quest only input stops:
+        // the room and its timer keep going.
+        bool inQuest = IsInTownQuest();
+        RefreshNotice(inQuest);
+        Time.timeScale = inQuest ? 1f : 0f;
         _player?.MoveAction.Disable();
         ChallengeSessionController.Instance?.SetExternalPause(true);
     }
@@ -168,6 +176,23 @@ public class vc_PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         _player?.MoveAction.Enable();
         ChallengeSessionController.Instance?.SetExternalPause(false);
+    }
+
+    private static bool IsInTownQuest() => vc_TownStage.Current != null && vc_TownStage.Current.InQuest;
+
+    /// <summary>What pausing and quitting mean right now (timer still running / where Continue resumes).</summary>
+    private void RefreshNotice(bool inQuest)
+    {
+        if (_notice == null) return;
+        vc_TownStage stage = vc_TownStage.Current;
+        string text = null;
+        if (inQuest)
+            text = $"The quest timer is still running! Quit now and this quest counts as not finished. You'll wake up at home, Day {stage.Day}.";
+        else if (stage != null)
+            text = $"The game saves when you sleep. Quit now and you'll wake up at home, Day {stage.Day}.";
+        _notice.text = text ?? string.Empty;
+        _notice.SetDisplay(text != null);
+        _notice.EnableInClassList("pause-notice--warn", inQuest);
     }
 
     // ── Settings ──────────────────────────────────────────────────────────
@@ -239,6 +264,10 @@ public class vc_PauseMenu : MonoBehaviour
 
     private void HandleExitConfirmed()
     {
+        // Quitting mid-quest ends that quest as not completed and saves it first, so it can't
+        // be retried by quitting and pressing Continue.
+        if (IsInTownQuest()) vc_TownStage.Current.AbandonQuestForQuit();
+
         // Clear everything gathered during the run before leaving.
         ClearRunRecords();
 
@@ -313,7 +342,12 @@ public class vc_PauseMenu : MonoBehaviour
         => IsTutorialSceneName(SceneManager.GetActiveScene().name);
 
     private string GetDefaultExitConfirmBody()
-        => IsTutorialScene()
-            ? "Return to the main menu?"
-            : "Return to the main menu?\nThis will cancel the current run and clear your progress.";
+    {
+        if (IsTutorialScene()) return "Return to the main menu?";
+        vc_TownStage stage = vc_TownStage.Current;
+        if (stage == null) return "Return to the main menu?\nThis will cancel the current run and clear your progress.";
+        return stage.InQuest
+            ? $"Quit to the main menu?\nThis quest will count as not finished. Continue starts at home on the morning of Day {stage.Day}."
+            : $"Quit to the main menu?\nContinue starts at home on the morning of Day {stage.Day}.";
+    }
 }

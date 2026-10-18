@@ -13,6 +13,13 @@ public class PlayerController : MonoBehaviour
 
     /// <summary>Current move input (-1..1 per axis). Read by vc_SpriteFrameAnimator.</summary>
     public Vector2 Move => move;
+
+    /// <summary>Cutscene walking (e.g. heading home to sleep): overrides input while set.</summary>
+    public Vector2? ScriptedMove { get; set; }
+
+    /// <summary>While true the camera stays where it is instead of following the player.</summary>
+    public bool CameraHeld { get; set; }
+
     Transform followCamera;
     Vector3 cameraOffset;
     bool cameraDetachedForStability;
@@ -40,7 +47,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        move = MoveAction.ReadValue<Vector2>();
+        move = ScriptedMove ?? MoveAction.ReadValue<Vector2>();
     }
 
     void FixedUpdate()
@@ -57,7 +64,7 @@ public class PlayerController : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!cameraDetachedForStability || followCamera == null) return;
+        if (!cameraDetachedForStability || followCamera == null || CameraHeld) return;
 
         followCamera.position = transform.position + cameraOffset;
         followCamera.rotation = Quaternion.identity;

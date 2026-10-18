@@ -1,3 +1,4 @@
+using UnityEngine.UIElements;
 using UnityEngine;
 using SunodGame.Core;
 using SunodGame.Telemetry;
@@ -117,6 +118,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_QuestHUD.Instance?.SetCounter($"Step 1 of {TotalSteps}");
 
         vc_FloatingMessage.Instance?.Show("Drag the joystick at the bottom left to walk around.");
+        PointAtJoystick();
     }
 
     private void AdvanceStep(int objectiveIndex)
@@ -134,6 +136,7 @@ public class vc_TutorialFlowController : MonoBehaviour
     private void OnMoveLearned()
     {
         _phase = Phase.Explore;
+        vc_UIPointer.Hide();
         vc_QuestHUD.Instance?.CheckObjective(OBJ_MOVE);
         AdvanceStep(OBJ_MOVE);
         vc_FloatingMessage.Instance?.Show("Good! Walk to the skill area ahead.");
@@ -154,22 +157,29 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_DialogPanel.Instance?.ShowMessage(
             "What Are Skills?",
             "Skills are how you solve problems in SUNOD. Each problem can be solved in more than one way, with different skills.",
-            () => vc_DialogPanel.Instance?.ShowMessage(
+            () => vc_DialogPanel.Instance?.ShowList(
                 "6 Kinds of Skills",
-                "Every skill is one of 6 kinds:\n" +
-                "R - Realistic: build and fix\n" +
-                "I - Investigative: think and find out\n" +
-                "A - Artistic: create and design\n" +
-                "S - Social: help and teach\n" +
-                "E - Enterprising: lead and convince\n" +
-                "C - Conventional: sort and organize",
-                () => vc_DialogPanel.Instance?.ShowMessage(
+                "Every skill is one of 6 kinds:",
+                new[]
+                {
+                    new vc_DialogPanel.ListRow("R", "Realistic", "build and fix"),
+                    new vc_DialogPanel.ListRow("I", "Investigative", "think and find out"),
+                    new vc_DialogPanel.ListRow("A", "Artistic", "create and design"),
+                    new vc_DialogPanel.ListRow("S", "Social", "help and teach"),
+                    new vc_DialogPanel.ListRow("E", "Enterprising", "lead and convince"),
+                    new vc_DialogPanel.ListRow("C", "Conventional", "sort and organize"),
+                },
+                () =>
+                {
+                    PointAtSkillButtons(-1);
+                    vc_DialogPanel.Instance?.ShowMessage(
                     "Your Skill Buttons",
                     "Your skill buttons are at the bottom right. Each button holds one kind and shows that kind's symbol.",
-                    () => vc_DialogPanel.Instance?.ShowMessage(
+                    () => { vc_UIPointer.Hide(); vc_DialogPanel.Instance?.ShowMessage(
                         "Pick One",
                         "There is one skill of each kind here. Walk up to each one to read what it does. You can only take one, so pick the one you like most.",
-                        () => PointArrowAtFirstMarker()))));
+                        () => PointArrowAtFirstMarker()); });
+                }));
     }
 
     private void EnterGoToZone()
@@ -245,6 +255,20 @@ public class vc_TutorialFlowController : MonoBehaviour
         AdvanceStep(OBJ_ZONE);
         HideArrow();
         vc_FloatingMessage.Instance?.Show($"You're in the zone! Tap the {KindLetter(_chosen)} button to use {SkillLabel(_chosen)}.");
+
+        // Point at the exact button until the player presses it.
+        PointAtSkillButtons(vc_SkillManager.SlotIndexForLetter(KindLetter(_chosen)));
+        if (vc_SkillManager.Instance != null)
+        {
+            vc_SkillManager.Instance.SkillUsed -= OnSkillUsedOnce;
+            vc_SkillManager.Instance.SkillUsed += OnSkillUsedOnce;
+        }
+    }
+
+    private void OnSkillUsedOnce(int slot, vc_PlayerSkill skill)
+    {
+        if (vc_SkillManager.Instance != null) vc_SkillManager.Instance.SkillUsed -= OnSkillUsedOnce;
+        vc_UIPointer.Hide();
     }
 
     // ── Completion ────────────────────────────────────────────────────────
@@ -252,6 +276,7 @@ public class vc_TutorialFlowController : MonoBehaviour
     private void OnQuestCompleted()
     {
         if (quest != null) quest.Completed -= OnQuestCompleted;
+        vc_UIPointer.Hide();
 
         vc_QuestHUD.Instance?.CheckObjective(OBJ_CLEAR);
         AdvanceStep(OBJ_CLEAR);
@@ -267,14 +292,20 @@ public class vc_TutorialFlowController : MonoBehaviour
         _phase = Phase.LifeStages;
         vc_FloatingMessage.Instance?.Show("One more thing: how a full game works.");
 
-        vc_DialogPanel.Instance?.ShowMessage(
+        vc_DialogPanel.Instance?.ShowList(
             "Your 3 Life Stages",
-            "A full game takes you through 3 life stages, one town each:\n\n" +
-            "1  Elementary\n" +
-            "2  High School\n" +
-            "3  College\n\n" +
-            "You grow up as you go. Finish a stage and you move on to the next one.",
+            "A full game takes you through 3 life stages, one town each. Finish one and you grow up into the next:",
+            new[]
+            {
+                new vc_DialogPanel.ListRow("1", "Elementary", "your first town"),
+                new vc_DialogPanel.ListRow("2", "High School", "bigger problems"),
+                new vc_DialogPanel.ListRow("3", "College", "then your results"),
+            },
             () => vc_DialogPanel.Instance?.ShowMessage(
+                "Beat the Clock",
+                "In a real quest, stars at the top count down while you work, and a bar under them drains.\n\n" +
+                "Finish fast to keep more stars. If the bar runs out, time's up.",
+                () => vc_DialogPanel.Instance?.ShowMessage(
                 "Days and Energy",
                 "Each stage lasts 4 days. People with a \"!\" above their head need help.\n\n" +
                 "Every quest you take uses 1 energy, and you get 4 energy a day. When it runs out, tap Sleep to start the next day.",
@@ -286,7 +317,7 @@ public class vc_TutorialFlowController : MonoBehaviour
                         "Watch Your Progress",
                         "The ring in the top-right corner shows your life stage and the day. Tap it to see all 3 stages.\n\n" +
                         "After College, SUNOD shows the careers that fit you best.",
-                        OnLifeStagesLearned))));
+                        OnLifeStagesLearned)))));
     }
 
     private void OnLifeStagesLearned()
@@ -348,6 +379,31 @@ public class vc_TutorialFlowController : MonoBehaviour
 
     private static string SkillLabel(vc_SkillData s) =>
         s != null && !string.IsNullOrWhiteSpace(s.DisplayName) ? s.DisplayName : "Your skill";
+
+    // ── UI pointer helpers ────────────────────────────────────────────────
+
+    private static void PointAtJoystick()
+    {
+        var zone = FindFirstObjectByType<SunodGame.UI.vc_FloatingJoystick>(FindObjectsInactive.Exclude);
+        if (zone == null) return;
+        Transform visible = zone.transform.parent != null ? zone.transform.parent.Find("Joystick") : null;
+        vc_UIPointer.PointAtWorldUI((visible != null ? visible : zone.transform) as RectTransform);
+    }
+
+    /// <summary>Frames one skill button (slot index) or all six (-1).</summary>
+    private static void PointAtSkillButtons(int slot)
+    {
+        foreach (UnityEngine.UIElements.UIDocument doc in FindObjectsByType<UnityEngine.UIElements.UIDocument>(FindObjectsSortMode.None))
+        {
+            var root = doc.rootVisualElement;
+            if (root == null || root.Q("slot-btn-0") == null) continue;
+            if (slot >= 0) { vc_UIPointer.PointAt(root.Q("slot-btn-" + slot)); return; }
+            var all = new UnityEngine.UIElements.VisualElement[vc_SkillManager.SlotCount];
+            for (int i = 0; i < all.Length; i++) all[i] = root.Q("slot-btn-" + i);
+            vc_UIPointer.PointAt(all);
+            return;
+        }
+    }
 
     // ── Arrow helpers (all null-safe) ─────────────────────────────────────
 

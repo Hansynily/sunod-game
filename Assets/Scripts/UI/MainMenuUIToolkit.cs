@@ -454,6 +454,11 @@ namespace SunodGame.UI
         {
             if (_cachedRunState == null || !_cachedRunState.has_state || _cachedRunState.run_finished) return;
 
+            // The inventory and skill buttons survive scene loads: start the resumed run from
+            // a clean slate so the restore below puts back exactly what the save holds.
+            vc_PlayerInventory.Instance?.ClearInventory();
+            vc_SkillManager.Instance?.ResetForNewRun();
+
             // Seed the resumed run's completed-quest exclusion set + owned skills. Both are
             // consumed by vc_QuestAvailabilityFilter once the floor scene loads (completed
             // quests in Awake; skills resolved against its gameSettings master list and

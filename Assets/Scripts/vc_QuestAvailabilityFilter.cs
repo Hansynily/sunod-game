@@ -72,6 +72,21 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
     }
 
     /// <summary>
+    /// The SkillManager object (and this filter on it) survives scene loads, so a second run in
+    /// the same app session - Continue after quitting to the menu - never hits Start again and
+    /// the restore flags are still set from the first run. That left the skill buttons empty
+    /// after Continue. The gameplay scene calls this on load to run the restore / starting kit
+    /// again for the new run.
+    /// </summary>
+    public void ReapplyForScene()
+    {
+        _skillRestoreApplied = false;
+        _startingKitApplied = false;
+        ApplyPendingSkillRestore();
+        ApplyStartingKit();
+    }
+
+    /// <summary>
     /// Resolves the resumed run's owned skill names to vc_SkillData assets (via the master
     /// list in gameSettings) and re-equips them into the player's inventory and skill slots.
     /// Idempotent and heavily null-guarded - if a dependency isn't ready it logs and leaves
@@ -111,8 +126,10 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
             }
 
             vc_PlayerInventory.Instance.AddSkill(resolved); // ownership (drives quest availability)
+            // Saves list equipped skills last (vc_QuestRoom.OwnedSkillNamesEquippedLast), so the
+            // last skill of each kind wins its slot and the player's own loadout comes back.
             if (vc_SkillManager.Instance != null && vc_SkillManager.Instance.EquipToCategorySlot(resolved))
-                equippedCount++; // usable equip - only counts if its category slot was free
+                equippedCount++;
         }
 
         _skillRestoreApplied = true;

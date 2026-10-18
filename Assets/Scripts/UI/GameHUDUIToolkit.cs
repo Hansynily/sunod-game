@@ -83,8 +83,8 @@ namespace SunodGame.UI
             for (int i = 0; i < 6; i++)
                 _previews[i] = root.Q<VisualElement>($"preview-{i}");
 
-            root.Q<Button>("btn-open-inventory")
-                ?.RegisterCallback<ClickEvent>(_ => _inventoryPanel?.Show());
+            _inventoryBtn = root.Q<Button>("btn-open-inventory");
+            _inventoryBtn?.RegisterCallback<ClickEvent>(_ => _inventoryPanel?.Show());
 
             vc_PlayerOptions.Changed += OnOptionsChanged;
         }
@@ -184,11 +184,15 @@ namespace SunodGame.UI
                 _slotEmpties[i].style.display = DisplayStyle.None;
         }
 
+        private Button _inventoryBtn;
+
         private void RefreshPreviewCircles()
         {
             if (vc_PlayerInventory.Instance == null) return;
             var skills = vc_PlayerInventory.Instance.GatheredSkills;
             _previewSkillCount = skills.Count;
+            // no empty inventory box before the first skill (e.g. start of the tutorial)
+            if (_inventoryBtn != null) _inventoryBtn.style.visibility = skills.Count > 0 ? Visibility.Visible : Visibility.Hidden;
 
             for (int i = 0; i < 6; i++)
             {

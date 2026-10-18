@@ -196,7 +196,9 @@ namespace SunodGame.Core
         private void OnQuestEnded(vc_QuestTimer.QuestCompletionResult result)
         {
             if (result == null) return;
-            Play(result.DidPassQuest ? "quest_complete" : "quest_fail", 0.9f, 0f, 0.5f);
+            // quest_fanfare: soft music-box arpeggio (Tools/make_fanfare.py); the old chime stays as a fallback
+            if (result.DidPassQuest) Play(_clips.ContainsKey("quest_fanfare") ? "quest_fanfare" : "quest_complete", 0.85f, 0f, 0.5f);
+            else Play("quest_fail", 0.9f, 0f, 0.5f);
         }
     }
 }

@@ -27,6 +27,9 @@
                 <!-- Gold divider under title -->
                 <ui:VisualElement class="pause-divider" picking-mode="Ignore" />
 
+                <!-- Save / timer notice (text set in vc_PauseMenu) -->
+                <ui:Label name="pause-notice" text="" class="pause-notice" picking-mode="Ignore" />
+
                 <!-- ── Main buttons (Resume / Exit) ───────────────────── -->
                 <ui:VisualElement name="pause-main-btns" class="pause-main-btns">
                     <ui:VisualElement name="pause-settings" class="pause-settings">
@@ -41,8 +44,10 @@
                             <ui:Button name="pause-names-en" class="pause-choice-btn sl-button" text="English" />
                             <ui:Button name="pause-names-fil" class="pause-choice-btn sl-button" text="Filipino" />
                         </ui:VisualElement>                    </ui:VisualElement>
-                    <ui:Button name="btn-resume" class="pause-btn pause-btn-resume" text="RESUME" />
-                    <ui:Button name="btn-exit"   class="pause-btn pause-btn-exit"   text="QUIT TO MENU" />
+                    <ui:VisualElement class="pause-action-row">
+                        <ui:Button name="btn-resume" class="pause-btn pause-btn-resume" text="RESUME" />
+                        <ui:Button name="btn-exit"   class="pause-btn pause-btn-exit"   text="QUIT TO MENU" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
 
                 <!-- ── Exit confirmation (hidden by default) ──────────── -->
