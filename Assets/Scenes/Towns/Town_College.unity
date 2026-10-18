@@ -36397,7 +36397,7 @@ MonoBehaviour:
   npcId: college_S3
   npcName: Kuya Joel
   questCode: S3
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 1fed4c034f4a9a24c82fe5c2d4ca1866, type: 3}
   askLine: A friend is going through a hard time. Can you help them find support?
   thanksLine: Thank you for being there for them.
   idleFrames:
@@ -46912,7 +46912,7 @@ MonoBehaviour:
   npcId: college_A7
   npcName: Direk Bong
   questCode: A7
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: a5a595faed115d147b7965788f9a2fce, type: 3}
   askLine: Our student film needs a stunt double. Up for it?
   thanksLine: That stunt was incredible!
   idleFrames:
@@ -231014,7 +231014,7 @@ MonoBehaviour:
   npcId: college_C3
   npcName: Jay
   questCode: C3
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 008c7bbaeb8c11a4eb1aa8ba7cc1f3b2, type: 3}
   askLine: Can you help me make the customer bills at the net cafe?
   thanksLine: No billing mistakes today!
   idleFrames:
@@ -257243,7 +257243,7 @@ MonoBehaviour:
   npcId: college_E5
   npcName: Ms. Ria
   questCode: E5
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 38114d95a5a353a449d3a64ec8096dfa, type: 3}
   askLine: My team at the internship needs a leader today. Can you run it?
   thanksLine: The team did great under you.
   idleFrames:
@@ -274398,7 +274398,7 @@ MonoBehaviour:
   npcId: college_C7
   npcName: Ms. Uy
   questCode: C7
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 075e7ce9c540a0f458635c72f1a71cf8, type: 3}
   askLine: The bank line is long. Can you handle a teller window for me?
   thanksLine: Every peso balanced. Thank you!
   idleFrames:
@@ -302029,7 +302029,7 @@ MonoBehaviour:
   npcId: college_S5
   npcName: Aling Cora
   questCode: S5
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 84ecc4d2cb3033b4b8ea287883a5e4fa, type: 3}
   askLine: My family is having a hard day. Could you help us work things out?
   thanksLine: We feel so much better. Salamat.
   idleFrames:
@@ -334338,7 +334338,7 @@ MonoBehaviour:
   npcId: college_A5
   npcName: Kevin
   questCode: A5
-  questPrefab: {fileID: 0}
+  questPrefab: {fileID: 4199325092526589879, guid: 9b9d1ec6b3fe1d74b98116b178346ecb, type: 3}
   askLine: The campus paper needs a story by tonight. Can you help me write it?
   thanksLine: Front page material!
   idleFrames:

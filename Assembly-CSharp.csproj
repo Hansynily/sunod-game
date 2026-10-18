@@ -67,6 +67,7 @@
     <Compile Include="Assets\Gif\Ruccho\FangAutoTile\Sample\OnMapPlayerController.cs" />
     <Compile Include="Assets\Scripts\vc_SOSSkill.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.SceneBinding.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_SupportCornerQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoSceneReferences.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SceneBootstrapper.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ToyStoreQuest.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Assets\Scripts\vc_CheatUnlockAll.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ParadeDrumQuest.cs" />
     <Compile Include="Assets\Scripts\UI\EndSceneUIToolkit.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_NetCafeQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_GenericQuestEngine.cs" />
     <Compile Include="Assets\Scripts\QuestData.cs" />
     <Compile Include="Assets\Scripts\vc_PauseMenuController.cs" />
@@ -134,6 +136,7 @@
     <Compile Include="Assets\Scripts\Core\vc_SaveManager.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_CatCureQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_FamilyTalkQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_RoomSlot.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
     <Compile Include="Assets\Scripts\vc_SkillAwardPopup.cs" />
@@ -147,6 +150,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_OpenHouseQuest.cs" />
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_InternTeamQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_PlayerOptions.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RiverbedMapQuest.cs" />
     <Compile Include="Assets\Scripts\Skills\Conventional\PlanSkill.cs" />
@@ -178,6 +182,7 @@
     <Compile Include="Assets\Scripts\vc_PlayerInventory.cs" />
     <Compile Include="Assets\Scripts\NPCs\NPCController.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ThriftShopQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_CampusPaperQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_SafeArea.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.RoundFlow.cs" />
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
@@ -203,6 +208,7 @@
     <Compile Include="Assets\Scripts\UI\vc_DialogPanel.cs" />
     <Compile Include="Assets\Scripts\Core\ChallengeRoundResult.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownStage.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_StuntSetQuest.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialAreaTrigger.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_StudentRecordsQuest.cs" />
@@ -219,6 +225,7 @@
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Pause.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_HarvestTallyQuest.cs" />
     <Compile Include="Assets\Scripts\vc_FallenSparrowQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_FitQuestKit.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillInventory.cs" />
     <Compile Include="Assets\Scripts\Skills\Social\BondSkill.cs" />
     <Compile Include="Assets\Scripts\Player\vc_CameraZoom.cs" />
@@ -228,6 +235,7 @@
     <Compile Include="Assets\Scripts\vc_QuestAvailabilityFilter.cs" />
     <Compile Include="Assets\Scripts\vc_MoldingSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_CanteenChangeQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_BankTellerQuest.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialQuest.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialSkillMarker.cs" />
     <Compile Include="Assets\Scripts\vc_HelpSkill.cs" />
