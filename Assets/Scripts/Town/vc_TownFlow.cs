@@ -80,6 +80,10 @@ public class vc_TownFlow : MonoBehaviour
         if (telemetry != null && string.IsNullOrWhiteSpace(telemetry.SessionId))
             telemetry.StartSession();
 
+        // Skills: put the saved loadout (Continue) or the starting kit (new run) back into the
+        // skill buttons. Needed because the skill manager outlives the previous run's scene.
+        vc_QuestAvailabilityFilter.Instance?.ReapplyForScene();
+
         // Dev: a town scene was opened and played directly - use it.
         foreach (string town in TownScenes)
         {

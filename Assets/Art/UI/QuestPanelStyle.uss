@@ -8,7 +8,7 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 30px;
+    padding: 16px;
 }
 
 /* Main panel card - Sprout Lands wood frame, 9-sliced */
@@ -24,10 +24,10 @@
     border-top-color: rgb(170, 121, 89);
     border-right-color: rgb(170, 121, 89);
     border-bottom-color: rgb(100, 85, 82);
-    padding: 22px 28px 24px 28px;
-    min-width: 450px;
-    width: 580px;
-    max-width: 580px;
+    padding: 10px 16px 12px 16px;
+    min-width: 300px;
+    width: 360px;
+    max-width: 360px;
 }
 
 /* Header: text block + chevron button */
@@ -35,7 +35,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
 }
 
 .quest-header-text {
@@ -44,13 +44,13 @@
 }
 
 .quest-counter {
-    font-size: 22px;
+    font-size: 18px;
     color: rgb(90, 62, 38);
     -unity-text-align: upper-left;
 }
 
 .quest-title {
-    font-size: 24px;
+    font-size: 20px;
     color: rgb(60, 42, 26);
     -unity-text-align: upper-left;
     white-space: normal;
@@ -63,9 +63,9 @@
     background-color: rgba(0,0,0,0);
     border-width: 0;
     color: rgb(60, 54, 66);
-    font-size: 22px;
-    margin-left: 18px;
-    padding: 4px 8px;
+    font-size: 18px;
+    margin-left: 10px;
+    padding: 2px 6px;
     align-self: flex-start;
     transition-property: translate;
     transition-duration: 0.05s;
@@ -89,13 +89,13 @@
 
 .quest-arrow {
     color: rgb(180, 100, 30);
-    font-size: 22px;
-    margin-right: 14px;
-    margin-top: 2px;
+    font-size: 18px;
+    margin-right: 8px;
+    margin-top: 1px;
 }
 
 .quest-active-label {
-    font-size: 22px;
+    font-size: 18px;
     color: rgb(60, 42, 26);
     white-space: normal;
     flex-shrink: 1;
@@ -115,7 +115,7 @@
 /* Expanded objectives list */
 .quest-objectives-list {
     flex-direction: column;
-    margin-top: 12px;
+    margin-top: 6px;
     display: none;
 }
 
@@ -124,16 +124,16 @@
     flex-direction: row;
     align-items: flex-start;
     width: 100%;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 /* Check/bullet icon */
 .quest-obj-check {
-    font-size: 22px;
+    font-size: 18px;
     color: rgb(70, 140, 55);
-    margin-right: 14px;
-    margin-top: 2px;
-    width: 30px;
+    margin-right: 8px;
+    margin-top: 1px;
+    width: 22px;
     -unity-text-align: upper-left;
 }
 
@@ -143,7 +143,7 @@
 
 /* Objective label text */
 .quest-obj-text {
-    font-size: 22px;
+    font-size: 18px;
     color: rgb(80, 62, 46);
     white-space: normal;
     flex-shrink: 1;
@@ -158,14 +158,14 @@
 
 /* Feedback toast at bottom of panel */
 .quest-feedback {
-    font-size: 22px;
+    font-size: 18px;
     color: rgb(180, 90, 30);
     white-space: normal;
     flex-shrink: 1;
     flex-grow: 1;
     min-width: 0;
     overflow: hidden;
-    margin-top: 14px;
+    margin-top: 6px;
     display: none;
 }
 

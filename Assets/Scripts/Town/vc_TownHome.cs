@@ -18,6 +18,23 @@ public class vc_TownHome : MonoBehaviour
 
     private int _stage = -1;
 
+    /// <summary>Front door: bottom-middle of the house sprite.</summary>
+    public Vector3 DoorPosition
+    {
+        get
+        {
+            if (baseRenderer != null && baseRenderer.sprite != null)
+            {
+                Bounds b = baseRenderer.bounds;
+                return new Vector3(b.center.x, b.min.y + 0.3f, transform.position.z);
+            }
+            return transform.position;
+        }
+    }
+
+    /// <summary>Where the player wakes up each morning: just in front of the door.</summary>
+    public Vector3 WakePosition => DoorPosition + new Vector3(0f, -1.1f, 0f);
+
     public void SetProgress(float progress01)
     {
         int count = Mathf.Max(1, baseStages != null ? baseStages.Length : 1);

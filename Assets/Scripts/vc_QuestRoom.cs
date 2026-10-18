@@ -261,15 +261,38 @@ public class vc_QuestRoom : MonoBehaviour
                     data.completedQuestIds.Add(id);
 
         if (vc_PlayerInventory.Instance != null)
-        {
-            data.unlockedSkills.Clear();
-            foreach (vc_SkillData owned in vc_PlayerInventory.Instance.GatheredSkills)
-                if (owned != null && !string.IsNullOrWhiteSpace(owned.skillName))
-                    data.unlockedSkills.Add(owned.skillName);
-        }
+            data.unlockedSkills = OwnedSkillNamesEquippedLast();
 
         vc_SaveManager.Save(data);
         PushRunStateCheckpoint(data, sceneName);
+    }
+
+    /// <summary>
+    /// Owned skill names with the ones sitting in the skill buttons moved to the end. Restore
+    /// equips in list order (last of each kind wins its slot), so this brings back the
+    /// player's own loadout, not just their inventory.
+    /// </summary>
+    public static List<string> OwnedSkillNamesEquippedLast()
+    {
+        var owned = new List<string>();
+        var equipped = new List<string>();
+        if (vc_PlayerInventory.Instance == null) return owned;
+
+        var inSlots = new HashSet<vc_SkillData>();
+        if (vc_SkillManager.Instance != null)
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
+            {
+                vc_SkillData s = vc_SkillManager.Instance.GetSkillInSlot(i);
+                if (s != null) inSlots.Add(s);
+            }
+
+        foreach (vc_SkillData s in vc_PlayerInventory.Instance.GatheredSkills)
+        {
+            if (s == null || string.IsNullOrWhiteSpace(s.skillName)) continue;
+            (inSlots.Contains(s) ? equipped : owned).Add(s.skillName);
+        }
+        owned.AddRange(equipped);
+        return owned;
     }
 
     private void WriteQuestSave(int starsEarned)
@@ -296,12 +319,7 @@ public class vc_QuestRoom : MonoBehaviour
         // Capture the player's currently-owned skills by name (unique per skill) so Continue
         // can re-equip them. Snapshot from the live inventory, not the old empty local list.
         if (vc_PlayerInventory.Instance != null)
-        {
-            data.unlockedSkills.Clear();
-            foreach (vc_SkillData owned in vc_PlayerInventory.Instance.GatheredSkills)
-                if (owned != null && !string.IsNullOrWhiteSpace(owned.skillName))
-                    data.unlockedSkills.Add(owned.skillName);
-        }
+            data.unlockedSkills = OwnedSkillNamesEquippedLast();
 
         vc_SaveManager.Save(data);
         Debug.Log($"[QuestRoom] Save written - nextQuestId='{nextQuestId}', riasec[{riasecIndex}]+={Mathf.Max(1, starsEarned)}");

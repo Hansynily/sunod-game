@@ -98,6 +98,7 @@
     <Compile Include="Assets\Scripts\Debug\vc_DebugMenu.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ChoirPracticeQuest.cs" />
     <Compile Include="Assets\Scripts\Core\GameSessionData.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_UIPointer.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillManager.cs" />
     <Compile Include="Assets\Scripts\Core\AuthManager.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_FishCountQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_Music.cs" />
     <Compile Include="Assets\Scripts\UI\InventoryPanelUIToolkit.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_NpcSprites.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RadioRepairQuest.cs" />
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
@@ -202,6 +204,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_DockLedgerQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_RiasecSymbols.cs" />
     <Compile Include="Assets\Scripts\Core\vc_HallwaySlot.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownLife.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_SeedlingStudyQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FundraiserKitsQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
