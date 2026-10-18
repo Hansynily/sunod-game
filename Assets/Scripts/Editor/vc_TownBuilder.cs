@@ -1127,29 +1127,29 @@ public static class vc_TownBuilder
             "Students keep asking me about careers. Can you help out at the career booth?", "You really helped them find a direction.");
         t.N("I7", "Ana", "alex_2", 29.4f, 32f, R + "School_BioLab",
             "I need help with the samples in the biology lab. Can you give me a hand?", "Perfect results. Great lab work!");
-        t.N("A5", "Kevin", "adam_0", 12f, 31.7f, null,
+        t.N("A5", "Kevin", "adam_0", 12f, 31.7f, R + "School_CampusPaper",
             "The campus paper needs a story by tonight. Can you help me write it?", "Front page material!");
         t.N("E3", "Mr. Lee", "bob_0", 10f, 21.9f, R + "House_HotelLobby",
             "Guests are arriving all at once. Can you help me manage the hotel?", "Every guest checked in happy.");
-        t.N("C7", "Ms. Uy", "amelia_0", 17.4f, 21.9f, null,
+        t.N("C7", "Ms. Uy", "amelia_0", 17.4f, 21.9f, R + "House_BankTeller",
             "The bank line is long. Can you handle a teller window for me?", "Every peso balanced. Thank you!");
-        t.N("E5", "Ms. Ria", "amelia_1", 31f, 21.9f, null,
+        t.N("E5", "Ms. Ria", "amelia_1", 31f, 21.9f, R + "School_InternTeam",
             "My team at the internship needs a leader today. Can you run it?", "The team did great under you.");
         t.N("C1", "Mr. Go", "bob_3", 34f, 21.9f, R + "School_PaydayOffice",
             "It's payday. Can you help me prepare everyone's pay envelopes?", "Everyone got paid on time!");
-        t.N("C3", "Jay", "adam_1", 40f, 21.9f, null,
+        t.N("C3", "Jay", "adam_1", 40f, 21.9f, R + "School_NetCafe",
             "Can you help me make the customer bills at the net cafe?", "No billing mistakes today!");
         t.N("I4", "Dr. Santos", "bob_2", 10f, 11.9f, R + "House_CatMedicineQuest",
             "A sick cat was brought in. Can you help find the right treatment?", "She's going to be okay. Thank you.");
         t.N("E7", "Agent Mel", "alex_0", 18f, 11.9f, R + "House_OpenHouse",
             "I'm holding an open house today. Can you help me sell it?", "Sold! You're a natural.");
-        t.N("S3", "Kuya Joel", "adam_3", 8.4f, 4f, null,
+        t.N("S3", "Kuya Joel", "adam_3", 8.4f, 4f, R + "School_SupportCorner",
             "A friend is going through a hard time. Can you help them find support?", "Thank you for being there for them.");
-        t.N("S5", "Aling Cora", "amelia_2", 16f, 2.9f, null,
+        t.N("S5", "Aling Cora", "amelia_2", 16f, 2.9f, R + "House_FamilyTalk",
             "My family is having a hard day. Could you help us work things out?", "We feel so much better. Salamat.");
         t.N("R5", "Mang Erning", "bob_1", 34f, 9.3f, R + "House_WorkshopGrinder",
             "Can you grind and fit this part on the workshop machine?", "A perfect fit!");
-        t.N("A7", "Direk Bong", "alex_1", 44f, 10.3f, null,
+        t.N("A7", "Direk Bong", "alex_1", 44f, 10.3f, R + "Forest_StuntSet",
             "Our student film needs a stunt double. Up for it?", "That stunt was incredible!");
         t.N("R3", "Engr. Paz", "adam_2", 35.6f, 7.4f, R + "River_PortGenerator",
             "The port generator broke down. Can you help me get it running?", "Power's back on. Great work!");
