@@ -31,7 +31,7 @@
                     </ui:VisualElement>
 
                     <ui:VisualElement class="stat-row">
-                        <ui:Label text="Quests Cleared:" class="stat-label" />
+                        <ui:Label text="People Helped:" class="stat-label" />
                         <ui:Label name="lbl-quests" text="--/--" class="stat-value stat-gold" />
                     </ui:VisualElement>
 

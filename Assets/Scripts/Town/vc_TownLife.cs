@@ -20,9 +20,14 @@ public class vc_TownLife : MonoBehaviour
 {
     [SerializeField] private int roamers = 6;
     [SerializeField] private float walkSpeed = 1.3f;
-    [Tooltip("Chance that a roamer passing close to the player greets them (once per roamer per day).")]
-    [Range(0f, 1f)] [SerializeField] private float greetChance = 0.18f;
-    [SerializeField] private float greetCooldown = 20f;
+    [Tooltip("Chance that a roamer passing close to the player greets them.")]
+    [Range(0f, 1f)] [SerializeField] private float greetChance = 0.65f;
+    [Tooltip("Seconds between any two greetings (all roamers).")]
+    [SerializeField] private float greetCooldown = 5f;
+    [Tooltip("Seconds before the same roamer can greet again (after the player has walked away).")]
+    [SerializeField] private float regreetDelay = 30f;
+    [Tooltip("Chance that a roamer picking a new spot walks over to the player instead (if nearby).")]
+    [Range(0f, 1f)] [SerializeField] private float approachChance = 0.3f;
     [SerializeField] private float birdInterval = 35f;
 
     private const float FrameTime = 0.11f;
@@ -96,7 +101,8 @@ public class vc_TownLife : MonoBehaviour
         public bool walking;
         public float waitUntil;
         public Vector2 dir = Vector2.down;
-        public bool greetedToday;
+        public bool greetedToday;      // rolled for this encounter; resets once the player walks away
+        public float nextGreet;
         public float stuckTimer;
     }
 
@@ -219,9 +225,11 @@ public class vc_TownLife : MonoBehaviour
         float toPlayer = _player != null ? Vector2.Distance(pos, _player.position) : 99f;
 
         // Rare greeting when the player comes close.
-        if (!r.greetedToday && toPlayer < 1.7f && Time.time - _lastGreet > greetCooldown)
+        if (toPlayer > 3.5f) r.greetedToday = false;   // a new encounter next time they meet
+        if (!r.greetedToday && toPlayer < 2.2f && Time.time > r.nextGreet && Time.time - _lastGreet > greetCooldown)
         {
-            r.greetedToday = true;   // one roll per roamer per day
+            r.greetedToday = true;   // one roll per encounter
+            r.nextGreet = Time.time + regreetDelay;
             if (Random.value < greetChance)
             {
                 _lastGreet = Time.time;
@@ -238,7 +246,14 @@ public class vc_TownLife : MonoBehaviour
         if (!r.walking)
         {
             if (Time.time < r.waitUntil) return;
-            Vector3 t = RandomOpenSpotNear(pos, 7f, 25);
+            // Sometimes they come over to say hi instead of wandering off.
+            Vector3 t = new Vector3(float.NaN, 0f, 0f);
+            if (_player != null && toPlayer < 6f && toPlayer > 1.5f && Time.time > r.nextGreet && Random.value < approachChance)
+            {
+                Vector3 side = _player.position + new Vector3(pos.x < _player.position.x ? -1.1f : 1.1f, 0f, 0f);
+                if (IsOpen(side, 0.25f) && PathClear(pos, new Vector3(side.x, pos.y, 0f)) && PathClear(new Vector3(side.x, pos.y, 0f), side)) t = Snap(side);
+            }
+            if (float.IsNaN(t.x)) t = RandomOpenSpotNear(pos, 7f, 25);
             if (float.IsNaN(t.x)) { r.waitUntil = Time.time + 1.5f; return; }
             r.target = t;
             r.walking = true;
