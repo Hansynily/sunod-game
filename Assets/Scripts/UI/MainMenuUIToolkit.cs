@@ -635,11 +635,12 @@ namespace SunodGame.UI
                 _lblRunComplete.SetDisplay(runFinished);
             }
 
-            bool isProvisional = !runFinished && progress.quests_completed < TotalQuestSlots;
+            // Provisional until the run ends (after College) - not until all 48 are done, which no run can reach.
+            bool isProvisional = !runFinished;
             if (_lblProvisionalNote != null)
             {
                 _lblProvisionalNote.text = isProvisional
-                    ? $"Not final yet ({progress.quests_completed} of {TotalQuestSlots} quests done). Play more for a clearer result."
+                    ? "Not final yet. Your real result comes after you finish College."
                     : string.Empty;
                 _lblProvisionalNote.SetDisplay(isProvisional);
             }
