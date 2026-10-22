@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Quests\vc_SparrowRescueQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_HotelCheckInQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownCritters.cs" />
     <Compile Include="Assets\Scripts\Town\vc_RunProgressUI.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownAmbience.cs" />
     <Compile Include="Assets\Scripts\Core\SceneLoader.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillManager.cs" />
     <Compile Include="Assets\Scripts\Core\AuthManager.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownAtmosphere.cs" />
     <Compile Include="Assets\Scripts\vc_CatQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Results.cs" />
     <Compile Include="Assets\Scripts\vc_BuildSkill.cs" />
@@ -109,6 +111,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_WorkshopGrinderQuest.cs" />
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ClubActivityQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_NpcDialogue.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RiverCrossingQuest.cs" />
     <Compile Include="Assets\Scripts\vc_GameSettings.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
@@ -144,12 +147,14 @@
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
     <Compile Include="Assets\Scripts\vc_SkillAwardPopup.cs" />
     <Compile Include="Assets\Scripts\Telemetry\TelemetryManager.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownGrid.cs" />
     <Compile Include="Assets\Scripts\vc_AreaSeal.cs" />
     <Compile Include="Assets\Scripts\Skills\Realistic\ScriptableObjects\Giant.cs" />
     <Compile Include="Assets\Scripts\Cutscene\vc_CutscenePlayer.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownHome.cs" />
     <Compile Include="Assets\Scripts\Core\vc_FloorLoader.cs" />
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownDayCycle.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_OpenHouseQuest.cs" />
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_InternTeamQuest.cs" />
