@@ -127,6 +127,10 @@ public class vc_TownStage : MonoBehaviour
         _sheds = GetComponentsInChildren<vc_TownShed>(true).OrderBy(s => s.name).ToArray();
         // roaming townsfolk + daily happenings (no scene setup needed)
         if (GetComponent<vc_TownLife>() == null) gameObject.AddComponent<vc_TownLife>();
+        // morning chimney smoke over the houses
+        if (GetComponent<vc_TownAtmosphere>() == null) gameObject.AddComponent<vc_TownAtmosphere>();
+        // chickens, the town cat, laundry lines, morning mist, dew
+        if (GetComponent<vc_TownCritters>() == null) gameObject.AddComponent<vc_TownCritters>();
     }
 
     private void OnDestroy()
@@ -314,6 +318,12 @@ public class vc_TownStage : MonoBehaviour
             OnNpcApproached(npc);
             return;
         }
+
+        // roaming townsfolk and people at today's happenings talk too
+        if (GetComponent<vc_TownLife>()?.TryTalk(world, player.transform.position, _day, stageId) == true)
+            _lastTalkTime = Time.time;
+        else
+            GetComponent<vc_TownCritters>()?.TryPet(world, player.transform.position);   // pet the town cat
     }
 
     /// <summary>
@@ -355,16 +365,21 @@ public class vc_TownStage : MonoBehaviour
 
         if (!npc.HasQuest)
         {
-            vc_DialogPanel.Instance.ShowMessage(npc.npcName, "I might need your help another time!", null);
+            vc_DialogPanel.Instance.ShowMessage(npc.npcName, vc_NpcDialogue.DailyLine(stageId, npc.npcName, _day), null);
             _promptCooldownUntil = Time.time + 1f;
             return;
         }
 
         if (npc.Attempted)
         {
-            string line = npc.Passed
-                ? (string.IsNullOrEmpty(npc.thanksLine) ? "Thanks again for your help!" : npc.thanksLine)
-                : "Thanks for trying. Someone else will help me out.";
+            // The day you helped them they talk about it; after that it's their line of the day.
+            string line;
+            if (vc_TownFlow.IsQuestDone(EnergyMarker(_day, npc.QuestId)))
+                line = npc.Passed
+                    ? (string.IsNullOrEmpty(npc.thanksLine) ? "Thanks again for your help!" : npc.thanksLine)
+                    : "That was a tough one, huh? Thanks for trying anyway. Really.";
+            else
+                line = vc_NpcDialogue.DailyLine(stageId, npc.npcName, _day);
             vc_DialogPanel.Instance.ShowMessage(npc.npcName, line, null);
             _promptCooldownUntil = Time.time + 1f;
             return;
@@ -616,10 +631,11 @@ public class vc_TownStage : MonoBehaviour
     }
 
     /// <summary>
-    /// Going to bed: letterbox in, HUD away, the player walks to the shed on their own (the
-    /// camera stays put, so they walk out of the shot), fade to the night, then the day
-    /// summary, the skill pick and the dream over the night picture. Morning fades in at
-    /// that same shed.
+    /// Going to bed: letterbox in, HUD away, and the player walks to the shed on their own,
+    /// on a real path around buildings and trees (vc_TownGrid), with the camera following.
+    /// At the shed the door swings open, they step inside, the door shuts, and the screen
+    /// fades to the night: day summary, skill pick and dream over the night picture.
+    /// A very long walk is cut short (fade early) so bedtime never drags.
     /// </summary>
     private IEnumerator SleepSequence(vc_RunProgressUI ui, string title, string body, string dream,
                                       Vector3 door, int shed, System.Action wake, System.Action<System.Action> pick)
@@ -630,41 +646,31 @@ public class vc_TownStage : MonoBehaviour
 
         ui.SetCinematic(true);
         PlayerController player = FindFirstObjectByType<PlayerController>();
+        vc_TownShed bed = shed >= 0 && shed < _sheds.Length ? _sheds[shed] : null;
+        bool wentInside = false;
         if (player != null)
         {
             player.MoveAction.Disable();
-            player.CameraHeld = true;
-            yield return new WaitForSeconds(0.6f);   // letterbox settles
+            yield return new WaitForSeconds(0.5f);   // letterbox settles
 
-            Camera cam = Camera.main;
-            float until = Time.time + 4f, offscreenSince = -1f;
-            while (Time.time < until)
+            Vector3 front = bed != null ? bed.WakePosition : door + new Vector3(0f, -0.9f, 0f);
+            yield return WalkPath(player, front, 7f);
+
+            if (bed != null && Vector2.Distance(player.transform.position, front) < 0.6f)
             {
-                Vector2 to = door - player.transform.position;
-                if (to.magnitude < 0.25f) break;
-                // walk one axis at a time (sideways first), like the player would
-                Vector2 step = Mathf.Abs(to.x) > 0.2f ? new Vector2(Mathf.Sign(to.x), 0f) : new Vector2(0f, Mathf.Sign(to.y));
-                player.ScriptedMove = step;
-
-                if (cam != null)
-                {
-                    Vector3 vp = cam.WorldToViewportPoint(player.transform.position);
-                    bool off = vp.x < -0.05f || vp.x > 1.05f || vp.y < -0.1f || vp.y > 1.1f;
-                    if (off && offscreenSince < 0f) offscreenSince = Time.time;
-                    if (offscreenSince > 0f && Time.time - offscreenSince > 0.3f) break;
-                }
-                yield return null;
+                yield return EnterShed(player, bed);
+                wentInside = true;
             }
             player.ScriptedMove = Vector2.zero;
         }
 
-        yield return ui.FadeScreen(1f, 0.7f);
+        yield return ui.FadeScreen(1f, wentInside ? 0.5f : 0.7f);
         if (shed >= 0) _bedShed = shed;
         if (player != null)
         {
             player.ScriptedMove = null;
+            SetPlayerInside(player, false, bed);
             MovePlayer(WakePosition);
-            player.CameraHeld = false;
         }
         ui.ShowNight(2);
         yield return ui.FadeScreen(0f, 0.5f);
@@ -672,15 +678,152 @@ public class vc_TownStage : MonoBehaviour
         ui.ShowDaySummary(title, body, dream, () => StartCoroutine(WakeUp(ui, wake)), pick);
     }
 
+    /// <summary>
+    /// Walks the player along a path to 'target' (scripted input, so their walk animation
+    /// plays). Gives up after maxSeconds, or if no path exists.
+    /// </summary>
+    private IEnumerator WalkPath(PlayerController player, Vector3 target, float maxSeconds)
+    {
+        vc_TownGrid grid = vc_TownGrid.For(transform);
+        List<Vector3> path = grid != null ? grid.FindPath(player.transform.position, target) : new List<Vector3> { target };
+        if (path.Count == 0) path.Add(target);
+
+        float until = Time.time + maxSeconds;
+        int i = SkipPassedWaypoints(grid, path, player.transform.position);
+        Vector3 checkPos = player.transform.position;
+        float nextCheck = Time.time + 0.6f;
+        while (i < path.Count && Time.time < until)
+        {
+            Vector2 to = path[i] - player.transform.position;
+            bool last = i == path.Count - 1;
+            if (to.magnitude < (last ? 0.08f : 0.2f)) { i++; continue; }
+            // slow down for the last bit so we stop on the spot instead of overshooting it
+            float k = last ? Mathf.Clamp01(to.magnitude / 0.35f) : 1f;
+            player.ScriptedMove = to.normalized * Mathf.Max(0.35f, k);
+
+            // Really stuck (barely moved over a whole window, e.g. someone in the way):
+            // re-plan from here. Physics only moves the player on fixed steps, so this has to
+            // be measured over time, not frame to frame.
+            if (Time.time >= nextCheck)
+            {
+                if (Vector2.Distance(player.transform.position, checkPos) < 0.15f && grid != null)
+                {
+                    path = grid.FindPath(player.transform.position, target);
+                    if (path.Count == 0) break;
+                    i = SkipPassedWaypoints(grid, path, player.transform.position);
+                }
+                checkPos = player.transform.position;
+                nextCheck = Time.time + 0.6f;
+            }
+            yield return null;
+        }
+        player.ScriptedMove = Vector2.zero;
+    }
+
+    /// <summary>
+    /// A fresh path starts at the centre of the cell the player is standing in, which can be
+    /// behind them. Skip ahead to the furthest early waypoint they can already walk straight to.
+    /// </summary>
+    private static int SkipPassedWaypoints(vc_TownGrid grid, List<Vector3> path, Vector3 from)
+    {
+        if (grid == null || path.Count < 2) return 0;
+        int i = 0;
+        while (i + 1 < path.Count && i < 2 && grid.LineClear(from, path[i + 1])) i++;
+        return i;
+    }
+
+    /// <summary>Door opens, the player steps in and fades into the dark doorway, door closes.</summary>
+    private IEnumerator EnterShed(PlayerController player, vc_TownShed bed)
+    {
+        player.ScriptedMove = new Vector2(0f, 0.001f);   // face the door
+        yield return new WaitForSeconds(0.25f);
+        bed.OpenDoor();
+        yield return new WaitForSeconds(0.3f);
+
+        SetPlayerInside(player, true, bed);
+        Vector3 from = player.transform.position, inside = bed.DoorPosition + new Vector3(0f, 0.25f, 0f);
+        float t = 0f;
+        var renderers = player.GetComponentsInChildren<SpriteRenderer>();
+        while (t < 1f)
+        {
+            t += Time.deltaTime / 0.55f;
+            player.ScriptedMove = Vector2.up * 0.6f;     // walking animation only (collider is off)
+            player.transform.position = Vector3.Lerp(from, inside, t);
+            foreach (SpriteRenderer r in renderers) { Color c = r.color; c.a = 1f - Mathf.Clamp01((t - 0.35f) / 0.65f); r.color = c; }
+            yield return null;
+        }
+        player.ScriptedMove = Vector2.zero;
+        yield return new WaitForSeconds(0.2f);
+        bed.CloseDoor();
+        yield return new WaitForSeconds(0.35f);
+    }
+
+    /// <summary>
+    /// Morning at a shed: the door opens, the player steps out to the front and the door shuts
+    /// behind them. Starts hidden in the doorway; the screen is already fading in.
+    /// </summary>
+    private IEnumerator LeaveShed(PlayerController player, vc_TownShed bed)
+    {
+        Vector3 inside = bed.DoorPosition + new Vector3(0f, 0.25f, 0f), front = bed.WakePosition;
+        SetPlayerInside(player, true, bed);
+        var renderers = player.GetComponentsInChildren<SpriteRenderer>();
+        foreach (SpriteRenderer r in renderers) { Color c = r.color; c.a = 0f; r.color = c; }
+        player.transform.position = inside;
+        yield return new WaitForSeconds(0.35f);
+        bed.OpenDoor();
+        yield return new WaitForSeconds(0.25f);
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / 0.55f;
+            player.ScriptedMove = Vector2.down * 0.6f;
+            player.transform.position = Vector3.Lerp(inside, front, t);
+            foreach (SpriteRenderer r in renderers) { Color c = r.color; c.a = Mathf.Clamp01(t / 0.5f); r.color = c; }
+            yield return null;
+        }
+        player.ScriptedMove = null;
+        SetPlayerInside(player, false, bed);
+        MovePlayer(front);
+        yield return new WaitForSeconds(0.15f);
+        bed.CloseDoor();
+    }
+
+    /// <summary>
+    /// While going through a shed door the player's collider is off (the doorway is part of
+    /// the shed's solid footprint) and they draw just behind the shed's roof.
+    /// </summary>
+    private static void SetPlayerInside(PlayerController player, bool inside, vc_TownShed bed)
+    {
+        if (player == null) return;
+        foreach (Collider2D c in player.GetComponents<Collider2D>()) if (!c.isTrigger) c.enabled = !inside;
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.simulated = !inside; }
+        if (!inside)
+            foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) { Color c = r.color; c.a = 1f; r.color = c; }
+    }
+
     private IEnumerator WakeUp(vc_RunProgressUI ui, System.Action wake)
     {
         yield return ui.FadeScreen(1f, 0.35f);
         ui.HideNight();
         wake?.Invoke();
+        PlayerController player = FindFirstObjectByType<PlayerController>();
+        vc_TownShed bed = _bedShed >= 0 && _bedShed < _sheds.Length ? _sheds[_bedShed] : null;
+        bool stepOut = player != null && bed != null && bed.doorOpen != null;
+        if (stepOut)
+        {
+            // hide in the doorway before the screen comes back
+            SetPlayerInside(player, true, bed);
+            foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) { Color c = r.color; c.a = 0f; r.color = c; }
+            player.transform.position = bed.DoorPosition + new Vector3(0f, 0.25f, 0f);
+        }
         yield return new WaitForSeconds(0.25f);
         ui.SetCinematic(false);
-        yield return ui.FadeScreen(0f, 0.8f);
-        FindFirstObjectByType<PlayerController>()?.MoveAction.Enable();
+        StartCoroutine(ui.FadeScreen(0f, 0.8f));
+        if (stepOut) yield return LeaveShed(player, bed);
+        else yield return new WaitForSeconds(0.8f);
+        player?.MoveAction.Enable();
     }
 
     /// <summary>

@@ -1148,7 +1148,7 @@ public static class vc_TownBuilder
         t.N("S5", "Aling Cora", "amelia_2", 16f, 2.9f, R + "House_FamilyTalk",
             "My family is having a hard day. Could you help us work things out?", "We feel so much better. Salamat.");
         t.N("R5", "Mang Erning", "bob_1", 34f, 9.3f, R + "House_WorkshopGrinder",
-            "Can you grind and fit this part on the workshop machine?", "A perfect fit!");
+            "The water pump's motor bracket is too rough to fit. Can you grind it down on the workshop machine?", "A perfect fit!");
         t.N("A7", "Direk Bong", "alex_1", 44f, 10.3f, R + "Forest_StuntSet",
             "Our student film needs a stunt double. Up for it?", "That stunt was incredible!");
         t.N("R3", "Engr. Paz", "adam_2", 35.6f, 7.4f, R + "River_PortGenerator",

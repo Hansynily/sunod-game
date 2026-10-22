@@ -216026,7 +216026,8 @@ MonoBehaviour:
   npcName: Mang Erning
   questCode: R5
   questPrefab: {fileID: 4199325092526589879, guid: b199373012dc82f4080fd6d4e3f5151a, type: 3}
-  askLine: Can you grind and fit this part on the workshop machine?
+  askLine: The water pump's motor bracket is too rough to fit. Can you grind it down
+    on the workshop machine?
   thanksLine: A perfect fit!
   idleFrames:
   - {fileID: 21300000, guid: e97e92d5a28762040ba8007d40a77408, type: 3}

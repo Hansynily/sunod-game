@@ -148,3 +148,25 @@ prev.alpha_composite(im, (2, 10))
 prev.alpha_composite(s, (W + 6, 4))
 prev.resize((prev.width * 8, prev.height * 8), Image.NEAREST).save(os.path.join(SP, "shed_preview.png"))
 print("ok", base.size, top.size)
+
+# ── open door overlay (10 x 14): drawn over the closed door while the player goes in / out ──
+INSIDE = (0x2a, 0x1c, 0x24, 255)
+FLOOR = (0x4a, 0x30, 0x38, 255)
+d = Image.new("RGBA", (10, 14), CLR)
+dp = d.load()
+for y in range(14):
+    for x in range(10):
+        if y == 0:
+            dp[x, y] = OL
+        elif x in (0, 9):
+            dp[x, y] = HI                                   # door frame
+        elif x in (1, 2):
+            dp[x, y] = DK if y > 1 else OL                  # the door leaf, swung inward
+        else:
+            dp[x, y] = FLOOR if y >= 11 else INSIDE         # dark room, a little floor light
+dp[2, 7] = GL                                               # handle catching the light
+for x in range(4, 8):
+    dp[x, 3] = MD                                           # the cot's edge inside
+    dp[x, 4] = PL if x in (5, 6) else MD                    # pillow
+d.save(os.path.join(OUT, "shed_door_open.png"))
+print("door ok")

@@ -6,13 +6,15 @@ using UnityEngine.Tilemaps;
 /// Townsfolk who make a town feel lived in. Added to the town root by vc_TownStage; needs no
 /// scene setup. Works on what the town builder made (Bounds walls, the water tilemap, solid
 /// colliders), so every town gets it.
-///   - roamers: a handful of people stroll between random spots, stop, look around. Now and
-///     then (rarely) one who passes close to the player turns, hops and says hi;
+///   - roamers: a handful of named townsfolk walk real paths around the town (vc_TownGrid A*)
+///     to places people go - shop doors, benches, the plaza - stop there a while, then move
+///     on. Now and then one who passes close to the player turns, hops and says hi. Tap one
+///     to talk: everyone has their own line for the day (vc_NpcDialogue);
 ///   - daily happenings: some days a few people get together somewhere - a picnic, a ball
 ///     game, kids playing tag, someone flying a kite, a chat circle, joggers. Picked per day
 ///     from a seed, so a resumed day shows the same thing;
 ///   - birds: a small flock crosses the sky once in a while, shadows sliding over the ground.
-/// Purely visual: nothing here is scored, saved or clickable. Sprites come from
+/// Nothing here is scored or saved. Sprites come from
 /// Resources/TownLife (Tools/bake_npc_sheets.py, Tools/make_town_icons.py).
 /// </summary>
 [DisallowMultipleComponent]
@@ -44,6 +46,7 @@ public class vc_TownLife : MonoBehaviour
 
     private readonly List<Roamer> _roamers = new List<Roamer>();
     private readonly List<Actor> _eventActors = new List<Actor>();
+    private readonly Dictionary<Actor, string> _eventKind = new Dictionary<Actor, string>();
     private readonly List<GameObject> _eventProps = new List<GameObject>();
     private readonly List<System.Action<float>> _eventTicks = new List<System.Action<float>>();
     private int _eventsDay = -1;
@@ -97,14 +100,22 @@ public class vc_TownLife : MonoBehaviour
 
     private class Roamer : Actor
     {
-        public Vector3 target;
+        public string name;
+        public float speed;
+        public readonly List<Vector3> path = new List<Vector3>();
+        public int pathIndex;
         public bool walking;
         public float waitUntil;
         public Vector2 dir = Vector2.down;
+        public Vector2 faceOnArrive;   // which way to look once there (e.g. at a shop window)
         public bool greetedToday;      // rolled for this encounter; resets once the player walks away
         public float nextGreet;
-        public float stuckTimer;
+        public float blockedFor;
     }
+
+    private vc_TownGrid _grid;
+    private readonly List<(Vector3 spot, Vector2 face)> _places = new List<(Vector3, Vector2)>();
+    private string[] _names = new string[0];
 
     // ── setup ─────────────────────────────────────────────────────────────
 
@@ -145,7 +156,12 @@ public class vc_TownLife : MonoBehaviour
         _root = new GameObject("TownLife").transform;
         _root.SetParent(transform, false);
 
-        // a different set of townsfolk per town
+        _grid = vc_TownGrid.For(transform);
+        CollectPlaces();
+        vc_TownStage stage = GetComponent<vc_TownStage>();
+        _names = vc_NpcDialogue.RoamersFor(stage != null ? stage.stageId : "");
+
+        // a different set of townsfolk per town, each always the same person (name + look)
         var looks = new List<string>(vc_NpcSprites.TownsfolkLooks);
         var rng = new System.Random(StageSeed(0));
         for (int i = looks.Count - 1; i > 0; i--) { int j = rng.Next(i + 1); (looks[i], looks[j]) = (looks[j], looks[i]); }
@@ -153,14 +169,20 @@ public class vc_TownLife : MonoBehaviour
         {
             Vector3 p = RandomOpenSpot(1.2f, 60);
             if (float.IsNaN(p.x)) continue;
-            var r = new Roamer();
-            Build(r, looks[i], p, "Roamer");
+            var r = new Roamer
+            {
+                name = i < _names.Length ? _names[i] : "Neighbor",
+                speed = walkSpeed * (0.8f + (float)rng.NextDouble() * 0.45f),   // some stroll, some hurry
+            };
+            Build(r, looks[i], p, "Roamer_" + r.name);
             r.waitUntil = Time.time + Random.Range(0f, 3f);
             r.Play(vc_NpcSprites.Idle(r.look, vc_NpcSprites.Dir.Down));
             _roamers.Add(r);
         }
         _nextBird = Time.time + Random.Range(8f, 16f);
     }
+
+    private void OnDestroy() => vc_TownGrid.Forget(transform);
 
     private int StageSeed(int salt)
     {
@@ -246,43 +268,175 @@ public class vc_TownLife : MonoBehaviour
         if (!r.walking)
         {
             if (Time.time < r.waitUntil) return;
-            // Sometimes they come over to say hi instead of wandering off.
-            Vector3 t = new Vector3(float.NaN, 0f, 0f);
-            if (_player != null && toPlayer < 6f && toPlayer > 1.5f && Time.time > r.nextGreet && Random.value < approachChance)
-            {
-                Vector3 side = _player.position + new Vector3(pos.x < _player.position.x ? -1.1f : 1.1f, 0f, 0f);
-                if (IsOpen(side, 0.25f) && PathClear(pos, new Vector3(side.x, pos.y, 0f)) && PathClear(new Vector3(side.x, pos.y, 0f), side)) t = Snap(side);
-            }
-            if (float.IsNaN(t.x)) t = RandomOpenSpotNear(pos, 7f, 25);
-            if (float.IsNaN(t.x)) { r.waitUntil = Time.time + 1.5f; return; }
-            r.target = t;
-            r.walking = true;
-            r.stuckTimer = 0f;
+            PickDestination(r, pos, toPlayer);
+            return;
         }
 
-        // don't walk into the player; wait for them to pass
-        if (toPlayer < 0.8f) { r.Play(vc_NpcSprites.Idle(r.look, vc_NpcSprites.DirFor(r.dir))); return; }
-
-        Vector2 to = r.target - pos;
-        if (to.magnitude < 0.08f)
+        // the player's in the way: wait a moment, then find a way around them
+        if (toPlayer < 0.75f)
         {
-            r.walking = false;
-            r.waitUntil = Time.time + Random.Range(1.5f, 5f);
             r.Play(vc_NpcSprites.Idle(r.look, vc_NpcSprites.DirFor(r.dir)));
+            r.blockedFor += dt;
+            if (r.blockedFor > 1.6f) { r.walking = false; r.path.Clear(); r.waitUntil = Time.time + 0.4f; r.blockedFor = 0f; }
             return;
         }
-        // one axis at a time, like the player walks
-        Vector2 step = Mathf.Abs(to.x) > 0.06f ? new Vector2(Mathf.Sign(to.x), 0f) : new Vector2(0f, Mathf.Sign(to.y));
-        Vector3 next = pos + (Vector3)(step * walkSpeed * dt);
-        if (!IsOpen(next, 0.18f))
+        r.blockedFor = 0f;
+
+        if (r.pathIndex >= r.path.Count) { Arrive(r); return; }
+        Vector3 wp = r.path[r.pathIndex];
+        Vector2 to = wp - pos;
+        float stepLen = r.speed * dt;
+        if (to.magnitude <= stepLen)
         {
-            r.stuckTimer += dt;
-            if (r.stuckTimer > 0.3f) { r.walking = false; r.waitUntil = Time.time + 0.5f; r.Play(vc_NpcSprites.Idle(r.look, vc_NpcSprites.DirFor(r.dir))); }
+            r.go.transform.position = wp;
+            r.pathIndex++;
+            // now and then people stop at a corner to look around, like real strollers do
+            if (r.pathIndex < r.path.Count && Random.value < 0.08f)
+            {
+                r.walking = false;
+                r.waitUntil = Time.time + Random.Range(0.6f, 1.4f);
+                r.Play(vc_NpcSprites.Idle(r.look, vc_NpcSprites.DirFor(r.dir)));
+            }
             return;
         }
+        Vector2 step = to.normalized;
         r.dir = step;
         r.Play(vc_NpcSprites.Walk(r.look, vc_NpcSprites.DirFor(step)));
-        r.go.transform.position = next;
+        r.go.transform.position = pos + (Vector3)(step * stepLen);
+    }
+
+    /// <summary>Where to next: a place people go (shop door, bench, plaza), over to the player to say hi, or a stroll.</summary>
+    private void PickDestination(Roamer r, Vector3 pos, float toPlayer)
+    {
+        // a paused stroll (corner stop, a chat with the player) just carries on
+        if (r.pathIndex < r.path.Count) { r.walking = true; return; }
+
+        Vector3 target = new Vector3(float.NaN, 0f, 0f);
+        r.faceOnArrive = Vector2.down;
+        if (_player != null && toPlayer < 6f && toPlayer > 1.5f && Time.time > r.nextGreet && Random.value < approachChance)
+        {
+            Vector3 side = _player.position + new Vector3(pos.x < _player.position.x ? -1.1f : 1.1f, 0f, 0f);
+            if (_grid != null && _grid.IsWalkable(side)) { target = side; r.faceOnArrive = (Vector2)(_player.position - side); }
+        }
+        if (float.IsNaN(target.x) && _places.Count > 0 && Random.value < 0.55f)
+        {
+            var place = _places[Random.Range(0, _places.Count)];
+            target = place.spot + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.2f, 0.2f), 0f);
+            r.faceOnArrive = place.face;
+        }
+        if (float.IsNaN(target.x) && _grid != null)
+        {
+            Vector2? p = _grid.RandomWalkable(pos, 9f, q => Vector2.Distance(q, pos) > 2f);
+            if (p.HasValue) target = p.Value;
+            r.faceOnArrive = Random.value < 0.5f ? Vector2.down : (Random.value < 0.5f ? Vector2.left : Vector2.right);
+        }
+        if (float.IsNaN(target.x) || _grid == null) { r.waitUntil = Time.time + 1.5f; return; }
+
+        List<Vector3> path = _grid.FindPath(pos, target);
+        if (path.Count == 0) { r.waitUntil = Time.time + 1f; return; }
+        r.path.Clear();
+        foreach (Vector3 w in path) r.path.Add(Snap(w));
+        r.pathIndex = 0;
+        r.walking = true;
+    }
+
+    private void Arrive(Roamer r)
+    {
+        r.walking = false;
+        r.path.Clear();
+        r.pathIndex = 0;
+        r.dir = r.faceOnArrive;
+        r.Play(vc_NpcSprites.Idle(r.look, vc_NpcSprites.DirFor(r.dir)));
+        r.waitUntil = Time.time + Random.Range(2.5f, 7f);
+        // a little thought bubble now and then (window shopping, people watching)
+        if (Random.value < 0.25f)
+        {
+            string[] e = { "dots", "note", "heart", "sun" };
+            r.Emote(EmoteSprite(e[Random.Range(0, e.Length)]), 1.8f, false);
+        }
+    }
+
+    /// <summary>
+    /// Places people go: in front of each building's door (looking at it), by benches and
+    /// lamps, and around the plaza.
+    /// </summary>
+    private void CollectPlaces()
+    {
+        _places.Clear();
+        if (_grid == null) return;
+        Transform objects = transform.Find("Objects");
+        if (objects != null)
+        {
+            foreach (Transform o in objects)
+            {
+                Transform baseT = o.Find("Base");
+                SpriteRenderer b = baseT != null ? baseT.GetComponent<SpriteRenderer>() : o.GetComponent<SpriteRenderer>();
+                if (b == null || b.sprite == null) continue;
+                string n = o.name.ToLowerInvariant();
+                Bounds bb = b.bounds;
+                Vector3 spot; Vector2 face;
+                if (n.Contains("bench")) { spot = new Vector3(bb.center.x, bb.min.y - 0.45f, 0f); face = Vector2.down; }
+                else if (n.Contains("lamp") || n.Contains("sign")) { spot = new Vector3(bb.center.x + 0.8f, bb.min.y - 0.3f, 0f); face = Vector2.left; }
+                else if (bb.size.x > 2f) { spot = new Vector3(bb.center.x, bb.min.y - 0.7f, 0f); face = Vector2.up; }   // a building: stand at its door
+                else continue;
+                Vector2? ok = _grid.NearestWalkable(spot, 2);
+                if (ok.HasValue) _places.Add((ok.Value, face));
+            }
+        }
+        Tilemap plaza = transform.Find("Grid")?.Find("plaza")?.GetComponent<Tilemap>();
+        if (plaza != null)
+        {
+            plaza.CompressBounds();
+            BoundsInt cb = plaza.cellBounds;
+            for (int i = 0; i < 12 && _places.Count < 60; i++)
+            {
+                var c = new Vector3Int(Random.Range(cb.xMin, cb.xMax), Random.Range(cb.yMin, cb.yMax), 0);
+                if (!plaza.HasTile(c)) continue;
+                Vector3 w = plaza.GetCellCenterWorld(c);
+                if (_grid.IsWalkable(w)) _places.Add((w, Vector2.down));
+            }
+        }
+    }
+
+    // ── talking ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Tap on a townsperson standing near the player: they stop, turn to the player and say
+    /// their line for the day. Returns true if someone was tapped.
+    /// </summary>
+    public bool TryTalk(Vector2 tapWorld, Vector2 playerPos, int day, string stageId)
+    {
+        Actor who = null; string name = null; string line = null;
+        float best = 0.95f;
+        foreach (Roamer r in _roamers)
+        {
+            Vector2 c = (Vector2)r.go.transform.position + new Vector2(0f, 0.6f);
+            float d = Vector2.Distance(tapWorld, c);
+            if (d > best || Vector2.Distance(playerPos, r.go.transform.position) > 2.4f) continue;
+            best = d; who = r; name = r.name; line = vc_NpcDialogue.DailyLine(stageId, r.name, day);
+        }
+        foreach (Actor a in _eventActors)
+        {
+            Vector2 c = (Vector2)a.go.transform.position + new Vector2(0f, 0.6f);
+            float d = Vector2.Distance(tapWorld, c);
+            if (d > best || Vector2.Distance(playerPos, a.go.transform.position) > 2.4f) continue;
+            best = d; who = a; name = "Neighbor";
+            string[] pool = _eventKind.TryGetValue(a, out string k) && vc_NpcDialogue.EventLines.TryGetValue(k, out string[] l) ? l : null;
+            line = pool != null ? pool[(a.look.Length + day) % pool.Length] : "Lovely day, isn't it?";
+        }
+        if (who == null || vc_DialogPanel.Instance == null) return false;
+
+        if (who is Roamer rr)
+        {
+            rr.walking = false;   // keeps its path; carries on after the chat
+            rr.waitUntil = Time.time + 4f;
+            rr.dir = playerPos - (Vector2)rr.go.transform.position;
+            rr.Play(vc_NpcSprites.Idle(rr.look, vc_NpcSprites.DirFor(rr.dir)));
+        }
+        who.Emote(EmoteSprite("hi"), 1.2f, true);
+        SunodGame.Core.vc_Sfx.Play("bubble", 0.4f, 0.08f, 1f);
+        vc_DialogPanel.Instance.ShowMessage(name, line, null);
+        return true;
     }
 
     // ── daily happenings ──────────────────────────────────────────────────
@@ -294,6 +448,7 @@ public class vc_TownLife : MonoBehaviour
         foreach (Actor a in _eventActors) if (a.go != null) Destroy(a.go);
         foreach (GameObject g in _eventProps) if (g != null) Destroy(g);
         _eventActors.Clear();
+        _eventKind.Clear();
         _eventProps.Clear();
         _eventTicks.Clear();
 
@@ -307,6 +462,7 @@ public class vc_TownLife : MonoBehaviour
             kinds.Remove(k);
             Vector3 spot = RandomOpenSpot(2.4f, 80, rng);
             if (float.IsNaN(spot.x)) continue;
+            int before = _eventActors.Count;
             switch (k)
             {
                 case 0: Picnic(spot, rng); break;
@@ -316,6 +472,8 @@ public class vc_TownLife : MonoBehaviour
                 case 4: Chat(spot, rng); break;
                 case 5: Joggers(spot, rng); break;
             }
+            string kind = new[] { "picnic", "ball", "tag", "kite", "chat", "joggers" }[k];
+            for (int i = before; i < _eventActors.Count; i++) _eventKind[_eventActors[i]] = kind;
         }
     }
 
@@ -578,29 +736,6 @@ public class vc_TownLife : MonoBehaviour
             float a = i * Mathf.PI / 4f;
             if (!IsOpen(c + new Vector3(Mathf.Cos(a), Mathf.Sin(a)) * radius, 0.1f)) return false;
         }
-        return true;
-    }
-
-    private Vector3 RandomOpenSpotNear(Vector3 from, float range, int tries)
-    {
-        for (int i = 0; i < tries; i++)
-        {
-            Vector3 p = from + new Vector3(Random.Range(-range, range), Random.Range(-range, range), 0f);
-            if (Vector2.Distance(p, from) < 1.5f || !IsOpen(p, 0.3f)) continue;
-            // the L-shaped path (sideways, then up/down) must be clear too
-            Vector3 corner = new Vector3(p.x, from.y, 0f);
-            if (!PathClear(from, corner) || !PathClear(corner, p)) continue;
-            return Snap(p);
-        }
-        return new Vector3(float.NaN, 0f, 0f);
-    }
-
-    private bool PathClear(Vector3 a, Vector3 b)
-    {
-        float d = Vector2.Distance(a, b);
-        int steps = Mathf.CeilToInt(d / 0.4f);
-        for (int i = 1; i <= steps; i++)
-            if (!IsOpen(Vector3.Lerp(a, b, i / (float)steps), 0.2f)) return false;
         return true;
     }
 }

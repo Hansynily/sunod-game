@@ -13,8 +13,27 @@ public class vc_TownShed : MonoBehaviour
     [Tooltip("Small floating \"Zz\" sign over the door (optional).")]
     public SpriteRenderer sign;
     public float signBob = 0.06f;
+    [Tooltip("Open-door overlay (hidden while closed; the closed door is part of the shed art).")]
+    public SpriteRenderer doorOpen;
 
     private Vector3 _signBase;
+
+    public bool IsOpen => doorOpen != null && doorOpen.enabled;
+
+    /// <summary>Swing the door open (bedtime / morning). Only ever driven by the sleep cutscene.</summary>
+    public void OpenDoor()
+    {
+        if (doorOpen == null || doorOpen.enabled) return;
+        doorOpen.enabled = true;
+        SunodGame.Core.vc_Sfx.Play("clack", 0.45f, 0.06f);
+    }
+
+    public void CloseDoor()
+    {
+        if (doorOpen == null || !doorOpen.enabled) return;
+        doorOpen.enabled = false;
+        SunodGame.Core.vc_Sfx.Play("clack", 0.35f, 0.1f);
+    }
 
     /// <summary>Front door: bottom-middle of the shed sprite.</summary>
     public Vector3 DoorPosition
@@ -36,6 +55,7 @@ public class vc_TownShed : MonoBehaviour
     private void Awake()
     {
         if (sign != null) _signBase = sign.transform.localPosition;
+        if (doorOpen != null) doorOpen.enabled = false;
     }
 
     private void Update()
