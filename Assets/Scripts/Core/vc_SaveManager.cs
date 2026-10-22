@@ -2,6 +2,13 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+/// <summary>
+/// The current run's save, kept in memory only. The real save lives on the server
+/// (player_run_state, one per account): every change is pushed there as a checkpoint
+/// (vc_QuestRoom.SaveProgressIds -> TelemetryManager.PutMyRunState), and Continue always
+/// loads it back from the server. Nothing is written to the device, so a run started on one
+/// phone continues on another, at the same stage and day, after logging in.
+/// </summary>
 public static class vc_SaveManager
 {
     [System.Serializable]
@@ -12,33 +19,30 @@ public static class vc_SaveManager
         public List<string> unlockedSkills = new List<string>();
         public bool tutorialComplete;
 
-        // Local staging buffer for the server-side run-state (Continue/Reset). This file
-        // stays as a device-local cache; the server (player_run_state) is the source of
-        // truth read by the main menu - these fields are what get pushed on each checkpoint.
+        // What gets pushed to the server on each checkpoint (Continue/Reset read it back).
         public List<string> completedQuestIds = new List<string>();
         public int totalStars;
     }
 
-    private static string SavePath => Application.persistentDataPath + "/sunod_save.json";
+    private static SaveData _current;
 
-    public static void Save(SaveData data)
+    // Older builds kept a copy of the save on the device. It's no longer read; remove it so
+    // a stale local copy can never be mistaken for the player's progress.
+    private static string LegacySavePath => Application.persistentDataPath + "/sunod_save.json";
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RemoveLegacyFile()
     {
-        string json = JsonUtility.ToJson(data);
-        File.WriteAllText(SavePath, json);
+        _current = null;
+        try { if (File.Exists(LegacySavePath)) File.Delete(LegacySavePath); }
+        catch (System.Exception e) { Debug.LogWarning($"[SaveManager] Could not remove the old local save: {e.Message}"); }
     }
 
-    public static SaveData Load()
-    {
-        if (!File.Exists(SavePath)) return null;
-        string json = File.ReadAllText(SavePath);
-        return JsonUtility.FromJson<SaveData>(json);
-    }
+    public static void Save(SaveData data) => _current = data;
 
-    public static bool HasSave() => File.Exists(SavePath);
+    public static SaveData Load() => _current;
 
-    public static void DeleteSave()
-    {
-        if (File.Exists(SavePath))
-            File.Delete(SavePath);
-    }
+    public static bool HasSave() => _current != null;
+
+    public static void DeleteSave() => _current = null;
 }

@@ -58,7 +58,7 @@ namespace SunodGame.UI
             root.Q<Label>("lbl-holland-code").text  = SafeText(GameSessionData.DisplayHollandCode);
             root.Q<Label>("lbl-top-traits").text    = GetTopTraits();
             // out of everyone in the 3 towns (16 each); not a target - nobody can help all 48
-            root.Q<Label>("lbl-quests").text        = $"{GameSessionData.rounds_cleared}/48";
+            root.Q<Label>("lbl-quests").text        = $"{GameSessionData.rounds_cleared} of {Mathf.Max(48, GameSessionData.rounds_attempted)}";
             root.Q<Label>("lbl-stars").text         = GameSessionData.total_stars.ToString();
 
             // Ended early ("See my results so far"): say the result is provisional.

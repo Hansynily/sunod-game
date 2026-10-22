@@ -233,11 +233,11 @@ public class vc_QuestRoom : MonoBehaviour
     }
 
     /// <summary>
-    /// Town mode: the player turned this quest down ("Not for me") without playing it.
-    /// Recorded as a failed attempt, so its item scores 1 (same rule as a fail), and saved
-    /// for Continue. Call on the quest prefab's room; nothing is spawned.
+    /// Town mode: a quest that was started but never finished (quit to the menu, or the app
+    /// closed mid-quest). Recorded as a failed attempt, so its item scores 1 (same rule as a
+    /// timer fail), and saved for Continue. Can be called on the quest prefab's room.
     /// </summary>
-    public void RecordRefusal(string sceneName, params string[] extraSaveIds)
+    public void RecordNotFinished(string sceneName, params string[] extraSaveIds)
     {
         vc_SessionTelemetry.Instance?.RecordQuestResult(
             questId, questName, primaryRiasec, questionCode,

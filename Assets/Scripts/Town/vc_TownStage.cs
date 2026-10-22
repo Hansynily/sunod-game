@@ -14,28 +14,31 @@ using UnityEngine.SceneManagement;
 /// the "Back to town" button. One attempt per quest, same as the corridor.
 ///
 /// Days (the roguelite loop):
-///  - each morning a few random NPCs from the open pool make a request: a "!" appears over
-///    them where they live, scattered around town. The rest of the pool stays hidden;
+///  - each morning a few NPCs from the open pool make a request: a "!" appears over them
+///    where they live, scattered around town. Anyone who asked yesterday and wasn't helped
+///    is still waiting (they ask first); the rest of the pool stays hidden;
 ///  - the player has <see cref="questsPerDay"/> energy; each accepted quest costs 1. At 0
 ///    the day ends, and the player can sleep early with the Sleep button;
-///  - "Not for me" (at the prompt, or cancelled from inside the quest) scores the quest's
-///    item 1 and the NPC walks off;
-///  - requests not answered by sleep time expire: the NPC leaves for good, unscored;
-///  - sleeping: the player walks home (letterbox, no HUD), fade to the night, day summary,
-///    a free pick of 1 of 3 new skills, the dream, then morning at home.
+///  - every quest must be played: the prompt is only Help / Later, nobody leaves town, and
+///    a quest ends passed or failed (timer, or quitting mid-quest). Days keep coming until
+///    all of the stage's quests are done - 4 days if the player uses all their energy;
+///  - sleeping: the player walks to the nearest shed (letterbox, no HUD), fade to the night,
+///    day summary, a free pick of 1 of 3 new skills, the dream, then morning at that shed.
 /// When the pool is empty the "Go to next stage" button appears; the player moves on
 /// when they're ready (no auto-skip).
 ///
 /// Saving works like a farming game's "save on sleep": Continue always puts the player at
-/// home on the morning of the current day, with that morning's requests and the energy
-/// already spent. A quest's outcome is locked in the moment it's played - a quest that was
-/// started and never finished (quit or closed mid-quest) counts as not completed, so
-/// quitting can never be used to retry one.
+/// the shed they slept in, on the morning of the current day, with that morning's requests
+/// and the energy already spent. A quest's outcome is locked in the moment it's played - a
+/// quest that was started and never finished (quit or closed mid-quest) counts as failed,
+/// so quitting can never be used to retry one.
 ///
 /// Town progress is saved as ids in the run-state's completed list: the quest id for
-/// every attempt, plus markers "no:&lt;id&gt;" (refused), "left:&lt;id&gt;" (expired),
-/// "day:&lt;stage&gt;:&lt;n&gt;" (day n slept), "req:&lt;stage&gt;:&lt;n&gt;:&lt;id&gt;" (asked for help on day n),
-/// "e:&lt;stage&gt;:&lt;n&gt;:&lt;id&gt;" (energy spent on it on day n) and "s:&lt;id&gt;" (quest started).
+/// every attempt, plus markers "day:&lt;stage&gt;:&lt;n&gt;" (day n slept), "req:&lt;stage&gt;:&lt;n&gt;:&lt;id&gt;"
+/// (asked for help on day n), "e:&lt;stage&gt;:&lt;n&gt;:&lt;id&gt;" (energy spent on it on day n),
+/// "s:&lt;id&gt;" (quest started) and "bed:&lt;stage&gt;:&lt;n&gt;:&lt;shed&gt;" (slept in that shed after day n).
+/// Older saves may also hold "no:&lt;id&gt;" (refused) and "left:&lt;id&gt;" (expired) from before
+/// "Not for me" and leaving were removed; those are still read so old runs load.
 /// </summary>
 [DisallowMultipleComponent]
 public class vc_TownStage : MonoBehaviour
@@ -43,11 +46,12 @@ public class vc_TownStage : MonoBehaviour
     public static vc_TownStage Current { get; private set; }
 
     public const string RefusedPrefix = "no:";
-    public const string LeftPrefix = "left:";
+    public const string LeftPrefix = "left:";   // old saves only (expired requests were removed)
     public const string DayPrefix = "day:";
     public const string RequestPrefix = "req:";
     public const string EnergyPrefix = "e:";
     public const string StartedPrefix = "s:";
+    public const string BedPrefix = "bed:";
 
     public string stageId = "elementary";
     public string stageTitle = "Elementary";
@@ -57,9 +61,9 @@ public class vc_TownStage : MonoBehaviour
     [TextArea(2, 3)] public string[] nightDreams;
     [Tooltip("Energy per day: each accepted quest costs 1. At 0 the day ends.")]
     public int questsPerDay = 4;
-    [Tooltip("Days the stage's NPC pool is spread over.")]
+    [Tooltip("Days the stage is planned for (16 quests / 4 energy). Not a hard limit: days keep coming until every quest is done.")]
     public int daysPerStage = 4;
-    [Tooltip("Requests offered each day on top of an even share of the pool (more requests than energy = real choices).")]
+    [Tooltip("Requests offered each day on top of the day's energy (more requests than energy = real choices).")]
     public int extraRequestsPerDay = 1;
     public Transform playerSpawn;
     [Tooltip("Unused since requesters stay where they live (kept so old scenes still load).")]
@@ -74,11 +78,12 @@ public class vc_TownStage : MonoBehaviour
 
     private vc_TownNPC[] _npcs = new vc_TownNPC[0];
     private vc_TownHome[] _homes = new vc_TownHome[0];
+    private vc_TownShed[] _sheds = new vc_TownShed[0];
+    private int _bedShed = -1;            // shed slept in last (-1 = none yet this stage)
     private readonly List<vc_TownNPC> _today = new List<vc_TownNPC>();
     private vc_TownNPC _activeNpc;
     private GameObject _activeRoom;
     private bool _inQuest;
-    private bool _cancelActive;
     private bool _questDoneAcknowledged;
     private bool _stageCompleted;
     private bool _stageDoneAnnounced;
@@ -91,8 +96,6 @@ public class vc_TownStage : MonoBehaviour
     private int _starsToday;
     private int _questsToday;          // energy spent (accepted quests)
     private int _passedToday;
-    private int _refusedToday;         // "Not for me" (prompt or cancelled)
-    private int _cancelledToday;       // ...of which cancelled inside a quest (they used energy)
     private readonly Dictionary<string, int> _usageToday = new Dictionary<string, int>();
 
     public bool InQuest => _inQuest;
@@ -101,21 +104,27 @@ public class vc_TownStage : MonoBehaviour
     public int Energy => Mathf.Max(0, questsPerDay - _questsToday);
     public int BuiltQuestCount => _npcs.Count(n => n.HasQuest);
     public int AttemptedCount => _npcs.Count(n => n.HasQuest && n.Attempted);
-    public int HelpedCount => _npcs.Count(n => n.HasQuest && n.Attempted && !n.Refused);
+    public int PassedCount => _npcs.Count(n => n.HasQuest && n.Attempted && n.Passed);
     public int OpenCount => _npcs.Count(n => n.IsOpen);
     public int RequestsLeftToday => _today.Count(n => n.IsOpen);
     public bool StageDone => BuiltQuestCount > 0 && OpenCount == 0;
 
-    /// <summary>Where the player wakes up: in front of their home (falls back to the spawn point).</summary>
+    /// <summary>
+    /// Where the player wakes up: in front of the shed they slept in. Before the first night
+    /// of a stage, the town's spawn point (falls back to the home, then the town's origin).
+    /// </summary>
     public Vector3 WakePosition =>
-        _homes.Length > 0 && _homes[0] != null ? _homes[0].WakePosition
-        : playerSpawn != null ? playerSpawn.position : transform.position;
+        _bedShed >= 0 && _bedShed < _sheds.Length && _sheds[_bedShed] != null ? _sheds[_bedShed].WakePosition
+        : playerSpawn != null ? playerSpawn.position
+        : _homes.Length > 0 && _homes[0] != null ? _homes[0].WakePosition
+        : transform.position;
 
     private void Awake()
     {
         Current = this;
         _npcs = GetComponentsInChildren<vc_TownNPC>(true);
         _homes = GetComponentsInChildren<vc_TownHome>(true);
+        _sheds = GetComponentsInChildren<vc_TownShed>(true).OrderBy(s => s.name).ToArray();
         // roaming townsfolk + daily happenings (no scene setup needed)
         if (GetComponent<vc_TownLife>() == null) gameObject.AddComponent<vc_TownLife>();
     }
@@ -145,7 +154,7 @@ public class vc_TownStage : MonoBehaviour
             bool attempted = vc_TownFlow.IsQuestDone(id);
 
             // Started but never finished (quit / app closed mid-quest): it counts as a
-            // not-completed attempt, same as running out of time. No retries by quitting.
+            // failed attempt, same as running out of time. No retries by quitting.
             if (!attempted && vc_TownFlow.IsQuestDone(StartedPrefix + id))
             {
                 RecordAbandoned(npc);
@@ -155,16 +164,28 @@ public class vc_TownStage : MonoBehaviour
 
             npc.SetAttempted(attempted);
             npc.SetPassed(attempted && WasPassed(id));
+            // Saves from before "Not for me" was removed: a refused quest stays answered (it
+            // was scored 1). An NPC who "left" unhelped in an old save comes back: everyone
+            // must be helped now, so their quest is open again.
             if (vc_TownFlow.IsQuestDone(RefusedPrefix + id)) npc.SetRefused(true);
-            if (vc_TownFlow.IsQuestDone(LeftPrefix + id)) npc.SetGone(true);
         }
 
-        // Resumed mid-stage: pick up on the right day (one marker per day slept here).
+        // Resumed mid-stage: pick up on the right day (one marker per day slept here), in
+        // front of the shed slept in last.
         _day = 1;
         while (vc_TownFlow.IsQuestDone(DayMarker(_day))) _day++;
+        _bedShed = -1;
+        for (int d = _day - 1; d >= 1 && _bedShed < 0; d--)
+            for (int i = 0; i < _sheds.Length; i++)
+                if (vc_TownFlow.IsQuestDone(BedMarker(d, i))) { _bedShed = i; break; }
         ResetDayTally();
         // Energy already spent today (quests started before the save point).
         _questsToday = _npcs.Count(n => n.HasQuest && vc_TownFlow.IsQuestDone(EnergyMarker(_day, n.QuestId)));
+
+        // Checkpoint "the player is in this town" right away, so Continue (on any device)
+        // resumes here even if they quit before playing a quest in it.
+        vc_TownFlow.MarkQuestDone("in:" + stageId);
+        vc_QuestRoom.SaveProgressIds(new[] { "in:" + stageId }, gameObject.scene.name);
 
         MovePlayer(WakePosition);
         vc_QuestTimer.Instance?.SetStarsVisible(false);
@@ -176,8 +197,8 @@ public class vc_TownStage : MonoBehaviour
             vc_DialogPanel.Instance?.ShowMessage(
                 "Quest not finished",
                 abandoned.Count == 1
-                    ? $"You left {abandoned[0]}'s quest before it was done, so it counts as not finished.\n\nYou wake up at home on Day {_day}."
-                    : $"You left {abandoned.Count} quests before they were done, so they count as not finished.\n\nYou wake up at home on Day {_day}.",
+                    ? $"You left {abandoned[0]}'s quest before it was done, so it counts as failed.\n\nYou wake up on Day {_day}."
+                    : $"You left {abandoned.Count} quests before they were done, so they count as failed.\n\nYou wake up on Day {_day}.",
                 null);
         else if (!string.IsNullOrEmpty(introLine) && AttemptedCount == 0 && _day == 1)
             vc_DialogPanel.Instance?.ShowMessage($"{stageTitle} - Day {_day}", introLine, null);
@@ -190,6 +211,7 @@ public class vc_TownStage : MonoBehaviour
     private string DayMarker(int day) => $"{DayPrefix}{stageId}:{day}";
     private string RequestMarker(int day, string questId) => $"{RequestPrefix}{stageId}:{day}:{questId}";
     private string EnergyMarker(int day, string questId) => $"{EnergyPrefix}{stageId}:{day}:{questId}";
+    private string BedMarker(int day, int shed) => $"{BedPrefix}{stageId}:{day}:{shed}";
 
     /// <summary>Did this quest's recorded attempt complete it? (Telemetry is seeded from the save on Continue.)</summary>
     private static bool WasPassed(string questId)
@@ -210,7 +232,7 @@ public class vc_TownStage : MonoBehaviour
     private void RecordAbandoned(vc_TownNPC npc)
     {
         vc_QuestRoom room = npc.questPrefab != null ? npc.questPrefab.GetComponentInChildren<vc_QuestRoom>(true) : null;
-        if (room != null) room.RecordRefusal(gameObject.scene.name);
+        if (room != null) room.RecordNotFinished(gameObject.scene.name);
         else vc_QuestRoom.SaveProgressIds(new[] { npc.QuestId }, gameObject.scene.name);
         vc_TownFlow.MarkQuestDone(npc.QuestId);
     }
@@ -218,11 +240,12 @@ public class vc_TownStage : MonoBehaviour
     // ── Days: who asks for help today ─────────────────────────────────────
 
     /// <summary>
-    /// Morning: a fresh random set from the open pool make a request, where they live.
-    /// Offers per day = an even share of the pool over the days left, plus
-    /// <see cref="extraRequestsPerDay"/>, so the 16 NPCs last all 4 days while there are
-    /// still more requests than energy. The morning's picks are saved right away (the
-    /// "save on sleep"), so Continue brings back the same people, not a fresh roll.
+    /// Morning: a set from the open pool make a request, where they live. Anyone who asked
+    /// yesterday and wasn't helped is still waiting and asks first; the rest are a random
+    /// pick. Offers per day = the day's energy + <see cref="extraRequestsPerDay"/>, so there
+    /// is a real choice of who to help first, but nobody is ever skipped for good. The
+    /// morning's picks are saved right away (the "save on sleep"), so Continue brings back
+    /// the same people, not a fresh roll.
     /// </summary>
     private void StartDay()
     {
@@ -233,9 +256,11 @@ public class vc_TownStage : MonoBehaviour
 
         if (_today.Count == 0)
         {
-            var open = _npcs.Where(n => n.IsOpen).OrderBy(_ => Random.value).ToList();
-            int daysLeft = Mathf.Max(1, daysPerStage - _day + 1);
-            int count = Mathf.Min(open.Count, Mathf.CeilToInt(open.Count / (float)daysLeft) + Mathf.Max(0, extraRequestsPerDay));
+            var open = _npcs.Where(n => n.IsOpen)
+                .OrderByDescending(n => _day > 1 && vc_TownFlow.IsQuestDone(RequestMarker(_day - 1, n.QuestId)))
+                .ThenBy(_ => Random.value)
+                .ToList();
+            int count = Mathf.Min(open.Count, questsPerDay + Mathf.Max(0, extraRequestsPerDay));
             _today.AddRange(open.Take(count));
 
             var ids = new List<string>();
@@ -252,7 +277,7 @@ public class vc_TownStage : MonoBehaviour
         {
             npc.ReturnHome();
             if (!npc.HasQuest) { npc.SetVisible(true); continue; }   // "..." townsfolk stay put
-            if (npc.Gone || npc.Refused) { npc.SetVisible(false); continue; }
+            if (npc.Refused) { npc.SetVisible(false); continue; }    // old saves only
             if (npc.Attempted) { npc.SetVisible(true); continue; }
             npc.SetVisible(_today.Contains(npc));
         }
@@ -349,46 +374,24 @@ public class vc_TownStage : MonoBehaviour
 
         if (Energy <= 0)
         {
-            vc_DialogPanel.Instance.ShowMessage(npc.npcName, npc.askLine + "\n\nYou're out of energy today. Sleep, and come back tomorrow if I'm still around.", null);
+            vc_DialogPanel.Instance.ShowMessage(npc.npcName, npc.askLine + "\n\nYou're out of energy today. Get some sleep - I'll still be here tomorrow.", null);
             _promptCooldownUntil = Time.time + 1f;
             return;
         }
 
-        vc_DialogPanel.Instance.ShowChoice3(
+        // Only Help / Later: every quest gets played (pass or fail), nobody is turned down.
+        vc_DialogPanel.Instance.ShowChoice(
             npc.npcName,
             npc.askLine,
             null,
             "Help",
             "Later",
-            "Not for me",
             onConfirm: () => StartQuest(npc),
             onCancel: () =>
             {
                 _promptCooldownUntil = Time.time + 0.5f;
                 vc_QuestHUD.Instance?.ShowFeedbackTimed($"Tap {npc.npcName} when you're ready.", 2.5f);
-            },
-            onThird: () => RefuseRequest(npc));
-    }
-
-    /// <summary>"Not for me" at the prompt: the quest's item scores 1 and the NPC walks off.</summary>
-    private void RefuseRequest(vc_TownNPC npc)
-    {
-        if (npc == null || !npc.IsOpen) return;
-
-        vc_QuestRoom room = npc.questPrefab != null ? npc.questPrefab.GetComponentInChildren<vc_QuestRoom>(true) : null;
-        string id = npc.QuestId;
-        if (room != null) room.RecordRefusal(gameObject.scene.name, RefusedPrefix + id);
-        else vc_QuestRoom.SaveProgressIds(new[] { id, RefusedPrefix + id }, gameObject.scene.name);
-
-        vc_TownFlow.MarkQuestDone(id);
-        vc_TownFlow.MarkQuestDone(RefusedPrefix + id);
-        npc.SetRefused(true);
-        npc.WalkAway(PlayerPosition());
-        _refusedToday++;
-        _promptCooldownUntil = Time.time + 0.5f;
-
-        vc_QuestHUD.Instance?.ShowFeedbackTimed($"{npc.npcName} will ask someone else.", 2.5f);
-        AfterTownChange();
+            });
     }
 
     // ── Quest run ─────────────────────────────────────────────────────────
@@ -398,7 +401,6 @@ public class vc_TownStage : MonoBehaviour
         if (_inQuest || npc == null || npc.questPrefab == null || Energy <= 0) return;
 
         _inQuest = true;
-        _cancelActive = false;
         _activeNpc = npc;
         _questDoneAcknowledged = false;
 
@@ -420,7 +422,7 @@ public class vc_TownStage : MonoBehaviour
         }
         vc_RunProgressUI.Instance?.SetBannerVisible(false);
         RefreshTownControls();
-        vc_RunProgressUI.Instance?.ShowQuestCancel(RequestCancelQuest);
+        vc_RunProgressUI.Instance?.EnterQuestMode();
         vc_QuestRoom.OnAnyQuestComplete -= OnQuestDoneAcknowledged;
         vc_QuestRoom.OnAnyQuestComplete += OnQuestDoneAcknowledged;
 
@@ -428,47 +430,9 @@ public class vc_TownStage : MonoBehaviour
         MovePlayer(roomPos + (Vector3)roomEntryOffset);
     }
 
-    /// <summary>"Not for me" from inside the quest: confirm, then end it as not completed.</summary>
-    private void RequestCancelQuest()
-    {
-        if (!_inQuest || _cancelActive || _activeNpc == null) return;
-        if (vc_DialogPanel.Instance == null) { CancelActiveQuest(); return; }
-
-        string who = _activeNpc.npcName;
-        vc_DialogPanel.Instance.ShowChoice(
-            "Not for me?",
-            $"Stop this quest? It counts as \"not for me\", and {who} will ask someone else.",
-            null,
-            "Stop",
-            "Keep going",
-            onConfirm: CancelActiveQuest,
-            onCancel: null);
-    }
-
-    private void CancelActiveQuest()
-    {
-        if (!_inQuest || _cancelActive) return;
-        _cancelActive = true;
-        vc_RunProgressUI.Instance?.HideQuestCancel();
-
-        vc_QuestTimer timer = vc_QuestTimer.Instance;
-        if (timer != null && timer.IsRunning())
-        {
-            timer.AbortQuest();   // -> OnQuestEnded (not passed); the room records the 1
-            return;
-        }
-
-        // The quest never started (player not in the room's trigger yet): record it here.
-        vc_QuestRoom room = _activeRoom != null ? _activeRoom.GetComponentInChildren<vc_QuestRoom>(true) : null;
-        if (room != null && !room.IsFinished) room.RecordRefusal(gameObject.scene.name);
-        if (timer != null) timer.QuestEnded -= OnQuestEnded;
-        _questsToday++;
-        StartCoroutine(ReturnAfterQuest(false));
-    }
-
     /// <summary>
     /// Quit to the menu from the pause screen while a quest is running: the quest ends now as
-    /// not completed (same as running out of time) and the save is pushed before leaving.
+    /// failed (same as running out of time) and the save is pushed before leaving.
     /// </summary>
     public void AbandonQuestForQuit()
     {
@@ -479,7 +443,7 @@ public class vc_TownStage : MonoBehaviour
 
         vc_QuestTimer timer = vc_QuestTimer.Instance;
         if (timer != null && timer.IsRunning()) timer.AbortQuest();   // the room records the result
-        else if (room != null && !room.IsFinished) room.RecordRefusal(gameObject.scene.name);
+        else if (room != null && !room.IsFinished) room.RecordNotFinished(gameObject.scene.name);
 
         vc_TownFlow.MarkQuestDone(npc.QuestId);
         vc_QuestRoom.SaveProgressIds(new[] { npc.QuestId }, gameObject.scene.name);
@@ -490,7 +454,7 @@ public class vc_TownStage : MonoBehaviour
     {
         if (!_inQuest) return;
         if (vc_QuestTimer.Instance != null) vc_QuestTimer.Instance.QuestEnded -= OnQuestEnded;
-        vc_RunProgressUI.Instance?.HideQuestCancel();
+        vc_RunProgressUI.Instance?.ExitQuestMode();
 
         // Tally for the end-of-day summary (usage is reset at the next quest's start).
         _questsToday++;
@@ -512,7 +476,6 @@ public class vc_TownStage : MonoBehaviour
     private IEnumerator ReturnAfterQuest(bool passed)
     {
         vc_QuestRoom room = _activeRoom != null ? _activeRoom.GetComponentInChildren<vc_QuestRoom>(true) : null;
-        bool cancelled = _cancelActive && !passed;
         vc_TownNPC npc = _activeNpc;
 
         if (passed)
@@ -520,16 +483,6 @@ public class vc_TownStage : MonoBehaviour
             // The player stays in the room as long as they like; the "Back to town" button
             // (shown with the quest-done banner) brings them back.
             while (!_questDoneAcknowledged) yield return null;
-        }
-        else if (cancelled)
-        {
-            // Counts as "not for me": saved like a fail, plus the refused marker.
-            string id = npc != null ? npc.QuestId : null;
-            vc_QuestRoom.SaveProgressIds(new[] { id, id != null ? RefusedPrefix + id : null }, gameObject.scene.name);
-            _refusedToday++;
-            _cancelledToday++;
-            vc_QuestHUD.Instance?.ShowFeedbackTimed("Okay. Maybe this one isn't for you.", 2f);
-            yield return new WaitForSeconds(1f);
         }
         else
         {
@@ -545,7 +498,6 @@ public class vc_TownStage : MonoBehaviour
         _activeRoom = null;
         _activeNpc = null;
         _inQuest = false;
-        _cancelActive = false;
 
         if (npc != null)
         {
@@ -553,12 +505,6 @@ public class vc_TownStage : MonoBehaviour
             npc.SetAttempted(true);
             npc.SetPassed(passed);
             MovePlayer(npc.transform.position + new Vector3(0f, -1f, 0f));
-            if (cancelled)
-            {
-                vc_TownFlow.MarkQuestDone(RefusedPrefix + npc.QuestId);
-                npc.SetRefused(true);
-                npc.WalkAway(PlayerPosition());   // they leave
-            }
         }
 
         _promptCooldownUntil = Time.time + 1f;
@@ -569,7 +515,7 @@ public class vc_TownStage : MonoBehaviour
         AfterTownChange();
     }
 
-    /// <summary>After a quest or refusal: refresh, then end the day / announce the stage as needed.</summary>
+    /// <summary>After a quest: refresh, then end the day / announce the stage as needed.</summary>
     private void AfterTownChange()
     {
         RefreshHomes();
@@ -595,24 +541,25 @@ public class vc_TownStage : MonoBehaviour
 
     private void ResetDayTally()
     {
-        _starsToday = _questsToday = _passedToday = _refusedToday = _cancelledToday = 0;
+        _starsToday = _questsToday = _passedToday = 0;
         _usageToday.Clear();
     }
 
-    /// <summary>Sleep button. Warns first if people are still waiting today.</summary>
+    /// <summary>Sleep button. Asks first if energy is left and people are still waiting today.</summary>
     public void RequestSleep()
     {
         if (_inQuest || _busy || _stageCompleted) return;
         if (vc_DialogPanel.Instance != null && vc_DialogPanel.Instance.IsOpen) return;
 
         int waiting = RequestsLeftToday;
-        if (waiting == 0 || vc_DialogPanel.Instance == null) { EndDay(); return; }
+        if (waiting == 0 || Energy <= 0 || vc_DialogPanel.Instance == null) { EndDay(); return; }
 
         vc_DialogPanel.Instance.ShowChoice(
             "Sleep now?",
-            waiting == 1
-                ? "1 person is still waiting for help. If you sleep, they'll leave town."
-                : $"{waiting} people are still waiting for help. If you sleep, they'll leave town.",
+            (waiting == 1
+                ? "1 person is still waiting for help, and you have energy left."
+                : $"{waiting} people are still waiting for help, and you have energy left.") +
+            "\n\nThey'll wait until tomorrow, but sleeping early adds an extra day to this stage.",
             null,
             "Sleep",
             "Not yet",
@@ -626,20 +573,22 @@ public class vc_TownStage : MonoBehaviour
         _busy = true;
         RefreshTownControls();
         string kinds = DescribeKinds(_usageToday);
-        int waiting = RequestsLeftToday;
+        int failed = _questsToday - _passedToday;
+        int left = OpenCount;
         string body =
-            $"People helped today: {_questsToday - _cancelledToday}\n" +
+            $"People helped today: {_questsToday}" + (failed > 0 ? $"  ({_passedToday} done, {failed} failed)" : "") + "\n" +
             $"Stars earned: {_starsToday}\n" +
-            (_refusedToday > 0 ? $"Not for me: {_refusedToday}\n" : "") +
-            (waiting > 0 ? $"Left without help: {waiting}\n" : "") + "\n" +
+            (left > 0 ? $"Still to help in {stageTitle}: {left}\n" : $"Everyone in {stageTitle} has been helped!\n") + "\n" +
             (string.IsNullOrEmpty(kinds) ? "You took it one step at a time today." : $"Today you leaned on {kinds} skills.");
 
         vc_RunProgressUI ui = vc_RunProgressUI.Instance;
         string dream = nightDreams != null && nightDreams.Length > 0 ? nightDreams[(_day - 1) % nightDreams.Length] : null;
 
+        // Sleep in the shed nearest to where the player is now; they wake up there.
+        int shed = NearestShed(PlayerPosition());
         System.Action wake = () =>
         {
-            ExpireRequests();
+            SaveNight(shed);
             _day++;
             ResetDayTally();
             MovePlayer(WakePosition);
@@ -656,21 +605,24 @@ public class vc_TownStage : MonoBehaviour
         // town or its final day): a skill you can never use is just noise before the ending.
         int stageIdx = vc_TownFlow.Instance != null ? vc_TownFlow.Instance.CurrentStageIndex : -1;
         bool lastStage = stageIdx < 0 || stageIdx + 1 >= vc_TownFlow.TownScenes.Length;
-        bool endingRun = lastStage && (afterSleep != null || _day >= daysPerStage);
+        bool endingRun = lastStage && (afterSleep != null || OpenCount == 0);
         System.Action<System.Action> pick = endingRun ? (System.Action<System.Action>)(then => then?.Invoke()) : OfferSkillPick;
 
         string title = $"{stageTitle} - Day {_day} done";
-        if (ui != null) StartCoroutine(SleepSequence(ui, title, body, dream, wake, pick));
+        Vector3 bedDoor = shed >= 0 ? _sheds[shed].DoorPosition
+            : _homes.Length > 0 && _homes[0] != null ? _homes[0].DoorPosition : WakePosition;
+        if (ui != null) StartCoroutine(SleepSequence(ui, title, body, dream, bedDoor, shed, wake, pick));
         else vc_DialogPanel.Instance?.ShowMessage($"Day {_day} done", body, () => pick(wake));
     }
 
     /// <summary>
-    /// Going to bed: letterbox in, HUD away, the player walks home on their own (the camera
-    /// stays put, so they walk out of the shot), fade to the night, then the day summary,
-    /// the skill pick and the dream over the night picture. Morning fades in at home.
+    /// Going to bed: letterbox in, HUD away, the player walks to the shed on their own (the
+    /// camera stays put, so they walk out of the shot), fade to the night, then the day
+    /// summary, the skill pick and the dream over the night picture. Morning fades in at
+    /// that same shed.
     /// </summary>
     private IEnumerator SleepSequence(vc_RunProgressUI ui, string title, string body, string dream,
-                                      System.Action wake, System.Action<System.Action> pick)
+                                      Vector3 door, int shed, System.Action wake, System.Action<System.Action> pick)
     {
         vc_DirectionalArrow.Instance?.HideArrow();
         _hintShown = false;
@@ -684,7 +636,6 @@ public class vc_TownStage : MonoBehaviour
             player.CameraHeld = true;
             yield return new WaitForSeconds(0.6f);   // letterbox settles
 
-            Vector3 door = _homes.Length > 0 && _homes[0] != null ? _homes[0].DoorPosition : WakePosition;
             Camera cam = Camera.main;
             float until = Time.time + 4f, offscreenSince = -1f;
             while (Time.time < until)
@@ -708,6 +659,7 @@ public class vc_TownStage : MonoBehaviour
         }
 
         yield return ui.FadeScreen(1f, 0.7f);
+        if (shed >= 0) _bedShed = shed;
         if (player != null)
         {
             player.ScriptedMove = null;
@@ -731,19 +683,35 @@ public class vc_TownStage : MonoBehaviour
         FindFirstObjectByType<PlayerController>()?.MoveAction.Enable();
     }
 
-    /// <summary>Requests nobody answered today: those NPCs leave for good (not scored).</summary>
-    private void ExpireRequests()
+    /// <summary>
+    /// Saves the night: the day is over, and which shed the player slept in (Continue wakes
+    /// them there). Unhelped requests are not touched - those people ask again tomorrow.
+    /// </summary>
+    private void SaveNight(int shed)
     {
         var ids = new List<string> { DayMarker(_day) };
-        foreach (vc_TownNPC npc in _today)
-        {
-            if (!npc.IsOpen) continue;
-            npc.SetGone(true);
-            vc_TownFlow.MarkQuestDone(LeftPrefix + npc.QuestId);
-            ids.Add(LeftPrefix + npc.QuestId);
-        }
         vc_TownFlow.MarkQuestDone(DayMarker(_day));
+        if (shed >= 0)
+        {
+            _bedShed = shed;
+            ids.Add(BedMarker(_day, shed));
+            vc_TownFlow.MarkQuestDone(BedMarker(_day, shed));
+        }
         vc_QuestRoom.SaveProgressIds(ids, gameObject.scene.name);
+    }
+
+    /// <summary>Index of the shed closest to a point (-1 if the town has none).</summary>
+    private int NearestShed(Vector3 from)
+    {
+        int best = -1;
+        float bestDist = float.MaxValue;
+        for (int i = 0; i < _sheds.Length; i++)
+        {
+            if (_sheds[i] == null) continue;
+            float d = Vector2.Distance(from, _sheds[i].DoorPosition);
+            if (d < bestDist) { bestDist = d; best = i; }
+        }
+        return best;
     }
 
     /// <summary>Before the dream: pick 1 of 3 random skills you don't own (free).</summary>
@@ -833,12 +801,12 @@ public class vc_TownStage : MonoBehaviour
         else if (waiting > 0 && Energy > 0)
             step = waiting == 1 ? "1 neighbor needs help today. Look around town for the \"!\"."
                                 : $"{waiting} neighbors need help today. Look around town for the \"!\".";
-        else step = "You've done what you can today. Tap Sleep to rest.";
+        else step = "You've done what you can today. Tap Sleep to rest in the nearest shed.";
 
         vc_QuestHUD.Instance.ShowQuestInfo(
             $"Day {_day}  -  Energy {Energy}/{questsPerDay}",
             stageTitle,
-            "Help your neighbors around town.",
+            $"Quests done here: {AttemptedCount} of {BuiltQuestCount}. Help everyone to grow up to the next stage.",
             new[] { step });
     }
 
@@ -885,7 +853,7 @@ public class vc_TownStage : MonoBehaviour
         vc_RunProgressUI.Instance?.HideNextStageButton();
         RefreshTownControls();
         System.Action go = () => { _busy = true; RefreshTownControls(); vc_TownFlow.Instance?.LoadNextTown(); };
-        if (_questsToday > 0 || _refusedToday > 0) EndDay(go);
+        if (_questsToday > 0) EndDay(go);
         else go();
     }
 
@@ -903,7 +871,7 @@ public class vc_TownStage : MonoBehaviour
         }
         if (!StageDone) return;
 
-        // Everyone's been helped, turned down or has left. No auto-skip: the player taps
+        // Every quest here has been played (passed or failed). No auto-skip: the player taps
         // the "Go to ..." button when they're ready.
         _stageDoneAnnounced = true;
         RefreshTownControls();

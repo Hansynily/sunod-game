@@ -95,8 +95,12 @@
                             <ui:Label name="lbl-holland-code" text="---" class="stat-value stat-gold"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
-                            <ui:Label text="People Helped:" class="stat-label"/>
-                            <ui:Label name="lbl-quests" text="--/48" class="stat-value stat-gold"/>
+                            <ui:Label text="Quests Done:" class="stat-label"/>
+                            <ui:Label name="lbl-quests" text="-- of 48" class="stat-value stat-gold"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="stat-row">
+                            <ui:Label text="Passed / Failed:" class="stat-label"/>
+                            <ui:Label name="lbl-quests-split" text="-- / --" class="stat-value"/>
                         </ui:VisualElement>
                         <ui:VisualElement class="stat-row">
                             <ui:Label text="Stars Earned:" class="stat-label"/>

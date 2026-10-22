@@ -75,8 +75,13 @@ public class vc_CatCureQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Cat Medicine",
-            "The cat is sick. Work out the right treatment for it.",
-            new[] { "Work out a treatment for the cat" });
+            "The clinic cat is sick and shivering. There are four medicines on the table, but only one will cure it. Figure out which one - by reasoning it out, studying its symptoms, or testing them.",
+            new[]
+            {
+                "Find out what is making the cat sick",
+                "Work out which bottle is the right medicine",
+                "Give the cat its treatment",
+            });
     }
 
     // ── Idle life: the sick cat shivers and sniffles ─────────────────────
@@ -115,7 +120,7 @@ public class vc_CatCureQuest : vc_FitQuestBase
         if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
         if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
 
-        Toast("The cat needs a treatment worked out.", 2.2f);
+        Toast("That won't cure the cat. Think it through: what's wrong with it, and which medicine fixes it?", 2.8f);
     }
 
     protected override void OnWorkCancelled()

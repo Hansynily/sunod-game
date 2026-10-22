@@ -330,14 +330,76 @@ namespace SunodGame.Telemetry
                 return;
             }
 
-            string json = BuildRunStateJson(payload, riasecScores);
-            StartCoroutine(PutJsonAuthorized(
-                "/api/telemetry/users/me/run-state",
-                json,
-                SessionState.Instance.AccessToken,
-                onSuccess,
-                onError ?? ((e) => Debug.LogWarning($"[Telemetry] Run-state push error: {e}"))
-            ));
+            // The save lives on the server only (no file on the device), so every checkpoint
+            // must land. Each checkpoint is the WHOLE run so far, so only the newest one
+            // matters: pushes go out one at a time (an older one can never arrive after a
+            // newer one), and a failed push is retried with the newest snapshot until it lands.
+            _pendingRunStateJson = BuildRunStateJson(payload, riasecScores);
+            _pendingRunStateSuccess = onSuccess;
+            _pendingRunStateError = onError;
+            if (!_runStatePushing) StartCoroutine(RunStatePushLoop());
+        }
+
+        private string _pendingRunStateJson;
+        private Action<RunStateResponse> _pendingRunStateSuccess;
+        private Action<string> _pendingRunStateError;
+        private bool _runStatePushing;
+
+        /// <summary>True while a checkpoint is waiting to reach the server (pushing or retrying).</summary>
+        public bool HasUnsavedRunState => _runStatePushing || _pendingRunStateJson != null;
+
+        private IEnumerator RunStatePushLoop()
+        {
+            _runStatePushing = true;
+            float retryDelay = 2f;
+            while (_pendingRunStateJson != null)
+            {
+                if (SessionState.Instance == null || string.IsNullOrWhiteSpace(SessionState.Instance.AccessToken))
+                {
+                    _pendingRunStateError?.Invoke("Not signed in.");
+                    _pendingRunStateJson = null;
+                    break;
+                }
+
+                string json = _pendingRunStateJson;
+                Action<RunStateResponse> onSuccess = _pendingRunStateSuccess;
+                Action<string> onError = _pendingRunStateError;
+                _pendingRunStateJson = null;
+
+                bool ok = false;
+                string error = null;
+                yield return PutJsonAuthorized<RunStateResponse>(
+                    "/api/telemetry/users/me/run-state",
+                    json,
+                    SessionState.Instance.AccessToken,
+                    r => { ok = true; onSuccess?.Invoke(r); },
+                    e => error = e);
+
+                if (ok) { retryDelay = 2f; continue; }
+
+                Debug.LogWarning($"[Telemetry] Run-state push failed, retrying in {retryDelay:0}s: {error}");
+                onError?.Invoke(error);
+                // Keep a newer snapshot if one arrived meanwhile, else retry this one.
+                if (_pendingRunStateJson == null)
+                {
+                    _pendingRunStateJson = json;
+                    _pendingRunStateSuccess = onSuccess;
+                    _pendingRunStateError = null;   // don't repeat the warning every retry
+                }
+                yield return new WaitForSecondsRealtime(retryDelay);
+                retryDelay = Mathf.Min(retryDelay * 2f, 30f);
+            }
+            _runStatePushing = false;
+        }
+
+        /// <summary>
+        /// Waits (up to <paramref name="timeoutSeconds"/>) for the last checkpoint to reach the
+        /// server - used before leaving a run, so Continue on any device sees the latest save.
+        /// </summary>
+        public IEnumerator WaitForRunStateSaved(float timeoutSeconds = 6f)
+        {
+            float until = Time.realtimeSinceStartup + timeoutSeconds;
+            while (HasUnsavedRunState && Time.realtimeSinceStartup < until) yield return null;
         }
 
         public void ResetMyRunState(Action<RunStateResetResponse> onSuccess = null,

@@ -221,17 +221,37 @@ public class vc_RunProgressUI : MonoBehaviour
             _stageCards[s].EnableInClassList("rp-stage--future", !isCurrent && !isPast);
             _stageBadges[s].text = isPast ? "v" : StageShort[s];
 
-            _stageCounts[s].text = isPast ? $"Done - {done} helped"
-                : isCurrent ? $"{done} of {count} helped"
-                : "Up next";
+            _stageCounts[s].text = isPast ? $"All {count} done"
+                : isCurrent ? $"{done} of {count} done"
+                : $"{count} quests";
         }
 
         _stormCard?.EnableInClassList("rp-storm--near", current >= StageNames.Length - 1);
 
         vc_TownStage stage = vc_TownStage.Current;
-        _bannerDay.text = stage != null ? $"Day {stage.Day} of {stage.daysPerStage}" : "";
+        _bannerDay.text = stage != null ? $"Day {stage.Day}  -  Quests done: {TotalDone(flow)} of {TotalQuests(flow)}" : "";
         _bannerDay.EnableInClassList("rp-hidden", stage == null);
         UpdateRing(flow, stage, current);
+    }
+
+    /// <summary>Quests played so far in the whole run (passed or failed), all stages.</summary>
+    public static int TotalDone(vc_TownFlow flow)
+    {
+        if (flow == null) return 0;
+        int done = 0;
+        for (int s = 0; s < flow.Stages.Length; s++)
+            for (int q = 0; q < flow.StageQuestCount(s); q++)
+                if (flow.StageQuestDone(s, q)) done++;
+        return done;
+    }
+
+    /// <summary>All quests in the run (48 when every stage has its 16).</summary>
+    public static int TotalQuests(vc_TownFlow flow)
+    {
+        if (flow == null) return 48;
+        int total = 0;
+        for (int s = 0; s < flow.Stages.Length; s++) total += flow.StageQuestCount(s);
+        return total > 0 ? total : 48;
     }
 
     // ── day summary ───────────────────────────────────────────────────────
@@ -440,13 +460,12 @@ public class vc_RunProgressUI : MonoBehaviour
         SetGlow(_nextBtn, false);
     }
 
-    // ── side controls: energy, Sleep, camera zoom, quest "Not for me" ─────
+    // ── side controls: energy, Sleep, camera zoom ───────────────────────
 
     private VisualElement _side;
     private Label _energyLabel;
     private VisualElement _energyChip;
     private Button _sleepBtn;
-    private Button _cancelQuestBtn;
 
     private void BuildSideControls(VisualElement parent)
     {
@@ -474,10 +493,6 @@ public class vc_RunProgressUI : MonoBehaviour
         });
         _sleepBtn.AddToClassList("rp-hidden");
         _side.Add(_sleepBtn);
-
-        _cancelQuestBtn = MakeSideButton("Not for me", "rp-side-btn", null);
-        _cancelQuestBtn.AddToClassList("rp-hidden");
-        _side.Add(_cancelQuestBtn);
 
         var zoomRow = new VisualElement { pickingMode = PickingMode.Ignore };
         zoomRow.AddToClassList("rp-zoom-row");
@@ -532,20 +547,10 @@ public class vc_RunProgressUI : MonoBehaviour
             }).Every(550);
     }
 
-    /// <summary>Shows the in-quest "Not for me" button.</summary>
-    public void ShowQuestCancel(Action onClick)
-    {
-        if (_cancelQuestBtn == null) return;
-        _cancelQuestBtn.clickable = new Clickable(() => onClick?.Invoke());
-        _cancelQuestBtn.RemoveFromClassList("rp-hidden");
-        _energyChip?.AddToClassList("rp-hidden");
-    }
+    /// <summary>Quest running: the energy chip steps aside (there is no way to back out of a quest).</summary>
+    public void EnterQuestMode() => _energyChip?.AddToClassList("rp-hidden");
 
-    public void HideQuestCancel()
-    {
-        _cancelQuestBtn?.AddToClassList("rp-hidden");
-        _energyChip?.RemoveFromClassList("rp-hidden");
-    }
+    public void ExitQuestMode() => _energyChip?.RemoveFromClassList("rp-hidden");
 
     public bool IsShowingOverlay =>
         (_dream != null && !_dream.ClassListContains("rp-hidden")) ||
@@ -762,7 +767,7 @@ public class vc_RunProgressUI : MonoBehaviour
         _doneNote.AddToClassList("rp-done-note");
         _doneToast.Add(_doneNote);
 
-        // Lives with the side controls, where the in-quest "Not for me" button was.
+        // Lives with the side controls, above Sleep.
         _backBtn = MakeSideButton("Back to town", "rp-side-btn", () =>
         {
             SunodGame.Core.vc_Sfx.Play("click", 0.6f);
@@ -808,7 +813,6 @@ public class vc_RunProgressUI : MonoBehaviour
         _doneHide?.Pause();
         _doneHide = _doneToast.schedule.Execute(() => _doneToast.AddToClassList("rp-done-toast--hidden")).StartingIn(5000);
 
-        _cancelQuestBtn?.AddToClassList("rp-hidden");
         _backBtn.RemoveFromClassList("rp-hidden");
         SetGlow(_backBtn, true);
     }
