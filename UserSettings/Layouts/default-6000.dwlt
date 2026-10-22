@@ -594,7 +594,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 3840, y: 2160}
+  m_TargetSize: {x: 886, y: 443}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -609,10 +609,10 @@ MonoBehaviour:
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -1920
-    m_HBaseRangeMax: 1920
-    m_VBaseRangeMin: -1080
-    m_VBaseRangeMax: 1080
+    m_HBaseRangeMin: -443
+    m_HBaseRangeMax: 443
+    m_VBaseRangeMin: -221.5
+    m_VBaseRangeMax: 221.5
     m_HAllowExceedBaseRangeMin: 1
     m_HAllowExceedBaseRangeMax: 1
     m_VAllowExceedBaseRangeMin: 1
@@ -632,7 +632,7 @@ MonoBehaviour:
       y: 21
       width: 1716
       height: 443
-    m_Scale: {x: 0.20509261, y: 0.2050926}
+    m_Scale: {x: 1, y: 1}
     m_Translation: {x: 858, y: 221.5}
     m_MarginLeft: 0
     m_MarginRight: 0
@@ -640,12 +640,12 @@ MonoBehaviour:
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -4183.476
-      y: -1080
-      width: 8366.952
-      height: 2160
+      x: -858
+      y: -221.5
+      width: 1716
+      height: 443
     m_MinimalGUI: 1
-  m_defaultScale: 0.2050926
+  m_defaultScale: 1
   m_LastWindowPixelSize: {x: 1716, y: 464}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
@@ -698,62 +698,6 @@ MonoBehaviour:
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
-      - m_Data: -78768
-      - m_Data: -78528
-      - m_Data: -77512
-      - m_Data: -77500
-      - m_Data: -77480
-      - m_Data: -77388
-      - m_Data: -77276
-      - m_Data: -77260
-      - m_Data: -77228
-      - m_Data: -77196
-      - m_Data: -77148
-      - m_Data: -76962
-      - m_Data: -76946
-      - m_Data: -76928
-      - m_Data: -76870
-      - m_Data: -69200
-      - m_Data: -63312
-      - m_Data: -63020
-      - m_Data: -60242
-      - m_Data: -57028
-      - m_Data: -53496
-      - m_Data: -48042
-      - m_Data: -45754
-      - m_Data: -42426
-      - m_Data: -38654
-      - m_Data: -34004
-      - m_Data: -33446
-      - m_Data: -30914
-      - m_Data: -30726
-      - m_Data: -30538
-      - m_Data: -26858
-      - m_Data: -26822
-      - m_Data: -24862
-      - m_Data: -24670
-      - m_Data: -22506
-      - m_Data: -18922
-      - m_Data: -16570
-      - m_Data: -16330
-      - m_Data: -15318
-      - m_Data: -15306
-      - m_Data: -15286
-      - m_Data: -15194
-      - m_Data: -15082
-      - m_Data: -15066
-      - m_Data: -15034
-      - m_Data: -15002
-      - m_Data: -14954
-      - m_Data: -14768
-      - m_Data: -14752
-      - m_Data: -14734
-      - m_Data: -14676
-      - m_Data: -12810
-      - m_Data: -12298
-      - m_Data: -12296
-      - m_Data: -12294
-      - m_Data: -12254
       - m_Data: -1320
       m_RenameOverlay:
         m_UserAcceptedRename: 0
@@ -1431,14 +1375,14 @@ MonoBehaviour:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 239}
+    scrollPos: {x: 0, y: 246}
     m_SelectedIDs:
-    - m_Data: 115430
+    - m_Data: 116656
     m_LastClickedID:
-      m_Data: 115430
+      m_Data: 116656
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82702
+    - m_Data: 83546
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1471,7 +1415,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82702
+    - m_Data: 83546
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1500,7 +1444,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: []
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 1
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs:
     - m_Data: 75898
     - m_Data: 75378
@@ -1614,7 +1558,7 @@ MonoBehaviour:
       m_Data: 84376
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82702
+    - m_Data: 83546
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1647,7 +1591,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82702
+    - m_Data: 83546
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1786,7 +1730,7 @@ MonoBehaviour:
       m_Data: 83256
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82702
+    - m_Data: 83546
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1819,7 +1763,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 82702
+    - m_Data: 83546
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

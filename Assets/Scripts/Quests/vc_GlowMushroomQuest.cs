@@ -10,6 +10,7 @@ using UnityEngine;
 ///   unlock   I  workaround   crack the secret of the glow: the roots are revealed           4s
 ///   plan     I  workaround   set up a light-vs-dark jar experiment                          5s
 ///   collect  C  off-letter   take a sample from each mushroom, label every jar              8s
+///   inspect  C  off-letter   look at each mushroom up close with a lens, note the details   7s
 ///   walking up to the deep grove still works with no skill (existing)
 ///   anything else: a hint, no effect
 ///
@@ -40,6 +41,8 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
     [Header("Effects")]
     [SerializeField] private Sprite scanBeam;
     [SerializeField] private Sprite probe;
+    [Tooltip("Magnifying lens for the Inspect path.")]
+    [SerializeField] private Sprite magnifier;
     [SerializeField] private Sprite[] sporeFrames;
     [SerializeField] private Sprite[] noteIcons;
     [SerializeField] private Sprite[] labels;
@@ -53,6 +56,7 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
     [SerializeField] private float solveTime = 4f;
     [SerializeField] private float planTime = 5f;
     [SerializeField] private float collectTime = 8f;
+    [SerializeField] private float inspectTime = 7f;
 
     private float _pulseClock, _sporeClock;
     private int _pulseState;
@@ -165,6 +169,7 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
         if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
         if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
         if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
+        if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
 
         Toast("This needs a scientist's eye.", 2.2f);
     }
@@ -360,6 +365,46 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
         yield return BarStep(Mathf.Max(0.1f, collectTime - t), t / collectTime, 1f);
         _boost = true;
         Finish("Every sample is bottled and labeled!");
+    }
+
+    // ── Inspect ○: a close look at each mushroom ─────────────────────────
+
+    private IEnumerator InspectRoutine()
+    {
+        Toast("Looking at each mushroom up close...", inspectTime);
+        ShowBar(true);
+        var lens = new GameObject("Lens");
+        lens.transform.SetParent(transform, true);
+        var ls = lens.AddComponent<SpriteRenderer>();
+        ls.sprite = magnifier != null ? magnifier : probe;
+        ls.sortingLayerName = sortingLayer; ls.sortingOrder = 22;
+        _spawned.Add(lens);
+
+        float per = (inspectTime - 0.9f) / 3f, t = 0f;
+        for (int i = 0; i < 3 && mushrooms != null && i < mushrooms.Length; i++)
+        {
+            Vector3 m = mushrooms[i].position;
+            // the lens drifts over the cap, then down to the stem and roots
+            lens.transform.position = Snap(m + new Vector3(0.35f, 0.55f, 0f));
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.45f, 0.1f);
+            yield return BarStep(per * 0.5f, t / inspectTime, (t + per * 0.5f) / inspectTime);
+            t += per * 0.5f;
+
+            lens.transform.position = Snap(m + new Vector3(0.35f, 0.05f, 0f));
+            Fx(sparkFrames, m + new Vector3(0f, 0.1f, 0f), 12f, 0.2f);
+            if (noteIcons != null && i < noteIcons.Length)
+                Fx(new[] { noteIcons[i] }, m + new Vector3(0f, 0.95f, 0f), 1.5f, 0.4f);
+            SunodGame.Core.vc_Sfx.Play("tally", 0.45f, 0.05f);
+            yield return BarStep(per * 0.5f, t / inspectTime, (t + per * 0.5f) / inspectTime);
+            t += per * 0.5f;
+        }
+        Destroy(lens);
+        PopProp(notesProp);
+        Fx(bulbFrames, Cluster() + new Vector3(0f, 1.9f, 0f), 2f, 0.3f, 25);
+        SunodGame.Core.vc_Sfx.Play("idea", 0.6f);
+        yield return BarStep(Mathf.Max(0.1f, inspectTime - t), t / inspectTime, 1f);
+        _boost = true;
+        Finish("Up close, every glowing cap has the same tiny roots. That's where the light comes from!");
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

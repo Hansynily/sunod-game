@@ -307,16 +307,16 @@ public class vc_TutorialFlowController : MonoBehaviour
                 "Finish fast to keep more stars. If the bar runs out, time's up.",
                 () => vc_DialogPanel.Instance?.ShowMessage(
                 "Days and Energy",
-                "Each stage lasts 4 days. People with a \"!\" above their head need help.\n\n" +
-                "Every quest you take uses 1 energy, and you get 4 energy a day. When it runs out, tap Sleep to start the next day.",
+                "Each stage has 16 people to help, about 4 days' worth. People with a \"!\" above their head need help.\n\n" +
+                "Every quest you take uses 1 energy, and you get 4 energy a day. When it runs out, find a shed with a bed and tap Sleep.",
                 () => vc_DialogPanel.Instance?.ShowMessage(
                     "There Are No Wrong Answers",
-                    "When someone asks for help, you can say Help, Later, or \"Not for me\".\n\n" +
-                    "What you choose to do - and what you skip - shows what you really enjoy. Pick what feels right to you.",
+                    "When someone asks for help, tap Help to start, or Later if you want to look around first. Everyone gets helped before you grow up to the next stage.\n\n" +
+                    "How you solve each quest, and which skills you reach for, shows what you really enjoy.",
                     () => vc_DialogPanel.Instance?.ShowMessage(
                         "Watch Your Progress",
                         "The ring in the top-right corner shows your life stage and the day. Tap it to see all 3 stages.\n\n" +
-                        "After College, SUNOD shows the careers that fit you best.",
+                        "Finish all 48 quests (16 per stage) and SUNOD shows the careers that fit you best.",
                         OnLifeStagesLearned)))));
     }
 

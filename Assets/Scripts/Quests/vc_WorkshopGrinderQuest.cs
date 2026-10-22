@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// R quest (R5). Grind Mang Erning's metal part to fit. Any APPROPRIATE skill works - how well it
+/// R quest (R5). Grind the steel motor bracket for Mang Erning's water pump so it fits its slot. Any APPROPRIATE skill works - how well it
 /// fits decides how fast it goes (and so the stars); skills that make no sense do nothing.
 ///
 ///   push     R  best fit     feed the part steadily into the wheel; it fits the slot      ~2s
@@ -70,8 +70,12 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Workshop Job",
-            "Mang Erning needs a metal part ground to fit.",
-            new[] { "Grind the part to size" });
+            "The water pump's motor bracket broke. Mang Erning cut a new steel bracket, but its edges are too rough to slide into the pump's slot.",
+            new[]
+            {
+                "Grind the rough steel bracket down to size",
+                "Slide the bracket into the water pump's slot",
+            });
     }
 
     // ── Idle life: goggles sway, the rough part doesn't fit ──────────────
@@ -95,7 +99,7 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         if (d.HasTag("repair")) { StartWork(RepairRoutine()); return; }
         if (d.HasTag("build")) { StartWork(BuildRoutine()); return; }
         if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
-        Toast("That won't shape metal.", 2.2f);
+        Toast("That won't shape the steel bracket.", 2.2f);
     }
 
     protected override void OnWorkCancelled()
@@ -106,11 +110,11 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
 
     private IEnumerator PushRoutine()
     {
-        Toast("You feed the part steadily into the wheel...", pushTime);
+        Toast("You feed the steel bracket steadily into the wheel...", pushTime);
         ShowBar(true);
         yield return Grind(pushTime - 0.6f, 0f, pushTime, true);
         yield return Fit(pushTime - 0.6f, pushTime);
-        Finish("Smooth and square. It fits perfectly!");
+        Finish("Smooth and square. The bracket slides right into the pump!");
     }
 
     private IEnumerator RepairRoutine()
@@ -133,7 +137,7 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
         yield return Grind(repairTime - t - 0.6f, t, repairTime, true);
         yield return Fit(repairTime - 0.6f, repairTime);
-        Finish("Sharp wheel, clean cut. The part fits!");
+        Finish("Sharp wheel, clean cut. The bracket fits the pump!");
     }
 
     private IEnumerator BuildRoutine()
@@ -158,12 +162,12 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         }
         yield return Grind(buildTime - t - 0.6f, t, buildTime, true);
         yield return Fit(buildTime - 0.6f, buildTime);
-        Finish("The jig kept it straight. Perfect fit!");
+        Finish("The jig kept the bracket straight. Perfect fit!");
     }
 
     private IEnumerator InspectRoutine()
     {
-        Toast("Grind a little, measure, repeat...", inspectTime);
+        Toast("Grind the bracket a little, measure, repeat...", inspectTime);
         ShowBar(true);
         float t = 0f, step = (inspectTime - 0.6f) / 3f;
         for (int pass = 0; pass < 3; pass++)
@@ -180,7 +184,7 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
             t += step * 0.45f;
         }
         yield return Fit(t, inspectTime);
-        Finish("Measured three times. It fits just right.");
+        Finish("Measured three times. The bracket fits just right.");
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

@@ -187,9 +187,9 @@ public class vc_PauseMenu : MonoBehaviour
         vc_TownStage stage = vc_TownStage.Current;
         string text = null;
         if (inQuest)
-            text = $"The quest timer is still running! Quit now and this quest counts as not finished. You'll wake up at home, Day {stage.Day}.";
+            text = $"The quest timer is still running! Quit now and this quest counts as failed. You'll wake up on Day {stage.Day}.";
         else if (stage != null)
-            text = $"The game saves when you sleep. Quit now and you'll wake up at home, Day {stage.Day}.";
+            text = $"Your progress is saved online, so you can continue on any device. Quit now and you'll wake up on Day {stage.Day}.";
         _notice.text = text ?? string.Empty;
         _notice.SetDisplay(text != null);
         _notice.EnableInClassList("pause-notice--warn", inQuest);
@@ -268,11 +268,27 @@ public class vc_PauseMenu : MonoBehaviour
         // be retried by quitting and pressing Continue.
         if (IsInTownQuest()) vc_TownStage.Current.AbandonQuestForQuit();
 
-        // Clear everything gathered during the run before leaving.
-        ClearRunRecords();
-
         // timeScale must be restored or the menu scene loads frozen.
         ClosePauseMenu();
+        StartCoroutine(ExitAfterSave());
+    }
+
+    /// <summary>
+    /// The save lives on the server only: give the last checkpoint a moment to land before
+    /// leaving, so Continue (on this device or another) picks up exactly where this left off.
+    /// </summary>
+    private System.Collections.IEnumerator ExitAfterSave()
+    {
+        _player?.MoveAction.Disable();
+        var telemetry = SunodGame.Telemetry.TelemetryManager.Instance;
+        if (telemetry != null && telemetry.HasUnsavedRunState)
+        {
+            vc_QuestHUD.Instance?.ShowFeedbackTimed("Saving...", 6f);
+            yield return telemetry.WaitForRunStateSaved(6f);
+        }
+
+        // Clear everything gathered during the run before leaving.
+        ClearRunRecords();
         SceneLoader.GoToMainMenu();
     }
 
@@ -347,7 +363,7 @@ public class vc_PauseMenu : MonoBehaviour
         vc_TownStage stage = vc_TownStage.Current;
         if (stage == null) return "Return to the main menu?\nThis will cancel the current run and clear your progress.";
         return stage.InQuest
-            ? $"Quit to the main menu?\nThis quest will count as not finished. Continue starts at home on the morning of Day {stage.Day}."
-            : $"Quit to the main menu?\nContinue starts at home on the morning of Day {stage.Day}.";
+            ? $"Quit to the main menu?\nThis quest will count as failed. Continue starts on the morning of Day {stage.Day}."
+            : $"Quit to the main menu?\nContinue starts on the morning of Day {stage.Day}.";
     }
 }

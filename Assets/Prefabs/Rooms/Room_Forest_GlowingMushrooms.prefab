@@ -5628,6 +5628,7 @@ MonoBehaviour:
   jarDark: {fileID: 21300000, guid: 5dd99d7772f8a3741bb2e3c34c04def5, type: 3}
   scanBeam: {fileID: 21300000, guid: f632b1b4cd43a5f45ac44dfab25ae5d5, type: 3}
   probe: {fileID: 21300000, guid: bcf241101c2ca4d44b6a678419047ac0, type: 3}
+  magnifier: {fileID: 21300000, guid: 9cb97e6bab749f943987a799100f768f, type: 3}
   sporeFrames:
   - {fileID: 21300000, guid: b9d3521641c1d6d48bba7abba51a5b75, type: 3}
   - {fileID: 21300000, guid: 7d4fcca3377831c4585771591eb3f6a7, type: 3}
@@ -5653,6 +5654,7 @@ MonoBehaviour:
   solveTime: 4
   planTime: 5
   collectTime: 8
+  inspectTime: 7
 --- !u!1 &6450457963232060761
 GameObject:
   m_ObjectHideFlags: 0
@@ -7344,7 +7346,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: solvableWithTags.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[0]'
@@ -7361,6 +7363,10 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[3]'
       value: collect
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[4]'
+      value: inspect
       objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x

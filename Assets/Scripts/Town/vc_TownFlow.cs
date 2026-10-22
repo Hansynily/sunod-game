@@ -194,7 +194,7 @@ public class vc_TownFlow : MonoBehaviour
     public int StageQuestCount(int stage) =>
         stage >= 0 && stage < stages.Length && stages[stage].questIds != null ? stages[stage].questIds.Length : 0;
 
-    /// <summary>Helped (played) - a quest turned down with "Not for me" doesn't light up.</summary>
+    /// <summary>Played (passed or failed). A quest refused in an old save (before "Not for me" was removed) doesn't count.</summary>
     public bool StageQuestDone(int stage, int i) =>
         stage >= 0 && stage < stages.Length && stages[stage].questIds != null && i < stages[stage].questIds.Length
         && IsQuestDone(stages[stage].questIds[i])

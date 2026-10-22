@@ -39,6 +39,7 @@ namespace SunodGame.UI
         private Label _lblClusterLabel;
         private Label _lblHollandCode;
         private Label _lblQuests;
+        private Label _lblQuestsSplit;
         private Label _lblStars;
         private Label _lblSource;
         private Label _lblStatsError;
@@ -106,6 +107,7 @@ namespace SunodGame.UI
             _lblClusterLabel   = root.Q<Label>("lbl-cluster-label");
             _lblHollandCode    = root.Q<Label>("lbl-holland-code");
             _lblQuests         = root.Q<Label>("lbl-quests");
+            _lblQuestsSplit    = root.Q<Label>("lbl-quests-split");
             _lblStars          = root.Q<Label>("lbl-stars");
             _lblSource         = root.Q<Label>("lbl-source");
             _lblStatsError     = root.Q<Label>("lbl-stats-error");
@@ -309,10 +311,25 @@ namespace SunodGame.UI
             _cachedRunState = null;
             SetContinueEnabled(false);
 
-            TelemetryManager.Instance?.ResetMyRunState(
-                onError: error => Debug.LogWarning($"[MainMenu] New-run reset failed server-side: {error}"));
+            // The save lives on the server: wait for the reset to land before the new run's
+            // first checkpoint goes out, or the reset could wipe the new run instead.
+            if (TelemetryManager.Instance == null) { SceneLoader.LoadByName(playSceneName); return; }
+            bool loaded = false;
+            System.Action go = () => { if (loaded) return; loaded = true; SceneLoader.LoadByName(playSceneName); };
+            TelemetryManager.Instance.ResetMyRunState(
+                onSuccess: _ => go(),
+                onError: error =>
+                {
+                    Debug.LogWarning($"[MainMenu] New-run reset failed server-side: {error}");
+                    go();
+                });
+            StartCoroutine(LoadAfter(8f, go));   // never get stuck on the menu
+        }
 
-            SceneLoader.LoadByName(playSceneName);
+        private static System.Collections.IEnumerator LoadAfter(float seconds, System.Action action)
+        {
+            yield return new WaitForSecondsRealtime(seconds);
+            action?.Invoke();
         }
 
         private void OnTutorialClicked(ClickEvent _)
@@ -589,7 +606,7 @@ namespace SunodGame.UI
                 if (!string.IsNullOrWhiteSpace(run.career_family) && run.career_family != career) parts.Add(run.career_family);
                 string when = FormatRunDate(run.finished_at);
                 if (!string.IsNullOrEmpty(when)) parts.Add(when);
-                parts.Add($"{run.quests_completed}/{run.quests_attempted} quests");
+                parts.Add($"{run.quests_attempted} quests ({run.quests_completed} passed)");
                 parts.Add($"{run.total_stars} stars");
                 if (run.play_seconds >= 60f) parts.Add($"{Mathf.RoundToInt(run.play_seconds / 60f)} min");
                 var sub = new Label(string.Join("  -  ", parts));
@@ -635,12 +652,12 @@ namespace SunodGame.UI
                 _lblRunComplete.SetDisplay(runFinished);
             }
 
-            // Provisional until the run ends (after College) - not until all 48 are done, which no run can reach.
+            // Provisional until the run ends: after College, with all 48 quests played.
             bool isProvisional = !runFinished;
             if (_lblProvisionalNote != null)
             {
                 _lblProvisionalNote.text = isProvisional
-                    ? "Not final yet. Your real result comes after you finish College."
+                    ? $"Not final yet. Finish all {TotalQuestSlots} quests (Elementary, High School and College) for your real result."
                     : string.Empty;
                 _lblProvisionalNote.SetDisplay(isProvisional);
             }
@@ -654,7 +671,10 @@ namespace SunodGame.UI
             if (_lblCareerName   != null) _lblCareerName.text   = career;
             if (_lblClusterLabel != null) _lblClusterLabel.text = progress.predicted_cluster_label ?? string.Empty;
             if (_lblHollandCode  != null) _lblHollandCode.text  = string.IsNullOrWhiteSpace(progress.predicted_holland_code) ? "---" : progress.predicted_holland_code;
-            if (_lblQuests       != null) _lblQuests.text       = $"{progress.quests_completed}/{TotalQuestSlots}";
+            // Every quest counts once it's played (passed or failed); all 48 are required.
+            int played = Mathf.Min(progress.quests_attempted, TotalQuestSlots);
+            if (_lblQuests       != null) _lblQuests.text       = $"{played} of {TotalQuestSlots}";
+            if (_lblQuestsSplit  != null) _lblQuestsSplit.text  = $"{progress.quests_completed} / {Mathf.Max(0, progress.quests_attempted - progress.quests_completed)}";
             if (_lblStars        != null) _lblStars.text        = progress.total_stars.ToString();
             if (_lblSource       != null) _lblSource.text       = string.IsNullOrWhiteSpace(progress.prediction_source) ? "--" : progress.prediction_source;
         }
