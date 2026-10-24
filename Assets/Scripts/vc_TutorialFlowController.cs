@@ -7,9 +7,10 @@ using SunodGame.Telemetry;
 /// Drives the redesigned Level0 tutorial as a guided, coached sequence with a
 /// single tracked quest in the QuestPanel whose objectives tick off as the
 /// player progresses:
-///   intro -> teach movement -> walk into the skill area (trigger) -> read the
-///   6 kinds of skills & pick ONE -> reach the glowing zone -> clear the obstacle
-///   (per-skill flavor) -> rule-based career reveal -> exit.
+///   intro -> teach movement -> walk onto the skill plaza (trigger) -> read the
+///   6 kinds of skills & pick ONE -> talk to Tala (the "!" + Help / Later prompt, same as
+///   the real towns) -> reach the glowing zone -> get her kite back (per-skill flavor) ->
+///   life stages -> rule-based career reveal -> exit.
 ///
 /// Replaces the deleted vc_Level0TutorialController. Attach to TutorialRoot.
 /// </summary>
@@ -18,17 +19,18 @@ public class vc_TutorialFlowController : MonoBehaviour
 {
     public static vc_TutorialFlowController Instance { get; private set; }
 
-    private enum Phase { Intro, TeachMove, Explore, ChooseSkill, GoToZone, QuestActive, LifeStages, Done }
+    private enum Phase { Intro, TeachMove, Explore, ChooseSkill, TalkToTala, GoToZone, QuestActive, LifeStages, Done }
 
     // Quest objective indices (order must match the steps array in ShowQuestInfo).
     private const int OBJ_MOVE   = 0;
     private const int OBJ_AREA   = 1;
     private const int OBJ_CHOOSE = 2;
-    private const int OBJ_ZONE   = 3;
-    private const int OBJ_CLEAR  = 4;
-    private const int OBJ_STAGES = 5;
+    private const int OBJ_TALK   = 3;
+    private const int OBJ_ZONE   = 4;
+    private const int OBJ_CLEAR  = 5;
+    private const int OBJ_STAGES = 6;
 
-    private const int TotalSteps = 6;
+    private const int TotalSteps = 7;
 
     private const string IntroText =
         "Welcome to SUNOD! In the real game you grow up through 3 life stages - Elementary, High School and College - helping people along the way. First, let's learn the basics.";
@@ -50,6 +52,8 @@ public class vc_TutorialFlowController : MonoBehaviour
     private vc_TutorialSkillMarker _activeMarker;
     private PlayerController _player;
     private Vector3 _moveStartPos;
+    private bool _promptShown;          // Help/Later asked for this visit (reset when the player walks away)
+    private GameObject _talaMarker;
 
     private int _stepsDone;
     private readonly bool[] _stepCounted = new bool[TotalSteps];
@@ -88,10 +92,26 @@ public class vc_TutorialFlowController : MonoBehaviour
 
     private void Update()
     {
-        if (_phase != Phase.TeachMove || _player == null) return;
+        if (_player == null) return;
 
-        if (Vector3.Distance(_player.transform.position, _moveStartPos) >= moveTeachDistance)
-            OnMoveLearned();
+        if (_phase == Phase.TeachMove)
+        {
+            if (Vector3.Distance(_player.transform.position, _moveStartPos) >= moveTeachDistance)
+                OnMoveLearned();
+            return;
+        }
+
+        // Walking up to Tala asks for help, the same way people do in the towns.
+        if (_phase == Phase.TalkToTala && quest != null && quest.Kid != null)
+        {
+            float d = Vector2.Distance(_player.transform.position, quest.Kid.position);
+            if (d > 2.6f) _promptShown = false;
+            if (d < 1.8f && !_promptShown && (vc_DialogPanel.Instance == null || !vc_DialogPanel.Instance.IsOpen))
+            {
+                _promptShown = true;
+                AskForHelp();
+            }
+        }
     }
 
     // ── Phase transitions ─────────────────────────────────────────────────
@@ -110,6 +130,7 @@ public class vc_TutorialFlowController : MonoBehaviour
                 "Use the joystick to move",
                 "Find the skill area",
                 "Look at each skill, then pick one",
+                "Talk to Tala and tap Help",
                 "Step into the glowing skill zone",
                 "Use your skill to get Tala's kite back",
                 "Learn about the 3 life stages",
@@ -139,7 +160,7 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_UIPointer.Hide();
         vc_QuestHUD.Instance?.CheckObjective(OBJ_MOVE);
         AdvanceStep(OBJ_MOVE);
-        vc_FloatingMessage.Instance?.Show("Good! Walk to the skill area ahead.");
+        vc_FloatingMessage.Instance?.Show("Good! Follow the road to the plaza.");
         PointArrow(skillAreaArrowTarget);
     }
 
@@ -182,13 +203,64 @@ public class vc_TutorialFlowController : MonoBehaviour
                 }));
     }
 
+    // ── Talking to Tala: the "!" and the Help / Later prompt ──────────────
+
+    private void EnterTalkToTala()
+    {
+        _phase = Phase.TalkToTala;
+        _promptShown = false;
+        Transform kid = quest != null ? quest.Kid : null;
+        _talaMarker = kid != null && kid.Find("QuestMarker") != null ? kid.Find("QuestMarker").gameObject : null;
+        if (_talaMarker != null) _talaMarker.SetActive(true);
+
+        string who = quest != null ? quest.KidName : "Tala";
+        vc_DialogPanel.Instance?.ShowMessage(
+            "Someone Needs Help",
+            $"See the \"!\" over {who} in the park? That means someone needs your help.\n\nWalk up to {who} to talk.",
+            () => { if (kid != null) PointArrow(kid); });
+    }
+
+    private void AskForHelp()
+    {
+        string who = quest != null ? quest.KidName : "Tala";
+        HideArrow();
+        vc_DialogPanel.Instance?.ShowChoice(
+            who,
+            "My kite got stuck up in the tree and I can't reach it! Can you help me get it down?",
+            null,
+            "Help",
+            "Later",
+            onConfirm: AcceptHelp,
+            onCancel: () =>
+            {
+                vc_QuestHUD.Instance?.ShowFeedbackTimed($"Walk back to {who} when you're ready.", 2.5f);
+                vc_FloatingMessage.Instance?.Show("In the real game, Later lets you look around first. Everyone still gets helped.");
+            });
+    }
+
+    private void AcceptHelp()
+    {
+        if (_phase != Phase.TalkToTala) return;
+        if (_talaMarker != null) _talaMarker.SetActive(false);
+        vc_QuestHUD.Instance?.CheckObjective(OBJ_TALK);
+        AdvanceStep(OBJ_TALK);
+
+        if (quest != null)
+        {
+            quest.Completed -= OnQuestCompleted;
+            quest.Completed += OnQuestCompleted;
+            quest.BeginTutorialQuest();
+        }
+        EnterGoToZone();
+    }
+
     private void EnterGoToZone()
     {
         _phase = Phase.GoToZone;
 
         vc_DialogPanel.Instance?.ShowMessage(
             "Skill Zones",
-            $"{SkillLabel(_chosen)} is now in its {KindName(_chosen)} button. Skills only work in skill zones. Find the glowing spot and stand on it.",
+            $"{SkillLabel(_chosen)} is now in its {KindName(_chosen)} button. Skills only work in skill zones. Stand on the glowing spot by the tree.",
             () => PointArrow(zoneArrowTarget));
     }
 
@@ -231,16 +303,9 @@ public class vc_TutorialFlowController : MonoBehaviour
         if (markers != null)
             for (int i = 0; i < markers.Length; i++) markers[i]?.Despawn();
 
-        if (quest != null)
-        {
-            quest.Completed -= OnQuestCompleted;
-            quest.Completed += OnQuestCompleted;
-            quest.BeginTutorialQuest();
-        }
-
         vc_QuestHUD.Instance?.CheckObjective(OBJ_CHOOSE);
         AdvanceStep(OBJ_CHOOSE);
-        EnterGoToZone();
+        EnterTalkToTala();
     }
 
     // ── Zone coaching ─────────────────────────────────────────────────────

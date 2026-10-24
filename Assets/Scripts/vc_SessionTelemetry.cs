@@ -19,7 +19,8 @@ public class vc_SessionTelemetry : MonoBehaviour
         public string primaryRiasec;
         public string questionCode;   // RIASEC item this quest represents: "R1".."C8" (Option B)
         public bool completed;
-        public int starsEarned;
+        public int starsEarned;       // 0-3, used for scoring
+        public int stars5 = -1;       // 0-5 as shown by the quest timer (-1 = not known, older saves)
         public int itemScore;         // 1-5 Option B score (see ComputeItemScore)
         public float finalTimeRemainingSeconds;
         public float timeSpentSeconds;
@@ -128,7 +129,7 @@ public class vc_SessionTelemetry : MonoBehaviour
         Debug.Log("[Telemetry] Session canceled.");
     }
 
-    public void RecordQuestResult(string questId, string questName, string primaryRiasec, string questionCode, bool completed, int starsEarned, float finalTimeRemainingSeconds, float timeSpentSeconds, IDictionary<string, int> skillUsageCounts)
+    public void RecordQuestResult(string questId, string questName, string primaryRiasec, string questionCode, bool completed, int starsEarned, float finalTimeRemainingSeconds, float timeSpentSeconds, IDictionary<string, int> skillUsageCounts, int starsOutOfFive = -1)
     {
         EnsureSessionStarted();
         RefreshPlayerIdentity();
@@ -143,6 +144,7 @@ public class vc_SessionTelemetry : MonoBehaviour
             questionCode = string.IsNullOrWhiteSpace(questionCode) ? string.Empty : questionCode.Trim().ToUpperInvariant(),
             completed = completed,
             starsEarned = normalizedStars,
+            stars5 = starsOutOfFive >= 0 ? Mathf.Clamp(starsOutOfFive, 0, 5) : -1,
             itemScore = ComputeItemScore(completed, normalizedStars),
             finalTimeRemainingSeconds = Mathf.Max(0f, finalTimeRemainingSeconds),
             timeSpentSeconds = Mathf.Max(0f, timeSpentSeconds),
@@ -201,6 +203,7 @@ public class vc_SessionTelemetry : MonoBehaviour
                 question_code = record.questionCode ?? string.Empty,
                 completed = record.completed,
                 stars = Mathf.Clamp(record.starsEarned, 0, 3),
+                stars5 = record.stars5,
                 time_spent_seconds = Mathf.Max(0f, record.timeSpentSeconds),
                 skill_use_r = GetSkillUseCount(record.skillUsageCounts, "R"),
                 skill_use_i = GetSkillUseCount(record.skillUsageCounts, "I"),
@@ -263,6 +266,7 @@ public class vc_SessionTelemetry : MonoBehaviour
                 questionCode = string.IsNullOrWhiteSpace(dto.question_code) ? string.Empty : dto.question_code.Trim().ToUpperInvariant(),
                 completed = dto.completed,
                 starsEarned = stars,
+                stars5 = dto.stars5 >= 0 && dto.stars5 <= 5 ? dto.stars5 : -1,
                 itemScore = ComputeItemScore(dto.completed, stars),
                 finalTimeRemainingSeconds = 0f,
                 timeSpentSeconds = Mathf.Max(0f, dto.time_spent_seconds),
@@ -617,6 +621,7 @@ public class vc_SessionTelemetry : MonoBehaviour
                 primary_riasec = NormalizeRiasecLetter(record.primaryRiasec) ?? "R",
                 solved = record.completed,
                 stars_earned = Mathf.Clamp(record.starsEarned, 0, 3),
+                stars5 = record.stars5,
                 retry_count = 0,
                 time_spent_seconds = Mathf.Max(0f, record.timeSpentSeconds),
                 skill_use_r = GetSkillUseCount(record.skillUsageCounts, "R"),

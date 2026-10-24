@@ -165,7 +165,8 @@ public class vc_QuestRoom : MonoBehaviour
             result != null ? result.FinalStarsEarnedNormalized : 0,
             result != null ? result.FinalTimeRemaining : 0f,
             result != null ? result.TotalTimeSpent : 0f,
-            usageSummary);
+            usageSummary,
+            result != null ? result.FinalStarsEarned : 0);
 
         UnsubscribeFromQuestTimer();
     }
@@ -241,7 +242,7 @@ public class vc_QuestRoom : MonoBehaviour
     {
         vc_SessionTelemetry.Instance?.RecordQuestResult(
             questId, questName, primaryRiasec, questionCode,
-            false, 0, 0f, 0f, null);
+            false, 0, 0f, 0f, null, 0);
 
         var ids = new List<string> { questId };
         if (extraSaveIds != null) ids.AddRange(extraSaveIds);

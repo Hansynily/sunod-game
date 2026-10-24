@@ -68,6 +68,10 @@ public class vc_TutorialQuest : MonoBehaviour
 
     public event Action Completed;
 
+    /// <summary>Tala (the kid who needs help) and her name, for the flow controller's Help/Later prompt.</summary>
+    public Transform Kid => obstacleBlocker != null ? obstacleBlocker.transform : null;
+    public string KidName => kidName;
+
     private bool _active;
     private bool _solved;
     private bool _subscribed;
