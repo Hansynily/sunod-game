@@ -101,6 +101,7 @@ namespace SunodGame.Models
         public string primary_riasec;
         public bool solved;
         public int stars_earned;
+        public int stars5 = -1;   // 0-5 as the quest timer shows it (-1 = unknown)
         public int retry_count;
         public float time_spent_seconds;
         public int skill_use_r;
@@ -228,6 +229,7 @@ namespace SunodGame.Models
         public string question_code;
         public bool completed;
         public int stars;
+        public int stars5 = -1;   // 0-5 as the quest timer shows it (-1 = unknown)
         public float time_spent_seconds;
         public int skill_use_r;
         public int skill_use_i;

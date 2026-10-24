@@ -521,6 +521,7 @@ namespace SunodGame.Telemetry
                     sb.Append($"\"question_code\":\"{EscapeJson(r.question_code)}\",");
                     sb.Append($"\"completed\":{(r.completed ? "true" : "false")},");
                     sb.Append($"\"stars\":{r.stars},");
+                    sb.Append($"\"stars5\":{r.stars5},");
                     sb.Append($"\"time_spent_seconds\":{r.time_spent_seconds.ToString(System.Globalization.CultureInfo.InvariantCulture)},");
                     sb.Append($"\"skill_use_r\":{r.skill_use_r},");
                     sb.Append($"\"skill_use_i\":{r.skill_use_i},");

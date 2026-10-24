@@ -17,7 +17,7 @@ using UnityEngine.UIElements;
 /// Coordinates are world units: 1 unit = 1 tile = 16 px, origin = town's bottom-left.
 /// Objects are placed by their bottom-center.
 /// </summary>
-public static class vc_TownBuilder
+public static partial class vc_TownBuilder
 {
     private const string SpriteDir = "Assets/Art/Town/Sprites";
     private const string NpcDir = "Assets/Art/Town/NPC";
