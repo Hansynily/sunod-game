@@ -3902,6 +3902,7 @@ MonoBehaviour:
   surveyTime: 2
   solveTime: 4
   planTime: 5
+  craftTime: 7
   healTime: 8
   buildTime: 8
 --- !u!1 &3120018423867532381
@@ -5942,6 +5943,7 @@ MonoBehaviour:
   - plan
   - heal
   - build
+  - craft
 --- !u!1 &7075218555951670342
 GameObject:
   m_ObjectHideFlags: 0

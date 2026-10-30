@@ -298,6 +298,7 @@ public class vc_TownStage : MonoBehaviour
     private void Update()
     {
         UpdateHintArrow();
+        KeepPlayerInTown();
 
         // Tap / click an NPC you're standing next to, to talk again (e.g. after "Later").
         if (_inQuest || _busy || Pointer.current == null || !Pointer.current.press.wasPressedThisFrame) return;
@@ -324,6 +325,46 @@ public class vc_TownStage : MonoBehaviour
             _lastTalkTime = Time.time;
         else
             GetComponent<vc_TownCritters>()?.TryPet(world, player.transform.position);   // pet the town cat
+    }
+
+    private float _nextBoundsCheck;
+
+    /// <summary>
+    /// Safety net: if the player ever ends up off the map (past the edge walls) or standing
+    /// in the water, put them back on the nearest walkable spot. Skipped during quests, the
+    /// sleep cutscene and shed doorways (where the player's collider is off on purpose).
+    /// </summary>
+    private void KeepPlayerInTown()
+    {
+        if (_inQuest || _busy || Time.time < _nextBoundsCheck) return;
+        _nextBoundsCheck = Time.time + 0.25f;
+
+        PlayerController player = FindFirstObjectByType<PlayerController>();
+        if (player == null || player.ScriptedMove.HasValue) return;
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null && !rb.simulated) return;
+
+        Vector3 p = player.transform.position;
+        Rect town = vc_TownGrid.TownRect(transform);
+        bool outside = p.x < town.xMin || p.x > town.xMax || p.y < town.yMin || p.y > town.yMax;
+        bool inWater = false;
+        if (!outside)
+        {
+            if (_water == null) _water = transform.Find("Grid")?.Find("water")?.GetComponent<UnityEngine.Tilemaps.Tilemap>();
+            inWater = _water != null && _water.HasTile(_water.WorldToCell(p));
+        }
+        if (outside || inWater) MovePlayer(SafeTownSpot(p));
+    }
+
+    private UnityEngine.Tilemaps.Tilemap _water;
+
+    /// <summary>The nearest spot to 'want' the player can actually stand on (not in water, a building or off the map).</summary>
+    private Vector3 SafeTownSpot(Vector3 want)
+    {
+        vc_TownGrid grid = vc_TownGrid.For(transform);
+        if (grid == null || grid.IsWalkable(want)) return want;
+        Vector2? spot = grid.NearestWalkable(want, 16);
+        return spot.HasValue ? new Vector3(spot.Value.x, spot.Value.y, want.z) : want;
     }
 
     /// <summary>
@@ -519,7 +560,7 @@ public class vc_TownStage : MonoBehaviour
             vc_TownFlow.MarkQuestDone(npc.QuestId);
             npc.SetAttempted(true);
             npc.SetPassed(passed);
-            MovePlayer(npc.transform.position + new Vector3(0f, -1f, 0f));
+            MovePlayer(SafeTownSpot(npc.transform.position + new Vector3(0f, -1f, 0f)));
         }
 
         _promptCooldownUntil = Time.time + 1f;
@@ -692,8 +733,22 @@ public class vc_TownStage : MonoBehaviour
         int i = SkipPassedWaypoints(grid, path, player.transform.position);
         Vector3 checkPos = player.transform.position;
         float nextCheck = Time.time + 0.6f;
+        int stuckCount = 0;
+        bool ghost = false;
         while (i < path.Count && Time.time < until)
         {
+            if (ghost)
+            {
+                // Still stuck after re-planning (a prop corner, a roaming NPC): it's a cutscene,
+                // so slide through whatever is in the way instead of freezing on the spot.
+                Vector3 step = Vector3.MoveTowards(player.transform.position, path[i], player.speed * Time.deltaTime);
+                player.ScriptedMove = ((Vector2)(path[i] - player.transform.position)).normalized;
+                player.transform.position = step;
+                if (Vector2.Distance(step, path[i]) < 0.05f) i++;
+                yield return null;
+                continue;
+            }
+
             Vector2 to = path[i] - player.transform.position;
             bool last = i == path.Count - 1;
             if (to.magnitude < (last ? 0.08f : 0.2f)) { i++; continue; }
@@ -706,18 +761,29 @@ public class vc_TownStage : MonoBehaviour
             // be measured over time, not frame to frame.
             if (Time.time >= nextCheck)
             {
-                if (Vector2.Distance(player.transform.position, checkPos) < 0.15f && grid != null)
+                if (Vector2.Distance(player.transform.position, checkPos) < 0.15f)
                 {
-                    path = grid.FindPath(player.transform.position, target);
-                    if (path.Count == 0) break;
+                    stuckCount++;
+                    List<Vector3> replanned = grid != null ? grid.FindPath(player.transform.position, target) : new List<Vector3>();
+                    if (stuckCount >= 2 || replanned.Count == 0)
+                    {
+                        if (replanned.Count > 0) { path = replanned; i = 0; }
+                        ghost = true;
+                        SetPlayerInside(player, true, null);   // collider off for the rest of the walk
+                        foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) { Color c = r.color; c.a = 1f; r.color = c; }
+                        continue;
+                    }
+                    path = replanned;
                     i = SkipPassedWaypoints(grid, path, player.transform.position);
                 }
+                else stuckCount = 0;
                 checkPos = player.transform.position;
                 nextCheck = Time.time + 0.6f;
             }
             yield return null;
         }
         player.ScriptedMove = Vector2.zero;
+        if (ghost) SetPlayerInside(player, false, null);
     }
 
     /// <summary>
@@ -1068,7 +1134,7 @@ public class vc_TownStage : MonoBehaviour
             npc.SetVisible(true);
         }
         _promptCooldownUntil = Time.time + 0.5f;
-        MovePlayer(npc.transform.position + new Vector3(0f, -1.2f, 0f));
+        MovePlayer(SafeTownSpot(npc.transform.position + new Vector3(0f, -1.2f, 0f)));
     }
 
     /// <summary>Clears this town's progress so every quest can be played again.</summary>

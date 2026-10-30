@@ -10,6 +10,7 @@ using UnityEngine;
 ///   inspect  C  best fit     check every shelf label (check marks); the key box glints       ~2s
 ///   collect  C  workaround   gather the loose supplies into the bin; the key drops out         4s
 ///   direct   C  workaround   label and sort the shelves; the key turns up                      5s
+///   unlock   I  off-letter   (Solve) reason out where the key must be, shelf by shelf          6s
 ///   survey   I  off-letter   sweep a scanner beam over the room until something shines         7s
 ///   summon   E  off-letter   the locksmith walks over and opens the door                      10s
 ///   anything else: a hint, no effect
@@ -40,11 +41,16 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
     [SerializeField] private Sprite[] sparkFrames;
     [SerializeField] private Sprite[] dustFrames;
     [SerializeField] private Sprite[] ringFrames;
+    [Tooltip("Thought bubble for the Solve path (optional).")]
+    [SerializeField] private Sprite questionBubble;
+    [Tooltip("'Ruled out' mark for the Solve path (optional).")]
+    [SerializeField] private Sprite crossMark;
 
     [Header("Timing (seconds)")]
     [SerializeField] private float inspectTime = 2f;
     [SerializeField] private float collectTime = 4f;
     [SerializeField] private float directTime = 5f;
+    [SerializeField] private float solveTime = 6f;
     [SerializeField] private float surveyTime = 7f;
     [SerializeField] private float locksmithWalkTime = 6f;
     [SerializeField] private float locksmithFixTime = 4f;
@@ -124,6 +130,7 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
 
         if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
         if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
+        if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
         if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
         if (d.HasTag("summon")) { StartWork(LocksmithRoutine()); return; }
 
@@ -242,6 +249,48 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
         sr.sortingOrder = 8;
         _spawned.Add(go);
         Fx(sparkFrames, pos, 12f, 0.1f);
+    }
+
+    // ── Solve: reason it out, rule the shelves out one by one ────────────
+
+    private IEnumerator SolveRoutine()
+    {
+        Toast("Where was the key used last? You work it out...", solveTime);
+        ShowBar(true);
+        float t = 0f;
+
+        // think it over at the locked door: the padlock rattles, a question mark pops up
+        Vector3 lockPos = padlock != null ? padlock.transform.position : door.position;
+        if (questionBubble != null) Fx(new[] { questionBubble }, lockPos + new Vector3(0f, 0.7f, 0f), 1f / 1.2f, 0.2f, 24);
+        SunodGame.Core.vc_Sfx.Play("idea", 0.4f);
+        if (padlock != null) StartCoroutine(Shake(padlock.transform, _padlockRest, 0.3f, 1));
+        yield return BarStep(1.2f, 0f, 1.2f / solveTime);
+        t = 1.2f;
+
+        // go through the shelves in order: each one is ruled out with a cross
+        int ns = shelves != null ? shelves.Length : 0;
+        float per = (solveTime - 1.2f - 1.4f) / Mathf.Max(1, ns);
+        for (int s = 0; s < ns; s++)
+        {
+            if (shelves[s] == null) continue;
+            Vector3 top = shelves[s].position + new Vector3(0f, 1.7f, 0f);
+            if (questionBubble != null) Fx(new[] { questionBubble }, top, 1f / (per * 0.5f), 0.1f, 24);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.45f, 0.12f);
+            StartCoroutine(Shake(shelves[s], _shelfRest[s], 0.2f, 1));
+            yield return BarStep(per * 0.5f, t / solveTime, (t + per * 0.5f) / solveTime);
+            if (crossMark != null) Fx(new[] { crossMark }, top, 1f / (per * 0.5f), 0.15f, 24);
+            SunodGame.Core.vc_Sfx.Play("buzz", 0.25f, 0.1f);
+            yield return BarStep(per * 0.5f, (t + per * 0.5f) / solveTime, (t + per) / solveTime);
+            t += per;
+        }
+
+        // only one place left: the key box
+        yield return GlintAndOpenBox(0.4f);
+        t += 0.4f;
+        SetBar(t / solveTime);
+        yield return KeyFromBox();
+        yield return KeyToDoor(keyBox.transform.position + new Vector3(0f, 0.6f, 0f));
+        Finish("Every other spot ruled out. The key was in the box!");
     }
 
     // ── Survey: a scanner beam sweeps the room ───────────────────────────

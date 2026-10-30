@@ -91,9 +91,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 55c61a2805544ce468fe388b61801a44, type: 3}
   ringFrames:
   - {fileID: 21300000, guid: fa75fb0c901e31042a8664fb993724f1, type: 3}
+  questionBubble: {fileID: 21300000, guid: 20f4dae0fe19aec46b090fc63feded1a, type: 3}
+  crossMark: {fileID: 21300000, guid: 307d041ed8045514cac89e6b356b850f, type: 3}
   inspectTime: 2
   collectTime: 4
   directTime: 5
+  solveTime: 6
   surveyTime: 7
   locksmithWalkTime: 6
   locksmithFixTime: 4
@@ -3960,6 +3963,7 @@ MonoBehaviour:
   - direct
   - survey
   - summon
+  - unlock
 --- !u!1 &7368338787441956557
 GameObject:
   m_ObjectHideFlags: 0

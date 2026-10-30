@@ -92,7 +92,7 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Story Time",
-            "Toto and his friends are learning to read. Some words are hard. Help them!",
+            "Toto and his friends are learning to read. One of them is too shy and scared to join. Help them!",
             new[] { "Read the storybook with the little kids" });
     }
 
@@ -202,7 +202,7 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
 
     private IEnumerator HealRoutine()
     {
-        Toast("You gently coax the shy kid out...", healTime);
+        Toast("The shy kid is scared. You comfort them...", healTime);
         ShowBar(true);
         float total = healTime, t = 0f;
 

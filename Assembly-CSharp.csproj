@@ -263,6 +263,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_SkeletonModelQuest.cs" />
     <Compile Include="Assets\Scripts\Player\vc_SpriteFrameAnimator.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSelectionMarker.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_QuestGoalMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RabbitWatchQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_StoryTimeQuest.cs" />

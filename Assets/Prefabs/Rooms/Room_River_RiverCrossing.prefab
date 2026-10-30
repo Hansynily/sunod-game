@@ -4346,6 +4346,7 @@ MonoBehaviour:
   buildTime: 2
   repairTime: 4
   planTime: 7
+  craftTime: 7
   helperWalkTime: 6
   helperFixTime: 4
 --- !u!1 &3585621725721749341
@@ -7643,7 +7644,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: solvableWithTags.Array.size
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[0]'
@@ -7664,6 +7665,10 @@ PrefabInstance:
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: 'solvableWithTags.Array.data[4]'
       value: summon
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: 'solvableWithTags.Array.data[5]'
+      value: craft
       objectReference: {fileID: 0}
     - target: {fileID: 5303252299566984132, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: m_LocalPosition.x

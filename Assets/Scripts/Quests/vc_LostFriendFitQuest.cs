@@ -171,7 +171,7 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
 
     private IEnumerator GuideRoutine()
     {
-        Toast("Your friend takes your hand. Lead the way!", 3f);
+        Toast("Your friend takes your hand!", 2f);
         SetMode(Mode.Calm);
         ShowBar(true);
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
@@ -196,6 +196,8 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
     private IEnumerator FollowToClass()
     {
         _following = true;
+        ShowGoal(classroom);
+        Toast("Lead them to the classroom. Follow the arrow!", 3f);
         while (Vector2.Distance(kid.position, classroom.position) >= arriveRange)
         {
             Transform p = Player();
@@ -209,6 +211,7 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
             yield return null;
         }
         _following = false;
+        HideGoal();
     }
 
     private void SetKidPos(Vector3 p)

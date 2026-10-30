@@ -10,6 +10,7 @@ using UnityEngine;
 ///   push     R  workaround   shove a boulder into the river per press (splash)          x3
 ///   repair   R  workaround   mend the broken old plank bridge beside the crossing       4s
 ///   plan     I  off-letter   work out a shallow ford (footprints appear), then it shows  7s
+///   craft    A  off-letter   weave rope and lash new planks onto the bridge, one by one  7s
 ///   summon   E  off-letter   Mang Ben's helper walks over and lays new planks           10s
 ///   walking round to the far bank still works with no skill at all (existing path)
 ///   anything else: a hint, no effect
@@ -49,6 +50,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
     [SerializeField] private float buildTime = 2f;
     [SerializeField] private float repairTime = 4f;
     [SerializeField] private float planTime = 7f;
+    [SerializeField] private float craftTime = 7f;
     [SerializeField] private float helperWalkTime = 6f;
     [SerializeField] private float helperFixTime = 4f;
 
@@ -152,6 +154,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
         if (d.HasTag("push")) { PushBoulder(); return; }
         if (d.HasTag("repair")) { StartWork(BridgeRepairRoutine()); return; }
         if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
         if (d.HasTag("summon")) { StartWork(HelperRoutine()); return; }
 
         Toast("You need to make a way across.", 2.2f);
@@ -329,6 +332,74 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
             elapsed += slabPer;
         }
         Finish("You found a shallow ford and crossed safely!");
+    }
+
+    // Craft: weave rope, then lash new planks on one at a time
+
+    private IEnumerator CraftRoutine()
+    {
+        Toast("You weave rope and lash new planks on...", craftTime);
+        ShowBar(true);
+        Vector3 c = bridge != null ? bridge.transform.position : transform.position + new Vector3(2.5f, 0.15f, 0f);
+        Vector3 bank = new Vector3(c.x - 1.9f, c.y - 0.2f, 0f);
+        float t = 0f;
+
+        // twist the rope on the bank: sparkles spin while it's woven
+        float weave = 1.6f, tick = 0f;
+        while (t < weave)
+        {
+            t += Time.deltaTime; tick += Time.deltaTime;
+            if (tick >= 0.3f)
+            {
+                tick = 0f;
+                Fx(sparkFrames, bank + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(0f, 0.3f), 0f), 12f, 0.1f);
+                SunodGame.Core.vc_Sfx.Play("brush", 0.35f, 0.15f);
+            }
+            SetBar(t / craftTime);
+            yield return null;
+        }
+
+        // each plank flies from the bank onto the bridge and gets tied down
+        const int planks = 5;
+        float per = (craftTime - weave - 0.3f) / planks;
+        Sprite plank = bridgeFixed;
+        for (int i = 0; i < planks; i++)
+        {
+            float x = c.x + Mathf.Lerp(-0.9f, 0.9f, i / (float)(planks - 1));
+            Vector3 to = new Vector3(x, c.y + 0.05f, 0f);
+            yield return FlyPiece(bank, to, per * 0.5f);
+            SunodGame.Core.vc_Sfx.Play("clack", 0.45f, 0.12f);
+            Fx(sparkFrames, to + new Vector3(0f, 0.15f, 0f), 12f, 0.1f);
+            if (bridge != null) StartCoroutine(Shake(bridge.transform, _bridgeRest, 0.12f, 1));
+            yield return BarStep(per * 0.5f, (t + per * 0.5f) / craftTime, (t + per) / craftTime);
+            t += per;
+        }
+        MendBridge();
+        yield return BarStep(0.3f, t / craftTime, 1f);
+        Finish("Your hand-made bridge holds. Across you go!");
+    }
+
+    /// <summary>A small plank sprite arcs from one point to another, spinning a little.</summary>
+    private IEnumerator FlyPiece(Vector3 from, Vector3 to, float seconds)
+    {
+        var go = new GameObject("Plank");
+        go.transform.SetParent(transform, true);
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.color = new Color32(176, 120, 72, 255);
+        sr.sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
+        go.transform.localScale = new Vector3(0.36f, 0.12f, 1f);
+        sr.sortingLayerName = sortingLayer; sr.sortingOrder = 12;
+        SunodGame.Core.vc_Sfx.Play("cut_whoosh", 0.3f, 0.15f);
+        float t = 0f;
+        while (t < seconds)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / seconds);
+            go.transform.position = Snap(Vector3.Lerp(from, to, k) + new Vector3(0f, Mathf.Sin(k * Mathf.PI) * 0.8f, 0f));
+            go.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Round((1f - k) * 4f) * 22.5f);
+            yield return null;
+        }
+        Destroy(go);
     }
 
     private void SpawnPrint(Vector3 pos, bool flip)

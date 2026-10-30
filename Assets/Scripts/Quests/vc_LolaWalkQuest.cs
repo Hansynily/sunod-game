@@ -148,6 +148,7 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
             {
                 _guiding = false;
                 ShowBar(false);
+                HideGoal();
                 _routes.Add(StartCoroutine(SitAndFinish("You walked Lola home. She's so grateful!")));
             }
             return;
@@ -208,7 +209,8 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
         CancelWork();
         _guiding = true;
         _guideStartDist = Vector2.Distance(lola.position, home.position);
-        Toast("Lola takes your arm. Walk her to her chair.", 3f);
+        Toast("Lola takes your arm. Walk her to her rocking chair (follow the arrow).", 3.5f);
+        ShowGoal(chair != null ? chair : home);
         Fx(heartFrames, lola.position + new Vector3(0f, 0.95f, 0f), 5f, 0.3f);
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
         ShowBar(true);

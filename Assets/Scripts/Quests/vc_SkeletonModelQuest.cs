@@ -8,6 +8,7 @@ using UnityEngine;
 ///   survey   I  best fit     identifies each bone; labels pop and bones fly into place      ~2s
 ///   unlock   I  workaround   works out the order: skull, ribs, arms, legs                   4s
 ///   plan     I  workaround   lays the bones out by body region, then assembles              5s
+///   craft    A  off-letter   wires the bones together like an art model, joint by joint     7s
 ///   heal     S  off-letter   names the bones from first-aid know-how, slowly                8s
 ///   build    R  off-letter   puts it together by hand, trial and error                      8s
 ///   anything else: a hint, no effect
@@ -39,20 +40,28 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
     [SerializeField] private float surveyTime = 2f;
     [SerializeField] private float solveTime = 4f;
     [SerializeField] private float planTime = 5f;
+    [SerializeField] private float craftTime = 7f;
     [SerializeField] private float healTime = 8f;
     [SerializeField] private float buildTime = 8f;
 
     private int _stage;
+    private Vector3 _skeletonRest;
     private float _idleClock;
     private readonly System.Collections.Generic.List<GameObject> _laid = new System.Collections.Generic.List<GameObject>();
 
     protected override Vector3 BarWorldPosition =>
         (skeleton != null ? skeleton.transform.position : transform.position) + new Vector3(-0.5f, 2.4f, 0f);
 
+    private void Awake()
+    {
+        if (skeleton != null) _skeletonRest = skeleton.transform.localPosition;
+    }
+
     protected override void OnBegin()
     {
         ClearLaid();
         _stage = 0; _idleClock = 1.5f;
+        if (skeleton != null) { skeleton.flipX = false; skeleton.transform.localPosition = _skeletonRest; }
         SetStage(0);
         if (bonePile != null) bonePile.enabled = true;
 
@@ -83,6 +92,7 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
         if (BlockedByWork()) return;
         if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
         if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
         if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
         if (d.HasTag("build")) { StartWork(BuildRoutine()); return; }
         Toast("This needs some careful study.", 2.2f);
@@ -138,6 +148,46 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
         Done1("Sorted by region, then built. Nicely planned!");
     }
 
+    // ── Craft: wire the bones together like an art model ─────────────────
+
+    private IEnumerator CraftRoutine()
+    {
+        Toast("You wire the bones together like an art model...", craftTime);
+        ShowBar(true);
+        float t = 0f;
+        // bend a wire frame first: sparks trace the spine from the stand up
+        Vector3 b = skeleton != null ? skeleton.transform.position : transform.position;
+        const int wireSteps = 6;
+        for (int i = 0; i < wireSteps; i++)
+        {
+            Fx(sparkFrames, b + new Vector3(Random.Range(-0.08f, 0.08f), 0.3f + i * 0.28f, 0f), 12f, 0.05f);
+            SunodGame.Core.vc_Sfx.Play("brush", 0.3f, 0.15f);
+            yield return BarStep(0.3f, t / craftTime, (t + 0.3f) / craftTime);
+            t += 0.3f;
+        }
+        // then each part is tied on with a few twists of wire (slow, careful joints)
+        int steps = Mathf.Max(1, 3 - _stage);
+        float per = (craftTime - t - 0.2f) / steps;
+        while (_stage < 3)
+        {
+            Vector3 dst = StageSpot(_stage + 1);
+            yield return Arc(bonePile != null ? bonePile.bounds.center : LaidSpot(), dst, per * 0.35f, keep: false);
+            for (int k = 0; k < 3; k++)
+            {
+                Fx(sparkFrames, dst + new Vector3(-0.25f + 0.25f * k, 0.05f, 0f), 12f, 0.08f);
+                SunodGame.Core.vc_Sfx.Play("clack", 0.3f, 0.2f);
+                yield return BarStep(per * 0.15f, t / craftTime, (t + per * 0.15f) / craftTime);
+                t += per * 0.15f;
+            }
+            SetStage(_stage + 1);
+            StartCoroutine(Settle());
+            yield return BarStep(per * 0.2f, t / craftTime, (t + per * 0.2f) / craftTime);
+            t += per * 0.2f;
+        }
+        if (bonePile != null) bonePile.enabled = false;
+        Done1("Wired up and posed. It looks great!");
+    }
+
     // ── Heal: name the bones from first aid, slowly ──────────────────────
 
     private IEnumerator HealRoutine()
@@ -170,7 +220,7 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
             yield return Arc(bonePile.bounds.center, Top() + new Vector3(0f, -0.9f, 0f), 0.4f, keep: false);
             if (crossMark != null) Fx(new[] { crossMark }, Top(), 1.4f, 0.15f, 24);
             SunodGame.Core.vc_Sfx.Play("buzz", 0.35f);
-            if (skeleton != null) StartCoroutine(Shake(skeleton.transform, skeleton.transform.localPosition, 0.3f, 1));
+            if (skeleton != null) StartCoroutine(Shake(skeleton.transform, _skeletonRest, 0.3f, 1));
             Fx(dustFrames, skeleton.transform.position + new Vector3(0.4f, 0.1f, 0f), 10f, 0.1f);
             yield return BarStep(1.6f, (t + 0.4f) / buildTime, (t + 2f) / buildTime);
             t += 2f;
@@ -193,6 +243,7 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
             if (label && boneLabel != null) Fx(new[] { boneLabel }, src + new Vector3(0f, 0.35f, 0f), 2f, 0.15f, 24);
             yield return Arc(src, dst, per * 0.45f, keep: false);
             SetStage(_stage + 1);
+            StartCoroutine(Settle());
             SunodGame.Core.vc_Sfx.Play("clack", 0.55f, 0.1f);
             Fx(sparkFrames, dst, 12f, 0.1f);
             if (_laid.Count > 0) { Destroy(_laid[0]); _laid.RemoveAt(0); }
@@ -208,6 +259,7 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
         ClearLaid();
         if (bonePile != null) bonePile.enabled = false;
         if (sparkFrames != null) Fx(sparkFrames, Top() + new Vector3(0.3f, -0.3f, 0f), 12f, 0.2f);
+        StartCoroutine(Dance());
         Finish(msg);
     }
 
@@ -222,6 +274,40 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
         if (skeleton == null) return transform.position;
         Vector3 b = skeleton.transform.position;
         return s == 1 ? b + new Vector3(0f, 1.7f, 0f) : s == 2 ? b + new Vector3(0f, 1.1f, 0f) : b + new Vector3(0f, 0.6f, 0f);
+    }
+
+    /// <summary>A bone clicks on: the model jolts up a pixel, wobbles and settles.</summary>
+    private IEnumerator Settle()
+    {
+        if (skeleton == null) yield break;
+        Transform tr = skeleton.transform;
+        int[] px = { 2, -1, 1, 0 };
+        foreach (int p in px)
+        {
+            if (tr == null) yield break;
+            tr.localPosition = _skeletonRest + new Vector3(0f, p / 22f, 0f);
+            yield return new WaitForSeconds(0.05f);
+        }
+        if (tr != null) tr.localPosition = _skeletonRest;
+        if (dustFrames != null && tr != null) Fx(dustFrames, tr.position + new Vector3(0.35f, 0.05f, 0f), 12f, 0.05f);
+    }
+
+    /// <summary>Finished: the skeleton does a happy little jig on its stand.</summary>
+    private IEnumerator Dance()
+    {
+        if (skeleton == null) yield break;
+        Transform tr = skeleton.transform;
+        for (int i = 0; i < 4 && tr != null; i++)
+        {
+            skeleton.flipX = i % 2 == 0;
+            tr.localPosition = _skeletonRest + new Vector3(0f, 3f / 22f, 0f);
+            yield return new WaitForSeconds(0.08f);
+            if (tr == null) yield break;
+            tr.localPosition = _skeletonRest;
+            SunodGame.Core.vc_Sfx.Play("clack", 0.25f, 0.3f);
+            yield return new WaitForSeconds(0.08f);
+        }
+        if (skeleton != null) skeleton.flipX = false;
     }
 
     private Vector3 LaidSpot() => _laid.Count > 0 && _laid[0] != null ? _laid[0].transform.position : (bonePile != null ? bonePile.bounds.center : transform.position);
@@ -242,6 +328,8 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
             t += Time.deltaTime;
             float k = Mathf.Clamp01(t / dur);
             go.transform.position = Snap(Vector3.Lerp(from, to, k) + new Vector3(0f, Mathf.Sin(k * Mathf.PI) * 0.6f, 0f));
+            // tumbles end over end in 45-degree steps (keeps the pixels crisp)
+            go.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Round(k * 8f) * -45f);
             yield return null;
         }
         if (keep) _laid.Add(go); else Destroy(go);

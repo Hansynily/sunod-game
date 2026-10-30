@@ -24,6 +24,7 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
     private Coroutine _work;
     private Transform _bar, _barFill;
     private SpriteRenderer _helper;
+    private vc_QuestGoalMarker _goal;
 
     // ── Quest-specific hooks ─────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         if (_timer != null) _timer.QuestEnded -= HandleQuestEnded;
         if (Done) return;
         Started = false;
+        HideGoal();
         CancelWork();
         Unsubscribe();
     }
@@ -89,6 +91,7 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         ShowBar(false);
         if (_helper != null) Destroy(_helper.gameObject);
         _helper = null;
+        HideGoal();
         OnWorkCancelled();
     }
 
@@ -111,6 +114,7 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         Working = false;
         _work = null;
         ShowBar(false);
+        HideGoal();
         Unsubscribe();
         SunodGame.Core.vc_Sfx.Play("step_done", 0.8f);
         vc_FloatingMessage.Instance?.Show(msg);
@@ -212,6 +216,22 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
             yield return new WaitForSeconds(0.04f);
         }
         if (tr != null) tr.localPosition = restLocal;
+    }
+
+    // ── Goal marker (walk-along paths like Guide) ────────────────────────
+
+    /// <summary>Shows an arrow over 'target' and a pointer by the player aiming at it.</summary>
+    protected void ShowGoal(Transform target)
+    {
+        HideGoal();
+        if (target == null) return;
+        _goal = vc_QuestGoalMarker.Create(transform, target, target.position, sortingLayer);
+    }
+
+    protected void HideGoal()
+    {
+        if (_goal != null) Destroy(_goal.gameObject);
+        _goal = null;
     }
 
     // ── Walking helper (Call path) ───────────────────────────────────────
