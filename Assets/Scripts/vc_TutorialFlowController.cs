@@ -72,6 +72,11 @@ public class vc_TutorialFlowController : MonoBehaviour
         vc_SkillZone.ResetCounter();
 
         _player = FindFirstObjectByType<PlayerController>();
+
+        // Same as the towns: the forest edge is solid and the far forest fills the view past it.
+        foreach (GameObject root in gameObject.scene.GetRootGameObjects())
+            if (root.name == "TutorialGrounds" && root.activeInHierarchy) { vc_TownBorder.Apply(root.transform); break; }
+        vc_TownBorder.PaintVoid(Camera.main);
     }
 
     private void Start()
@@ -373,7 +378,7 @@ public class vc_TutorialFlowController : MonoBehaviour
                 () => vc_DialogPanel.Instance?.ShowMessage(
                 "Days and Energy",
                 "Each stage has 16 people to help, about 4 days' worth. People with a \"!\" above their head need help.\n\n" +
-                "Every quest you take uses 1 energy, and you get 4 energy a day. When it runs out, find a shed with a bed and tap Sleep.",
+                "Every quest you take uses 1 energy, and you get 4 energy a day. When it runs out, tap Sleep and you head home for the night.",
                 () => vc_DialogPanel.Instance?.ShowMessage(
                     "There Are No Wrong Answers",
                     "When someone asks for help, tap Help to start, or Later if you want to look around first. Everyone gets helped before you grow up to the next stage.\n\n" +

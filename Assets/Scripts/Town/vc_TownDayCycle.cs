@@ -11,8 +11,7 @@ using UnityEngine.Tilemaps;
 /// The town's light follows the day's energy: a soft peach morning, clear midday, a golden
 /// afternoon, and a deep blue-violet dusk once the day is used up. As evening comes:
 ///   - streetlamps switch on one by one, with a pixel halo that flickers now and then;
-///   - fireflies drift up out of the grass and blink over the meadows and the water;
-///   - the shed signs glow warm, so the way to bed is easy to spot.
+///   - fireflies drift up out of the grass and blink over the meadows and the water.
 /// Stays out of quests (rooms keep their normal light). Everything is stepped and pixel
 /// snapped like the rest of the art; sprites are generated here, nothing to import.
 /// </summary>
@@ -51,8 +50,6 @@ public class vc_TownDayCycle : MonoBehaviour
 
     private class Fly { public SpriteRenderer sr; public Vector3 home, pos; public float t, speed, blink; }
     private readonly List<Fly> _flies = new List<Fly>();
-
-    private readonly List<SpriteRenderer> _shedGlows = new List<SpriteRenderer>();
 
     private void Start()
     {
@@ -107,8 +104,6 @@ public class vc_TownDayCycle : MonoBehaviour
         float dusk = Mathf.Clamp01((_shown - 0.7f) / 0.3f) * _questFade;   // 0 by day, 1 at dusk
         TickLamps(dusk);
         TickFireflies(dusk, dt);
-        foreach (SpriteRenderer g in _shedGlows)
-            if (g != null) g.color = new Color(1f, 0.8f, 0.45f, dusk * (0.55f + 0.1f * Mathf.Round(Mathf.Sin(Time.time * 2.3f) * 2f) / 2f));
     }
 
     private static Color SkyAt(float t)
@@ -129,12 +124,6 @@ public class vc_TownDayCycle : MonoBehaviour
         foreach (Transform o in objects)
         {
             string n = o.name.ToLowerInvariant();
-            if (n.StartsWith("shed"))
-            {
-                var shed = o.GetComponent<vc_TownShed>();
-                if (shed != null && shed.sign != null) _shedGlows.Add(MakeGlow(shed.sign.transform.position, 0.9f, 305));
-                continue;
-            }
             if (!n.Contains("lamp")) continue;
             SpriteRenderer top = o.Find("Top") != null ? o.Find("Top").GetComponent<SpriteRenderer>() : null;
             SpriteRenderer any = top != null ? top : o.GetComponentInChildren<SpriteRenderer>();

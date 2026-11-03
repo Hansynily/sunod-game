@@ -121,7 +121,6 @@
     <Compile Include="Assets\Scripts\UI\EndSceneUIToolkit.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_NetCafeQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_GenericQuestEngine.cs" />
-    <Compile Include="Assets\Scripts\Town\vc_TownShed.cs" />
     <Compile Include="Assets\Scripts\QuestData.cs" />
     <Compile Include="Assets\Scripts\vc_PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\CharmSkill.cs" />
@@ -212,6 +211,7 @@
     <Compile Include="Assets\Scripts\Town\vc_TownLife.cs" />
     <Compile Include="Assets\Scripts\Core\vc_HallwaySlot.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_SeedlingStudyQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownBorder.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FundraiserKitsQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.cs" />
     <Compile Include="Assets\Scripts\UI\vc_DialogPanel.cs" />

@@ -69,8 +69,11 @@ namespace SunodGame.UI
             root.Q<Button>("btn-back")
                 ?.RegisterCallback<ClickEvent>(_ => Hide());
 
-            root.Q<Button>("btn-cheat-all")
-                ?.RegisterCallback<ClickEvent>(_ => OnCheatClicked());
+            // "Add all" cheat: hidden for now (kept wired so it can be shown again by
+            // removing the display line).
+            Button cheatAll = root.Q<Button>("btn-cheat-all");
+            cheatAll?.RegisterCallback<ClickEvent>(_ => OnCheatClicked());
+            if (cheatAll != null) cheatAll.style.display = DisplayStyle.None;
 
             for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {

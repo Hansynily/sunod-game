@@ -16,6 +16,7 @@ namespace SunodGame.UI
         private const string PresetCustom  = TelemetryManager.BackendModeCustom;
 
         [Header("Developer")]
+        [Tooltip("Ignored at startup: the backend button is hidden until the SUNOD banner is tapped 5 times quickly (remembered on the device).")]
         [SerializeField] private bool showDeveloperBackendControls = false;
 
         // Panels
@@ -56,6 +57,15 @@ namespace SunodGame.UI
         private Button        _btnDevBackend;
 
         private string _selectedBackendPreset = PresetRailway;
+
+        // Hidden switch: tap the SUNOD banner 5 times quickly to show (or hide again) the
+        // backend button. Remembered on the device, so it only has to be done once.
+        private const string DevBackendPrefKey = "sunod.dev_backend_unlocked";
+        private const int DevTapCount = 5;
+        private const float DevTapWindow = 3f;
+        private VisualElement _brandBanner;
+        private int _devTaps;
+        private float _devFirstTap;
 
         private void OnEnable()
         {
@@ -121,6 +131,18 @@ namespace SunodGame.UI
             _btnPresetLocalhost?  .RegisterCallback<ClickEvent>(_ => OnLocalhostPresetClicked());
             _btnDevBackend?       .RegisterCallback<ClickEvent>(_ => OpenBackendSettings());
 
+            // Hidden trigger on the SUNOD banner (its label stays click-through)
+            _brandBanner = _panelLogin?.Q<VisualElement>(className: "brand-banner");
+            if (_brandBanner != null)
+            {
+                _brandBanner.pickingMode = PickingMode.Position;
+                _brandBanner.parent.pickingMode = PickingMode.Ignore;
+                _brandBanner.RegisterCallback<PointerDownEvent>(OnBrandTapped);
+            }
+            // Hidden until unlocked on this device (the scene's checkbox no longer forces it on)
+            showDeveloperBackendControls = false;
+            try { showDeveloperBackendControls = PlayerPrefs.GetInt(DevBackendPrefKey, 0) == 1; } catch { }
+
             // Initial state
             ShowLogin();
             SetLoading(false);
@@ -139,6 +161,21 @@ namespace SunodGame.UI
             _btnPresetRailway?    .UnregisterCallback<ClickEvent>(_ => OnRailwayPresetClicked());
             _btnPresetCustom?     .UnregisterCallback<ClickEvent>(_ => OnCustomPresetClicked());
             _btnDevBackend?       .UnregisterCallback<ClickEvent>(_ => OpenBackendSettings());
+            _brandBanner?         .UnregisterCallback<PointerDownEvent>(OnBrandTapped);
+        }
+
+        private void OnBrandTapped(PointerDownEvent evt)
+        {
+            float now = Time.unscaledTime;
+            if (_devTaps == 0 || now - _devFirstTap > DevTapWindow) { _devTaps = 0; _devFirstTap = now; }
+            _devTaps++;
+            if (_devTaps < DevTapCount) return;
+
+            _devTaps = 0;
+            showDeveloperBackendControls = !showDeveloperBackendControls;
+            try { PlayerPrefs.SetInt(DevBackendPrefKey, showDeveloperBackendControls ? 1 : 0); PlayerPrefs.Save(); } catch { }
+            ApplyDevBackendVisibility();
+            SunodGame.Core.vc_Sfx.Play("click", 0.6f);
         }
 
         // ============================

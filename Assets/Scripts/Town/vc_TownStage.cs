@@ -22,13 +22,14 @@ using UnityEngine.SceneManagement;
 ///  - every quest must be played: the prompt is only Help / Later, nobody leaves town, and
 ///    a quest ends passed or failed (timer, or quitting mid-quest). Days keep coming until
 ///    all of the stage's quests are done - 4 days if the player uses all their energy;
-///  - sleeping: the player walks to the nearest shed (letterbox, no HUD), fade to the night,
-///    day summary, a free pick of 1 of 3 new skills, the dream, then morning at that shed.
+///  - sleeping: the player heads home on their own (letterbox, no HUD) and walks out of the
+///    frame, fading away; fade to the night, day summary, a free pick of 1 of 3 new skills,
+///    the dream, then morning in front of their home.
 /// When the pool is empty the "Go to next stage" button appears; the player moves on
 /// when they're ready (no auto-skip).
 ///
 /// Saving works like a farming game's "save on sleep": Continue always puts the player at
-/// the shed they slept in, on the morning of the current day, with that morning's requests
+/// their home, on the morning of the current day (day 1 of a stage starts at the town's spawn), with that morning's requests
 /// and the energy already spent. A quest's outcome is locked in the moment it's played - a
 /// quest that was started and never finished (quit or closed mid-quest) counts as failed,
 /// so quitting can never be used to retry one.
@@ -36,9 +37,10 @@ using UnityEngine.SceneManagement;
 /// Town progress is saved as ids in the run-state's completed list: the quest id for
 /// every attempt, plus markers "day:&lt;stage&gt;:&lt;n&gt;" (day n slept), "req:&lt;stage&gt;:&lt;n&gt;:&lt;id&gt;"
 /// (asked for help on day n), "e:&lt;stage&gt;:&lt;n&gt;:&lt;id&gt;" (energy spent on it on day n),
-/// "s:&lt;id&gt;" (quest started) and "bed:&lt;stage&gt;:&lt;n&gt;:&lt;shed&gt;" (slept in that shed after day n).
+/// and "s:&lt;id&gt;" (quest started).
 /// Older saves may also hold "no:&lt;id&gt;" (refused) and "left:&lt;id&gt;" (expired) from before
-/// "Not for me" and leaving were removed; those are still read so old runs load.
+/// "Not for me" and leaving were removed; those are still read so old runs load. Saves from
+/// the shed version also hold "bed:..." markers, which are simply ignored now.
 /// </summary>
 [DisallowMultipleComponent]
 public class vc_TownStage : MonoBehaviour
@@ -51,7 +53,6 @@ public class vc_TownStage : MonoBehaviour
     public const string RequestPrefix = "req:";
     public const string EnergyPrefix = "e:";
     public const string StartedPrefix = "s:";
-    public const string BedPrefix = "bed:";
 
     public string stageId = "elementary";
     public string stageTitle = "Elementary";
@@ -78,8 +79,6 @@ public class vc_TownStage : MonoBehaviour
 
     private vc_TownNPC[] _npcs = new vc_TownNPC[0];
     private vc_TownHome[] _homes = new vc_TownHome[0];
-    private vc_TownShed[] _sheds = new vc_TownShed[0];
-    private int _bedShed = -1;            // shed slept in last (-1 = none yet this stage)
     private readonly List<vc_TownNPC> _today = new List<vc_TownNPC>();
     private vc_TownNPC _activeNpc;
     private GameObject _activeRoom;
@@ -110,21 +109,26 @@ public class vc_TownStage : MonoBehaviour
     public bool StageDone => BuiltQuestCount > 0 && OpenCount == 0;
 
     /// <summary>
-    /// Where the player wakes up: in front of the shed they slept in. Before the first night
-    /// of a stage, the town's spawn point (falls back to the home, then the town's origin).
+    /// Where the player wakes up: in front of their home. Before the first night of a stage,
+    /// the town's spawn point (falls back to the home, then the town's origin).
     /// </summary>
     public Vector3 WakePosition =>
-        _bedShed >= 0 && _bedShed < _sheds.Length && _sheds[_bedShed] != null ? _sheds[_bedShed].WakePosition
+        _day > 1 && HomeWake.HasValue ? HomeWake.Value
         : playerSpawn != null ? playerSpawn.position
-        : _homes.Length > 0 && _homes[0] != null ? _homes[0].WakePosition
-        : transform.position;
+        : HomeWake ?? transform.position;
+
+    private Vector3? HomeWake => _homes.Length > 0 && _homes[0] != null ? _homes[0].WakePosition : (Vector3?)null;
 
     private void Awake()
     {
         Current = this;
         _npcs = GetComponentsInChildren<vc_TownNPC>(true);
         _homes = GetComponentsInChildren<vc_TownHome>(true);
-        _sheds = GetComponentsInChildren<vc_TownShed>(true).OrderBy(s => s.name).ToArray();
+        // solid forest edge + far-forest backdrop down to the quest area (no blue void)
+        Rect? questRect = questArea != null
+            ? new Rect(questArea.position.x - 24f, questArea.position.y - 18f, 48f, 36f)
+            : (Rect?)null;
+        vc_TownBorder.Apply(transform, questRect);
         // roaming townsfolk + daily happenings (no scene setup needed)
         if (GetComponent<vc_TownLife>() == null) gameObject.AddComponent<vc_TownLife>();
         // morning chimney smoke over the houses
@@ -175,13 +179,9 @@ public class vc_TownStage : MonoBehaviour
         }
 
         // Resumed mid-stage: pick up on the right day (one marker per day slept here), in
-        // front of the shed slept in last.
+        // front of the home (WakePosition).
         _day = 1;
         while (vc_TownFlow.IsQuestDone(DayMarker(_day))) _day++;
-        _bedShed = -1;
-        for (int d = _day - 1; d >= 1 && _bedShed < 0; d--)
-            for (int i = 0; i < _sheds.Length; i++)
-                if (vc_TownFlow.IsQuestDone(BedMarker(d, i))) { _bedShed = i; break; }
         ResetDayTally();
         // Energy already spent today (quests started before the save point).
         _questsToday = _npcs.Count(n => n.HasQuest && vc_TownFlow.IsQuestDone(EnergyMarker(_day, n.QuestId)));
@@ -215,7 +215,6 @@ public class vc_TownStage : MonoBehaviour
     private string DayMarker(int day) => $"{DayPrefix}{stageId}:{day}";
     private string RequestMarker(int day, string questId) => $"{RequestPrefix}{stageId}:{day}:{questId}";
     private string EnergyMarker(int day, string questId) => $"{EnergyPrefix}{stageId}:{day}:{questId}";
-    private string BedMarker(int day, int shed) => $"{BedPrefix}{stageId}:{day}:{shed}";
 
     /// <summary>Did this quest's recorded attempt complete it? (Telemetry is seeded from the save on Continue.)</summary>
     private static bool WasPassed(string questId)
@@ -332,7 +331,7 @@ public class vc_TownStage : MonoBehaviour
     /// <summary>
     /// Safety net: if the player ever ends up off the map (past the edge walls) or standing
     /// in the water, put them back on the nearest walkable spot. Skipped during quests, the
-    /// sleep cutscene and shed doorways (where the player's collider is off on purpose).
+    /// sleep cutscene (where the player's collider may be off on purpose).
     /// </summary>
     private void KeepPlayerInTown()
     {
@@ -469,6 +468,7 @@ public class vc_TownStage : MonoBehaviour
 
         Vector3 roomPos = questArea != null ? questArea.position : transform.position + new Vector3(0f, -100f, 0f);
         _activeRoom = Instantiate(npc.questPrefab, roomPos, Quaternion.identity, questArea);
+        vc_TownBorder.WallRoom(_activeRoom);   // some rooms have open sides; keep the player in
 
         if (vc_QuestTimer.Instance != null)
         {
@@ -640,11 +640,10 @@ public class vc_TownStage : MonoBehaviour
         vc_RunProgressUI ui = vc_RunProgressUI.Instance;
         string dream = nightDreams != null && nightDreams.Length > 0 ? nightDreams[(_day - 1) % nightDreams.Length] : null;
 
-        // Sleep in the shed nearest to where the player is now; they wake up there.
-        int shed = NearestShed(PlayerPosition());
+        // The player heads home for the night and wakes up in front of it.
         System.Action wake = () =>
         {
-            SaveNight(shed);
+            SaveNight();
             _day++;
             ResetDayTally();
             MovePlayer(WakePosition);
@@ -665,21 +664,20 @@ public class vc_TownStage : MonoBehaviour
         System.Action<System.Action> pick = endingRun ? (System.Action<System.Action>)(then => then?.Invoke()) : OfferSkillPick;
 
         string title = $"{stageTitle} - Day {_day} done";
-        Vector3 bedDoor = shed >= 0 ? _sheds[shed].DoorPosition
-            : _homes.Length > 0 && _homes[0] != null ? _homes[0].DoorPosition : WakePosition;
-        if (ui != null) StartCoroutine(SleepSequence(ui, title, body, dream, bedDoor, shed, wake, pick));
+        Vector3 home = HomeWake ?? WakePosition;
+        if (ui != null) StartCoroutine(SleepSequence(ui, title, body, dream, home, wake, pick));
         else vc_DialogPanel.Instance?.ShowMessage($"Day {_day} done", body, () => pick(wake));
     }
 
     /// <summary>
-    /// Going to bed: letterbox in, HUD away, and the player walks to the shed on their own,
-    /// on a real path around buildings and trees (vc_TownGrid), with the camera following.
-    /// At the shed the door swings open, they step inside, the door shuts, and the screen
-    /// fades to the night: day summary, skill pick and dream over the night picture.
-    /// A very long walk is cut short (fade early) so bedtime never drags.
+    /// Going to bed: letterbox in, HUD away, and the player heads home on their own, on a real
+    /// path around buildings and trees (vc_TownGrid). The camera stays put, so they walk out of
+    /// the frame, fading away as they reach its edge (or after a couple of seconds, or at the
+    /// door if home is close). Then the screen fades to the night: day summary, skill pick and
+    /// dream over the night picture.
     /// </summary>
     private IEnumerator SleepSequence(vc_RunProgressUI ui, string title, string body, string dream,
-                                      Vector3 door, int shed, System.Action wake, System.Action<System.Action> pick)
+                                      Vector3 home, System.Action wake, System.Action<System.Action> pick)
     {
         vc_DirectionalArrow.Instance?.HideArrow();
         _hintShown = false;
@@ -687,31 +685,35 @@ public class vc_TownStage : MonoBehaviour
 
         ui.SetCinematic(true);
         PlayerController player = FindFirstObjectByType<PlayerController>();
-        vc_TownShed bed = shed >= 0 && shed < _sheds.Length ? _sheds[shed] : null;
-        bool wentInside = false;
         if (player != null)
         {
             player.MoveAction.Disable();
             yield return new WaitForSeconds(0.5f);   // letterbox settles
+            player.CameraHeld = true;
 
-            Vector3 front = bed != null ? bed.WakePosition : door + new Vector3(0f, -0.9f, 0f);
-            yield return WalkPath(player, front, 7f);
-
-            if (bed != null && Vector2.Distance(player.transform.position, front) < 0.6f)
+            bool walking = true;
+            Coroutine walk = StartCoroutine(RunThen(WalkPath(player, home, 4f), () => walking = false));
+            Camera cam = Camera.main;
+            float started = Time.time, alpha = 1f;
+            while (alpha > 0f)
             {
-                yield return EnterShed(player, bed);
-                wentInside = true;
+                bool leaving = !walking || Time.time - started > 2.2f || NearScreenEdge(cam, player.transform.position);
+                if (leaving) alpha = Mathf.MoveTowards(alpha, 0f, Time.deltaTime / 0.6f);
+                SetPlayerAlpha(player, alpha);
+                yield return null;
             }
+            if (walking) StopCoroutine(walk);
             player.ScriptedMove = Vector2.zero;
+            yield return new WaitForSeconds(0.2f);
         }
 
-        yield return ui.FadeScreen(1f, wentInside ? 0.5f : 0.7f);
-        if (shed >= 0) _bedShed = shed;
+        yield return ui.FadeScreen(1f, 0.6f);
         if (player != null)
         {
             player.ScriptedMove = null;
-            SetPlayerInside(player, false, bed);
-            MovePlayer(WakePosition);
+            SetPlayerGhost(player, false);   // collider back on, fully visible again
+            player.CameraHeld = false;
+            MovePlayer(home);
         }
         ui.ShowNight(2);
         yield return ui.FadeScreen(0f, 0.5f);
@@ -769,8 +771,7 @@ public class vc_TownStage : MonoBehaviour
                     {
                         if (replanned.Count > 0) { path = replanned; i = 0; }
                         ghost = true;
-                        SetPlayerInside(player, true, null);   // collider off for the rest of the walk
-                        foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) { Color c = r.color; c.a = 1f; r.color = c; }
+                        SetPlayerGhost(player, true);   // collider off for the rest of the walk
                         continue;
                     }
                     path = replanned;
@@ -783,7 +784,7 @@ public class vc_TownStage : MonoBehaviour
             yield return null;
         }
         player.ScriptedMove = Vector2.zero;
-        if (ghost) SetPlayerInside(player, false, null);
+        if (ghost) SetPlayerGhost(player, false);
     }
 
     /// <summary>
@@ -798,129 +799,65 @@ public class vc_TownStage : MonoBehaviour
         return i;
     }
 
-    /// <summary>Door opens, the player steps in and fades into the dark doorway, door closes.</summary>
-    private IEnumerator EnterShed(PlayerController player, vc_TownShed bed)
+    private static IEnumerator RunThen(IEnumerator routine, System.Action done)
     {
-        player.ScriptedMove = new Vector2(0f, 0.001f);   // face the door
-        yield return new WaitForSeconds(0.25f);
-        bed.OpenDoor();
-        yield return new WaitForSeconds(0.3f);
+        yield return routine;
+        done?.Invoke();
+    }
 
-        SetPlayerInside(player, true, bed);
-        Vector3 from = player.transform.position, inside = bed.DoorPosition + new Vector3(0f, 0.25f, 0f);
-        float t = 0f;
-        var renderers = player.GetComponentsInChildren<SpriteRenderer>();
-        while (t < 1f)
-        {
-            t += Time.deltaTime / 0.55f;
-            player.ScriptedMove = Vector2.up * 0.6f;     // walking animation only (collider is off)
-            player.transform.position = Vector3.Lerp(from, inside, t);
-            foreach (SpriteRenderer r in renderers) { Color c = r.color; c.a = 1f - Mathf.Clamp01((t - 0.35f) / 0.65f); r.color = c; }
-            yield return null;
-        }
-        player.ScriptedMove = Vector2.zero;
-        yield return new WaitForSeconds(0.2f);
-        bed.CloseDoor();
-        yield return new WaitForSeconds(0.35f);
+    /// <summary>True when a world point is at (or past) the edge of the camera's view.</summary>
+    private static bool NearScreenEdge(Camera cam, Vector3 world)
+    {
+        if (cam == null) return false;
+        Vector3 v = cam.WorldToViewportPoint(world);
+        const float m = 0.06f;
+        return v.x < m || v.x > 1f - m || v.y < m || v.y > 1f - m;
+    }
+
+    private static void SetPlayerAlpha(PlayerController player, float alpha)
+    {
+        foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) { Color c = r.color; c.a = alpha; r.color = c; }
     }
 
     /// <summary>
-    /// Morning at a shed: the door opens, the player steps out to the front and the door shuts
-    /// behind them. Starts hidden in the doorway; the screen is already fading in.
+    /// Cutscene walking through whatever is in the way: the player's collider is off and
+    /// physics leaves them alone. Turning it back off also makes them fully visible again.
     /// </summary>
-    private IEnumerator LeaveShed(PlayerController player, vc_TownShed bed)
-    {
-        Vector3 inside = bed.DoorPosition + new Vector3(0f, 0.25f, 0f), front = bed.WakePosition;
-        SetPlayerInside(player, true, bed);
-        var renderers = player.GetComponentsInChildren<SpriteRenderer>();
-        foreach (SpriteRenderer r in renderers) { Color c = r.color; c.a = 0f; r.color = c; }
-        player.transform.position = inside;
-        yield return new WaitForSeconds(0.35f);
-        bed.OpenDoor();
-        yield return new WaitForSeconds(0.25f);
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / 0.55f;
-            player.ScriptedMove = Vector2.down * 0.6f;
-            player.transform.position = Vector3.Lerp(inside, front, t);
-            foreach (SpriteRenderer r in renderers) { Color c = r.color; c.a = Mathf.Clamp01(t / 0.5f); r.color = c; }
-            yield return null;
-        }
-        player.ScriptedMove = null;
-        SetPlayerInside(player, false, bed);
-        MovePlayer(front);
-        yield return new WaitForSeconds(0.15f);
-        bed.CloseDoor();
-    }
-
-    /// <summary>
-    /// While going through a shed door the player's collider is off (the doorway is part of
-    /// the shed's solid footprint) and they draw just behind the shed's roof.
-    /// </summary>
-    private static void SetPlayerInside(PlayerController player, bool inside, vc_TownShed bed)
+    private static void SetPlayerGhost(PlayerController player, bool ghost)
     {
         if (player == null) return;
-        foreach (Collider2D c in player.GetComponents<Collider2D>()) if (!c.isTrigger) c.enabled = !inside;
+        foreach (Collider2D c in player.GetComponents<Collider2D>()) if (!c.isTrigger) c.enabled = !ghost;
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.simulated = !inside; }
-        if (!inside)
-            foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) { Color c = r.color; c.a = 1f; r.color = c; }
+        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.simulated = !ghost; }
+        if (!ghost) SetPlayerAlpha(player, 1f);
     }
 
+    /// <summary>Morning: the screen fades back in on the player in front of their home.</summary>
     private IEnumerator WakeUp(vc_RunProgressUI ui, System.Action wake)
     {
         yield return ui.FadeScreen(1f, 0.35f);
         ui.HideNight();
         wake?.Invoke();
         PlayerController player = FindFirstObjectByType<PlayerController>();
-        vc_TownShed bed = _bedShed >= 0 && _bedShed < _sheds.Length ? _sheds[_bedShed] : null;
-        bool stepOut = player != null && bed != null && bed.doorOpen != null;
-        if (stepOut)
-        {
-            // hide in the doorway before the screen comes back
-            SetPlayerInside(player, true, bed);
-            foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) { Color c = r.color; c.a = 0f; r.color = c; }
-            player.transform.position = bed.DoorPosition + new Vector3(0f, 0.25f, 0f);
-        }
+        if (player != null) player.ScriptedMove = new Vector2(0f, -0.001f);   // face the town
         yield return new WaitForSeconds(0.25f);
         ui.SetCinematic(false);
-        StartCoroutine(ui.FadeScreen(0f, 0.8f));
-        if (stepOut) yield return LeaveShed(player, bed);
-        else yield return new WaitForSeconds(0.8f);
-        player?.MoveAction.Enable();
+        yield return ui.FadeScreen(0f, 0.8f);
+        if (player != null)
+        {
+            player.ScriptedMove = null;
+            player.MoveAction.Enable();
+        }
     }
 
     /// <summary>
-    /// Saves the night: the day is over, and which shed the player slept in (Continue wakes
-    /// them there). Unhelped requests are not touched - those people ask again tomorrow.
+    /// Saves the night: the day is over (Continue wakes the player at home on the next
+    /// morning). Unhelped requests are not touched - those people ask again tomorrow.
     /// </summary>
-    private void SaveNight(int shed)
+    private void SaveNight()
     {
-        var ids = new List<string> { DayMarker(_day) };
         vc_TownFlow.MarkQuestDone(DayMarker(_day));
-        if (shed >= 0)
-        {
-            _bedShed = shed;
-            ids.Add(BedMarker(_day, shed));
-            vc_TownFlow.MarkQuestDone(BedMarker(_day, shed));
-        }
-        vc_QuestRoom.SaveProgressIds(ids, gameObject.scene.name);
-    }
-
-    /// <summary>Index of the shed closest to a point (-1 if the town has none).</summary>
-    private int NearestShed(Vector3 from)
-    {
-        int best = -1;
-        float bestDist = float.MaxValue;
-        for (int i = 0; i < _sheds.Length; i++)
-        {
-            if (_sheds[i] == null) continue;
-            float d = Vector2.Distance(from, _sheds[i].DoorPosition);
-            if (d < bestDist) { bestDist = d; best = i; }
-        }
-        return best;
+        vc_QuestRoom.SaveProgressIds(new[] { DayMarker(_day) }, gameObject.scene.name);
     }
 
     /// <summary>Before the dream: pick 1 of 3 random skills you don't own (free).</summary>
@@ -1010,7 +947,7 @@ public class vc_TownStage : MonoBehaviour
         else if (waiting > 0 && Energy > 0)
             step = waiting == 1 ? "1 neighbor needs help today. Look around town for the \"!\"."
                                 : $"{waiting} neighbors need help today. Look around town for the \"!\".";
-        else step = "You've done what you can today. Tap Sleep to rest in the nearest shed.";
+        else step = "You've done what you can today. Tap Sleep to head home for the night.";
 
         vc_QuestHUD.Instance.ShowQuestInfo(
             $"Day {_day}  -  Energy {Energy}/{questsPerDay}",

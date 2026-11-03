@@ -75,7 +75,7 @@ public static class vc_NpcDialogue
         { "Tita Lorna", new[] {
             "Good morning! Or is it afternoon? Every hour is morning if you stretch first!",
             "Arms up, deep breath... see? Ten percent happier already. I made that number up, but it's true.",
-            "Out of energy? Don't push it! Lie down in a shed and you'll bounce back tomorrow, like me.",
+            "Out of energy? Don't push it! Tap Sleep, go home, and you'll bounce back tomorrow, like me.",
             "I walked around the plaza seven times today. The pigeons are getting tired of me.",
         } },
         { "Kuya Migs", new[] {
@@ -210,7 +210,7 @@ public static class vc_NpcDialogue
             "Glue gun's warm. Let's build something!",
             "Two hundred kits this week. My fingers are mostly glue now.",
             "If it's broken, fix it. If it's not broken, make it better.",
-            "Out of energy? Nearest shed, lie down, done. Don't walk all the way home, silly.",
+            "Out of energy? Tap Sleep and your feet take you home on their own. Easy.",
         } },
         { "Marco", new[] {
             "Picture this: sisig, but in a cone. I'm telling you, it's the future.",
@@ -359,7 +359,7 @@ public static class vc_NpcDialogue
             "Sorbetes! Cheese, ube, chocolate! Ring ring!",
             "Best flavor? Cheese. Don't argue with a professional.",
             "I've pushed this cart up every hill in town. My legs are basically tree trunks now.",
-            "Long day? The trick is to rest before you're too tired. Sheds are all over town, you know.",
+            "Long day? The trick is to rest before you're too tired. You can tap Sleep early, you know.",
             "A kid paid me in bottle caps once. I gave him a scoop anyway. Business is about heart.",
         } },
         { "Mika", new[] {
