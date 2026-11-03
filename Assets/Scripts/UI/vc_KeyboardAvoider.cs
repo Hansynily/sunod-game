@@ -15,6 +15,8 @@ public class vc_KeyboardAvoider : MonoBehaviour
     [SerializeField] private float gapAbovePanelPx = 24f;
     [Tooltip("Keyboard height as a share of the screen when the device doesn't report it (landscape phones: ~0.55-0.6).")]
     [SerializeField] private float fallbackKeyboardRatio = 0.58f;
+    [Tooltip("Extra room for the keyboard's suggestion row on non-password fields (Android dp).")]
+    [SerializeField] private float suggestionStripDp = 56f;
     [SerializeField] private float slideSpeed = 12f;
     [SerializeField] private float topMarginPx = 8f;
 
@@ -79,6 +81,12 @@ public class vc_KeyboardAvoider : MonoBehaviour
         return Application.isMobilePlatform && TouchScreenKeyboard.isSupported;
     }
 
+    private float SuggestionStripPx()
+    {
+        float dpi = Screen.dpi > 0f ? Screen.dpi : 320f;
+        return suggestionStripDp * dpi / 160f;
+    }
+
     private void Update()
     {
         if (_root == null || _content == null) return;
@@ -91,6 +99,9 @@ public class vc_KeyboardAvoider : MonoBehaviour
 
             float panelHeight = _root.layout.height;
             float scale = panelHeight > 0 && Screen.height > 0 ? panelHeight / Screen.height : 1f;
+            // Some keyboards leave their suggestion strip out of the reported area; it only
+            // shows on normal fields, never on password ones.
+            if (!_focused.isPasswordField) kbHeightScreen += SuggestionStripPx();
             float keyboardTop = panelHeight - kbHeightScreen * scale;
 
             // worldBound already includes the current lift; add it back to get the field's
