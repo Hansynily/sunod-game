@@ -6,10 +6,6 @@ Run with (important!): [Sunod Game Server](https://github.com/Hansynily/sunod-ga
 Roguelite meets career discovery. SUNOD is a 2D mobile roguelite where high school and college students explore a modern-fantasy world, collect magic skills, and face exam-style evaluations. Each run reveals insights about which career paths actually fit them.
 
 ---
-## TO-DO-s
-- [x] Implement actual user authentication
-- [ ] New different score system on each quest
-- [ ] Model Implementation
 
 
 ## About the Game
