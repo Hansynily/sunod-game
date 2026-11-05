@@ -2788,6 +2788,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
   questLogic: {fileID: 6740108689578450855}
+  minigameLogic: {fileID: 8206520750480726871}
   questId: r_pump
   questName: Broken Pump
   primaryRiasec: R
@@ -2989,6 +2990,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8977665490047116714}
   - component: {fileID: 6740108689578450855}
+  - component: {fileID: 8206520750480726871}
   m_Layer: 0
   m_Name: BrokenPumpQuest
   m_TagString: Untagged
@@ -3046,6 +3048,27 @@ MonoBehaviour:
   figureOutTime: 8
   plumberWalkTime: 6
   plumberFixTime: 4
+--- !u!114 &8206520750480726871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7151831152498255078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5561bf217e174a14ca919ed27a62e131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_PipeFixMinigame
+  mainMarker: {fileID: 5199411950533214622}
+  helperWalk: []
+  sortingLayer: Default
+  pump: {fileID: 477196250953462102}
+  pumpBroken: {fileID: 21300000, guid: 866cfc220c6d5a741965f31043b02312, type: 3}
+  pumpFixed: {fileID: 21300000, guid: 23906847486038d45beffb80c63bbc08, type: 3}
+  waterDrop: {fileID: 21300000, guid: 8c55ade55885e574d899e11d7f110680, type: 3}
+  gridSize: 4
+  cellPx: 92
 --- !u!1 &7577471157908210116
 GameObject:
   m_ObjectHideFlags: 0

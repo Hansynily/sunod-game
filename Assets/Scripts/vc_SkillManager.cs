@@ -338,6 +338,14 @@ public class vc_SkillManager : MonoBehaviour
         if (slot < usageCount.Length) usageCount[slot] += Mathf.Max(1, times);
     }
 
+    /// <summary>Minigames ("New" gameplay): a skill used as a helper counts as one use of its slot.</summary>
+    public void RecordHelperUse(int slot)
+    {
+        if (usageCount == null || usageCount.Length != (skillSlots != null ? skillSlots.Length : 0))
+            usageCount = new int[skillSlots != null ? skillSlots.Length : 0];
+        if (slot >= 0 && slot < usageCount.Length) usageCount[slot]++;
+    }
+
     public void ResetUsageCounts()
     {
         ClearCooldowns();   // a new quest never starts with skills still resting

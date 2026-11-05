@@ -147,6 +147,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_CatCureQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FamilyTalkQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_RoomSlot.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_SkillHelpers.cs" />
     <Compile Include="Assets\Scripts\vc_SkillData.cs" />
     <Compile Include="Assets\Scripts\vc_SkillAwardPopup.cs" />
     <Compile Include="Assets\Scripts\Telemetry\TelemetryManager.cs" />
@@ -199,6 +200,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_CampusPaperQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_SafeArea.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.RoundFlow.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_PipeFixMinigame.cs" />
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
     <Compile Include="Assets\Scripts\UI\vc_EndRunUI.cs" />
     <Compile Include="Assets\Scripts\vc_MissingKeyQuest.cs" />
