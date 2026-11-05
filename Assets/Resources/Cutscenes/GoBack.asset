@@ -1,0 +1,549 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c34a5d9d304503e4e9f7091f4332b0d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Cutscene.vc_CutsceneData
+  charsPerSecond: 40
+  punctuationPause: 0.12
+  fadeDuration: 0.45
+  textFloatDistance: 18
+  textFloatDuration: 0.4
+  cuts:
+  - name: MysteriousMan
+    stageColor: {r: 0.16470589, g: 0.18039216, b: 0.22745098, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: d81972c42c03fee459f4a569738a9126, type: 3}
+      texture: {fileID: 2800000, guid: 431bd33701db163479e4a60aab62b9b4, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 073fcfec5da527542b26c360e90374bc, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: 1
+        duration: 1.8
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 12
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 24
+        - t01: 1
+          value: 0
+        duration: 1.8
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 12
+        easeInOut: 0
+        holdLastKey: 1
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 0
+        duration: 2.6
+        delay: 1.8
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: dd9367ba4a5b6f846ac0ef5774d58c36, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.1
+          value: 1
+        - t01: 0.55
+          value: 1
+        - t01: 0.57
+          value: 0
+        - t01: 0.59
+          value: 1
+        - t01: 0.75
+          value: 0
+        - t01: 1
+          value: 0
+        duration: 6
+        delay: 2.2
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - The figure from your dreams is standing in the ruins.
+    - '"Not yet," they say. "You can still change what''s coming."'
+    - '"Go back. And this time, remember."'
+  - name: Rewind
+    stageColor: {r: 0.05490196, g: 0.047058824, b: 0.13333334, a: 1}
+    layers:
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 626a25368d6bbdc45b45ef047bf33198, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: c1ac18f891b72f94aa23857e7a7df321, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 360
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 180}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: -180
+        duration: 4
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 001d88c052ee899419ea40c769e72e1e, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: -30
+        width: 180
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 60}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 3
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: -360
+        duration: 6
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 926fa6191c0d8cf4eae03707f9ad0316, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 28
+        width: 64
+        height: 64
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 60}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: ab356afcb1a304d45ac13b28339ff55a, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 28
+        width: 64
+        height: 64
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 60}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 3
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: -360
+        duration: 4
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 12
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 6f8cabde86e2efd4fb5b6d77d8b03433, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 28
+        width: 64
+        height: 64
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 60}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 3
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: -360
+        duration: 0.8
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 12
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - Everything rushes backward. Years fold up like paper.
+    - The rubble lifts. Walls stand up again. The town rebuilds itself, brick by
+      brick.
+  - name: HouseDay
+    stageColor: {r: 0.11764706, g: 0.3882353, b: 0.8392157, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: 8e8df46db89a6e54e95bece68a12d65a, type: 3}
+      texture: {fileID: 2800000, guid: a6417afcf8eedf6408d4b4be41664fca, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 5c3eca9785cae5a49a977b8be3cf0473, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.35
+        - t01: 1
+          value: 1
+        duration: 1.6
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 18921eeaef47228498e564075354945b, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: -120
+        - t01: 1
+          value: 320
+        duration: 60
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 091eb1469b8abeb468a374b511be187b, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 0
+        duration: 1.6
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 145999c8001ba634dac6112215ee6d17, type: 3}
+      texture: {fileID: 2800000, guid: 4ad9fd9dc03215743a0ae978fa9559da, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    pages:
+    - You wake up in your old bed. You're a child again.
+    - But this time, you remember. Loop {loop} begins.

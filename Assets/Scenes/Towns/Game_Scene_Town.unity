@@ -4614,7 +4614,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -68.00001, y: 40.2}
+  m_AnchoredPosition: {x: -68, y: 40.19995}
   m_SizeDelta: {x: 16, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &679417746
@@ -4965,6 +4965,7 @@ MonoBehaviour:
     - R6
     - R2
     - R8
+    - S4
     - I2
     - I3
     - I6
@@ -4973,12 +4974,15 @@ MonoBehaviour:
     - E8
     - A3
     - C2
+    - A4
     - S6
     - S7
+    - C6
     questIds:
     - r_pump
     - r2_stones
     - r8_floor
+    - e_s4_exercise
     - i2_rabbits
     - e_i3_seedlings
     - e_i6_fish
@@ -4987,8 +4991,10 @@ MonoBehaviour:
     - e_e8_toys
     - a3_poster
     - L2_MissingKey
+    - e_a4_song
     - L1_LostFriend
     - e_s7_story
+    - e_c6_change
     dreamAfter:
     - The years pass. Grade school ends, and you start to grow up.
     - 'The dreams don''t stop. If anything, they''re clearer now: cracked walls,
@@ -4999,19 +5005,37 @@ MonoBehaviour:
     codes:
     - R4
     - A8
+    - A1
     - S2
+    - I8
     - C8
+    - R1
+    - I1
+    - C4
+    - R7
+    - E1
     - C5
     - A2
     - S8
+    - E4
+    - E6
     questIds:
     - r4_radio
     - a_mural
+    - h_a1_choir
     - L3_FallenSparrow
+    - h_i8_riverbed
     - h_c8_ledger
+    - h_r1_parts
+    - h_i1_skeleton
+    - h_c4_records
+    - h_r7_kits
+    - h_e1_pitch
     - h_c5_harvest
     - h_a2_play
     - h_s8_lola
+    - h_e4_barber
+    - h_e6_thrift
     dreamAfter:
     - High school is over. The town you grew up in feels smaller now.
     - Every night the dream is the same, and every night it's a little closer.
@@ -5022,18 +5046,36 @@ MonoBehaviour:
     - I5
     - S1
     - I7
+    - A5
     - E3
+    - C7
+    - E5
     - C1
+    - C3
     - I4
     - E7
+    - S3
+    - S5
+    - R5
+    - A7
+    - R3
     questIds:
     - i5_mushrooms
     - c_s1_career
     - c_i7_lab
+    - c_a5_story
     - c_e3_hotel
+    - c_c7_teller
+    - c_e5_team
     - c_c1_payday
+    - c_c3_billing
     - L2_CatMedicine
     - c_e7_house
+    - c_s3_support
+    - c_s5_family
+    - c_r5_grinder
+    - c_a7_stunt
+    - c_r3_generator
     dreamAfter:
     - And then, just before you become an adult... it happens. The disaster strikes.
     - But this time, you're ready. Every person you helped, every skill you learned,
@@ -9111,7 +9153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -45.69995, y: 55.700012}
+  m_AnchoredPosition: {x: -45.69995, y: 55.69995}
   m_SizeDelta: {x: 16, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1365103096

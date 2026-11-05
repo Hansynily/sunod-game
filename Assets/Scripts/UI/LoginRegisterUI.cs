@@ -300,7 +300,8 @@ namespace SunodGame.UI
                 auth.birthdate,
                 auth.gender,
                 auth.tutorial_completed,
-                auth.id);
+                auth.id,
+                auth.role);
             TelemetryManager.Instance?.TagSessionStart();
             SceneLoader.GoToMainMenu();
         }

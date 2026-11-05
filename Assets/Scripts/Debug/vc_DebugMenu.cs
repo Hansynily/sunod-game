@@ -25,6 +25,7 @@ public class vc_DebugMenu : MonoBehaviour
     private float _speedMultiplier = 1f;
     private float _baseSpeed = -1f;
     private bool _noclip;
+    private bool _showNpcs = true;
     private float _fps;
     private string _status = "";
     private float _statusUntil;
@@ -124,8 +125,9 @@ public class vc_DebugMenu : MonoBehaviour
             : "No quest running.");
 
         GUI.enabled = room != null;
+        if (GUILayout.Button("Complete with a fitting skill (recorded)")) CompleteWithFittingSkill(room, timer);
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Complete (pass)")) { room.OnQuestComplete(); Say($"Completed {room.QuestName}"); }
+        if (GUILayout.Button("Complete (no skill)")) { room.OnQuestComplete(); Say($"Completed {room.QuestName}"); }
         if (GUILayout.Button("Fail")) { timer?.DebugForceFail(); Say("Quest failed"); }
         GUILayout.EndHorizontal();
 
@@ -146,7 +148,9 @@ public class vc_DebugMenu : MonoBehaviour
         {
             Header($"STAGE - {town.stageTitle}  ({town.AttemptedCount}/{town.BuiltQuestCount} helped)");
             GUI.enabled = !town.InQuest;
-            if (GUILayout.Button("Complete this stage (all quests)")) { town.DebugCompleteStage(); Say("Stage completed"); }
+            if (GUILayout.Button("Complete this stage with fitting skills (recorded)"))
+                Say($"Stage completed: {town.DebugCompleteStageWithSkills()} quests recorded");
+            if (GUILayout.Button("Complete this stage (no records)")) { town.DebugCompleteStage(); Say("Stage completed"); }
 
             vc_TownNPC next = town.DebugNextOpenNpc();
             if (GUILayout.Button(next != null ? $"Go to next quest: {next.npcName} ({next.questCode})" : "Go to next quest (none left)") && next != null)
@@ -167,6 +171,26 @@ public class vc_DebugMenu : MonoBehaviour
                 }
             }
             GUILayout.EndHorizontal();
+
+            // One row per person: Go (walk-up spot), Start (their quest now), Finish (recorded pass).
+            _showNpcs = GUILayout.Toggle(_showNpcs, $" People in {town.stageTitle}");
+            if (_showNpcs)
+            {
+                foreach (vc_TownNPC npc in town.DebugQuestNpcs)
+                {
+                    GUILayout.BeginHorizontal();
+                    string state = npc.Attempted ? (npc.Passed ? " v" : " x") : "";
+                    GUILayout.Label($"{npc.npcName} ({npc.questCode}){state}", GUILayout.Width(150f));
+                    GUI.enabled = !town.InQuest && npc.IsOpen;
+                    if (GUILayout.Button("Go")) { town.DebugTeleportTo(npc); _open = false; }
+                    if (GUILayout.Button("Start")) { town.DebugStartQuest(npc); _open = false; }
+                    if (GUILayout.Button("Finish")) { town.DebugFinishQuest(npc); Say($"{npc.npcName}: passed (recorded)"); }
+                    GUI.enabled = !town.InQuest && npc.Attempted;
+                    if (GUILayout.Button("Reset")) { town.DebugResetQuest(npc); Say($"{npc.npcName}: reset, can play again"); }
+                    GUI.enabled = !town.InQuest;
+                    GUILayout.EndHorizontal();
+                }
+            }
 
             if (GUILayout.Button("Reset town progress")) { town.DebugResetProgress(); Say("Progress reset"); }
             if (GUILayout.Button($"End day {town.Day} now (summary + dream)")) { town.DebugEndDay(); _open = false; }
@@ -245,6 +269,28 @@ public class vc_DebugMenu : MonoBehaviour
         _status = msg;
         _statusUntil = Time.unscaledTime + 3f;
         Debug.Log("[DebugMenu] " + msg);
+    }
+
+    /// <summary>
+    /// Finishes the running quest as if the player used a fitting skill (one the quest
+    /// accepts, from its own kind when possible) after a believable few seconds, so the
+    /// record has real skill use and stars.
+    /// </summary>
+    private void CompleteWithFittingSkill(vc_QuestRoom room, vc_QuestTimer timer)
+    {
+        if (room == null) return;
+        vc_QuestAvailabilityFilter filter = vc_QuestAvailabilityFilter.Instance
+            ?? FindFirstObjectByType<vc_QuestAvailabilityFilter>(FindObjectsInactive.Include);
+        vc_SkillData skill = room.DebugPickFittingSkill(filter != null && filter.GameSettings != null ? filter.GameSettings.skills : null);
+        if (skill != null) vc_SkillManager.Instance?.DebugRecordUse(skill, Random.Range(1, 3));
+        if (timer != null)
+        {
+            float spentSoFar = 30f - timer.GetTimeRemaining();
+            float target = Random.Range(2f, 14f);
+            if (target > spentSoFar) timer.DebugAddTime(-(target - spentSoFar));
+        }
+        room.OnQuestComplete();
+        Say($"Completed {room.QuestName} with {(skill != null ? skill.DisplayName : "no skill")}");
     }
 
     private static vc_QuestRoom FindRunningQuest()

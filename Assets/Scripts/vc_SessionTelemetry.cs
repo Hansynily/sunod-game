@@ -21,6 +21,7 @@ public class vc_SessionTelemetry : MonoBehaviour
         public bool completed;
         public int starsEarned;       // 0-3, used for scoring
         public int stars5 = -1;       // 0-5 as shown by the quest timer (-1 = not known, older saves)
+        public string gameplayMode = "old";   // vc_GameplayMode at the time (old / new)
         public int itemScore;         // 1-5 Option B score (see ComputeItemScore)
         public float finalTimeRemainingSeconds;
         public float timeSpentSeconds;
@@ -145,6 +146,7 @@ public class vc_SessionTelemetry : MonoBehaviour
             completed = completed,
             starsEarned = normalizedStars,
             stars5 = starsOutOfFive >= 0 ? Mathf.Clamp(starsOutOfFive, 0, 5) : -1,
+            gameplayMode = vc_GameplayMode.Current,
             itemScore = ComputeItemScore(completed, normalizedStars),
             finalTimeRemainingSeconds = Mathf.Max(0f, finalTimeRemainingSeconds),
             timeSpentSeconds = Mathf.Max(0f, timeSpentSeconds),
@@ -161,6 +163,9 @@ public class vc_SessionTelemetry : MonoBehaviour
         if (!completed) return 1;
         return 2 + Mathf.Clamp(starsNormalized, 0, 3);
     }
+
+    /// <summary>Debug menu: forget every record of this quest (so it can be played again fresh).</summary>
+    public int DebugForgetQuest(string questId) => questRecords.RemoveAll(r => r != null && r.questId == questId);
 
     public IReadOnlyList<QuestRecord> GetAllRecords()
     {
@@ -204,6 +209,7 @@ public class vc_SessionTelemetry : MonoBehaviour
                 completed = record.completed,
                 stars = Mathf.Clamp(record.starsEarned, 0, 3),
                 stars5 = record.stars5,
+                gameplay_mode = record.gameplayMode ?? vc_GameplayMode.Old,
                 time_spent_seconds = Mathf.Max(0f, record.timeSpentSeconds),
                 skill_use_r = GetSkillUseCount(record.skillUsageCounts, "R"),
                 skill_use_i = GetSkillUseCount(record.skillUsageCounts, "I"),
@@ -267,6 +273,7 @@ public class vc_SessionTelemetry : MonoBehaviour
                 completed = dto.completed,
                 starsEarned = stars,
                 stars5 = dto.stars5 >= 0 && dto.stars5 <= 5 ? dto.stars5 : -1,
+                gameplayMode = string.IsNullOrEmpty(dto.gameplay_mode) ? vc_GameplayMode.Old : dto.gameplay_mode,
                 itemScore = ComputeItemScore(dto.completed, stars),
                 finalTimeRemainingSeconds = 0f,
                 timeSpentSeconds = Mathf.Max(0f, dto.time_spent_seconds),

@@ -1439,6 +1439,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5510886454472884567}
   - component: {fileID: 3012027486128408914}
+  - component: {fileID: 156741315434831813}
   m_Layer: 0
   m_Name: CatMedicineQuest
   m_TagString: Untagged
@@ -1515,6 +1516,57 @@ MonoBehaviour:
   planTime: 5
   inspectTime: 8
   healTime: 8
+--- !u!114 &156741315434831813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4168472727634430285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cbeae0960429324baaeba6f28f0a429, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_CatExamMinigame
+  mainMarker: {fileID: 3675421523556976837}
+  helperWalk: []
+  sortingLayer: Default
+  cat: {fileID: 7602653355834011129}
+  table: {fileID: 2906835183549809779}
+  bottles:
+  - {fileID: 5593273253906735789}
+  - {fileID: 7216015600954235996}
+  - {fileID: 5799166922370034653}
+  - {fileID: 3001209371394295006}
+  mortar: {fileID: 1178217511219906932}
+  pestle: {fileID: 8292173599658199419}
+  rightBottle: 1
+  sickColor: {r: 0.72, g: 0.9, b: 0.72, a: 1}
+  bubbleSick: {fileID: 21300000, guid: 4197a3e580245ac4c8c6efe8080fef57, type: 3}
+  bubbleSmile: {fileID: 21300000, guid: be5a2480402ab544c95b8c60f39bb6c8, type: 3}
+  thermometer: {fileID: 21300000, guid: ffbe49358f585d14494bd73a1bdca5b8, type: 3}
+  crossMark: {fileID: 21300000, guid: 307d041ed8045514cac89e6b356b850f, type: 3}
+  magnifier: {fileID: 21300000, guid: 9cb97e6bab749f943987a799100f768f, type: 3}
+  labels:
+  - {fileID: 21300000, guid: 14ad93a14f362244da6bd19e2804b987, type: 3}
+  - {fileID: 21300000, guid: b3a1b80f900c6d948a3adb5c3f423c28, type: 3}
+  - {fileID: 21300000, guid: e9696bc55ab7f7d4f98eb7c067cbeeb3, type: 3}
+  - {fileID: 21300000, guid: 307d041ed8045514cac89e6b356b850f, type: 3}
+  heartFrames:
+  - {fileID: 21300000, guid: b11db6528dfa89d4598908fd18a5aacf, type: 3}
+  - {fileID: 21300000, guid: 3cb966b2be768e340ac7c20f80f741c7, type: 3}
+  sweatFrames:
+  - {fileID: 21300000, guid: 8c55ade55885e574d899e11d7f110680, type: 3}
+  examCat: {fileID: 21300000, guid: 111b72eb57cee6545b49d084d07fb561, type: 3}
+  ringFrames:
+  - {fileID: 21300000, guid: fa75fb0c901e31042a8664fb993724f1, type: 3}
+  checkFrames:
+  - {fileID: 21300000, guid: 9d9ec95cb6f28c54ca43bf569976cb12, type: 3}
+  bulbFrames:
+  - {fileID: 21300000, guid: 4530f5b93b2e20e4399b21d32e0f7cea, type: 3}
+  sparkFrames:
+  - {fileID: 21300000, guid: 00cf2db3b37a98548b8fc7f65404d651, type: 3}
+  examScale: 7
 --- !u!1 &4365027179169084345
 GameObject:
   m_ObjectHideFlags: 0
@@ -6117,6 +6169,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: I4
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 156741315434831813}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Work out a treatment for the sick cat.

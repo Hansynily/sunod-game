@@ -153,6 +153,9 @@ public class vc_TownNPC : MonoBehaviour
         transform.position = position;
     }
 
+    /// <summary>Where the town builder put them (a checked spawn point).</summary>
+    public Vector3 HomePosition { get { CaptureHome(); return _homePosition; } }
+
     /// <summary>Back to where the town builder put them.</summary>
     public void ReturnHome()
     {

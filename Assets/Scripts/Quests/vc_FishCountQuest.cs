@@ -153,7 +153,8 @@ public class vc_FishCountQuest : vc_FitQuestBase
 
     protected override void OnSkill(vc_SkillData d)
     {
-        if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
+        // inspect is a careful look too: same scan as survey
+        if (d.HasTag("survey") || d.HasTag("inspect")) { StartWork(SurveyRoutine()); return; }
 
         if (BlockedByWork()) return;
 

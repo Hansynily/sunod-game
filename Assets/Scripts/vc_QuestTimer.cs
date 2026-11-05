@@ -59,8 +59,18 @@ public class vc_QuestTimer : MonoBehaviour
         BuildTimeBar();
     }
 
+    // ── Minigame quests: the minigame scores itself (still 0-5 stars) ──
+    /// <summary>Clock paused by the quest (a minigame with no countdown).</summary>
+    public bool ExternalHold { get; set; }
+    private int _starOverride = -1;
+
+    /// <summary>Next CompleteQuest uses these stars (0..5) instead of the time left. Reset by StartQuest.</summary>
+    public void SetStarOverride(int stars5) => _starOverride = Mathf.Clamp(stars5, 0, 5);
+
     public void StartQuest()
     {
+        ExternalHold = false;
+        _starOverride = -1;
         timeRemaining = Mathf.Max(0f, totalTime);
         isRunning = true;
         isComplete = false;
@@ -238,7 +248,7 @@ public class vc_QuestTimer : MonoBehaviour
 
     private void Update()
     {
-        if (!isRunning || DebugFrozen || _tipHold)
+        if (!isRunning || DebugFrozen || _tipHold || ExternalHold)
         {
             return;
         }
@@ -273,7 +283,8 @@ public class vc_QuestTimer : MonoBehaviour
         isComplete = true;
         isRunning = false;
 
-        int stars = GetStarCountForTimeRemaining();
+        int stars = _starOverride >= 0 ? _starOverride : GetStarCountForTimeRemaining();
+        ExternalHold = false;
         SetStarsForCount(stars);
         StoreFinalResult(true, stars, timeRemaining);
 

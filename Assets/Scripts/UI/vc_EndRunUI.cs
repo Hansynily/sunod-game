@@ -75,7 +75,7 @@ public class vc_EndRunUI : MonoBehaviour
         {
             Debug.LogWarning("[vc_EndRunUI] vc_SessionTelemetry unavailable. Going to EndScene without submission.");
             yield return FinalizeRun();
-            SceneLoader.GoToEnd();
+            GoToEndThroughDisaster();
             yield break;
         }
 
@@ -89,6 +89,19 @@ public class vc_EndRunUI : MonoBehaviour
 
         Debug.Log("[vc_EndRunUI] Done. Loading EndScene.");
         yield return FinalizeRun();
+        GoToEndThroughDisaster();
+    }
+
+    /// <summary>
+    /// The end of a loop: this loop's threat strikes (a short cutscene), then the results.
+    /// Falls straight through to the results in the corridor version or with no threat.
+    /// </summary>
+    private static void GoToEndThroughDisaster()
+    {
+        string threat = vc_LoopMeta.Threat;
+        if (SceneLoader.UseTownFlow && !string.IsNullOrEmpty(threat)
+            && SunodGame.Cutscene.vc_CutscenePlayer.Play("Threat_" + threat, SceneLoader.GoToEnd))
+            return;
         SceneLoader.GoToEnd();
     }
 

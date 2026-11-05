@@ -384,7 +384,10 @@ namespace SunodGame.UI
         void OnPlayAgain()
         {
             TelemetryManager.Instance?.TagButtonClick("PlayAgain");
-            SceneLoader.GoToPlay();
+            // Another run = the next loop: the main menu's Go Back screen (memories,
+            // keepsakes), which also clears the finished run's save properly.
+            MainMenuUIToolkit.OpenGoBackOnLoad = true;
+            SceneLoader.GoToMainMenu();
         }
 
         void OnMainMenu()

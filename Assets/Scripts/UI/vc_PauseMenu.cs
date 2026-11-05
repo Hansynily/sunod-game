@@ -187,9 +187,9 @@ public class vc_PauseMenu : MonoBehaviour
         vc_TownStage stage = vc_TownStage.Current;
         string text = null;
         if (inQuest)
-            text = $"The quest timer is still running! Quit now and this quest counts as failed. You'll wake up on Day {stage.Day}.";
+            text = $"Quitting now fails this quest.";
         else if (stage != null)
-            text = $"Your progress is saved online, so you can continue on any device. Quit now and you'll wake up on Day {stage.Day}.";
+            text = $"Progress saved. You'll continue on Day {stage.Day}.";
         _notice.text = text ?? string.Empty;
         _notice.SetDisplay(text != null);
         _notice.EnableInClassList("pause-notice--warn", inQuest);
@@ -361,9 +361,9 @@ public class vc_PauseMenu : MonoBehaviour
     {
         if (IsTutorialScene()) return "Return to the main menu?";
         vc_TownStage stage = vc_TownStage.Current;
-        if (stage == null) return "Return to the main menu?\nThis will cancel the current run and clear your progress.";
+        if (stage == null) return "Quit to the main menu?\nThis run will be lost.";
         return stage.InQuest
-            ? $"Quit to the main menu?\nThis quest will count as failed. Continue starts on the morning of Day {stage.Day}."
-            : $"Quit to the main menu?\nContinue starts on the morning of Day {stage.Day}.";
+            ? $"Quit to the main menu?\nThis quest will count as failed."
+            : $"Quit to the main menu?";
     }
 }

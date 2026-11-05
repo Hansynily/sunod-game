@@ -610,6 +610,7 @@ MonoBehaviour:
   tutorialSceneName: Level0_Tutorial
   fallbackContinueScene: Level1_Scene
   playerCharacterSprite: {fileID: 0}
+  gameSettings: {fileID: 11400000, guid: 6a94d0a981eba9849baeedd9adf70fd9, type: 2}
 --- !u!114 &168284916
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -185,6 +185,8 @@ namespace SunodGame.Models
         public int total_stars;
         public float play_seconds;
         public int riasec_r, riasec_i, riasec_a, riasec_s, riasec_e, riasec_c;   // 0-10 rubric
+        public int loop;               // 0 = finished before loops existed
+        public string threat;
     }
 
     [Serializable]
@@ -230,6 +232,7 @@ namespace SunodGame.Models
         public bool completed;
         public int stars;
         public int stars5 = -1;   // 0-5 as the quest timer shows it (-1 = unknown)
+        public string gameplay_mode = "old";   // vc_GameplayMode: old (defense build) / new (minigames)
         public float time_spent_seconds;
         public int skill_use_r;
         public int skill_use_i;
@@ -310,5 +313,62 @@ namespace SunodGame.Models
         public string model_version;
         public string binding_source;
         public string bundle_key;
+    }
+
+    // ── Loops (GET/POST /users/me/loop...) ─────────────────────────────────
+
+    [Serializable]
+    public class LoopHistoryItem
+    {
+        public int loop;
+        public string threat;
+        public string holland_code;
+        public string career;
+        public int passed;
+        public int failed;
+        public List<string> kept_skills = new List<string>();
+        public List<string> mementos = new List<string>();
+        public int stars_earned;
+        public string finished_at;
+    }
+
+    [Serializable]
+    public class LoopShopItem
+    {
+        public string id;
+        public int cost;
+    }
+
+    [Serializable]
+    public class LoopMetaResponse
+    {
+        public int current_loop = 1;
+        public int loops_completed;
+        public bool current_finished;
+        public string threat;
+        public List<string> threats_seen = new List<string>();
+        public List<string> kept_skills = new List<string>();
+        public List<string> unlocked_mementos = new List<string>();   // in the shop
+        public List<string> owned_mementos = new List<string>();      // bought: all come along
+        public int stars;                                             // banked, to spend
+        public List<LoopShopItem> shop = new List<LoopShopItem>();
+        public int memory_slots = 3;
+        public List<LoopHistoryItem> history = new List<LoopHistoryItem>();
+        public List<string> last_owned_skills = new List<string>();
+        public List<string> last_passed = new List<string>();
+        public List<string> last_failed = new List<string>();
+        public string message;
+    }
+
+    [Serializable]
+    public class LoopBeginPayload
+    {
+        public List<string> kept_skills = new List<string>();
+    }
+
+    [Serializable]
+    public class LoopBuyPayload
+    {
+        public string memento_id;
     }
 }

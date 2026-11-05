@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using SunodGame.Core;
@@ -8,7 +8,7 @@ using SunodGame.Telemetry;
 namespace SunodGame.UI
 {
     [RequireComponent(typeof(UIDocument))]
-    public class MainMenuUIToolkit : MonoBehaviour
+    public partial class MainMenuUIToolkit : MonoBehaviour
     {
         [Header("Navigation")]
         [SerializeField] private string playSceneName     = SceneLoader.SCENE_CUTSCENE;
@@ -139,7 +139,7 @@ namespace SunodGame.UI
             _btnSettingsClose = root.Q<Button>("btn-settings-close");
             _settingsSurveyRow     = root.Q<VisualElement>("settings-survey-row");
             _btnSettingsSurveyLink = root.Q<Button>("btn-settings-survey-link");
-            if (_btnSettingsSurveyLink != null) _btnSettingsSurveyLink.text = vc_Survey.DisplayUrl;
+            if (_btnSettingsSurveyLink != null) _btnSettingsSurveyLink.text = "Visit SUNOD Website";
 
             _btnPlay?    .RegisterCallback<ClickEvent>(OnPlayClicked);
             _btnTutorial?.RegisterCallback<ClickEvent>(OnTutorialClicked);
@@ -179,6 +179,8 @@ namespace SunodGame.UI
             _privacyCheckAgree?.SetValueWithoutNotify(false);
             RefreshPrivacyAgreeButton();
             _privacyOverlay?.SetDisplay(needsConsent);
+            BindLoops(root);
+            BindGameplay(root);
         }
 
         // â”€â”€ Privacy notice (once per account, per notice version) â”€â”€â”€â”€â”€â”€â”€
@@ -255,6 +257,7 @@ namespace SunodGame.UI
             _sfxSlider?.UnregisterValueChangedCallback(OnSfxSliderChanged);
             _sfxSlider?.UnregisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
             _musicSlider?.UnregisterValueChangedCallback(OnMusicSliderChanged);
+            UnbindLoops();
         }
 
         private void PopulatePlayerCard()
@@ -282,8 +285,11 @@ namespace SunodGame.UI
                 && _cachedRunState.completed_quest_ids != null
                 && _cachedRunState.completed_quest_ids.Count > 0;
 
-            if (hasLiveRun)
+            // New Game starts over from the very beginning: loops (memories, keepsakes, the
+            // journal) go too, so warn whenever there's anything to lose.
+            if (hasLiveRun || HasLoopsToLose)
             {
+                RefreshNewRunWarning();
                 _newRunConfirmOverlay?.SetDisplay(true);
                 return;
             }
@@ -316,12 +322,21 @@ namespace SunodGame.UI
             if (TelemetryManager.Instance == null) { SceneLoader.LoadByName(playSceneName); return; }
             bool loaded = false;
             System.Action go = () => { if (loaded) return; loaded = true; SceneLoader.LoadByName(playSceneName); };
+            // ...and the loops: back to loop 1 with a fresh threat, nothing remembered.
+            System.Action resetLoops = () => TelemetryManager.Instance.ResetMyLoop(
+                meta => { vc_LoopMeta.Set(meta); go(); },
+                error =>
+                {
+                    Debug.LogWarning($"[MainMenu] New-game loop reset failed server-side: {error}");
+                    vc_LoopMeta.Clear();
+                    go();
+                });
             TelemetryManager.Instance.ResetMyRunState(
-                onSuccess: _ => go(),
+                onSuccess: _ => resetLoops(),
                 onError: error =>
                 {
                     Debug.LogWarning($"[MainMenu] New-run reset failed server-side: {error}");
-                    go();
+                    resetLoops();
                 });
             StartCoroutine(LoadAfter(8f, go));   // never get stuck on the menu
         }
@@ -353,13 +368,14 @@ namespace SunodGame.UI
             _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
             _musicSlider?.SetValueWithoutNotify(vc_PlayerOptions.MusicVolume);
             RefreshNameChoice();
+            RefreshGameplayChoice();
             _settingsOverlay?.SetDisplay(true);
         }
 
         private void OnSettingsSurveyLinkClicked(ClickEvent _)
         {
-            TelemetryManager.Instance?.TagButtonClick("SurveyLink");
-            vc_Survey.Open();
+            TelemetryManager.Instance?.TagButtonClick("SiteLink");
+            vc_SiteLink.Open();
         }
 
         private void OnSettingsCloseClicked(ClickEvent _) => _settingsOverlay?.SetDisplay(false);
@@ -440,6 +456,7 @@ namespace SunodGame.UI
                         PlayerPrefs.DeleteKey(TelemetryManager.RunFinishPendingPrefKey);
                         PlayerPrefs.Save();
                         Debug.Log("[MainMenu] Pending run-finish flag delivered to the server.");
+                        if (this != null) RefreshContinueAvailability();   // now Go Back can show
                     },
                     error => Debug.LogWarning($"[MainMenu] Pending run-finish retry failed: {error}"));
                 return;
@@ -453,6 +470,8 @@ namespace SunodGame.UI
                         && !state.run_finished
                         && state.completed_quest_ids != null && state.completed_quest_ids.Count > 0;
                     SetContinueEnabled(hasProgress);
+                    // A finished run: Continue becomes Go Back (the next loop).
+                    RefreshLoopState(state != null && state.has_state && state.run_finished);
                 },
                 error =>
                 {
@@ -469,6 +488,7 @@ namespace SunodGame.UI
 
         private void OnContinueClicked(ClickEvent _)
         {
+            if (_goBackMode) { StartGoBack(); return; }
             if (_cachedRunState == null || !_cachedRunState.has_state || _cachedRunState.run_finished) return;
 
             // The inventory and skill buttons survive scene loads: start the resumed run from
@@ -545,6 +565,7 @@ namespace SunodGame.UI
             _statsEmptyLabel?.SetDisplay(false);
             _historyList?.Clear();
             _lblHistoryEmpty?.SetDisplay(false);
+            RefreshLoopsSection();
             SetStatsError(string.Empty);
             _statsOverlay?.Q<ScrollView>("progress-scroll")?.schedule.Execute(() =>
                 _statsOverlay.Q<ScrollView>("progress-scroll").scrollOffset = Vector2.zero);
@@ -603,6 +624,7 @@ namespace SunodGame.UI
                 body.Add(careerLabel);
 
                 var parts = new List<string>();
+                if (run.loop > 0) parts.Add($"Loop {run.loop}: {vc_LoopMeta.ThreatName(run.threat)}");
                 if (!string.IsNullOrWhiteSpace(run.career_family) && run.career_family != career) parts.Add(run.career_family);
                 string when = FormatRunDate(run.finished_at);
                 if (!string.IsNullOrEmpty(when)) parts.Add(when);
@@ -657,7 +679,7 @@ namespace SunodGame.UI
             if (_lblProvisionalNote != null)
             {
                 _lblProvisionalNote.text = isProvisional
-                    ? $"Not final yet. Finish all {TotalQuestSlots} quests (Elementary, High School and College) for your real result."
+                    ? $"Not final. Finish all {TotalQuestSlots} quests."
                     : string.Empty;
                 _lblProvisionalNote.SetDisplay(isProvisional);
             }

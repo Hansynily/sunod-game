@@ -15,6 +15,8 @@ public class vc_QuestRoom : MonoBehaviour
     public event Action<vc_QuestRoom> QuestCompleted;
 
     [SerializeField] private MonoBehaviour questLogic;
+    [Tooltip("Optional minigame version of this quest, used instead of Quest Logic in \"New\" gameplay (vc_GameplayMode). Leave empty for quests that have none.")]
+    [SerializeField] private MonoBehaviour minigameLogic;
     [SerializeField] private string questId;
     [SerializeField] private string questName;
     [SerializeField] private string primaryRiasec;
@@ -111,6 +113,7 @@ public class vc_QuestRoom : MonoBehaviour
 
         questStarted = true;
         ActiveRoom = this;
+        cachedQuestLogic = PickQuestLogic();
         questResultRecorded = false;
         questCompletionNotified = false;
 
@@ -131,6 +134,18 @@ public class vc_QuestRoom : MonoBehaviour
         vc_SkillManager.Instance?.ResetUsageCounts();
 
         cachedQuestLogic?.BeginQuest(this, vc_QuestTimer.Instance);
+    }
+
+    /// <summary>
+    /// Old gameplay: Quest Logic. New gameplay (admins only): the minigame, if this room has
+    /// one. The script not in use is switched off so its idle effects don't run.
+    /// </summary>
+    private vc_IQuestLogic PickQuestLogic()
+    {
+        bool useMinigame = minigameLogic is vc_IQuestLogic && vc_GameplayMode.IsNew;
+        if (minigameLogic != null) minigameLogic.enabled = useMinigame;
+        if (questLogic != null && minigameLogic != null) questLogic.enabled = !useMinigame;
+        return useMinigame ? (vc_IQuestLogic)minigameLogic : questLogic as vc_IQuestLogic;
     }
 
     private void SubscribeToQuestTimer()
@@ -250,6 +265,18 @@ public class vc_QuestRoom : MonoBehaviour
     }
 
     /// <summary>
+    /// Debug menu: removes matching ids from the save's completed list and pushes the
+    /// checkpoint (the quest records come from the session telemetry, already trimmed).
+    /// </summary>
+    public static void DebugForgetIds(System.Predicate<string> match, string sceneName)
+    {
+        vc_SaveManager.SaveData data = vc_SaveManager.Load() ?? new vc_SaveManager.SaveData { riasecScores = new int[6] };
+        data.completedQuestIds.RemoveAll(match);
+        vc_SaveManager.Save(data);
+        PushRunStateCheckpoint(data, sceneName);
+    }
+
+    /// <summary>
     /// Adds ids to the save's completed list (quest ids, or town markers like "left:&lt;id&gt;")
     /// and pushes the run-state checkpoint, without touching RIASEC scores or stars.
     /// </summary>
@@ -296,7 +323,54 @@ public class vc_QuestRoom : MonoBehaviour
         return owned;
     }
 
-    private void WriteQuestSave(int starsEarned)
+    // ── Debug menu: finish quests with a fitting skill ─────────────────────
+
+    /// <summary>
+    /// A random skill that fits this quest: one it accepts from its own RIASEC kind (the best
+    /// fits), else any skill it accepts, else any skill of its kind.
+    /// </summary>
+    public vc_SkillData DebugPickFittingSkill(vc_SkillData[] all)
+    {
+        if (all == null) return null;
+        string letter = string.IsNullOrEmpty(primaryRiasec) ? "" : primaryRiasec.Substring(0, 1);
+        bool OwnKind(vc_SkillData s) => string.Equals(s.riaSecLetter?.Trim(), letter, System.StringComparison.OrdinalIgnoreCase);
+
+        var accepted = new List<vc_SkillData>();
+        foreach (vc_SkillData s in all) if (s != null && AcceptsSkill(s)) accepted.Add(s);
+        List<vc_SkillData> pool = accepted.FindAll(OwnKind);
+        if (pool.Count == 0) pool = accepted;
+        if (pool.Count == 0) { pool = new List<vc_SkillData>(); foreach (vc_SkillData s in all) if (s != null && OwnKind(s)) pool.Add(s); }
+        return pool.Count > 0 ? pool[UnityEngine.Random.Range(0, pool.Count)] : null;
+    }
+
+    /// <summary>
+    /// Records this quest as passed without playing it: a believable time (3-5 stars), the
+    /// given skill as the one used, saved and checkpointed exactly like a real pass. Works on
+    /// the quest prefab's room (the room isn't spawned).
+    /// </summary>
+    public void DebugRecordPass(string sceneName, vc_SkillData skill)
+    {
+        const float questTime = 30f;
+        float spent = UnityEngine.Random.Range(2f, 14f);
+        float left = questTime - spent;
+        float ratio = left / questTime;
+        int stars5 = ratio >= 0.8f ? 5 : ratio >= 0.6f ? 4 : ratio >= 0.4f ? 3 : ratio >= 0.2f ? 2 : 1;
+        int stars3 = Mathf.Clamp(Mathf.RoundToInt(stars5 / 5f * 3f), 0, 3);
+
+        var usage = new Dictionary<string, int>();
+        if (skill != null && !string.IsNullOrEmpty(skill.riaSecLetter))
+            usage[skill.riaSecLetter.Trim().ToUpperInvariant()] = UnityEngine.Random.Range(1, 3);
+
+        vc_SessionTelemetry.Instance?.RecordQuestResult(
+            questId, questName, primaryRiasec, questionCode,
+            true, stars3, left, spent, usage, stars5);
+        if (skill != null) vc_PlayerInventory.Instance?.AddSkill(skill);
+        WriteQuestSave(stars3, sceneName);
+    }
+
+    private void WriteQuestSave(int starsEarned) => WriteQuestSave(starsEarned, gameObject.scene.name);
+
+    private void WriteQuestSave(int starsEarned, string sceneName)
     {
         vc_SaveManager.SaveData data = vc_SaveManager.Load() ?? new vc_SaveManager.SaveData
         {
@@ -325,7 +399,7 @@ public class vc_QuestRoom : MonoBehaviour
         vc_SaveManager.Save(data);
         Debug.Log($"[QuestRoom] Save written - nextQuestId='{nextQuestId}', riasec[{riasecIndex}]+={Mathf.Max(1, starsEarned)}");
 
-        PushRunStateCheckpoint(data, gameObject.scene.name);
+        PushRunStateCheckpoint(data, sceneName);
     }
 
     // Server save-state (Continue/Reset) - pushed after each quest so the resumed run's

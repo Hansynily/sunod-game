@@ -261,7 +261,7 @@ namespace SunodGame.UI
             if (vc_SkillManager.Instance.GetSkillInSlot(slotIndex) == _selectedSkill)
             {
                 vc_DialogPanel.Instance?.ShowMessage("Already Equipped",
-                    $"{_selectedSkill.DisplayName} is already in your {vc_SkillManager.CategoryNameForSlot(slotIndex)} slot.", null);
+                    $"Already equipped.", null);
                 return;
             }
 
@@ -269,7 +269,7 @@ namespace SunodGame.UI
             if (homeSlot != slotIndex)
             {
                 string categoryName = vc_SkillManager.CategoryNameForSlot(homeSlot);
-                vc_FloatingMessage.Instance?.Show($"{_selectedSkill.DisplayName} is a {categoryName} skill. It goes in the {categoryName} slot.");
+                vc_FloatingMessage.Instance?.Show($"Goes in the {categoryName} slot.");
                 return;
             }
 

@@ -60,6 +60,7 @@
     <Compile Include="Assets\Scripts\Town\vc_TownFlow.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillData.cs" />
     <Compile Include="Assets\Scripts\vc_ArrowSkill.cs" />
+    <Compile Include="Assets\Scripts\Loop\vc_LoopMoments.cs" />
     <Compile Include="Assets\Scripts\Models\TelemetryModels.cs" />
     <Compile Include="Assets\Scripts\vc_PlayerSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\Realistic\BuildSkill.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Assets\Scripts\Skills\SkillPickup.cs" />
     <Compile Include="Assets\Scripts\vc_SkillZone.cs" />
     <Compile Include="Assets\Scripts\Skills\Enterprising\ScriptableObjects\Charm.cs" />
+    <Compile Include="Assets\Scripts\Loop\vc_LoopMeta.cs" />
     <Compile Include="Assets\Scripts\vc_HealSkill.cs" />
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.Input.cs" />
     <Compile Include="Assets\Scripts\vc_DoorController.cs" />
@@ -99,7 +101,9 @@
     <Compile Include="Assets\Scripts\Debug\vc_DebugMenu.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ChoirPracticeQuest.cs" />
     <Compile Include="Assets\Scripts\Core\GameSessionData.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_KeepsakeStall.cs" />
     <Compile Include="Assets\Scripts\UI\vc_UIPointer.cs" />
+    <Compile Include="Assets\Scripts\UI\MainMenuUIToolkit.Loops.cs" />
     <Compile Include="Assets\Scripts\UI\LoginRegisterUI.cs" />
     <Compile Include="Assets\Scripts\vc_SkillManager.cs" />
     <Compile Include="Assets\Scripts\Core\AuthManager.cs" />
@@ -115,6 +119,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_RiverCrossingQuest.cs" />
     <Compile Include="Assets\Scripts\vc_GameSettings.cs" />
     <Compile Include="Assets\Scripts\vc_NPCController.cs" />
+    <Compile Include="Assets\Scripts\UI\MainMenuUIToolkit.Gameplay.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSceneReferences.cs" />
     <Compile Include="Assets\Scripts\vc_CheatUnlockAll.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ParadeDrumQuest.cs" />
@@ -136,7 +141,6 @@
     <Compile Include="Assets\Scripts\vc_SessionTelemetry.cs" />
     <Compile Include="Assets\Scripts\Skills\Artistic\MimicSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillPickup.cs" />
-    <Compile Include="Assets\Scripts\Core\vc_Survey.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuUIToolkit.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SaveManager.cs" />
     <Compile Include="Assets\Scripts\vc_IQuestLogic.cs" />
@@ -155,6 +159,7 @@
     <Compile Include="Assets\Scripts\vc_LostFriendQuest.cs" />
     <Compile Include="Assets\Scripts\Town\vc_TownDayCycle.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_OpenHouseQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_CatExamMinigame.cs" />
     <Compile Include="Assets\Scripts\vc_PersuadeSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_InternTeamQuest.cs" />
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
@@ -171,6 +176,7 @@
     <Compile Include="Assets\Scripts\Demo\Systems\HUD\HudSystem.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSlot.cs" />
     <Compile Include="Assets\Scripts\vc_BlockedPathQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_ParadeDrumMinigame.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Bootstrap.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\ScriptableObjects\Scan.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_BarbershopQuest.cs" />
@@ -188,6 +194,7 @@
     <Compile Include="Assets\Scripts\Demo\DemoGameplayManager.LegacyBridge.cs" />
     <Compile Include="Assets\Scripts\vc_PlayerInventory.cs" />
     <Compile Include="Assets\Scripts\NPCs\NPCController.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_SiteLink.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ThriftShopQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_CampusPaperQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_SafeArea.cs" />
@@ -199,6 +206,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_MedicalAttentionQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
     <Compile Include="Assets\Scripts\Core\vc_TestHarness.cs" />
+    <Compile Include="Assets\Scripts\Quests\vc_MinigameOverlay.cs" />
     <Compile Include="Assets\Scripts\Core\vc_Sfx.cs" />
     <Compile Include="Assets\Scripts\vc_PathSkill.cs" />
     <Compile Include="Assets\Scripts\vc_MuralQuest.cs" />
@@ -256,6 +264,7 @@
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
     <Compile Include="Assets\Scripts\vc_CollectSkill.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialFlowController.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_GameplayMode.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FitQuestBase.cs" />

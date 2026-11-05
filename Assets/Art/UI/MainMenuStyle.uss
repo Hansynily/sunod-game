@@ -767,3 +767,26 @@
 .privacy-btn:disabled {
     opacity: 0.45;
 }
+
+/* ── Loops (MainMenuUIToolkit.Loops): Go Back icon + the loops on My Progress ── */
+
+.icon-goback { background-image: url("/Assets/Art/UI/Loop/icon_goback.png"); }
+
+.loop-tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.loop-tag-lead {
+    font-size: 22px;
+    color: rgb(225, 218, 205);
+    margin: 0 8px 8px 0;
+}
+.loop-tag {
+    font-size: 22px;
+    color: rgb(60, 40, 110);
+    background-color: rgb(220, 206, 255);
+    padding: 6px 12px;
+    margin: 0 8px 8px 0;
+}

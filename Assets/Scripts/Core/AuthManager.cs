@@ -134,9 +134,22 @@ namespace SunodGame.Core
             bool ok = req.result == UnityWebRequest.Result.Success && req.responseCode == 200;
             if (!ok)
                 Debug.Log($"[Auth] Session validation failed: {req.responseCode} | {req.error}");
+            else
+            {
+                // The profile carries the account role: refresh it, so a saved role can't go stale.
+                try
+                {
+                    RoleOnly profile = JsonUtility.FromJson<RoleOnly>(req.downloadHandler.text);
+                    if (profile != null) SessionState.Instance?.SetRole(profile.role);
+                }
+                catch (Exception e) { Debug.LogWarning($"[Auth] Could not read the role: {e.Message}"); }
+            }
 
             onResult?.Invoke(ok);
         }
+
+        [Serializable]
+        private class RoleOnly { public string role; }
 
         private bool ValidateUsername(string username, Action<string> onError)
         {

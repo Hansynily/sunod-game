@@ -15,6 +15,7 @@ namespace SunodGame.Core
         private const string PrefKeyPlayerId = "sunod.auth.playerId";
         private const string PrefKeyUserId = "sunod.auth.userId";
         private const string PrefKeyTutorialDone = "sunod.auth.tutorialDone";
+        private const string PrefKeyRole = "sunod.auth.role";
 
         public string Username { get; private set; }
         public string AuthPlayerId { get; private set; }
@@ -24,6 +25,10 @@ namespace SunodGame.Core
         public string Birthdate { get; private set; }
         public string Gender { get; private set; }
         public bool HasCompletedTutorial { get; private set; }
+
+        /// <summary>Account role from the server ("user" or "admin"). Gates admin-only options.</summary>
+        public string Role { get; private set; } = "user";
+        public bool IsAdmin => string.Equals(Role, "admin", System.StringComparison.OrdinalIgnoreCase);
 
         public string PlayerId
         {
@@ -62,8 +67,10 @@ namespace SunodGame.Core
             string birthdate,
             string gender,
             bool hasCompletedTutorial,
-            int userId = 0)
+            int userId = 0,
+            string role = null)
         {
+            Role = string.IsNullOrWhiteSpace(role) ? "user" : role.Trim();
             Username = string.IsNullOrWhiteSpace(username) ? null : username.Trim();
             AuthPlayerId = string.IsNullOrWhiteSpace(playerId) ? null : playerId.Trim();
             AccessToken = string.IsNullOrWhiteSpace(accessToken) ? null : accessToken.Trim();
@@ -87,6 +94,7 @@ namespace SunodGame.Core
             PlayerPrefs.SetString(PrefKeyPlayerId, AuthPlayerId ?? string.Empty);
             PlayerPrefs.SetInt(PrefKeyUserId, AuthUserId);
             PlayerPrefs.SetInt(PrefKeyTutorialDone, HasCompletedTutorial ? 1 : 0);
+            PlayerPrefs.SetString(PrefKeyRole, Role ?? "user");
             PlayerPrefs.Save();
         }
 
@@ -97,6 +105,7 @@ namespace SunodGame.Core
             PlayerPrefs.DeleteKey(PrefKeyPlayerId);
             PlayerPrefs.DeleteKey(PrefKeyUserId);
             PlayerPrefs.DeleteKey(PrefKeyTutorialDone);
+            PlayerPrefs.DeleteKey(PrefKeyRole);
             PlayerPrefs.Save();
         }
 
@@ -117,8 +126,16 @@ namespace SunodGame.Core
             AccessToken = token;
             AuthUserId = PlayerPrefs.GetInt(PrefKeyUserId, 0);
             HasCompletedTutorial = PlayerPrefs.GetInt(PrefKeyTutorialDone, 0) == 1;
+            Role = PlayerPrefs.GetString(PrefKeyRole, "user");
             Debug.Log($"[Session] Restored persisted session -> {Username}");
             return true;
+        }
+
+        /// <summary>Role confirmed by the server (startup session check).</summary>
+        public void SetRole(string role)
+        {
+            Role = string.IsNullOrWhiteSpace(role) ? "user" : role.Trim();
+            if (!string.IsNullOrWhiteSpace(AccessToken)) { PlayerPrefs.SetString(PrefKeyRole, Role); PlayerPrefs.Save(); }
         }
 
         public void SetTutorialCompletionState(bool hasCompletedTutorial)
@@ -136,6 +153,7 @@ namespace SunodGame.Core
             Birthdate = null;
             Gender = null;
             HasCompletedTutorial = false;
+            Role = "user";
             CurrentQuestId = null;
             ClearPersistedCredentials();
             RunStartTime = 0f;

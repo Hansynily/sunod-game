@@ -44,6 +44,9 @@ public class vc_TownFlow : MonoBehaviour
     public static void MarkQuestDone(string questId) { if (!string.IsNullOrEmpty(questId)) Completed.Add(questId); }
     public static void ResetRun() => Completed.Clear();
 
+    /// <summary>Debug menu: forget ids whose text matches (a quest and its day markers).</summary>
+    public static void ForgetQuestIds(System.Predicate<string> match) => Completed.RemoveWhere(match);
+
     /// <summary>Fired whenever overall progress changes (quest done, town loaded).</summary>
     public static event Action ProgressChanged;
     public static void RaiseProgressChanged() => ProgressChanged?.Invoke();
@@ -79,6 +82,10 @@ public class vc_TownFlow : MonoBehaviour
         vc_SessionTelemetry telemetry = vc_SessionTelemetry.Instance;
         if (telemetry != null && string.IsNullOrWhiteSpace(telemetry.SessionId))
             telemetry.StartSession();
+
+        // The loop record normally comes from the main menu; fetch it when the town was
+        // opened some other way (editor play), so threats, keepsakes and memories apply.
+        if (!vc_LoopMeta.Loaded) vc_LoopMeta.Fetch();
 
         // Skills: put the saved loadout (Continue) or the starting kit (new run) back into the
         // skill buttons. Needed because the skill manager outlives the previous run's scene.
@@ -126,6 +133,15 @@ public class vc_TownFlow : MonoBehaviour
         StageInfo info = idx >= 0 && idx < stages.Length ? stages[idx] : null;
         string[] dream = info != null ? info.dreamAfter : null;
         bool last = idx < 0 || idx + 1 >= TownScenes.Length;
+
+        // This loop's threat shows up in the dream, getting closer each stage.
+        string threatLine = vc_LoopMeta.DreamLine(vc_LoopMeta.Threat, idx);
+        if (dream != null && dream.Length > 0 && !string.IsNullOrEmpty(threatLine))
+        {
+            var withThreat = new List<string>(dream);
+            withThreat.Insert(Mathf.Min(1, withThreat.Count), threatLine);
+            dream = withThreat.ToArray();
+        }
 
         // Teaser: one extra dream line hinting where the player's choices point so far.
         string leaning = vc_RunProgressUI.LeaningText();

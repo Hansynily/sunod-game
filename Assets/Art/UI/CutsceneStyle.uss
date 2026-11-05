@@ -18,6 +18,8 @@
    parent, preserve 16:9" reliably across UI Toolkit versions. */
 .stage {
     position: relative;
+    /* layers that slide in (floodwater, rain sheets) stay inside the 16:9 frame */
+    overflow: hidden;
 }
 
 .fade-overlay {

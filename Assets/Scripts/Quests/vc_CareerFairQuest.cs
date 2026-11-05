@@ -48,7 +48,7 @@ public class vc_CareerFairQuest : vc_FitQuestBase
     [SerializeField] private float mapTime = 8f;
     [SerializeField] private float followSpeed = 3.2f;
     [SerializeField] private float followDistance = 1.0f;
-    [SerializeField] private float arriveRange = 1.3f;
+    [SerializeField] private float arriveRange = 2.6f;
 
     private Vector3 _start;
     private float _elapsed, _total = 1f;
@@ -134,7 +134,9 @@ public class vc_CareerFairQuest : vc_FitQuestBase
         }
         else if (studentWalk != null && studentWalk.Length > 0) student.sprite = studentWalk[0];
 
-        if (rightBooth != null && Vector2.Distance(student.transform.position, rightBooth.position) <= arriveRange)
+        // The booth is solid, so count it once the student or the player is close to it.
+        if (rightBooth != null && (Vector2.Distance(student.transform.position, rightBooth.position) <= arriveRange
+                                   || Vector2.Distance(_player.position, rightBooth.position) <= arriveRange))
         {
             _following = false;
             StartCoroutine(Arrive("The student followed you to the right booth!"));

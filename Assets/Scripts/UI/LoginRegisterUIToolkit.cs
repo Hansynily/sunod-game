@@ -241,7 +241,7 @@ namespace SunodGame.UI
 
             SessionState.Instance?.SetAuthenticatedUser(
                 auth.username, auth.player_id, auth.access_token,
-                auth.name, auth.birthdate, auth.gender, auth.tutorial_completed, auth.id);
+                auth.name, auth.birthdate, auth.gender, auth.tutorial_completed, auth.id, auth.role);
             TelemetryManager.Instance?.TagSessionStart();
             SceneLoader.GoToMainMenu();
         }

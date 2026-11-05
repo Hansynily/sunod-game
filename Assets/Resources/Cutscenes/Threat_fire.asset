@@ -1,0 +1,392 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c34a5d9d304503e4e9f7091f4332b0d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Cutscene.vc_CutsceneData
+  charsPerSecond: 40
+  punctuationPause: 0.12
+  fadeDuration: 0.45
+  textFloatDistance: 18
+  textFloatDuration: 0.4
+  cuts:
+  - name: Strike
+    stageColor: {r: 0.14901961, g: 0.078431375, b: 0.11764706, a: 1}
+    layers:
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: ee2d0326fc3c0124f9b707dff0e76deb, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: e5b880b7220ae0a488dd280d0dcecd2b, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0.7
+        - t01: 1
+          value: 1
+        duration: 1.2
+        delay: 0
+        loop: 1
+        alternate: 1
+        steps: 3
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 4cd064bfd1a5cd34cbcad54db006d2d6, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: cf4bbae549449ae4e97cc8f23a058b20, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: 4
+        duration: 4
+        delay: 0
+        loop: 1
+        alternate: 1
+        steps: 0
+        easeInOut: 1
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0.8
+        - t01: 1
+          value: 1
+        duration: 2.5
+        delay: 0
+        loop: 1
+        alternate: 1
+        steps: 0
+        easeInOut: 1
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 727676fd0db39a34c92e0ee7e429612d, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0
+        - t01: 1
+          value: 0
+        duration: 0.4
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: c006efb1ff265c643a0735d5d11ced00, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 1
+        duration: 0.4
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 836edd7140f18344789e7f0e9c8ac559, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 360
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 180}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: -180
+        duration: 3
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - The years pass. You grow up, and the dreams grow clearer.
+    - Then, just before you become an adult, a dry wind blows through town.
+    - A spark, then smoke, then fire. It comes just like the dreams said.
+  - name: Aftermath
+    stageColor: {r: 0.16470589, g: 0.18039216, b: 0.22745098, a: 1}
+    layers:
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 431bd33701db163479e4a60aab62b9b4, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: e8eac3ae6728b114e95f37247fdc9d81, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: cf4bbae549449ae4e97cc8f23a058b20, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: 6
+        duration: 5
+        delay: 0
+        loop: 1
+        alternate: 1
+        steps: 0
+        easeInOut: 1
+        holdLastKey: 1
+      - property: 2
+        keys:
+        - t01: 0
+          value: 0.45
+        - t01: 1
+          value: 0.45
+        duration: 1
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - When it's over, the town is quiet.
+    - But you remember all of it. Every person you helped. Every skill you found.
+    - And somewhere in all of it, a path that could be yours...

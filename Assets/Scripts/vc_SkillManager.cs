@@ -249,13 +249,13 @@ public class vc_SkillManager : MonoBehaviour
         if (current == data)
         {
             vc_DialogPanel.Instance?.ShowMessage("Already Equipped",
-                $"{data.DisplayName} is already in your {categoryName} slot.", null);
+                $"Already equipped.", null);
             return;
         }
 
         vc_DialogPanel.Instance?.ShowChoice(
             "Swap Skill?",
-            $"Your {categoryName} slot has {current.DisplayName}. Swap it for {data.DisplayName}? The other one stays in your inventory.",
+            $"Swap {current.DisplayName} for {data.DisplayName}?",
             data.icon,
             "Swap",
             "Keep",
@@ -320,6 +320,22 @@ public class vc_SkillManager : MonoBehaviour
         }
 
         ResetUsageCounts();
+    }
+
+    /// <summary>
+    /// Debug menu: act as if the player pressed this skill <paramref name="times"/> times in
+    /// the running quest (it goes into its kind's slot first), so the quest record has real
+    /// skill use.
+    /// </summary>
+    public void DebugRecordUse(vc_SkillData skill, int times)
+    {
+        if (skill == null) return;
+        vc_PlayerInventory.Instance?.AddSkill(skill);
+        int slot = SlotIndexForLetter(skill.riaSecLetter);
+        if (slot < 0 || !AssignSkillToSlot(slot, skill)) return;
+        if (usageCount == null || usageCount.Length != (skillSlots != null ? skillSlots.Length : 0))
+            usageCount = new int[skillSlots != null ? skillSlots.Length : 0];
+        if (slot < usageCount.Length) usageCount[slot] += Mathf.Max(1, times);
     }
 
     public void ResetUsageCounts()

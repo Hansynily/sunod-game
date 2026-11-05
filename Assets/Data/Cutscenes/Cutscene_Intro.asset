@@ -50,7 +50,7 @@ MonoBehaviour:
       texture: {fileID: 2800000, guid: a68e8e8300e87af44835de2df731505f, type: 3}
       rect:
         serializedVersion: 2
-        x: 0
+        x: 108
         y: 20
         width: 224
         height: 105
@@ -61,7 +61,7 @@ MonoBehaviour:
         y: 20.5
         width: 103
         height: 103
-      pivot: {x: 112, y: 72.5}
+      pivot: {x: 220, y: 72.5}
       frameSprite: {fileID: 0}
       frameRect:
         serializedVersion: 2
@@ -98,7 +98,7 @@ MonoBehaviour:
         easeInOut: 0
         holdLastKey: 1
     - image: {fileID: 7388822144124034973, guid: cca341013430ffa47b6b4ff2f16e3d2d, type: 3}
-      texture: {fileID: 0}
+      texture: {fileID: 2800000, guid: a186eaf7ef61a8e4a842cb66ff3cb1a3, type: 3}
       rect:
         serializedVersion: 2
         x: 104

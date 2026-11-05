@@ -21,6 +21,48 @@ namespace SunodGame.Cutscene
 
         [SerializeField] private vc_CutsceneData data;
 
+        /// <summary>
+        /// Play a different cutscene the next time the Cutscene scene opens (the loop scenes:
+        /// a threat striking at the end of a run, going back in time). Pages may use {loop}
+        /// and {threat}. <see cref="PendingFinish"/> replaces the default "start the run".
+        /// Both are cleared once used.
+        /// </summary>
+        public static vc_CutsceneData PendingData;
+        public static System.Action PendingFinish;
+        private System.Action _finishOverride;
+
+        /// <summary>
+        /// Optional pause for an interactive moment once cut <see cref="PendingInterludeAfterCut"/>
+        /// ends (going back in time: "What will you remember?"). The callback gets a "resume"
+        /// action. Skip stops at the moment instead of jumping over it.
+        /// </summary>
+        public static int PendingInterludeAfterCut = -1;
+        public static System.Action<System.Action> PendingInterlude;
+        private int _interludeCut = -1;
+        private System.Action<System.Action> _interlude;
+
+        /// <summary>Opens the Cutscene scene with the cutscene at Resources/Cutscenes/{name}.</summary>
+        public static bool Play(string resourceName, System.Action onFinish)
+        {
+            var asset = Resources.Load<vc_CutsceneData>("Cutscenes/" + resourceName);
+            if (asset == null)
+            {
+                Debug.LogWarning($"[vc_CutscenePlayer] Cutscene '{resourceName}' not found in Resources/Cutscenes.");
+                return false;
+            }
+            PendingData = asset;
+            PendingFinish = onFinish;
+            SceneLoader.GoToCutscene();
+            return true;
+        }
+
+        private static string Fill(string page)
+        {
+            if (string.IsNullOrEmpty(page) || page.IndexOf('{') < 0) return page;
+            return page.Replace("{loop}", vc_LoopMeta.Loop.ToString())
+                       .Replace("{threat}", vc_LoopMeta.ThreatName(vc_LoopMeta.Threat).ToLowerInvariant());
+        }
+
         private VisualElement _root;
         private VisualElement _cutsceneRoot;
         private VisualElement _stage;
@@ -78,6 +120,18 @@ namespace SunodGame.Cutscene
 
         private void Start()
         {
+            if (PendingData != null)
+            {
+                data = PendingData;
+                _finishOverride = PendingFinish;
+                _interludeCut = PendingInterludeAfterCut;
+                _interlude = PendingInterlude;
+                PendingData = null;
+                PendingFinish = null;
+                PendingInterludeAfterCut = -1;
+                PendingInterlude = null;
+            }
+
             if (data == null || data.cuts == null || data.cuts.Count == 0)
             {
                 Debug.LogWarning("[vc_CutscenePlayer] No cutscene data assigned.");
@@ -310,7 +364,7 @@ namespace SunodGame.Cutscene
             _pageStartTime = Time.unscaledTime;
 
             string[] pages = cut.pages;
-            string line = (pages != null && page >= 0 && page < pages.Length) ? pages[page] : string.Empty;
+            string line = Fill((pages != null && page >= 0 && page < pages.Length) ? pages[page] : string.Empty);
 
             if (_typeRoutine != null) StopCoroutine(_typeRoutine);
             _typeRoutine = StartCoroutine(TypeLine(line));
@@ -353,7 +407,7 @@ namespace SunodGame.Cutscene
 
             vc_CutsceneData.Cut cut = data.cuts[_cutIndex];
             string[] pages = cut.pages;
-            string line = (pages != null && _pageIndex >= 0 && _pageIndex < pages.Length) ? pages[_pageIndex] : string.Empty;
+            string line = Fill((pages != null && _pageIndex >= 0 && _pageIndex < pages.Length) ? pages[_pageIndex] : string.Empty);
             if (_dialogText != null) _dialogText.text = line;
 
             if (_dialogBox != null && _dialogText != null)
@@ -386,6 +440,10 @@ namespace SunodGame.Cutscene
                 vc_Sfx.Play("page_next", 0.6f, 0.03f);
                 ShowPage(_pageIndex + 1);
             }
+            else if (RunInterludeIfDue(() => { if (_cutIndex + 1 < data.cuts.Count) ShowCut(_cutIndex + 1); else Finish(); }))
+            {
+                // waiting on the interactive moment
+            }
             else if (_cutIndex + 1 < data.cuts.Count)
             {
                 ShowCut(_cutIndex + 1);
@@ -396,10 +454,39 @@ namespace SunodGame.Cutscene
             }
         }
 
+        /// <summary>Runs the pending interactive moment if this cut is the one it follows.</summary>
+        private bool RunInterludeIfDue(System.Action resume, bool force = false)
+        {
+            if (_interlude == null || (!force && _cutIndex != _interludeCut)) return false;
+            System.Action<System.Action> moment = _interlude;
+            _interlude = null;
+            _transitioning = true;
+            _dialogBox?.SetDisplay(false);
+            _btnSkip?.SetDisplay(false);
+            moment(() =>
+            {
+                _transitioning = false;
+                _dialogBox?.SetDisplay(true);
+                _btnSkip?.SetDisplay(true);
+                resume?.Invoke();
+            });
+            return true;
+        }
+
         private void Finish()
         {
             if (_finished) return;
+            // Skipping never skips the choice: stop at the moment, then jump to the last cut.
+            if (RunInterludeIfDue(() => { if (data.cuts.Count > 0) ShowCut(data.cuts.Count - 1); }, force: true)) return;
             _finished = true;
+
+            if (_finishOverride != null)
+            {
+                System.Action next = _finishOverride;
+                _finishOverride = null;
+                next();
+                return;
+            }
 
             vc_SessionTelemetry.Instance?.StartSession();
             SceneLoader.GoToPlay();

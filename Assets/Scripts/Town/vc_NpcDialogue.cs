@@ -15,6 +15,18 @@ public static class vc_NpcDialogue
     {
         if (!Lines.TryGetValue(name ?? "", out string[] lines) || lines.Length == 0) lines = Fallback;
         int seed = Hash((stageId ?? "") + "/" + name);
+
+        // Loops: now and then people mention this loop's warning signs, and from loop 2 on
+        // some of them get a feeling they've met you before. Per person, per day, so it's
+        // still one line a day.
+        int roll = Hash(seed + "/" + day + "/" + vc_LoopMeta.Loop) % 5;
+        if (roll == 0)
+        {
+            string chatter = vc_LoopMeta.ThreatChatter(vc_LoopMeta.Threat, seed + day);
+            if (!string.IsNullOrEmpty(chatter)) return chatter;
+        }
+        if (roll == 1 && vc_LoopMeta.IsRepeatLoop) return vc_LoopMeta.DejaVuLine(seed + day);
+
         int i = ((seed % lines.Length) + lines.Length + day - 1) % lines.Length;   // a new line each day, in a per-person order
         return lines[i];
     }

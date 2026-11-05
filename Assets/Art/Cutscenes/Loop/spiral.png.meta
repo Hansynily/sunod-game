@@ -1,0 +1,923 @@
+fileFormatVersion: 2
+guid: 001d88c052ee899419ea40c769e72e1e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2507022010289347524
+    second: spiral_0
+  - first:
+      213: 7896397963940786992
+    second: spiral_1
+  - first:
+      213: -8429315868133687778
+    second: spiral_2
+  - first:
+      213: -8721185468393579516
+    second: spiral_3
+  - first:
+      213: 6725172585624395711
+    second: spiral_4
+  - first:
+      213: 6000538439049714456
+    second: spiral_5
+  - first:
+      213: 7927558469573637196
+    second: spiral_6
+  - first:
+      213: 3487246930416671887
+    second: spiral_7
+  - first:
+      213: -6887723199987677244
+    second: spiral_8
+  - first:
+      213: 3363955481407979040
+    second: spiral_9
+  - first:
+      213: 8784749101140472221
+    second: spiral_10
+  - first:
+      213: 7276099258116525948
+    second: spiral_11
+  - first:
+      213: -155359025586511259
+    second: spiral_12
+  - first:
+      213: 9216672872154165378
+    second: spiral_13
+  - first:
+      213: 5212118838514471029
+    second: spiral_14
+  - first:
+      213: 5413481159920742457
+    second: spiral_15
+  - first:
+      213: -9013802942168949566
+    second: spiral_16
+  - first:
+      213: -27596204353715262
+    second: spiral_17
+  - first:
+      213: -3296104164907689907
+    second: spiral_18
+  - first:
+      213: -1941442816874553973
+    second: spiral_19
+  - first:
+      213: 8247261218192425185
+    second: spiral_20
+  - first:
+      213: -7924146180564318618
+    second: spiral_21
+  - first:
+      213: 5089711644320824244
+    second: spiral_22
+  - first:
+      213: 2061873748818147068
+    second: spiral_23
+  - first:
+      213: 7351446826281585196
+    second: spiral_24
+  - first:
+      213: 4549650934628441473
+    second: spiral_25
+  - first:
+      213: 775917991420791406
+    second: spiral_26
+  - first:
+      213: 4382105950972286297
+    second: spiral_27
+  - first:
+      213: -5084055118908263930
+    second: spiral_28
+  - first:
+      213: -7269767344709432442
+    second: spiral_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 0
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: spiral_0
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 165
+        width: 17
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c342e90b3c4453dd0800000000000000
+      internalID: -2507022010289347524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_1
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 158
+        width: 47
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 033fecd7c14a59d60800000000000000
+      internalID: 7896397963940786992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_2
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 149
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1ef35cd0ed050b80800000000000000
+      internalID: -8429315868133687778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_3
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 136
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40c1a18f50028f680800000000000000
+      internalID: -8721185468393579516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_4
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 126
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbf565bc5dc945d50800000000000000
+      internalID: 6725172585624395711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_5
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 136
+        width: 33
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81b92a80be1364350800000000000000
+      internalID: 6000538439049714456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_6
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 138
+        width: 13
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4473131d68540e60800000000000000
+      internalID: 7927558469573637196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_7
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 123
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8c9e836b90356030800000000000000
+      internalID: 3487246930416671887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_8
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 126
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c784890e34e960a0800000000000000
+      internalID: -6887723199987677244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_9
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 98
+        width: 6
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02efc85ffab2fae20800000000000000
+      internalID: 3363955481407979040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_10
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 107
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d91f86e83c2b9e970800000000000000
+      internalID: 8784749101140472221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_11
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 94
+        width: 8
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7fc48e89b5e9f460800000000000000
+      internalID: 7276099258116525948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_12
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 109
+        width: 37
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 562e3431acd08ddf0800000000000000
+      internalID: -155359025586511259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_13
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 102
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2807abb252338ef70800000000000000
+      internalID: 9216672872154165378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_14
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 108
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 570d6c8f77a255840800000000000000
+      internalID: 5212118838514471029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_15
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 106
+        width: 9
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 930785fde6c802b40800000000000000
+      internalID: 5413481159920742457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_16
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 72
+        width: 9
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cc16a43bf988e280800000000000000
+      internalID: -9013802942168949566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_17
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 76
+        width: 14
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c3095af565fd9ff0800000000000000
+      internalID: -27596204353715262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_18
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 75
+        width: 19
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d48ddfbb9b2e142d0800000000000000
+      internalID: -3296104164907689907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_19
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 91
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8d55745b0c9e05e0800000000000000
+      internalID: -1941442816874553973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_20
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 62
+        width: 8
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e00730d168247270800000000000000
+      internalID: 8247261218192425185
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_21
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 70
+        width: 7
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 666023f5807c70290800000000000000
+      internalID: -7924146180564318618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_22
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 66
+        width: 9
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bb79e826c942a640800000000000000
+      internalID: 5089711644320824244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_23
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 46
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf63202104f3d9c10800000000000000
+      internalID: 2061873748818147068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_24
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 58
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2acfa950f5950660800000000000000
+      internalID: 7351446826281585196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_25
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 48
+        width: 37
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18d5d828b6b932f30800000000000000
+      internalID: 4549650934628441473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_26
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 50
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6a887d5d4d94ca00800000000000000
+      internalID: 775917991420791406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_27
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 42
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95514df152e50dc30800000000000000
+      internalID: 4382105950972286297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_28
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 20
+        width: 65
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60277fa4ecec179b0800000000000000
+      internalID: -5084055118908263930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: spiral_29
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 27
+        width: 14
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68b0cdaed199c1b90800000000000000
+      internalID: -7269767344709432442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      spiral_0: -2507022010289347524
+      spiral_1: 7896397963940786992
+      spiral_10: 8784749101140472221
+      spiral_11: 7276099258116525948
+      spiral_12: -155359025586511259
+      spiral_13: 9216672872154165378
+      spiral_14: 5212118838514471029
+      spiral_15: 5413481159920742457
+      spiral_16: -9013802942168949566
+      spiral_17: -27596204353715262
+      spiral_18: -3296104164907689907
+      spiral_19: -1941442816874553973
+      spiral_2: -8429315868133687778
+      spiral_20: 8247261218192425185
+      spiral_21: -7924146180564318618
+      spiral_22: 5089711644320824244
+      spiral_23: 2061873748818147068
+      spiral_24: 7351446826281585196
+      spiral_25: 4549650934628441473
+      spiral_26: 775917991420791406
+      spiral_27: 4382105950972286297
+      spiral_28: -5084055118908263930
+      spiral_29: -7269767344709432442
+      spiral_3: -8721185468393579516
+      spiral_4: 6725172585624395711
+      spiral_5: 6000538439049714456
+      spiral_6: 7927558469573637196
+      spiral_7: 3487246930416671887
+      spiral_8: -6887723199987677244
+      spiral_9: 3363955481407979040
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -174,8 +174,26 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
             vc_SkillManager.Instance?.EquipToCategorySlot(skill);
         }
 
+        // Loop 2+: skills the player chose to remember start in their kind's slot (the
+        // default of that kind stays in the inventory). Still one skill per kind.
+        ApplyKeptSkills();
+
         _startingKitApplied = true;
         Debug.Log($"[vc_QuestAvailabilityFilter] Applied starting kit ({gameSettings.startingSkills.Length} skill(s)).");
+    }
+
+    private void ApplyKeptSkills()
+    {
+        var meta = vc_LoopMeta.Current;
+        if (meta == null || meta.kept_skills == null || gameSettings == null || gameSettings.skills == null) return;
+        foreach (string name in meta.kept_skills)
+        {
+            vc_SkillData kept = System.Array.Find(gameSettings.skills,
+                s => s != null && string.Equals(s.skillName, name, System.StringComparison.OrdinalIgnoreCase));
+            if (kept == null) continue;
+            vc_PlayerInventory.Instance.AddSkill(kept);
+            vc_SkillManager.Instance?.EquipToCategorySlot(kept);
+        }
     }
 
     /// <summary>

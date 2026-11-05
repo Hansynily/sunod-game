@@ -42,7 +42,20 @@ public static class vc_TutorialEndScreen
             "Play the full game to see which paths could fit you best.";
 
         if (vc_DialogPanel.Instance != null)
-            vc_DialogPanel.Instance.ShowMessage("A Possible Path", body, onDone);
+            vc_DialogPanel.Instance.ShowMessage("A Possible Path", body, () => ShowLoops(onDone));
+        else
+            onDone?.Invoke();
+    }
+
+    /// <summary>The last tutorial page: what carries over from one playthrough to the next.</summary>
+    private static void ShowLoops(Action onDone)
+    {
+        const string body =
+            "Every playthrough is one loop. Each loop ends with a disaster.\n\n" +
+            "Go Back to play again. Keep the skills you remember and the keepsakes you buy.";
+
+        if (vc_DialogPanel.Instance != null)
+            vc_DialogPanel.Instance.ShowMessage("Loops", body, onDone);
         else
             onDone?.Invoke();
     }

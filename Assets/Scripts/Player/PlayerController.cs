@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour
     Vector2 move;
     public float speed = 3.0f;
 
+    /// <summary>Town-only walk boost (Old Sneakers keepsake). vc_TownStage keeps it at 1 during quests.</summary>
+    public static float SpeedMultiplier = 1f;
+
     /// <summary>Current move input (-1..1 per axis). Read by vc_SpriteFrameAnimator.</summary>
     public Vector2 Move => move;
 
@@ -52,7 +55,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        Vector2 position = (Vector2)rigidbody2d.position + move * speed * Time.deltaTime;
+        Vector2 position = (Vector2)rigidbody2d.position + move * speed * SpeedMultiplier * Time.deltaTime;
         rigidbody2d.MovePosition(position);
         // Legacy bone-rig Animator. Disabled when vc_SpriteFrameAnimator drives frame-based art.
         if (animator != null && animator.isActiveAndEnabled)

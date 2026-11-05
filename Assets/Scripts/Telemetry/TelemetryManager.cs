@@ -440,6 +440,47 @@ namespace SunodGame.Telemetry
             ));
         }
 
+        // ── Loops: what carries over between runs ──────────────────────────
+
+        public void GetMyLoop(Action<LoopMetaResponse> onSuccess, Action<string> onError = null)
+        {
+            if (!TryGetToken(out string token, onError)) return;
+            StartCoroutine(GetAuthorizedJson("/api/telemetry/users/me/loop", token, onSuccess,
+                onError ?? (e => Debug.LogWarning($"[Telemetry] Loop fetch error: {e}"))));
+        }
+
+        public void BeginMyLoop(LoopBeginPayload payload, Action<LoopMetaResponse> onSuccess, Action<string> onError = null)
+        {
+            if (!TryGetToken(out string token, onError)) return;
+            StartCoroutine(PostAuthorizedNoBody("/api/telemetry/users/me/loop/begin", token, onSuccess,
+                onError ?? (e => Debug.LogWarning($"[Telemetry] Loop begin error: {e}")),
+                JsonUtility.ToJson(payload ?? new LoopBeginPayload())));
+        }
+
+        public void BuyMemento(string mementoId, Action<LoopMetaResponse> onSuccess, Action<string> onError = null)
+        {
+            if (!TryGetToken(out string token, onError)) return;
+            StartCoroutine(PostAuthorizedNoBody("/api/telemetry/users/me/loop/buy", token, onSuccess,
+                onError ?? (e => Debug.LogWarning($"[Telemetry] Keepsake buy error: {e}")),
+                JsonUtility.ToJson(new LoopBuyPayload { memento_id = mementoId })));
+        }
+
+        public void ResetMyLoop(Action<LoopMetaResponse> onSuccess = null, Action<string> onError = null)
+        {
+            if (!TryGetToken(out string token, onError)) return;
+            StartCoroutine(PostAuthorizedNoBody("/api/telemetry/users/me/loop/reset", token,
+                onSuccess ?? (_ => Debug.Log("[Telemetry] Loops reset.")),
+                onError ?? (e => Debug.LogWarning($"[Telemetry] Loop reset error: {e}"))));
+        }
+
+        private static bool TryGetToken(out string token, Action<string> onError)
+        {
+            token = SessionState.Instance != null ? SessionState.Instance.AccessToken : null;
+            if (!string.IsNullOrWhiteSpace(token)) return true;
+            onError?.Invoke("Not signed in.");
+            return false;
+        }
+
         // Play-time heartbeat (vc_PlayTimeTracker). Silent on failure: the next beat carries
         // the same cumulative totals, so a dropped one loses nothing.
         public void PutMyPlaySession(string json,
@@ -522,6 +563,7 @@ namespace SunodGame.Telemetry
                     sb.Append($"\"completed\":{(r.completed ? "true" : "false")},");
                     sb.Append($"\"stars\":{r.stars},");
                     sb.Append($"\"stars5\":{r.stars5},");
+                    sb.Append($"\"gameplay_mode\":\"{EscapeJson(r.gameplay_mode)}\",");
                     sb.Append($"\"time_spent_seconds\":{r.time_spent_seconds.ToString(System.Globalization.CultureInfo.InvariantCulture)},");
                     sb.Append($"\"skill_use_r\":{r.skill_use_r},");
                     sb.Append($"\"skill_use_i\":{r.skill_use_i},");

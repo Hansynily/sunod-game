@@ -17,9 +17,10 @@
         <!-- Center row of big framed buttons (icon + label), standing on the hills -->
         <ui:VisualElement class="menu-panel" picking-mode="Ignore">
 
+            <!-- Continue a run in progress. After a finished run it becomes "Go Back" (next loop). -->
             <ui:Button name="btn-continue" class="menu-btn wood-btn btn-continue intro-item intro-hidden">
-                <ui:VisualElement class="btn-icon icon-continue" picking-mode="Ignore"/>
-                <ui:Label text="Continue" class="btn-label" picking-mode="Ignore"/>
+                <ui:VisualElement name="icon-continue" class="btn-icon icon-continue" picking-mode="Ignore"/>
+                <ui:Label name="lbl-continue" text="Continue" class="btn-label" picking-mode="Ignore"/>
             </ui:Button>
 
             <ui:Button name="btn-play" class="menu-btn primary-btn btn-play intro-item intro-hidden">
@@ -115,6 +116,7 @@
                 </ui:VisualElement>
 
                 <ui:VisualElement class="divider"/>
+                <ui:VisualElement name="loops-section"/>
                 <ui:Label text="Past playthroughs" class="history-heading"/>
                 <ui:Label name="lbl-history-empty" text="Finish a run to see it here." class="empty-state-label"/>
                 <ui:VisualElement name="history-list" class="history-list"/>
@@ -132,11 +134,11 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- New-run confirm overlay. Opened by New Game when an unfinished run exists. -->
+        <!-- New-run confirm overlay. Opened by New Game when there's anything to lose. -->
         <ui:VisualElement name="newrun-confirm-overlay" class="overlay-root">
             <ui:VisualElement class="confirm-box sl-panel-dark">
                 <ui:Label text="Start a New Game?" class="confirm-title sl-text-outline"/>
-                <ui:Label text="Your saved progress will be erased. Continue?" class="confirm-body"/>
+                <ui:Label name="lbl-newrun-body" text="Your saved progress will be erased. Continue?" class="confirm-body"/>
                 <ui:VisualElement class="confirm-button-row">
                     <ui:Button name="btn-newrun-confirm" class="action-btn btn-reset-confirm sl-button-wide">
                         <ui:Label text="New Game" class="action-btn-label sl-text-outline"/>
@@ -218,17 +220,18 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
 
-                <ui:VisualElement name="settings-survey-row" class="settings-row">
-                    <ui:Label text="Survey" class="settings-label"/>
-                    <ui:VisualElement class="settings-survey-body">
-                        <ui:VisualElement class="settings-survey-qr-frame">
-                            <ui:VisualElement class="settings-survey-qr" picking-mode="Ignore"/>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="settings-survey-text">
-                            <ui:Label text="Scan the code, or tap the link:" class="settings-survey-note"/>
-                            <ui:Button name="btn-settings-survey-link" text="tinyurl.com/sunodgamesurvey" class="wood-btn settings-choice-btn settings-survey-link"/>
-                        </ui:VisualElement>
+                <!-- Admin accounts only (MainMenuUIToolkit.Gameplay): Old = defense build, New = minigames. -->
+                <ui:VisualElement name="settings-gameplay-row" class="settings-row">
+                    <ui:Label text="Gameplay" class="settings-label"/>
+                    <ui:VisualElement class="settings-choice-row">
+                        <ui:Button name="btn-gameplay-old" text="Old" class="wood-btn settings-choice-btn"/>
+                        <ui:Button name="btn-gameplay-new" text="New" class="wood-btn settings-choice-btn"/>
                     </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="settings-survey-row" class="settings-row">
+                    <ui:Label text="Website" class="settings-label"/>
+                    <ui:Button name="btn-settings-survey-link" text="Visit SUNOD Website" class="wood-btn settings-choice-btn settings-survey-link"/>
                 </ui:VisualElement>
 
                 <ui:VisualElement class="confirm-button-row">

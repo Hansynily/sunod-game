@@ -182,6 +182,46 @@ namespace SunodGame.UI
 
             if (_slotEmpties[i] != null)
                 _slotEmpties[i].style.display = DisplayStyle.None;
+
+            // A remembered skill (carried over from the last loop) wears a small violet gem.
+            if (_slotBtns[i] != null)
+            {
+                if (_memoryGems[i] == null)
+                {
+                    _memoryGems[i] = MakeMemoryGem();
+                    _slotBtns[i].Add(_memoryGems[i]);
+                }
+                bool kept = vc_LoopMeta.IsKept(data);
+                _memoryGems[i].style.display = kept ? DisplayStyle.Flex : DisplayStyle.None;
+                // ...and a violet frame, so it reads at a glance as "carried over"
+                StyleColor frame = kept ? new StyleColor((Color)new Color32(150, 110, 255, 255)) : new StyleColor(StyleKeyword.Null);
+                _slotBtns[i].style.borderTopColor = frame;
+                _slotBtns[i].style.borderLeftColor = frame;
+                _slotBtns[i].style.borderRightColor = frame;
+            }
+        }
+
+        private readonly VisualElement[] _memoryGems = new VisualElement[vc_SkillManager.SlotCount];
+
+        private static VisualElement MakeMemoryGem()
+        {
+            var gem = new VisualElement { name = "memory-gem", pickingMode = PickingMode.Ignore };
+            gem.style.position = Position.Absolute;
+            gem.style.top = 4;
+            gem.style.right = 4;
+            gem.style.width = 16;
+            gem.style.height = 16;
+            gem.style.rotate = new Rotate(new Angle(45f, AngleUnit.Degree));
+            gem.style.backgroundColor = (Color)new Color32(176, 140, 255, 255);
+            Color edge = new Color32(60, 40, 110, 255);
+            gem.style.borderTopColor = edge; gem.style.borderBottomColor = edge;
+            gem.style.borderLeftColor = edge; gem.style.borderRightColor = edge;
+            gem.style.borderTopWidth = 2; gem.style.borderBottomWidth = 2;
+            gem.style.borderLeftWidth = 2; gem.style.borderRightWidth = 2;
+            // slow two-step twinkle, pixel style
+            gem.schedule.Execute(() =>
+                gem.style.opacity = Mathf.Repeat(Time.unscaledTime, 1.6f) < 0.8f ? 1f : 0.65f).Every(200);
+            return gem;
         }
 
         private Button _inventoryBtn;

@@ -58,6 +58,9 @@ public class vc_RunProgressUI : MonoBehaviour
         Instance = this;
     }
 
+    /// <summary>The HUD's UI Toolkit root, for minigame overlays built by quests.</summary>
+    public VisualElement OverlayRoot => _root;
+
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
@@ -658,7 +661,7 @@ public class vc_RunProgressUI : MonoBehaviour
         SunodGame.Core.vc_Sfx.Play("click", 0.6f);
 
         string leaning = LeaningText();
-        string basis = $"Based on {_partialAnswered} of {_partialTotal} people so far. This is only a peek - keep playing, your answers can still change it.";
+        string basis = $"Based on {_partialAnswered} of {_partialTotal} quests so far.";
 
         vc_SessionTelemetry t = vc_SessionTelemetry.Instance;
         if (t == null)

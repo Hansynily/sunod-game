@@ -69,17 +69,10 @@ namespace SunodGame.UI
                 partial.style.display = string.IsNullOrWhiteSpace(partial.text) ? DisplayStyle.None : DisplayStyle.Flex;
             }
 
-            // Survey: only once the game is really done (full run), never on partial results.
-            bool fullRun = string.IsNullOrWhiteSpace(GameSessionData.partialRunNote);
-            VisualElement surveyCard = root.Q<VisualElement>("survey-card");
-            if (surveyCard != null)
-                surveyCard.style.display = fullRun ? DisplayStyle.Flex : DisplayStyle.None;
-            if (fullRun)
-                vc_Survey.Unlock();
-
-            Label surveyLink = root.Q<Label>("lbl-survey-link");
-            if (surveyLink != null)
-                surveyLink.text = vc_Survey.DisplayUrl;
+            // Website card: a link to the SUNOD server's site.
+            Label siteLink = root.Q<Label>("lbl-survey-link");
+            if (siteLink != null)
+                siteLink.text = "Visit SUNOD Website";
 
             _btnPlayAgain  = root.Q<Button>("btn-play-again");
             _btnMainMenu   = root.Q<Button>("btn-main-menu");
@@ -99,14 +92,17 @@ namespace SunodGame.UI
 
         private void OnSurveyLinkClicked(ClickEvent _)
         {
-            TelemetryManager.Instance?.TagButtonClick("SurveyLink");
-            vc_Survey.Open();
+            TelemetryManager.Instance?.TagButtonClick("SiteLink");
+            vc_SiteLink.Open();
         }
 
         private void OnPlayAgainClicked(ClickEvent _)
         {
             TelemetryManager.Instance?.TagButtonClick("PlayAgain");
-            SceneLoader.GoToPlay();
+            // Another run = the next loop: the main menu's Go Back screen (memories,
+            // keepsakes), which also clears the finished run's save properly.
+            MainMenuUIToolkit.OpenGoBackOnLoad = true;
+            SceneLoader.GoToMainMenu();
         }
 
         private void OnMainMenuClicked(ClickEvent _)

@@ -1,0 +1,261 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c34a5d9d304503e4e9f7091f4332b0d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Cutscene.vc_CutsceneData
+  charsPerSecond: 40
+  punctuationPause: 0.12
+  fadeDuration: 0.45
+  textFloatDistance: 18
+  textFloatDuration: 0.4
+  cuts:
+  - name: Strike
+    stageColor: {r: 0.1254902, g: 0.14901961, b: 0.21176471, a: 1}
+    layers:
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 71e91b05a2e17484588bf4886d93c887, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 8a6cad17a43ac524596e224e780e36f1, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 989a2e5298806154d9b1eb9a3509d473, type: 3}
+      rect:
+        serializedVersion: 2
+        x: -40
+        y: 95
+        width: 400
+        height: 90
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 140}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 1
+        keys:
+        - t01: 0
+          value: 90
+        - t01: 1
+          value: 0
+        duration: 7
+        delay: 0
+        loop: 0
+        alternate: 0
+        steps: 0
+        easeInOut: 1
+        holdLastKey: 1
+      - property: 0
+        keys:
+        - t01: 0
+          value: -5
+        - t01: 1
+          value: 5
+        duration: 3
+        delay: 0
+        loop: 1
+        alternate: 1
+        steps: 0
+        easeInOut: 1
+        holdLastKey: 1
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 68cbfe661cf5e5e4fbef75c45c6262ae, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: -180
+        width: 320
+        height: 360
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 0}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: 180
+        duration: 0.8
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - The years pass. You grow up, and the dreams grow clearer.
+    - Then, just before you become an adult, it rains for days without stopping.
+    - The river breaks its banks. The flood comes, just like the dreams said.
+  - name: Aftermath
+    stageColor: {r: 0.16470589, g: 0.18039216, b: 0.22745098, a: 1}
+    layers:
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 431bd33701db163479e4a60aab62b9b4, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: b685b81a4201d8a4c91a872bc42dc4ae, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 0}
+      texture: {fileID: 2800000, guid: 68cbfe661cf5e5e4fbef75c45c6262ae, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: -180
+        width: 320
+        height: 360
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 0}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 1
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 1
+          value: 180
+        duration: 1.1
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    pages:
+    - When it's over, the town is quiet.
+    - But you remember all of it. Every person you helped. Every skill you found.
+    - And somewhere in all of it, a path that could be yours...
