@@ -764,6 +764,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7228568758649411826}
   - component: {fileID: 6858261111530256021}
+  - component: {fileID: 4350757805632351585}
+  - component: {fileID: 4606011087551614062}
   m_Layer: 0
   m_Name: ToyStoreQuest
   m_TagString: Untagged
@@ -904,6 +906,33 @@ MonoBehaviour:
   callPresses: 3
   mapTime: 5
   directTime: 7
+--- !u!114 &4350757805632351585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 865482367148911864}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6404977da31a4bf4cb06203f9e580870, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_ToyStoreMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &4606011087551614062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 865482367148911864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &883158007647930261
 GameObject:
   m_ObjectHideFlags: 0
@@ -7235,6 +7264,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: E8
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 4350757805632351585}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Help Mr. Tan run the toy store.

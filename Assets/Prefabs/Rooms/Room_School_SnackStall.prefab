@@ -6097,6 +6097,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3025673056560456267}
   - component: {fileID: 7652109485939035412}
+  - component: {fileID: 7131892009882518967}
+  - component: {fileID: 6127136342394735118}
   m_Layer: 0
   m_Name: SnackStallQuest
   m_TagString: Untagged
@@ -6219,6 +6221,33 @@ MonoBehaviour:
   callTime: 4
   mapTime: 5
   craftTime: 8
+--- !u!114 &7131892009882518967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234496634374896352}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1e9c8243d6efa543ae813a240179326, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SnackStallMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &6127136342394735118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234496634374896352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &7675773343183485181
 GameObject:
   m_ObjectHideFlags: 0
@@ -6523,6 +6552,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: E2
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 7131892009882518967}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Sell snacks at the school fair stall.

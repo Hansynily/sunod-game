@@ -5851,6 +5851,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6527431700141472880}
   - component: {fileID: 8331522294831839072}
+  - component: {fileID: 5685454301647305038}
+  - component: {fileID: 8192070318504780019}
   m_Layer: 0
   m_Name: FairPosterQuest
   m_TagString: Untagged
@@ -5925,6 +5927,33 @@ MonoBehaviour:
   paintTime: 1.5
   craftTime: 3
   stencilTime: 5
+--- !u!114 &5685454301647305038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3440573628122735056}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7052a4e4f19550c4aac925a529e2cc88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_FairPosterMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &8192070318504780019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3440573628122735056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &3689356718132609533
 GameObject:
   m_ObjectHideFlags: 0
@@ -9135,6 +9164,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: A3
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 5685454301647305038}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Design the school fair poster.

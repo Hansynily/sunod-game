@@ -6217,6 +6217,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3408067750251309909}
   - component: {fileID: 6988166341972674524}
+  - component: {fileID: 6090627027738258738}
+  - component: {fileID: 541427306287346647}
   m_Layer: 0
   m_Name: SeedlingStudyQuest
   m_TagString: Untagged
@@ -6297,6 +6299,33 @@ MonoBehaviour:
   measurePresses: 3
   solveTime: 5
   collectTime: 8
+--- !u!114 &6090627027738258738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6056084831830988390}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adfbfd5bae6d2cd4fad9814e1f6d12bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_SeedlingStudyMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &541427306287346647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6056084831830988390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &6173871613982911482
 GameObject:
   m_ObjectHideFlags: 0
@@ -7778,6 +7807,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: I3
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 6090627027738258738}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Find out why some seedlings grow faster.

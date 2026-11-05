@@ -6007,6 +6007,8 @@ GameObject:
   m_Component:
   - component: {fileID: 276994029147735}
   - component: {fileID: 4025411942395147410}
+  - component: {fileID: 567472986285314148}
+  - component: {fileID: 52714267210941852}
   m_Layer: 0
   m_Name: RabbitWatchQuest
   m_TagString: Untagged
@@ -6085,6 +6087,33 @@ MonoBehaviour:
   planTime: 4
   solveTime: 5
   inspectTime: 7
+--- !u!114 &567472986285314148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7461422624881257488}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cd27253696302c4392694564c7c8360, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_RabbitWatchMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &52714267210941852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7461422624881257488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &8155748160518257424
 GameObject:
   m_ObjectHideFlags: 0
@@ -6251,6 +6280,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: I2
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 567472986285314148}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Study how the rabbits behave.

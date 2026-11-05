@@ -3791,7 +3791,7 @@ Tilemap:
       - {fileID: -9036296027799684117, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
       - {fileID: 3305497872946061214, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
       - {fileID: 4485240199076182616, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 2, y: 7, z: 0}
@@ -4263,6 +4263,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4757079285059066563}
   - component: {fileID: 3011667852277797813}
+  - component: {fileID: 697704115388962268}
+  - component: {fileID: 9197326461228919771}
   m_Layer: 0
   m_Name: RiverCrossingQuest
   m_TagString: Untagged
@@ -4349,6 +4351,33 @@ MonoBehaviour:
   craftTime: 7
   helperWalkTime: 6
   helperFixTime: 4
+--- !u!114 &697704115388962268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3483646476636716196}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f15fdb74c90b1664e8b002fdb9240493, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_RiverStonesMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &9197326461228919771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3483646476636716196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &3585621725721749341
 GameObject:
   m_ObjectHideFlags: 0
@@ -7618,6 +7647,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: R2
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 697704115388962268}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Get across the river.

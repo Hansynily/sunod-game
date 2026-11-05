@@ -3875,6 +3875,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
   questLogic: {fileID: 8903399001158039857}
+  minigameLogic: {fileID: 2755632133150764400}
   questId: e_c6_change
   questName: Canteen Change
   primaryRiasec: C
@@ -5584,6 +5585,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3024169357558000071}
   - component: {fileID: 8903399001158039857}
+  - component: {fileID: 2755632133150764400}
+  - component: {fileID: 5949360816973876415}
   m_Layer: 0
   m_Name: CanteenChangeQuest
   m_TagString: Untagged
@@ -5669,6 +5672,33 @@ MonoBehaviour:
   inspectTime: 2
   collectTime: 4
   planTime: 8
+--- !u!114 &2755632133150764400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5672146250457631266}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4bc98af8567464b8974a76b9a40440, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_CanteenChangeMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &5949360816973876415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5672146250457631266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &6165110866273454546
 GameObject:
   m_ObjectHideFlags: 0

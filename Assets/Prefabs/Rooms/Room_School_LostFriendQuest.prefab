@@ -3131,6 +3131,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1672275746911279394}
   - component: {fileID: 8040352574727550033}
+  - component: {fileID: 1375570499798682113}
+  - component: {fileID: 3775904553247004094}
   m_Layer: 0
   m_Name: LostFriendFitQuest
   m_TagString: Untagged
@@ -3212,6 +3214,33 @@ MonoBehaviour:
   teacherBackTime: 5
   kidSpeed: 2.4
   arriveRange: 1.7
+--- !u!114 &1375570499798682113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6869873540384887830}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 852c6ec73f695a94aa0d86f2b91c4220, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_PlaygroundWatchMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &3775904553247004094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6869873540384887830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &7391798891919552576
 GameObject:
   m_ObjectHideFlags: 0
@@ -4300,6 +4329,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: S6
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 1375570499798682113}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: 

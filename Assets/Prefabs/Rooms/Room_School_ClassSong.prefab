@@ -675,6 +675,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
   questLogic: {fileID: 9074872527514283640}
+  minigameLogic: {fileID: 3918135786285492802}
   questId: e_a4_song
   questName: Class Song
   primaryRiasec: A
@@ -3788,6 +3789,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6113019513321017818}
   - component: {fileID: 9074872527514283640}
+  - component: {fileID: 3918135786285492802}
+  - component: {fileID: 4853111031451998542}
   m_Layer: 0
   m_Name: ClassSongQuest
   m_TagString: Untagged
@@ -3870,6 +3873,33 @@ MonoBehaviour:
   paintTime: 4
   blockPresses: 3
   teachTime: 8
+--- !u!114 &3918135786285492802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2311821519683366949}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48d38366afd40794a8bfa7d5826ef218, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_ClassSongMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &4853111031451998542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2311821519683366949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &2604026829822491921
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1910109760644168160}
   - component: {fileID: 7272709647165289545}
+  - component: {fileID: 4965109198719890841}
+  - component: {fileID: 7691941080764946970}
   m_Layer: 0
   m_Name: CreakyFloorQuest
   m_TagString: Untagged
@@ -80,6 +82,33 @@ MonoBehaviour:
   inspectFixTime: 1.6
   carpenterWalkTime: 6
   carpenterFixTime: 4
+--- !u!114 &4965109198719890841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 61973417233437965}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e857fcfcaf7cb954e991f6e4c2d3cf7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_FloorNailsMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &7691941080764946970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 61973417233437965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &363666459944754383
 GameObject:
   m_ObjectHideFlags: 0
@@ -6102,6 +6131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
   questLogic: {fileID: 7272709647165289545}
+  minigameLogic: {fileID: 4965109198719890841}
   questId: r8_floor
   questName: Creaky Floorboards
   primaryRiasec: R

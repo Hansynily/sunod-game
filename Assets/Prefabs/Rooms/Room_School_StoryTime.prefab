@@ -717,6 +717,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8164803849735392198}
   - component: {fileID: 5992632113756903568}
+  - component: {fileID: 3016888918510709644}
+  - component: {fileID: 6340286660455534603}
   m_Layer: 0
   m_Name: StoryTimeQuest
   m_TagString: Untagged
@@ -782,6 +784,33 @@ MonoBehaviour:
   guideTime: 4
   healTime: 5
   paintTime: 8
+--- !u!114 &3016888918510709644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896041816282322451}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd484f73c33d6f4eb430f5363feb5a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_StoryTimeMinigame
+  mainMarker: {fileID: 0}
+  helperWalk: []
+  sortingLayer: Default
+--- !u!114 &6340286660455534603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896041816282322451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5106f4198841f4ba00731c90ab4fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::vc_MinigameOverlay
 --- !u!1 &1162624643086150116
 GameObject:
   m_ObjectHideFlags: 0
@@ -6674,6 +6703,10 @@ PrefabInstance:
       propertyPath: questionCode
       value: S7
       objectReference: {fileID: 0}
+    - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
+      propertyPath: minigameLogic
+      value: 
+      objectReference: {fileID: 3016888918510709644}
     - target: {fileID: 2802005957920050237, guid: 6282a1766bdc74f4b8f0f2948186c97c, type: 3}
       propertyPath: objectiveText
       value: Read the storybook with the little kids.

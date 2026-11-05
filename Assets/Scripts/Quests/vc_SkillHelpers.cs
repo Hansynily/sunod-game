@@ -188,9 +188,9 @@ public static class vc_SkillHelpers
                 bar.Refresh();
             });
             b.AddToClassList("sl-button");
-            b.style.width = 106; b.style.minHeight = 58;
-            b.style.marginLeft = 3; b.style.marginRight = 3; b.style.marginTop = 4;
-            b.style.paddingTop = 4; b.style.paddingBottom = 8;
+            b.style.width = 106; b.style.minHeight = 50;
+            b.style.marginLeft = 3; b.style.marginRight = 3; b.style.marginTop = 2;
+            b.style.paddingTop = 2; b.style.paddingBottom = 6;
             b.style.paddingLeft = 2; b.style.paddingRight = 2;
             b.style.flexDirection = FlexDirection.Column;
             b.style.alignItems = Align.Center;

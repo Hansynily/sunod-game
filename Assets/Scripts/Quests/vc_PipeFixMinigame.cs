@@ -4,20 +4,22 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// R quest (R6), minigame version of vc_BrokenPumpQuest ("New" gameplay, see vc_GameplayMode):
-/// "Connect the pipes" (MINIGAME_DESIGN.md, type B).
-///   - A 4x4 grid of pipe pieces between the pump (left of the top-left cell) and the tap
-///     (right of the bottom-right cell). Tap a piece to turn it 90 degrees.
-///   - "Turn on water" tests it once: water runs as far as the pipes connect.
-///   - Score = pieces of the right path the water reached (100% if it reaches the tap).
-///     90/70/50/30 = 5/4/3/2 stars, else 1. No timer.
-///   - Skills are HELPERS here (vc_SkillHelpers): Hint = one wrong pipe glows, Free step = one
-///     wrong pipe turns into place and locks, Check first = preview the water without ending,
-///     Second chance = if the test isn't perfect, one more go.
-/// A new layout every time it's played (shuffled each loop).
+/// R6 Aling Rosa - Leaking faucet (MINIGAME_DESIGN.md, type B Connect Path), "New" gameplay only;
+/// the old vc_BrokenPumpQuest is untouched. FLOWING WATER version:
+///   - A 4x4 grid of pipe pieces between the valve (left of the top-left cell) and the faucet
+///     (right of the bottom-right cell). Some pieces are turned wrong.
+///   - 3-2-1, then the water starts and keeps moving, slowly filling one piece at a time.
+///   - Tap pieces to turn them 90 degrees, ahead of the water. A piece the water is in can't turn.
+///   - If the water reaches a piece that doesn't connect, it leaks there and stops. If it reaches
+///     the faucet, done. The stop is a leak, never a fail screen.
+///   - Score = pieces of the right path the water filled (100% if it reaches the faucet).
+/// Helpers: Hint = the next wrong piece ahead glows; Free step = one piece turns into place;
+/// Breather = the water pauses 5 s; Second chance = one leak gets plugged for a few seconds so you
+/// can turn the piece and the water keeps going.
+/// A new random layout every time it's played (shuffled each loop).
 /// </summary>
 [DisallowMultipleComponent]
-public class vc_PipeFixMinigame : vc_FitQuestBase
+public class vc_PipeFixMinigame : vc_MinigameQuest
 {
     [Header("Pump art (same as vc_BrokenPumpQuest)")]
     [SerializeField] private SpriteRenderer pump;
@@ -27,6 +29,8 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
 
     [Header("Minigame")]
     [SerializeField] private int gridSize = 4;
+    private const float fillSeconds = 2.2f;   // seconds per pipe piece (Elementary = slow)
+    private const float headStart = 3f;       // extra seconds before the first piece fills
     private const int cellPx = 80;
 
     private const int N = 1, E = 2, S = 4, W = 8;
@@ -36,54 +40,32 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
     private static readonly Color Slot = new Color(0.30f, 0.25f, 0.27f);
     private static readonly Color Pipe = new Color(0.62f, 0.60f, 0.66f);
     private static readonly Color Water = new Color(0.30f, 0.58f, 0.95f);
-    private static readonly Color Gold = new Color(1f, 0.80f, 0.26f);
 
     private class Cell
     {
         public int Base, Rot, SolutionMask;
-        public bool OnPath, Locked;
+        public bool OnPath, Locked, Wet;
+        public float Fill;
         public VisualElement El;
         public VisualElement[] Arms = new VisualElement[4];
         public VisualElement Hub;
         public int Mask => RotateMask(Base, Rot);
     }
 
-    private vc_MinigameOverlay _ui;
     private Cell[,] _cells;
     private readonly List<Vector2Int> _path = new List<Vector2Int>();
-    private bool _testing, _safetyNet, _done;
-    private vc_SkillHelpers.Bar _bar;
-    private readonly List<string> _helpersUsed = new List<string>();
+    private bool _flowing, _done;
+    private int _plugs;
+    private float _pauseUntil;
+    private Label _leak;
     private float _dripClock;
 
+    protected override string Code => "R6";
+    protected override string QuestName => "Broken Pump";
+    protected override string Intro => "Aling Rosa's pipes are leaking and the water is on! Turn the pipes before the water gets there.";
+    protected override string CardTitle => "Race the water to the faucet";
+
     protected override Vector3 BarWorldPosition => (pump != null ? pump.transform.position : transform.position) + new Vector3(-0.5f, 1.4f, 0f);
-
-    private void Awake()
-    {
-        _ui = GetComponent<vc_MinigameOverlay>();
-        if (_ui == null) _ui = gameObject.AddComponent<vc_MinigameOverlay>();
-    }
-
-    protected override void OnBegin()
-    {
-        if (pump != null && pumpBroken != null) pump.sprite = pumpBroken;
-        _helpersUsed.Clear();
-        _safetyNet = false;
-        _done = false;
-        if (vc_QuestTimer.Instance != null)
-        {
-            vc_QuestTimer.Instance.ExternalHold = true;
-            vc_QuestTimer.Instance.SetStarsVisible(false);
-        }
-        vc_QuestHUD.Instance?.ShowQuestInfo("Quest", "Broken Pump",
-            "Aling Rosa's pump is leaking. Turn the pipes so the water reaches her tap.",
-            new[] { "Connect the pipes" });
-        StartWork(Flow());
-    }
-
-    protected override void OnSkill(vc_SkillData d) => Toast("Use your skills in the pipe panel.", 2f);
-
-    protected override void OnWorkCancelled() => _ui?.Close();
 
     private void Update()
     {
@@ -97,86 +79,109 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
         }
     }
 
-    // â”€â”€ Flow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-    private IEnumerator Flow()
+    protected override IEnumerator Play()
     {
-        yield return new WaitForSeconds(0.5f);
+        if (pump != null && pumpBroken != null) pump.sprite = pumpBroken;
+        _done = false; _plugs = 0; _pauseUntil = 0f; _flowing = false;
         Generate();
 
-        _ui.Open("Fix Aling Rosa's pipes");
-        _ui.SetMessage("Tap a pipe to turn it. Connect the pump to the tap.", vc_MinigameOverlay.Ink);
-
-        // grid on the left, test button + skills on the right (fits a landscape phone)
+        UI.SetMessage("Tap a pipe to turn it. Get the path ready before the water arrives!", vc_MinigameOverlay.Ink);
         var row = new VisualElement();
         row.style.flexDirection = FlexDirection.Row;
         row.style.alignItems = Align.FlexStart;
-        _ui.Content.Add(row);
+        UI.Content.Add(row);
         var left = new VisualElement();
         var side = new VisualElement();
-        side.style.width = 340;
-        side.style.marginLeft = 16;
-        side.style.alignItems = Align.Center;
-        row.Add(left);
-        row.Add(side);
+        side.style.width = 340; side.style.marginLeft = 16; side.style.alignItems = Align.Center;
+        row.Add(left); row.Add(side);
         BuildGrid(left);
+        BuildHelpers(side);
+        HelperBar?.Refresh();
 
-        bool test = false;
-        Button go = vc_MinigameOverlay.MakeButton("Turn on water", 28, () => { if (!_testing) test = true; });
-        side.Add(go);
+        // 3-2-1 (pipes can already be turned)
+        _flowing = true;
+        HelperBar?.Refresh();
+        for (int c = 3; c >= 1; c--) { UI.SetStatus($"Water starts in {c}..."); yield return new WaitForSeconds(1f); }
+        UI.SetStatus("The water is on!");
+        SunodGame.Core.vc_Sfx.Play("splash", 0.5f);
 
-        _bar = vc_SkillHelpers.BuildBar(side, CanUse, UseHelper);
-        UpdateStatus();
-
-        float score;
+        // flow: enter (0,0) from the valve side (W)
+        Vector2Int at = Vector2Int.zero;
+        int from = W;
+        bool reachedTap = false;
+        var visited = new HashSet<Vector2Int>();
+        float wait = headStart;
         while (true)
         {
-            test = false;
-            while (!test) yield return null;
+            while (wait > 0f) { if (Time.time >= _pauseUntil) wait -= Time.deltaTime; yield return null; }
 
-            _testing = true;
-            go.SetEnabled(false);
-            _bar.Refresh();
-            yield return RunWater(true);
-            score = Score(out bool reachedTap);
-
-            if (!reachedTap && _safetyNet)
+            // can the water get into this cell?
+            Cell cell = InGrid(at) ? _cells[at.x, at.y] : null;
+            bool ok = cell != null && !visited.Contains(at) && (cell.Mask & from) != 0;
+            if (!ok)
             {
-                _safetyNet = false;
-                _ui.SetMessage("Second chance! Fix the pipes and try again.", vc_MinigameOverlay.Good);
-                yield return new WaitForSeconds(1.4f);
-                ClearWater();
-                _testing = false;
-                go.SetEnabled(true);
-                _bar.Refresh();
-                continue;
+                if (_plugs > 0)
+                {
+                    _plugs--;
+                    ShowLeak(at, from, true);
+                    UI.SetMessage("Second chance! The leak is plugged for 4 seconds. Turn that pipe!", vc_MinigameOverlay.Good);
+                    float hold = 4f;
+                    while (hold > 0f) { if (Time.time >= _pauseUntil) hold -= Time.deltaTime; yield return null; }
+                    HideLeak();
+                    continue; // try again with whatever the player turned
+                }
+                ShowLeak(at, from, false);
+                SunodGame.Core.vc_Sfx.Play("splash", 0.7f);
+                break;
             }
-            _ui.SetMessage(reachedTap ? "The water reaches the tap!" :
-                $"The water stops partway ({Mathf.RoundToInt(score)}% of the way).",
-                reachedTap ? vc_MinigameOverlay.Good : vc_MinigameOverlay.Bad);
-            yield return new WaitForSeconds(1.6f);
-            break;
+
+            // fill this piece
+            cell.Wet = true;
+            visited.Add(at);
+            float t = 0f;
+            while (t < fillSeconds)
+            {
+                if (Time.time >= _pauseUntil) t += Time.deltaTime;
+                cell.Fill = Mathf.Clamp01(t / fillSeconds);
+                Paint(cell);
+                yield return null;
+            }
+            cell.Fill = 1f;
+            HelperBar?.Refresh(); // e.g. Hint / Free step run out once the path ahead is right
+            Paint(cell);
+
+            int exit = ExitOf(cell.Mask, from, at, visited);
+            if (at == new Vector2Int(gridSize - 1, gridSize - 1) && exit == E) { reachedTap = true; break; }
+            if (exit == 0) { ShowLeak(at, Opposite(from), false); break; } // dead end: leaks out of this piece
+            at += Step(exit);
+            from = Opposite(exit);
+            wait = 0f;
         }
+        _flowing = false;
+        HelperBar?.Refresh();
 
-        int stars = score >= 90f ? 5 : score >= 70f ? 4 : score >= 50f ? 3 : score >= 30f ? 2 : 1;
-        vc_QuestTimer.Instance?.SetStarOverride(stars);
-        Debug.Log($"[Minigame] R6 pipes: {Mathf.RoundToInt(score)}% -> {stars} stars; helpers used: " +
-                  (_helpersUsed.Count > 0 ? string.Join(", ", _helpersUsed) : "none"));
+        int onPath = 0;
+        foreach (Vector2Int p in _path) if (_cells[p.x, p.y].Wet) onPath++;
+        Score = reachedTap ? 100f : 100f * onPath / Mathf.Max(1, _path.Count);
 
-        _ui.Close();
+        UI.SetMessage(reachedTap ? "The water reaches the faucet!" : $"Leak! The water got {Mathf.RoundToInt(Score)}% of the way.",
+                      reachedTap ? vc_MinigameOverlay.Good : vc_MinigameOverlay.Bad);
+        yield return new WaitForSeconds(1.8f);
+
         _done = true;
-        if (score >= 70f && pump != null && pumpFixed != null)
+        if (Score >= 70f && pump != null && pumpFixed != null)
         {
             pump.sprite = pumpFixed;
             SunodGame.Core.vc_Sfx.Play("step_done", 0.7f);
         }
-        yield return new WaitForSeconds(0.6f);
-        Finish(score >= 90f ? "No more drip-drip-drip! The water flows to the tap."
-             : score >= 50f ? "Most of the water gets through. Much better!"
-             : "Only a little water gets through, but it's a start.");
     }
 
-    // â”€â”€ Puzzle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    protected override string FinishLine(float score) =>
+        score >= 90f ? "No more drip-drip-drip! The water flows to the faucet." :
+        score >= 50f ? "Most of the water gets through. Aling Rosa's faucet drips less." :
+        "Only a little water gets through, but it's a start.";
+
+    // ── Puzzle ───────────────────────────────────────────────────────────
 
     private static int RotateMask(int m, int times)
     {
@@ -186,7 +191,24 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
 
     private static int Opposite(int d) => d == N ? S : d == S ? N : d == E ? W : E;
     private static Vector2Int Step(int d) => d == N ? new Vector2Int(0, -1) : d == S ? new Vector2Int(0, 1) : d == E ? new Vector2Int(1, 0) : new Vector2Int(-1, 0);
-    private bool In(Vector2Int p) => p.x >= 0 && p.y >= 0 && p.x < gridSize && p.y < gridSize;
+    private bool InGrid(Vector2Int p) => p.x >= 0 && p.y >= 0 && p.x < gridSize && p.y < gridSize;
+
+    /// <summary>Where the water leaves a piece it entered from 'from'. For a T piece it prefers
+    /// an exit that leads somewhere connected; 0 = nowhere to go.</summary>
+    private int ExitOf(int mask, int from, Vector2Int at, HashSet<Vector2Int> visited)
+    {
+        if (at == new Vector2Int(gridSize - 1, gridSize - 1) && from != E && (mask & E) != 0) return E; // the faucet
+        int best = 0;
+        foreach (int d in Dirs)
+        {
+            if (d == from || (mask & d) == 0) continue;
+            Vector2Int nb = at + Step(d);
+            bool connects = InGrid(nb) && !visited.Contains(nb) && (_cells[nb.x, nb.y].Mask & Opposite(d)) != 0;
+            if (connects) return d;
+            if (best == 0) best = d;
+        }
+        return best;
+    }
 
     private void Generate()
     {
@@ -194,20 +216,19 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
         _cells = new Cell[n, n];
         _path.Clear();
 
-        // random self-avoiding path from top-left to bottom-right (DFS with random order)
         var visited = new bool[n, n];
         var goal = new Vector2Int(n - 1, n - 1);
         bool Dfs(Vector2Int p)
         {
             visited[p.x, p.y] = true;
             _path.Add(p);
-            if (p == goal) return _path.Count >= n * 2 - 1;   // at least a reasonable length
+            if (p == goal) return _path.Count >= n * 2 - 1;
             var order = new List<int>(Dirs);
-            for (int i = order.Count - 1; i > 0; i--) { int j = Random.Range(0, i + 1); (order[i], order[j]) = (order[j], order[i]); }
+            Shuffle(order);
             foreach (int d in order)
             {
                 Vector2Int q = p + Step(d);
-                if (In(q) && !visited[q.x, q.y] && Dfs(q)) return true;
+                if (InGrid(q) && !visited[q.x, q.y] && Dfs(q)) return true;
             }
             visited[p.x, p.y] = false;
             _path.RemoveAt(_path.Count - 1);
@@ -222,7 +243,6 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
                 _cells[x, y] = new Cell { Base = b, Rot = Random.Range(0, 4) };
             }
 
-        // path cells: the shape that links previous -> next
         int wrong = 0;
         for (int i = 0; i < _path.Count; i++)
         {
@@ -237,7 +257,6 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
             c.Rot = Random.Range(0, 4);
             if (c.Mask != need) wrong++;
         }
-        // make sure most of the path starts out wrong
         for (int i = 0; i < _path.Count && wrong < Mathf.CeilToInt(_path.Count * 0.6f); i++)
         {
             Cell c = _cells[_path[i].x, _path[i].y];
@@ -251,45 +270,9 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
         return d.y < 0 ? N : d.y > 0 ? S : d.x > 0 ? E : W;
     }
 
-    /// <summary>Cells the water reaches, in order (breadth first from the pump).</summary>
-    private List<Vector2Int> Flood(out bool reachedTap)
-    {
-        var order = new List<Vector2Int>();
-        reachedTap = false;
-        if ((_cells[0, 0].Mask & W) == 0) return order;
-        var seen = new bool[gridSize, gridSize];
-        var q = new Queue<Vector2Int>();
-        q.Enqueue(Vector2Int.zero);
-        seen[0, 0] = true;
-        while (q.Count > 0)
-        {
-            Vector2Int p = q.Dequeue();
-            order.Add(p);
-            int m = _cells[p.x, p.y].Mask;
-            if (p == new Vector2Int(gridSize - 1, gridSize - 1) && (m & E) != 0) reachedTap = true;
-            foreach (int d in Dirs)
-            {
-                if ((m & d) == 0) continue;
-                Vector2Int nb = p + Step(d);
-                if (!In(nb) || seen[nb.x, nb.y]) continue;
-                if ((_cells[nb.x, nb.y].Mask & Opposite(d)) == 0) continue;
-                seen[nb.x, nb.y] = true;
-                q.Enqueue(nb);
-            }
-        }
-        return order;
-    }
+    // ── Grid UI ──────────────────────────────────────────────────────────
 
-    private float Score(out bool reachedTap)
-    {
-        List<Vector2Int> wet = Flood(out reachedTap);
-        if (reachedTap) return 100f;
-        int onPath = 0;
-        foreach (Vector2Int p in wet) if (_cells[p.x, p.y].OnPath) onPath++;
-        return 100f * onPath / Mathf.Max(1, _path.Count);
-    }
-
-    // â”€â”€ Grid UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    private VisualElement _gridEl;
 
     private void BuildGrid(VisualElement parent)
     {
@@ -300,14 +283,21 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
         wrap.style.flexShrink = 0;
         parent.Add(wrap);
 
-        var grid = new VisualElement();
-        grid.style.position = Position.Absolute;
-        grid.style.left = 60; grid.style.top = 0;
-        grid.style.width = n * c; grid.style.height = n * c;
-        wrap.Add(grid);
+        _gridEl = new VisualElement();
+        _gridEl.style.position = Position.Absolute;
+        _gridEl.style.left = 60; _gridEl.style.top = 0;
+        _gridEl.style.width = n * c; _gridEl.style.height = n * c;
+        wrap.Add(_gridEl);
 
-        AddEndMarker(wrap, "PUMP", 0, c / 2f - 18f);
-        AddEndMarker(wrap, "TAP", 60 + n * c + 4, (n - 1) * c + c / 2f - 18f);
+        AddEndMarker(wrap, "VALVE", 0, c / 2f - 18f);
+        AddEndMarker(wrap, "FAUCET", 60 + n * c + 4, (n - 1) * c + c / 2f - 18f);
+
+        _leak = vc_MinigameOverlay.MakeLabel("LEAK!", 16);
+        _leak.style.position = Position.Absolute;
+        _leak.style.width = 64; _leak.style.height = 26;
+        _leak.style.backgroundColor = vc_MinigameOverlay.Bad;
+        _leak.style.color = Color.white;
+        _leak.style.display = DisplayStyle.None;
 
         for (int x = 0; x < n; x++)
             for (int y = 0; y < n; y++)
@@ -318,25 +308,26 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
                 el.style.left = x * c + 2; el.style.top = y * c + 2;
                 el.style.width = c - 4; el.style.height = c - 4;
                 el.style.backgroundColor = Slot;
-                SetBorder(el, 0f, Gold);
+                Border(el, 0f, Gold);
                 int arm = c / 3;
                 cell.Hub = Block(el, (c - 4 - arm) / 2f, (c - 4 - arm) / 2f, arm, arm);
                 float half = (c - 4) / 2f;
-                cell.Arms[0] = Block(el, (c - 4 - arm) / 2f, 0, arm, half);            // N
-                cell.Arms[1] = Block(el, half, (c - 4 - arm) / 2f, half, arm);          // E
-                cell.Arms[2] = Block(el, (c - 4 - arm) / 2f, half, arm, half);          // S
-                cell.Arms[3] = Block(el, 0, (c - 4 - arm) / 2f, half, arm);             // W
+                cell.Arms[0] = Block(el, (c - 4 - arm) / 2f, 0, arm, half);
+                cell.Arms[1] = Block(el, half, (c - 4 - arm) / 2f, half, arm);
+                cell.Arms[2] = Block(el, (c - 4 - arm) / 2f, half, arm, half);
+                cell.Arms[3] = Block(el, 0, (c - 4 - arm) / 2f, half, arm);
                 Cell captured = cell;
                 el.RegisterCallback<PointerDownEvent>(_ => TapCell(captured));
-                grid.Add(el);
+                _gridEl.Add(el);
                 cell.El = el;
-                Paint(cell, false);
+                Paint(cell);
             }
+        _gridEl.Add(_leak);
     }
 
     private void AddEndMarker(VisualElement wrap, string text, float left, float top)
     {
-        var l = vc_MinigameOverlay.MakeLabel(text, 14);
+        var l = vc_MinigameOverlay.MakeLabel(text, 13);
         l.style.position = Position.Absolute;
         l.style.left = left; l.style.top = top;
         l.style.width = 56; l.style.height = 36;
@@ -354,124 +345,97 @@ public class vc_PipeFixMinigame : vc_FitQuestBase
         return b;
     }
 
-    private static void SetBorder(VisualElement el, float w, Color c)
-    {
-        el.style.borderLeftWidth = w; el.style.borderRightWidth = w; el.style.borderTopWidth = w; el.style.borderBottomWidth = w;
-        el.style.borderLeftColor = c; el.style.borderRightColor = c; el.style.borderTopColor = c; el.style.borderBottomColor = c;
-    }
-
-    private void Paint(Cell cell, bool wet)
+    private void Paint(Cell cell)
     {
         int m = cell.Mask;
-        Color col = wet ? Water : Pipe;
+        Color col = cell.Wet ? Color.Lerp(Pipe, Water, 0.35f + 0.65f * cell.Fill) : Pipe;
         cell.Hub.style.backgroundColor = col;
         for (int i = 0; i < 4; i++)
         {
-            bool open = (m & Dirs[i]) != 0;
-            cell.Arms[i].style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
+            cell.Arms[i].style.display = (m & Dirs[i]) != 0 ? DisplayStyle.Flex : DisplayStyle.None;
             cell.Arms[i].style.backgroundColor = col;
         }
-        if (cell.Locked) SetBorder(cell.El, 4f, vc_MinigameOverlay.Good);
+        if (cell.Locked) Border(cell.El, 4f, vc_MinigameOverlay.Good);
+        else if (cell.Wet) Border(cell.El, 3f, Water);
     }
 
     private void TapCell(Cell cell)
     {
-        if (_testing || cell.Locked) return;
+        if (_done || cell.Locked || cell.Wet) return;
         cell.Rot = (cell.Rot + 1) & 3;
         SunodGame.Core.vc_Sfx.Play("clack", 0.35f, 0.1f);
-        Paint(cell, false);
-        UpdateStatus();
+        Paint(cell);
     }
 
-    private void UpdateStatus() => _ui.SetStatus(_safetyNet ? "One water test + a second chance" : "One water test");
-
-    private void ClearWater()
+    private void ShowLeak(Vector2Int at, int from, bool plugged)
     {
-        foreach (Cell c in _cells) Paint(c, false);
+        // the leak sits on the edge the water was trying to cross
+        Vector2Int src = at + Step(from);
+        Vector2 a = new Vector2(src.x + 0.5f, src.y + 0.5f), b = new Vector2(at.x + 0.5f, at.y + 0.5f);
+        Vector2 mid = (a + b) * 0.5f * cellPx;
+        _leak.text = plugged ? "PLUGGED" : "LEAK!";
+        _leak.style.backgroundColor = plugged ? new Color(0.85f, 0.60f, 0.15f) : vc_MinigameOverlay.Bad;
+        _leak.style.left = Mathf.Clamp(mid.x - 32f, -50f, gridSize * cellPx - 14f);
+        _leak.style.top = Mathf.Clamp(mid.y - 13f, 0f, gridSize * cellPx - 26f);
+        _leak.style.display = DisplayStyle.Flex;
+        _leak.BringToFront();
     }
 
-    private IEnumerator RunWater(bool forReal)
-    {
-        ClearWater();
-        List<Vector2Int> wet = Flood(out _);
-        if (forReal) SunodGame.Core.vc_Sfx.Play("splash", 0.6f);
-        foreach (Vector2Int p in wet)
-        {
-            Paint(_cells[p.x, p.y], true);
-            yield return new WaitForSeconds(0.12f);
-        }
-    }
+    private void HideLeak() => _leak.style.display = DisplayStyle.None;
 
-    // â”€â”€ Skill helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Skill helpers ────────────────────────────────────────────────────
 
-    private Cell FirstWrongPathCell()
+    private Cell FirstWrongDryPathCell()
     {
         foreach (Vector2Int p in _path)
         {
             Cell c = _cells[p.x, p.y];
-            if (!c.Locked && c.Mask != c.SolutionMask) return c;
+            if (!c.Locked && !c.Wet && c.Mask != c.SolutionMask) return c;
         }
         return null;
     }
 
-    private bool CanUse(vc_SkillHelpers.Effect e)
+    protected override bool CanUseHelper(vc_SkillHelpers.Effect e)
     {
-        if (_testing) return false;
+        if (!_flowing) return false;
         switch (e)
         {
             case vc_SkillHelpers.Effect.Hint:
-            case vc_SkillHelpers.Effect.FreeStep: return FirstWrongPathCell() != null;
-            case vc_SkillHelpers.Effect.SecondChance: return !_safetyNet;
+            case vc_SkillHelpers.Effect.FreeStep: return FirstWrongDryPathCell() != null;
+            case vc_SkillHelpers.Effect.Breather: return Time.time >= _pauseUntil;
             default: return true;
         }
     }
 
-    private void UseHelper(vc_SkillHelpers.Effect e, vc_SkillData s)
+    protected override void UseHelper(vc_SkillHelpers.Effect e, vc_SkillData s)
     {
-        _helpersUsed.Add($"{s.skillName} ({vc_SkillHelpers.EffectName(e)})");
         switch (e)
         {
             case vc_SkillHelpers.Effect.Hint:
             {
-                Cell c = FirstWrongPathCell();
-                if (c == null) break;
-                SetBorder(c.El, 5f, Gold);
-                c.El.schedule.Execute(() => { if (!c.Locked) SetBorder(c.El, 0f, Gold); }).StartingIn(3500);
-                _ui.SetMessage($"{s.DisplayName}: the glowing pipe is turned wrong.", vc_MinigameOverlay.Good);
+                Cell c = FirstWrongDryPathCell();
+                Border(c.El, 5f, Gold);
+                c.El.schedule.Execute(() => { if (!c.Locked && !c.Wet) Border(c.El, 0f, Gold); }).StartingIn(3500);
+                UI.SetMessage($"{s.DisplayName}: the glowing pipe ahead is turned wrong.", vc_MinigameOverlay.Good);
                 break;
             }
             case vc_SkillHelpers.Effect.FreeStep:
             {
-                Cell c = FirstWrongPathCell();
-                if (c == null) break;
+                Cell c = FirstWrongDryPathCell();
                 for (int r = 0; r < 4; r++) { c.Rot = r; if (c.Mask == c.SolutionMask) break; }
                 c.Locked = true;
-                Paint(c, false);
-                _ui.SetMessage($"{s.DisplayName}: one pipe set in place for you.", vc_MinigameOverlay.Good);
+                Paint(c);
+                UI.SetMessage($"{s.DisplayName}: one pipe set in place for you.", vc_MinigameOverlay.Good);
                 break;
             }
             case vc_SkillHelpers.Effect.SecondChance:
-                _safetyNet = true;
-                _ui.SetMessage($"{s.DisplayName}: if the water test isn't perfect, you get one more go.", vc_MinigameOverlay.Good);
+                _plugs++;
+                UI.SetMessage($"{s.DisplayName}: if the water leaks, it gets plugged so you can fix it.", vc_MinigameOverlay.Good);
                 break;
             case vc_SkillHelpers.Effect.Breather:
-                StartCoroutine(Preview(s));
+                _pauseUntil = Time.time + 5f;
+                UI.SetMessage($"{s.DisplayName}: the water holds still for 5 seconds.", vc_MinigameOverlay.Good);
                 break;
         }
-        UpdateStatus();
-    }
-
-    private IEnumerator Preview(vc_SkillData s)
-    {
-        _testing = true;
-        _bar?.Refresh();
-        yield return RunWater(false);
-        float sc = Score(out bool tap);
-        _ui.SetMessage($"{s.DisplayName}: the water would get {(tap ? "all the way!" : $"{Mathf.RoundToInt(sc)}% of the way.")}",
-            vc_MinigameOverlay.Good);
-        yield return new WaitForSeconds(1.2f);
-        ClearWater();
-        _testing = false;
-        _bar?.Refresh();
     }
 }

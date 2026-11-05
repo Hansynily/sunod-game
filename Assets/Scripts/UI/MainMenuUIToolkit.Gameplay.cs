@@ -4,8 +4,8 @@ using SunodGame.Core;
 namespace SunodGame.UI
 {
     /// <summary>
-    /// Settings row "Gameplay: Old / New" (vc_GameplayMode). Shown to admin accounts only;
-    /// everyone else plays Old and never sees it.
+    /// Settings row "Gameplay: Old / New" (vc_GameplayMode). Shown to admin accounts and
+    /// no-account ("Adventurer") sessions; signed-in players play Old and never see it.
     /// </summary>
     public partial class MainMenuUIToolkit
     {
@@ -32,8 +32,7 @@ namespace SunodGame.UI
 
         private void RefreshGameplayChoice()
         {
-            bool admin = vc_GameplayMode.CanChoose;
-            _gameplayRow?.SetDisplay(admin);
+            _gameplayRow?.SetDisplay(vc_GameplayMode.CanChoose);
             bool isNew = vc_GameplayMode.Current == vc_GameplayMode.New;
             _btnGameplayOld?.EnableInClassList("settings-choice-btn--on", !isNew);
             _btnGameplayNew?.EnableInClassList("settings-choice-btn--on", isNew);
