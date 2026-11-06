@@ -627,7 +627,10 @@ public class vc_RunProgressUI : MonoBehaviour
                 SunodGame.Core.vc_Sfx.Play("click", 0.6f);
                 _journalAction?.Invoke();
             });
-            _journalBtn.Add(MakeIcon(HudIcon.Glyph.Book, "journal"));
+            var jl = new Label("Journal") { pickingMode = PickingMode.Ignore };
+            jl.AddToClassList("sn-btn__label");
+            jl.AddToClassList("rp-label--solo");
+            _journalBtn.Add(jl);
             _journalBadge = new Label("") { pickingMode = PickingMode.Ignore };
             _journalBadge.AddToClassList("sn-badge");
             _journalBadge.AddToClassList("sn-badge--gold");
@@ -1378,7 +1381,7 @@ public class vc_RunProgressUI : MonoBehaviour
         var btn = new Button();
         btn.AddToClassList("sn-btn");
         if (!string.IsNullOrEmpty(variant)) btn.AddToClassList("sn-btn--" + variant);
-        VisualElement icon = glyph != HudIcon.Glyph.None ? MakeIcon(glyph, iconKey) : null;
+        VisualElement icon = null;   // Han: no icons on labelled buttons
         var label = new Label(text) { pickingMode = PickingMode.Ignore };
         label.AddToClassList("sn-btn__label");
         if (icon == null) label.AddToClassList("rp-label--solo");

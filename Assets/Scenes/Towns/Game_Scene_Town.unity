@@ -5705,7 +5705,7 @@ MonoBehaviour:
   knob: {fileID: 424053440}
   radius: 16
   deadZone: 0.12
-  idleAlpha: 0.55
+  idleAlpha: 0.9
 --- !u!114 &830114790
 MonoBehaviour:
   m_ObjectHideFlags: 0

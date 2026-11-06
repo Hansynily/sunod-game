@@ -203,7 +203,7 @@ Button, .sn-semibold {
     width: 96px; height: 96px;
     min-width: 96px; min-height: 96px;
     padding: 0;
-    border-radius: 999px;
+    border-radius: 48px;
 }
 .sn-btn--icon-sm {
     width: 72px; height: 72px;
@@ -218,6 +218,7 @@ Button, .sn-semibold {
     flex-shrink: 0;
 }
 .sn-btn__label { margin-left: 10px; }
+.sn-btn .sn-btn__label { flex-grow: 1; -unity-text-align: middle-center; }
 
 /* attention: a soft gold ring that breathes (class toggled by vc_UIAnim.Pulse or code) */
 .sn-attn {
@@ -347,6 +348,27 @@ TextField, .unity-text-field { min-height: 84px; font-size: 28px; margin: 6px 0 
 }
 .unity-base-slider__dragger-border { display: none; }
 .unity-slider__dragger { min-width: 44px; min-height: 44px; }
+
+
+/* match the default theme's specificity so these win (horizontal sliders) */
+.unity-base-slider--horizontal .unity-base-slider__tracker {
+    height: 16px;
+    margin-top: -8px;
+    background-color: var(--sn-cream-lo);
+    border-color: var(--sn-brown);
+    border-width: 3px;
+    border-radius: 8px;
+}
+.unity-base-slider--horizontal .unity-base-slider__dragger {
+    width: 44px; height: 44px;
+    margin-top: -22px;
+    background-color: var(--sn-green);
+    border-color: var(--sn-green-dark);
+    border-width: 3px;
+    border-bottom-width: 5px;
+    border-radius: 22px;
+}
+.unity-base-slider--horizontal .unity-base-slider__dragger-border { display: none; }
 
 .unity-scroller--vertical { width: 14px; }
 .unity-scroller .unity-base-slider__tracker { background-color: rgba(0, 0, 0, 0); border-width: 0; }

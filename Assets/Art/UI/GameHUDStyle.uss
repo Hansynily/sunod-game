@@ -11,8 +11,8 @@
 /* panel is 720 units tall (1280x720, match height): draw the 480 radial at 0.62 */
 .skill-radial-wrap {
     position: absolute;
-    right: 0;
-    bottom: 0;
+    right: 8px;
+    bottom: 14px;
     width: 480px;
     height: 480px;
     transform-origin: right bottom;
@@ -137,8 +137,8 @@
 }
 .radial-name {
     margin-top: 2px;
-    width: 116px;
-    font-size: 20px;
+    width: 118px;
+    font-size: 22px;
     -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
     color: var(--sn-ink);
     -unity-text-align: upper-center;
@@ -215,15 +215,15 @@
 /* ---------- bag (inventory) ---------- */
 .inventory-preview-btn {
     position: absolute;
-    right: 306px;
-    bottom: 20px;
+    right: 318px;
+    bottom: 26px;
     width: 84px;
     height: 84px;
     min-width: 84px;
     min-height: 84px;
     margin: 0;
     padding: 0;
-    border-radius: 42px;
+    border-radius: 999px;
     background-color: var(--sn-cream);
     background-image: none;
     border-color: var(--sn-brown);

@@ -679,18 +679,22 @@ public class vc_LoopMoments : MonoBehaviour
         string letter = (skill.riaSecLetter ?? "?").Trim().ToUpperInvariant();
         var card = new VisualElement();
         card.AddToClassList("sn-card");
+        width = Mathf.Max(width, 156f);   // room for "Investigative" on one line
         card.style.width = width;
         card.style.alignItems = Align.Center;
         card.style.paddingLeft = 0; card.style.paddingRight = 0; card.style.paddingTop = 0;
         card.style.paddingBottom = 12;
         card.style.overflow = Overflow.Visible;
 
-        var strip = Text($"{letter}  {vc_SkillManager.CategoryNameForSlot(vc_SkillManager.SlotIndexForLetter(letter))}", "caption", vc_UITheme.CreamHi);
+        var strip = Text(vc_SkillManager.CategoryNameForSlot(vc_SkillManager.SlotIndexForLetter(letter)), "caption", vc_UITheme.CreamHi);
         strip.AddToClassList("sn-bold");
-        strip.style.fontSize = 18;
+        strip.style.fontSize = 16;
+        strip.style.whiteSpace = WhiteSpace.NoWrap;
+        strip.style.unityTextAlign = TextAnchor.MiddleCenter;
+        strip.style.paddingTop = 16;
         strip.style.alignSelf = Align.Stretch;
         strip.style.backgroundColor = KindColor(letter);
-        strip.style.paddingTop = 4; strip.style.paddingBottom = 4;
+        strip.style.paddingBottom = 4;
         strip.style.borderTopLeftRadius = 13; strip.style.borderTopRightRadius = 13;
         card.Add(strip);
 

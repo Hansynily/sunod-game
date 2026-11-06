@@ -306,17 +306,23 @@
     flex-shrink: 1;
     flex-basis: 0;
     min-width: 0;
-    margin-right: 8px;
+    margin-right: 6px;
 }
 .root-container .dp-year {
-    flex-grow: 1.5;
+    flex-grow: 1.25;
     margin-right: 0;
 }
 .root-container .dp-segment > .unity-base-popup-field__input {
-    padding: 0 10px 0 14px;
+    padding: 0 4px 0 10px;
     min-width: 0;
 }
+.root-container .dp-segment .unity-base-popup-field__arrow {
+    width: 14px;
+    margin-left: 2px;
+    flex-shrink: 0;
+}
 .root-container .dp-segment .unity-base-popup-field__text {
+    font-size: 24px;
     flex-shrink: 1;
     min-width: 0;
     overflow: hidden;

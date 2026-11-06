@@ -145,7 +145,22 @@ namespace SunodGame.UI
             bool inQuest = vc_TownStage.Current != null && vc_TownStage.Current.InQuest;
             if (_wasInQuest && !inQuest) _radial.Close();
             _wasInQuest = inQuest;
+
+            // a town overlay (day summary, board, banner...) is up: fold the radial and fade the HUD out of the way
+            bool overlay = (vc_RunProgressUI.Instance != null && vc_RunProgressUI.Instance.IsShowingOverlay)
+                        || (vc_QuestBoard.Current != null && vc_QuestBoard.Current.IsOpen);
+            if (overlay != _overlayUp)
+            {
+                _overlayUp = overlay;
+                if (overlay) _radial.Close();
+                VisualElement wrap = _radial.parent;
+                vc_UIAnim.Tween(wrap, 0.2f, vc_UIAnim.OutCubic, e => wrap.style.opacity = overlay ? 1f - e : e, null, 0f, false);
+                wrap.pickingMode = PickingMode.Ignore;
+                _radial.Hub.pickingMode = overlay ? PickingMode.Ignore : PickingMode.Position;
+                if (_inventoryBtn != null) _inventoryBtn.SetEnabled(!overlay);
+            }
         }
+        private bool _overlayUp;
 
         private void RefreshAllSlots()
         {

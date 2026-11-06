@@ -41,7 +41,7 @@
     padding: 0;
 }
 .sn-btn .sn-btn__label { margin-left: 10px; }
-.sn-btn .rp-label--solo { margin-left: 0; }
+.sn-btn .rp-label--solo { margin-left: 0; flex-grow: 1; -unity-text-align: middle-center; }
 .sn-btn .rp-label--before { margin-left: 0; margin-right: 10px; }
 .sn-btn--night .sn-btn__label,
 .sn-btn--primary .sn-btn__label,
@@ -141,12 +141,9 @@
     margin: 0 16px 0 0;
 }
 .sn-btn.rp-journal-btn {
-    width: 84px;
-    height: 84px;
-    min-width: 84px;
     min-height: 84px;
     margin: 0;
-    padding: 0;
+    padding: 6px 24px 6px 24px;
     border-radius: 999px;
 }
 .rp-journal-badge {

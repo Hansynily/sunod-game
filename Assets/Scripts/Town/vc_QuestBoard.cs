@@ -191,6 +191,7 @@ public class vc_QuestBoard : MonoBehaviour
             Refresh();
         });
         act.AddToClassList("qb-act");
+        if (journalCard || !accepted) act.AddToClassList("sn-btn--primary");   // the card's one action
         act.SetEnabled(journalCard || !accepted);
         card.Add(act);
         return card;
