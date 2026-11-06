@@ -26,6 +26,8 @@ public abstract class vc_MinigameQuest : vc_FitQuestBase
     protected abstract void UseHelper(vc_SkillHelpers.Effect e, vc_SkillData s);
 
     protected override Vector3 BarWorldPosition => transform.position + new Vector3(-0.5f, 1.4f, 0f);
+    // minigames score themselves: no press limit or skill XP
+    protected override bool UsesSkillSystem => false;
 
     protected virtual void Awake()
     {

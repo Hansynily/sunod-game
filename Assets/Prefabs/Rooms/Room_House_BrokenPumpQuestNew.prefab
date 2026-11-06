@@ -3025,6 +3025,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04da47a5f3c5fa4498c7258b05f04e9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_BrokenPumpQuest
+  mainMarker: {fileID: 5199411950533214622}
+  helperWalk: []
+  sortingLayer: Default
   pump: {fileID: 477196250953462102}
   pumpBroken: {fileID: 21300000, guid: 866cfc220c6d5a741965f31043b02312, type: 3}
   pumpFixed: {fileID: 21300000, guid: 23906847486038d45beffb80c63bbc08, type: 3}
@@ -3038,9 +3041,28 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f2814f1002d0500409e8371a5723e3b0, type: 3}
   - {fileID: 21300000, guid: 22e2bada653bca041aeea557a9cd1025, type: 3}
   plumberPpuScale: 1
+  magnifier: {fileID: 21300000, guid: 9cb97e6bab749f943987a799100f768f, type: 3}
+  ringFrames:
+  - {fileID: 21300000, guid: fa75fb0c901e31042a8664fb993724f1, type: 3}
+  - {fileID: 21300000, guid: 4c87ee705507981409409da95e9b63f5, type: 3}
+  splashFrames:
+  - {fileID: 21300000, guid: 82763091c9c6a714f9b3c0c2fe9659a5, type: 3}
+  - {fileID: 21300000, guid: f66e94882cbeb324ba1be3aed32159ce, type: 3}
+  - {fileID: 21300000, guid: 0e67ab3dfcb8c7d4581d6a1c216ed05a, type: 3}
+  sparkFrames:
+  - {fileID: 21300000, guid: db8dd4419e1b8c6458d5b545640b1675, type: 3}
+  - {fileID: 21300000, guid: 3aff92dd9ea04044d9f42a535d4f1536, type: 3}
+  - {fileID: 21300000, guid: 51540016ff16bd64ca410a6c28585c78, type: 3}
+  hammerFrames:
+  - {fileID: 21300000, guid: 76c9e7fbb6f302a428d8c60c4f908a13, type: 3}
+  - {fileID: 21300000, guid: 4468ee0f495cd5341967a04f3f9216b9, type: 3}
+  dustFrames:
+  - {fileID: 21300000, guid: bcb883b91d5bf06408da92ac7a590511, type: 3}
+  - {fileID: 21300000, guid: dcceee5e38714a142bd3038598744bd1, type: 3}
+  - {fileID: 21300000, guid: 55c61a2805544ce468fe388b61801a44, type: 3}
+  exclaim: {fileID: 21300000, guid: 85385549cfb79b8499c48b91facae15b, type: 3}
   brokenPump: {fileID: 0}
   fixedPump: {fileID: 0}
-  mainMarker: {fileID: 5199411950533214622}
   animDuration: 0.5
   repairTime: 1
   pushPresses: 3
@@ -3068,7 +3090,6 @@ MonoBehaviour:
   pumpFixed: {fileID: 21300000, guid: 23906847486038d45beffb80c63bbc08, type: 3}
   waterDrop: {fileID: 21300000, guid: 8c55ade55885e574d899e11d7f110680, type: 3}
   gridSize: 4
-  cellPx: 92
 --- !u!1 &7577471157908210116
 GameObject:
   m_ObjectHideFlags: 0

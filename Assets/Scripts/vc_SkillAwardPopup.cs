@@ -147,7 +147,58 @@ public class vc_SkillAwardPopup : MonoBehaviour
             var desc = new Label(skill.description ?? string.Empty) { pickingMode = PickingMode.Ignore };
             desc.AddToClassList("award-desc");
             card.Add(desc);
+
+            DecorateCard(card, skill);
         }
+    }
+
+    // ── skill system v2: rare frame, duplicate (+XP) tag, level ────────────
+
+    private static readonly Color Gold = new Color32(255, 196, 40, 255);
+    private static readonly Color Violet = new Color32(120, 70, 200, 255);
+
+    private static void DecorateCard(Button card, vc_SkillData skill)
+    {
+        bool rare = vc_SkillLevels.IsRare(skill);
+        bool duplicate = vc_PlayerInventory.Instance != null && vc_PlayerInventory.Instance.HasSkill(skill);
+        int level = vc_SkillLevels.Level(skill);
+
+        // gold frame for rare cards (cleared otherwise: cards are reused every night)
+        StyleColor frame = rare ? new StyleColor(Gold) : new StyleColor(StyleKeyword.Null);
+        StyleFloat width = rare ? new StyleFloat(5f) : new StyleFloat(StyleKeyword.Null);
+        card.style.borderTopColor = frame; card.style.borderBottomColor = frame;
+        card.style.borderLeftColor = frame; card.style.borderRightColor = frame;
+        card.style.borderTopWidth = width; card.style.borderBottomWidth = width;
+        card.style.borderLeftWidth = width; card.style.borderRightWidth = width;
+
+        if (rare)
+        {
+            var ribbon = new Label("RARE") { pickingMode = PickingMode.Ignore };
+            ribbon.style.position = Position.Absolute;
+            ribbon.style.top = -10;
+            ribbon.style.right = -8;
+            ribbon.style.backgroundColor = Gold;
+            ribbon.style.color = (Color)new Color32(70, 40, 10, 255);
+            ribbon.style.unityFontStyleAndWeight = FontStyle.Bold;
+            ribbon.style.fontSize = 16;
+            ribbon.style.paddingLeft = 8; ribbon.style.paddingRight = 8;
+            ribbon.style.rotate = new Rotate(new Angle(8f, AngleUnit.Degree));
+            card.Add(ribbon);
+        }
+
+        // what taking it does: a new skill, or XP for one you have
+        string line = duplicate
+            ? (level >= vc_SkillLevels.MaxLevel ? $"You have it. Lv{level} (max)"
+                : $"You have it: +{vc_SkillLevels.XpDuplicate} XP  (Lv{level}, {vc_SkillLevels.XpToNext(skill)} to Lv{level + 1})")
+            : (level > 1 ? $"New - remembered at Lv{level}" : "New skill");
+        var tag = new Label(line) { pickingMode = PickingMode.Ignore };
+        tag.style.color = duplicate ? Violet : (Color)new Color32(90, 70, 50, 255);
+        tag.style.unityFontStyleAndWeight = FontStyle.Bold;
+        tag.style.fontSize = 15;
+        tag.style.whiteSpace = WhiteSpace.Normal;
+        tag.style.unityTextAlign = TextAnchor.MiddleCenter;
+        tag.style.marginTop = 4;
+        card.Add(tag);
     }
 
     private void OnCardSelected(int index)
@@ -170,7 +221,10 @@ public class vc_SkillAwardPopup : MonoBehaviour
 
         _confirm?.SetEnabled(_selectedSkill != null);
         if (_confirm != null)
-            _confirm.text = _selectedSkill != null ? $"Take {_selectedSkill.DisplayName}" : "Pick a skill";
+            _confirm.text = _selectedSkill == null ? "Pick a skill"
+                : vc_PlayerInventory.Instance != null && vc_PlayerInventory.Instance.HasSkill(_selectedSkill)
+                    ? $"Train {_selectedSkill.DisplayName}"
+                    : $"Take {_selectedSkill.DisplayName}";
     }
 
     private void OnConfirmClicked()

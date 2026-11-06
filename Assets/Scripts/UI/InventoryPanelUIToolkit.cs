@@ -186,7 +186,8 @@ namespace SunodGame.UI
             var textBlock = new VisualElement();
             textBlock.AddToClassList("row-textblock");
 
-            var nameLabel = new Label(skill.DisplayName);
+            int lv = vc_SkillLevels.Level(skill);
+            var nameLabel = new Label(lv > 1 ? $"{skill.DisplayName}  Lv{lv}" : skill.DisplayName);
             nameLabel.AddToClassList("row-name");
             textBlock.Add(nameLabel);
 
@@ -249,8 +250,15 @@ namespace SunodGame.UI
                 _detailTag.AddToClassList($"riasec-{letterLower}");
             }
 
-            if (_detailDesc != null)   _detailDesc.text   = string.IsNullOrEmpty(skill.description) ? "No description available." : skill.description;
+            if (_detailDesc != null)   _detailDesc.text   = (string.IsNullOrEmpty(skill.description) ? "No description available." : skill.description) + LevelLine(skill);
             if (_detailAction != null) _detailAction.text = string.IsNullOrEmpty(skill.DisplayName) ? "-" : skill.DisplayName;
+        }
+
+        /// <summary>Skill system v2: the skill's level and XP to the next one.</summary>
+        private static string LevelLine(vc_SkillData skill)
+        {
+            int lv = vc_SkillLevels.Level(skill), next = vc_SkillLevels.XpToNext(skill);
+            return lv >= vc_SkillLevels.MaxLevel ? $"\n\nLv{lv} (max)" : $"\n\nLv{lv} - {vc_SkillLevels.Xp(skill)} XP, {next} more to Lv{lv + 1}";
         }
 
         private void OnSlotClicked(int slotIndex)

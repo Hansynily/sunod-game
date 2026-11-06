@@ -127,6 +127,7 @@ namespace SunodGame.UI
             vc_SaveManager.DeleteSave();
             vc_QuestAvailabilityFilter.PendingCompletedQuestIds = null;
             vc_QuestAvailabilityFilter.PendingOwnedSkillNames = null;
+            vc_SkillLevels.PendingRestore = null;
             PlayerPrefs.DeleteKey(TelemetryManager.RunFinishPendingPrefKey);
 
             var payload = new LoopBeginPayload { kept_skills = kept };
@@ -147,14 +148,18 @@ namespace SunodGame.UI
         }
 
         /// <summary>Skills they can remember: anything they owned at the end of the last loop
-        /// (or already remembered), except the starting kit everyone gets anyway.</summary>
+        /// (or already remembered), except the starting kit everyone gets anyway - unless that
+        /// starting skill has XP, since remembering it is what keeps its level.</summary>
         private List<vc_SkillData> MemoryCandidates(LoopMetaResponse meta)
         {
             var starting = new HashSet<string>();
             if (gameSettings != null && gameSettings.startingSkills != null)
                 foreach (vc_SkillData s in gameSettings.startingSkills) if (s != null) starting.Add(s.skillName);
+            var leveled = new HashSet<string>();
+            foreach (SkillXpEntryDto e in (meta.last_skill_xp ?? new List<SkillXpEntryDto>()).Concat(meta.kept_skill_xp ?? new List<SkillXpEntryDto>()))
+                if (e != null && e.xp > 0 && !string.IsNullOrEmpty(e.skill)) leveled.Add(e.skill);
             return meta.last_owned_skills.Concat(meta.kept_skills).Distinct()
-                .Where(s => !starting.Contains(s))
+                .Where(s => !starting.Contains(s) || leveled.Contains(s))
                 .Select(FindSkill).Where(s => s != null)
                 .OrderBy(s => vc_SkillManager.SlotIndexForLetter(s.riaSecLetter))
                 .ToList();

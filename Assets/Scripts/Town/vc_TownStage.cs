@@ -526,6 +526,7 @@ public class vc_TownStage : MonoBehaviour
                 : vc_LoopMeta.MemoryOpener(npc.QuestId, npc.QuestId.GetHashCode() & 0x7fffffff);
             ask = opener + "\n\n" + ask;
         }
+        ask += RecommendedLine(npc.questCode);
 
         // Only Help / Later: every quest gets played (pass or fail), nobody is turned down.
         vc_DialogPanel.Instance.ShowChoice(
@@ -540,6 +541,21 @@ public class vc_TownStage : MonoBehaviour
                 _promptCooldownUntil = Time.time + 0.5f;
                 vc_QuestHUD.Instance?.ShowFeedbackTimed($"Tap {npc.npcName} when you're ready.", 2.5f);
             });
+    }
+
+    /// <summary>
+    /// Skill system v2: advice only, never required. "Recommended: Lv2 Realistic skill" plus
+    /// what the player's skill of that kind is at, so a lower level just reads as "slower".
+    /// </summary>
+    private static string RecommendedLine(string questCode)
+    {
+        if (string.IsNullOrEmpty(questCode)) return "";
+        string letter = questCode.Substring(0, 1).ToUpperInvariant();
+        int rec = vc_SkillLevels.RecommendedLevel(vc_SkillLevels.StageIndex, questCode);
+        int have = vc_SkillLevels.EquippedLevel(letter);
+        string kind = KindNames.TryGetValue(letter, out string k) ? k : letter;
+        string note = have >= rec ? "" : " - lower works, just slower";
+        return $"\n\nRecommended: Lv{rec} {kind} (yours: Lv{have}){note}";
     }
 
     private static readonly HashSet<string> MemoryOpenersShown = new HashSet<string>();
@@ -1002,7 +1018,11 @@ public class vc_TownStage : MonoBehaviour
         vc_QuestRoom.SaveProgressIds(new[] { DayMarker(_day) }, gameObject.scene.name);
     }
 
-    /// <summary>Before the dream: pick 1 of 3 random skills you don't own (free).</summary>
+    /// <summary>
+    /// Before the dream: pick 1 of 3 skills (free). Mostly skills you don't own; about 1 card in
+    /// 4 is a duplicate of one you own (+4 XP to it, Hades style), and about 1 night in 6 a rare
+    /// skill (Plan / Survey) shows up (SKILL_SYSTEM_DESIGN.md §5).
+    /// </summary>
     private void OfferSkillPick(System.Action then)
     {
         vc_SkillData[] picks = DrawSkillPicks(3);
@@ -1012,8 +1032,22 @@ public class vc_TownStage : MonoBehaviour
         {
             if (chosen != null)
             {
-                vc_PlayerInventory.Instance?.AddSkill(chosen);
-                vc_SkillManager.Instance?.OfferEquip(chosen);
+                bool duplicate = vc_PlayerInventory.Instance != null && vc_PlayerInventory.Instance.HasSkill(chosen);
+                if (duplicate)
+                {
+                    vc_SkillLevels.AddXp(chosen, vc_SkillLevels.XpDuplicate);
+                    vc_QuestHUD.Instance?.ShowFeedbackTimed($"{chosen.DisplayName} +{vc_SkillLevels.XpDuplicate} XP", 2.5f);
+                    // not in its button right now? offer the swap, else nothing to ask
+                    if (vc_SkillManager.Instance != null && vc_SkillManager.Instance.GetSkillInCategory(chosen.riaSecLetter) != chosen)
+                        vc_SkillManager.Instance.OfferEquip(chosen);
+                }
+                else
+                {
+                    vc_PlayerInventory.Instance?.AddSkill(chosen);
+                    vc_SkillManager.Instance?.OfferEquip(chosen);
+                }
+                // save the pick (new skill or XP) right away, so quitting tonight keeps it
+                vc_QuestRoom.SaveProgressIds(null, gameObject.scene.name);
             }
             StartCoroutine(AfterDialogClosed(then));
         });
@@ -1039,28 +1073,55 @@ public class vc_TownStage : MonoBehaviour
             if (npc.IsOpen && !string.IsNullOrEmpty(npc.questCode))
                 openLetters.Add(npc.questCode.Substring(0, 1).ToUpperInvariant());
 
+        bool Owned(vc_SkillData s) => vc_PlayerInventory.Instance != null && vc_PlayerInventory.Instance.HasSkill(s);
+
+        // new skills (rares only by their own roll below)
         var pool = new List<(vc_SkillData s, int w)>();
+        // duplicates of owned common skills that can still level
+        var dupes = new List<(vc_SkillData s, int w)>();
+        var rares = new List<vc_SkillData>();
+        var rareDupes = new List<vc_SkillData>();
         foreach (vc_SkillData s in all)
         {
             if (s == null) continue;
-            if (vc_PlayerInventory.Instance != null && vc_PlayerInventory.Instance.HasSkill(s)) continue;
+            bool owned = Owned(s);
+            if (vc_SkillLevels.IsRare(s))
+            {
+                if (!owned) rares.Add(s);
+                else if (vc_SkillLevels.Level(s) < vc_SkillLevels.MaxLevel) rareDupes.Add(s);
+                continue;
+            }
             bool wanted = !string.IsNullOrEmpty(s.riaSecLetter) && openLetters.Contains(s.riaSecLetter.ToUpperInvariant());
-            pool.Add((s, wanted ? 3 : 1));
+            if (!owned) pool.Add((s, wanted ? 3 : 1));
+            else if (vc_SkillLevels.Level(s) < vc_SkillLevels.MaxLevel) dupes.Add((s, wanted ? 3 : 1));
         }
 
         var picks = new List<vc_SkillData>();
-        while (picks.Count < count && pool.Count > 0)
+
+        // Rare: about 1 night in 6 (a rare you already own: about 1 night in 12).
+        if (rares.Count > 0 && Random.value < 1f / 6f) picks.Add(rares[Random.Range(0, rares.Count)]);
+        else if (rareDupes.Count > 0 && Random.value < 1f / 12f) picks.Add(rareDupes[Random.Range(0, rareDupes.Count)]);
+
+        while (picks.Count < count && (pool.Count > 0 || dupes.Count > 0))
         {
+            // about 1 card in 4 is a duplicate (always, once nothing new is left)
+            var from = dupes.Count > 0 && (pool.Count == 0 || Random.value < 0.25f) ? dupes : pool;
             int total = 0;
-            foreach (var p in pool) total += p.w;
+            foreach (var p in from) total += p.w;
             int roll = Random.Range(0, total), acc = 0;
-            for (int i = 0; i < pool.Count; i++)
+            for (int i = 0; i < from.Count; i++)
             {
-                acc += pool[i].w;
-                if (roll < acc) { picks.Add(pool[i].s); pool.RemoveAt(i); break; }
+                acc += from[i].w;
+                if (roll < acc) { picks.Add(from[i].s); from.RemoveAt(i); break; }
             }
         }
 
+        // shuffle so the rare card isn't always first
+        for (int i = picks.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (picks[i], picks[j]) = (picks[j], picks[i]);
+        }
         return picks.ToArray();
     }
 

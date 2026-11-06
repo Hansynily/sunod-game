@@ -69,6 +69,8 @@ public class vc_ParadeDrumMinigame : vc_FitQuestBase
     private readonly List<VisualElement> _dots = new List<VisualElement>();
 
     protected override Vector3 BarWorldPosition => (drum != null ? drum.transform.position : transform.position) + new Vector3(-0.5f, 1.4f, 0f);
+    // minigames score themselves: no press limit or skill XP
+    protected override bool UsesSkillSystem => false;
 
     private void Awake()
     {

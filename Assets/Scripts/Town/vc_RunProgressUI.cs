@@ -736,7 +736,7 @@ public class vc_RunProgressUI : MonoBehaviour
     // ── quest done: banner + "Back to town" button (non-blocking) ─────────
 
     private VisualElement _doneToast;
-    private Label _doneTitle, _doneNote;
+    private Label _doneTitle, _doneNote, _doneXp;
     private readonly List<VisualElement> _doneStars = new List<VisualElement>();
     private Button _backBtn;
     private Action _doneContinue;
@@ -770,6 +770,13 @@ public class vc_RunProgressUI : MonoBehaviour
         _doneNote.AddToClassList("rp-done-note");
         _doneToast.Add(_doneNote);
 
+        // skill XP earned by this quest (vc_FitQuestBase.LastXpReport)
+        _doneXp = new Label { pickingMode = PickingMode.Ignore };
+        _doneXp.AddToClassList("rp-done-note");
+        _doneXp.style.color = (Color)new Color32(120, 70, 200, 255);
+        _doneXp.style.unityFontStyleAndWeight = FontStyle.Bold;
+        _doneToast.Add(_doneXp);
+
         // Lives with the side controls, above Sleep.
         _backBtn = MakeSideButton("Back to town", "rp-side-btn", () =>
         {
@@ -795,6 +802,9 @@ public class vc_RunProgressUI : MonoBehaviour
         _doneTitle.text = string.IsNullOrEmpty(questName) ? "Quest complete!" : $"{questName} - done!";
         string praise = stars >= 5 ? "Perfect!" : stars >= 3 ? "Nice work!" : "You did it!";
         _doneNote.text = $"{praise} Look around, then tap \"Back to town\".";
+        string xp = vc_FitQuestBase.TakeXpReport();
+        _doneXp.text = xp ?? "";
+        _doneXp.style.display = string.IsNullOrEmpty(xp) ? DisplayStyle.None : DisplayStyle.Flex;
 
         for (int i = 0; i < _doneStars.Count; i++)
         {
@@ -875,6 +885,109 @@ public class vc_RunProgressUI : MonoBehaviour
             bar.Add(tick);
         }
         _timer.Add(bar);
+
+        // skill system v2: presses left this quest (filled = left), under the bar
+        _presses = new VisualElement { pickingMode = PickingMode.Ignore };
+        _presses.style.flexDirection = FlexDirection.Row;
+        _presses.style.justifyContent = Justify.Center;
+        _presses.style.alignItems = Align.Center;
+        _presses.style.marginTop = 6;
+        _presses.style.display = DisplayStyle.None;
+        _timer.Add(_presses);
+    }
+
+    // ── presses left (skill system v2) ────────────────────────────────────
+
+    private VisualElement _presses;
+    private readonly List<VisualElement> _pressDots = new List<VisualElement>();
+    private int _pressesShown = -1;
+    private static readonly Color PressFull = new Color32(92, 60, 40, 255);
+    private static readonly Color PressEmpty = new Color32(214, 196, 160, 255);
+
+    /// <summary>Presses left out of total (total 0 hides the row). The last one blinks red.</summary>
+    public void SetPresses(int left, int total)
+    {
+        if (_presses == null) return;
+        _presses.style.display = total > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+        if (total <= 0) { _pressesShown = -1; return; }
+
+        while (_pressDots.Count < total)
+        {
+            var dot = new VisualElement { pickingMode = PickingMode.Ignore };
+            dot.style.width = 14; dot.style.height = 14;
+            dot.style.marginLeft = 3; dot.style.marginRight = 3;
+            dot.style.borderTopLeftRadius = 7; dot.style.borderTopRightRadius = 7;
+            dot.style.borderBottomLeftRadius = 7; dot.style.borderBottomRightRadius = 7;
+            Color edge = new Color32(70, 46, 34, 255);
+            dot.style.borderTopColor = edge; dot.style.borderBottomColor = edge;
+            dot.style.borderLeftColor = edge; dot.style.borderRightColor = edge;
+            dot.style.borderTopWidth = 2; dot.style.borderBottomWidth = 2;
+            dot.style.borderLeftWidth = 2; dot.style.borderRightWidth = 2;
+            _presses.Add(dot);
+            _pressDots.Add(dot);
+        }
+        for (int i = 0; i < _pressDots.Count; i++)
+        {
+            VisualElement d = _pressDots[i];
+            d.style.display = i < total ? DisplayStyle.Flex : DisplayStyle.None;
+            bool full = i < left;
+            d.style.backgroundColor = full ? (left == 1 ? (Color)new Color32(214, 64, 52, 255) : PressFull) : PressEmpty;
+            d.style.scale = new Scale(Vector2.one);
+        }
+        // the dot that was just spent pops
+        if (_pressesShown > left && left >= 0 && left < _pressDots.Count)
+        {
+            VisualElement spent = _pressDots[left];
+            spent.style.scale = new Scale(new Vector2(1.5f, 1.5f));
+            spent.schedule.Execute(() => spent.style.scale = new Scale(Vector2.one)).StartingIn(140);
+        }
+        _pressesShown = left;
+    }
+
+    // ── stamp: "Perfect fit!" / "Prepared!" / "Lv2!" over the room ──────────
+
+    /// <summary>The last stamp shown (tests / debugging).</summary>
+    public string LastStamp { get; private set; }
+
+    /// <summary>
+    /// A big tilted word that pops over the room for a moment, under the quest-done banner.
+    /// yShift moves it down (+) or up (-) in steps of ~11% of the screen, so a level-up and a
+    /// "Perfect fit!" can show at once.
+    /// </summary>
+    public void ShowStamp(string text, Color color, float yShift = 0f)
+    {
+        VisualElement root = _timer != null ? _timer.parent : null;
+        if (root == null || string.IsNullOrEmpty(text)) return;
+        LastStamp = text;
+
+        var stamp = new Label(text) { pickingMode = PickingMode.Ignore };
+        stamp.AddToClassList("sl-chip");
+        stamp.style.position = Position.Absolute;
+        stamp.style.left = Length.Percent(50);
+        stamp.style.top = Length.Percent(Mathf.Clamp(50f + yShift * 20f, 8f, 80f));
+        stamp.style.fontSize = 42;
+        stamp.style.unityFontStyleAndWeight = FontStyle.Bold;
+        stamp.style.paddingLeft = 18; stamp.style.paddingRight = 18;
+        stamp.style.paddingTop = 6; stamp.style.paddingBottom = 6;
+        stamp.style.borderTopWidth = 4; stamp.style.borderBottomWidth = 4;
+        stamp.style.borderLeftWidth = 4; stamp.style.borderRightWidth = 4;
+        stamp.style.backgroundColor = (Color)new Color32(255, 248, 228, 240);
+        stamp.style.translate = new Translate(Length.Percent(-50), 0);
+        stamp.style.color = color;
+        stamp.style.borderTopColor = color; stamp.style.borderBottomColor = color;
+        stamp.style.borderLeftColor = color; stamp.style.borderRightColor = color;
+        stamp.style.rotate = new Rotate(new Angle(-6f, AngleUnit.Degree));
+        root.Add(stamp);
+        SunodGame.Core.vc_Sfx.Play("stamp", 0.55f, 0.08f);
+
+        // stamp-down: big, then snap to size, small wobble; gone after a moment
+        float[] scales = { 1.8f, 1.25f, 0.92f, 1.05f, 1f };
+        for (int i = 0; i < scales.Length; i++)
+        {
+            float s = scales[i];
+            stamp.schedule.Execute(() => stamp.style.scale = new Scale(new Vector2(s, s))).StartingIn(i * 45);
+        }
+        stamp.schedule.Execute(() => stamp.RemoveFromHierarchy()).StartingIn(1400);
     }
 
     /// <summary>The timer element, e.g. for the tutorial pointer.</summary>

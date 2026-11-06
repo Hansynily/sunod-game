@@ -243,12 +243,20 @@ namespace SunodGame.Models
     }
 
     [Serializable]
+    public class SkillXpEntryDto
+    {
+        public string skill;   // vc_SkillData.skillName
+        public int xp;
+    }
+
+    [Serializable]
     public class RunStatePayload
     {
         public string session_id;
         public List<string> completed_quest_ids = new();
         public List<RunStateQuestRecordDto> quest_records = new();
         public List<string> owned_skills = new(); // vc_SkillData.skillName values (unique per skill)
+        public List<SkillXpEntryDto> skill_xp = new(); // skill system v2: XP per skill (vc_SkillLevels)
         public int total_stars;
         public string floor_scene;
         public bool tutorial_completed;
@@ -263,6 +271,7 @@ namespace SunodGame.Models
         public List<string> completed_quest_ids;
         public List<RunStateQuestRecordDto> quest_records;
         public List<string> owned_skills;
+        public List<SkillXpEntryDto> skill_xp;
         public int total_stars;
         public string floor_scene;
         public bool tutorial_completed;
@@ -355,6 +364,8 @@ namespace SunodGame.Models
         public int memory_slots = 3;
         public List<LoopHistoryItem> history = new List<LoopHistoryItem>();
         public List<string> last_owned_skills = new List<string>();
+        public List<SkillXpEntryDto> kept_skill_xp = new List<SkillXpEntryDto>();   // XP the remembered skills carry
+        public List<SkillXpEntryDto> last_skill_xp = new List<SkillXpEntryDto>();
         public List<string> last_passed = new List<string>();
         public List<string> last_failed = new List<string>();
         public string message;

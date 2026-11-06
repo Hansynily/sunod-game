@@ -87,6 +87,8 @@ namespace SunodGame.UI
             _inventoryBtn?.RegisterCallback<ClickEvent>(_ => _inventoryPanel?.Show());
 
             vc_PlayerOptions.Changed += OnOptionsChanged;
+            vc_SkillLevels.Changed += OnSkillLevelsChanged;
+            vc_SkillLevels.LevelUp += OnSkillLevelUp;
         }
 
         private void Start()
@@ -101,6 +103,8 @@ namespace SunodGame.UI
         private void OnDisable()
         {
             vc_PlayerOptions.Changed -= OnOptionsChanged;
+            vc_SkillLevels.Changed -= OnSkillLevelsChanged;
+            vc_SkillLevels.LevelUp -= OnSkillLevelUp;
 
             if (_inventoryEventBound && vc_PlayerInventory.Instance != null)
             {
@@ -159,6 +163,8 @@ namespace SunodGame.UI
                 }
                 _slotBtns[i]?.EnableInClassList("skill-slot-btn--cooling", cooling);
             }
+
+            UpdatePrepGlow();
         }
 
         private void RefreshAllSlots()
@@ -194,10 +200,102 @@ namespace SunodGame.UI
                 bool kept = vc_LoopMeta.IsKept(data);
                 _memoryGems[i].style.display = kept ? DisplayStyle.Flex : DisplayStyle.None;
                 // ...and a violet frame, so it reads at a glance as "carried over"
-                StyleColor frame = kept ? new StyleColor((Color)new Color32(150, 110, 255, 255)) : new StyleColor(StyleKeyword.Null);
-                _slotBtns[i].style.borderTopColor = frame;
-                _slotBtns[i].style.borderLeftColor = frame;
-                _slotBtns[i].style.borderRightColor = frame;
+                _keptFrame[i] = kept;
+                ApplyFrame(i, false);
+
+                // Skill level: a silver pip at Lv2, a gold one at Lv3 (Lv1 shows nothing).
+                if (_levelPips[i] == null)
+                {
+                    _levelPips[i] = MakeLevelPip();
+                    _slotBtns[i].Add(_levelPips[i]);
+                }
+                SetLevelPip(_levelPips[i], data != null ? vc_SkillLevels.Level(data) : 1);
+            }
+        }
+
+        // ── skill levels + prep glow (skill system v2) ──────────────────────
+
+        private readonly Label[] _levelPips = new Label[vc_SkillManager.SlotCount];
+        private readonly bool[] _keptFrame = new bool[vc_SkillManager.SlotCount];
+        private readonly bool[] _glowing = new bool[vc_SkillManager.SlotCount];
+
+        private static readonly Color Silver = new Color32(196, 206, 222, 255);
+        private static readonly Color Gold = new Color32(255, 196, 40, 255);
+
+        private static Label MakeLevelPip()
+        {
+            var pip = new Label { name = "level-pip", pickingMode = PickingMode.Ignore };
+            pip.style.position = Position.Absolute;
+            pip.style.top = 2;
+            pip.style.left = 4;
+            pip.style.fontSize = 14;
+            pip.style.unityFontStyleAndWeight = FontStyle.Bold;
+            pip.style.paddingLeft = 4; pip.style.paddingRight = 4;
+            pip.style.paddingTop = 0; pip.style.paddingBottom = 0;
+            Color edge = new Color32(60, 40, 30, 255);
+            pip.style.color = edge;
+            pip.style.borderTopColor = edge; pip.style.borderBottomColor = edge;
+            pip.style.borderLeftColor = edge; pip.style.borderRightColor = edge;
+            pip.style.borderTopWidth = 2; pip.style.borderBottomWidth = 2;
+            pip.style.borderLeftWidth = 2; pip.style.borderRightWidth = 2;
+            return pip;
+        }
+
+        private static void SetLevelPip(Label pip, int level)
+        {
+            if (pip == null) return;
+            pip.style.display = level >= 2 ? DisplayStyle.Flex : DisplayStyle.None;
+            pip.text = $"Lv{level}";
+            pip.style.backgroundColor = level >= vc_SkillLevels.MaxLevel ? Gold : Silver;
+        }
+
+        private void ApplyFrame(int i, bool glow)
+        {
+            if (_slotBtns[i] == null) return;
+            bool on = Mathf.Repeat(Time.unscaledTime, 0.5f) < 0.25f;
+            StyleColor frame = glow ? new StyleColor(on ? Gold : (Color)new Color32(255, 120, 30, 255))
+                : _keptFrame[i] ? new StyleColor((Color)new Color32(150, 110, 255, 255))
+                : new StyleColor(StyleKeyword.Null);
+            Button b = _slotBtns[i];
+            b.style.borderTopColor = frame;
+            b.style.borderLeftColor = frame;
+            b.style.borderRightColor = frame;
+            b.style.borderBottomColor = glow ? frame : new StyleColor(StyleKeyword.Null);
+            // the unlocked skill: thick pulsing gold frame + a little bounce
+            StyleFloat width = glow ? new StyleFloat(6f) : new StyleFloat(StyleKeyword.Null);
+            b.style.borderTopWidth = width; b.style.borderBottomWidth = width;
+            b.style.borderLeftWidth = width; b.style.borderRightWidth = width;
+            b.style.scale = new Scale(glow && on ? new Vector2(1.08f, 1.08f) : Vector2.one);
+        }
+
+        /// <summary>The skill a prep made instant pulses gold until the quest ends.</summary>
+        private void UpdatePrepGlow()
+        {
+            string tag = vc_FitQuestBase.PrepGlowTag;
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
+            {
+                bool glow = !string.IsNullOrEmpty(tag) && _cachedSlots[i] != null && _cachedSlots[i].HasTag(tag);
+                if (glow || _glowing[i]) ApplyFrame(i, glow);
+                _glowing[i] = glow;
+            }
+        }
+
+        private void OnSkillLevelsChanged()
+        {
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
+                SetLevelPip(_levelPips[i], _cachedSlots[i] != null ? vc_SkillLevels.Level(_cachedSlots[i]) : 1);
+        }
+
+        private void OnSkillLevelUp(vc_SkillData skill, int from, int to)
+        {
+            SunodGame.Core.vc_Sfx.Play("skill_equip", 0.8f);
+            vc_RunProgressUI.Instance?.ShowStamp($"{skill.DisplayName} Lv{to}!", to >= vc_SkillLevels.MaxLevel ? Gold : (Color)new Color32(120, 140, 170, 255), 1.1f);
+            for (int i = 0; i < vc_SkillManager.SlotCount; i++)
+            {
+                if (_cachedSlots[i] != skill || _levelPips[i] == null) continue;
+                Label pip = _levelPips[i];
+                pip.style.scale = new Scale(new Vector2(1.8f, 1.8f));
+                pip.schedule.Execute(() => pip.style.scale = new Scale(Vector2.one)).StartingIn(220);
             }
         }
 

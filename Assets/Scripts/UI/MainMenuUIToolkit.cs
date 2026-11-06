@@ -313,6 +313,7 @@ namespace SunodGame.UI
             vc_SaveManager.DeleteSave();
             vc_QuestAvailabilityFilter.PendingCompletedQuestIds = null;
             vc_QuestAvailabilityFilter.PendingOwnedSkillNames = null;
+            vc_SkillLevels.PendingRestore = null;
             PlayerPrefs.DeleteKey(TelemetryManager.RunFinishPendingPrefKey);
             _cachedRunState = null;
             SetContinueEnabled(false);
@@ -509,6 +510,8 @@ namespace SunodGame.UI
                 _cachedRunState.owned_skills != null
                     ? new List<string>(_cachedRunState.owned_skills)
                     : new List<string>();
+            // ...and their XP (skill levels), applied with the skill restore
+            vc_SkillLevels.PendingRestore = _cachedRunState.skill_xp ?? new List<SkillXpEntryDto>();
 
             // Rebuild the playthrough's telemetry records from the checkpoint. Without this,
             // the resumed session's run summary / prediction / progress counts only cover

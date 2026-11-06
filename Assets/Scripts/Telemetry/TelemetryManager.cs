@@ -584,6 +584,20 @@ namespace SunodGame.Telemetry
             }
             sb.Append("],");
 
+            sb.Append("\"skill_xp\":[");
+            if (payload.skill_xp != null)
+            {
+                bool firstXp = true;
+                foreach (SkillXpEntryDto e in payload.skill_xp)
+                {
+                    if (e == null || string.IsNullOrEmpty(e.skill)) continue;
+                    if (!firstXp) sb.Append(",");
+                    firstXp = false;
+                    sb.Append($"{{\"skill\":\"{EscapeJson(e.skill)}\",\"xp\":{Mathf.Max(0, e.xp)}}}");
+                }
+            }
+            sb.Append("],");
+
             sb.Append($"\"total_stars\":{payload.total_stars},");
             sb.Append($"\"floor_scene\":\"{EscapeJson(payload.floor_scene)}\",");
             sb.Append($"\"tutorial_completed\":{(payload.tutorial_completed ? "true" : "false")},");

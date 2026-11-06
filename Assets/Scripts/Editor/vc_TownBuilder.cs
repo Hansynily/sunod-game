@@ -917,7 +917,7 @@ public static partial class vc_TownBuilder
 
         const string R = "Room_";
         t.N("R6", "Aling Rosa", "amelia_0", 6f, 18.3f, R + "House_BrokenPumpQuestNew",
-            "Oh no, my faucet is leaking again! Can you help me fix it?", "No more drip-drip-drip. Thank you!");
+            "My yard pump's leaking again! My late husband always fixed it by hand... please don't replace anything.", "No more drip-drip-drip. Thank you!");
         t.N("R2", "Mang Ben", "bob_1", 16f, 18.3f, R + "River_RiverCrossing",
             "The river is too deep and my old bridge is broken. Can you help me get across?", "Now I can get to the other side again!");
         t.N("R8", "Lolo Ador", "bob_3", 6f, 8.7f, R + "House_CreakyFloorboards",

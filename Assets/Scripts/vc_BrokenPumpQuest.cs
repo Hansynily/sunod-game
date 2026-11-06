@@ -2,21 +2,24 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// R quest (R6). Fix the yard pump. Any APPROPRIATE skill works - how well it fits decides
-/// how fast it goes (and so the stars); skills that make no sense here do nothing.
+/// R quest (R6, Elementary, Aling Rosa). The yard pump leaks from a cracked joint and the
+/// handle is stuck. Skill system v2 (QUEST_REDESIGN.md): any sensible skill works, how well
+/// it fits decides how fast it goes (and so the stars); nonsense skills only give a hint.
 ///
-///   repair   R  best fit     tighten the cracked joint                    ~1s
-///   push     R  workaround   work the stuck handle loose: 3 presses        ~3-4s
-///   build    R  workaround   build a bypass pipe round the crack           5s
-///   plan / survey / inspect  I/I/C  figure out the fault, fix by hand      8s
-///   summon   E  call the plumber; he walks over and fixes it               ~10s
+///   repair   R  best fit     tighten the cracked joint                          ~1s
+///   push     R  same kind    work the stuck handle loose                         x3 (Lv2 x2, Lv3 x1)
+///   build    R  same kind    build a bypass pipe round the crack                 5s (Lv3 / prepped: ~1s)
+///   plan / survey / inspect  other kind: work out the fault, fix it by hand      8s
+///   summon   E  other kind   call the plumber; he walks over and fixes it        ~10s
 ///   anything else: a hint, no effect
 ///
-/// While a slow fix is running, using the best-fit skill (repair) finishes it at once.
-/// Skill-zone gates WHERE the skill can be pressed, so no proximity check here.
+/// Prep: Inspect (pressed first) sweeps a magnifier along the pipe and rings the crack; Build
+/// then snaps a short bypass on in one go. A second Inspect press is the slow fix above.
+/// Preference: Push ("my late husband always fixed it by hand"). Bonus only.
+/// While a slow fix runs, the best fit (repair) takes over at once.
 /// </summary>
 [DisallowMultipleComponent]
-public class vc_BrokenPumpQuest : MonoBehaviour, vc_IQuestLogic
+public class vc_BrokenPumpQuest : vc_FitQuestKit
 {
     [Header("Pump art")]
     [SerializeField] private SpriteRenderer pump;
@@ -25,17 +28,25 @@ public class vc_BrokenPumpQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private Sprite pumpBypass;
     [SerializeField] private Sprite waterDrop;
 
-    [Header("Plumber (summon path)")]
+    [Header("Plumber (call path)")]
     [SerializeField] private Sprite[] plumberWalk;
     [SerializeField] private float plumberPpuScale = 1f;
+
+    [Header("Effects")]
+    [SerializeField] private Sprite magnifier;
+    [SerializeField] private Sprite[] ringFrames;
+    [SerializeField] private Sprite[] splashFrames;
+    [SerializeField] private Sprite[] sparkFrames;
+    [SerializeField] private Sprite[] hammerFrames;
+    [SerializeField] private Sprite[] dustFrames;
+    [SerializeField] private Sprite exclaim;
 
     [Header("Legacy (unused)")]
     [SerializeField] private GameObject brokenPump;
     [SerializeField] private GameObject fixedPump;
-    [SerializeField] private vc_FloatingMarker mainMarker;
     [SerializeField] private float animDuration = 0.5f;
 
-    [Header("Timing (seconds)")]
+    [Header("Timing (seconds, Elementary Lv1)")]
     [SerializeField] private float repairTime = 1f;
     [SerializeField] private int pushPresses = 3;
     [SerializeField] private float buildTime = 5f;
@@ -43,232 +54,294 @@ public class vc_BrokenPumpQuest : MonoBehaviour, vc_IQuestLogic
     [SerializeField] private float plumberWalkTime = 6f;
     [SerializeField] private float plumberFixTime = 4f;
 
-    private vc_QuestRoom _questRoom;
-    private bool _started, _done, _working;
-    private int _pushes;
-    private Coroutine _work;
-    private Transform _bar, _barFill;
-    private SpriteRenderer _plumber;
-    private Vector3 _pumpBase;
-    private float _dripClock;
+    // where the cracked joint sits on the pump sprite (local units; pivot is bottom-centre)
+    private static readonly Vector3 CrackLocal = new Vector3(-0.3f, 0.95f, 0f);
+    private static readonly Vector3 HandleLocal = new Vector3(0.35f, 1.25f, 0f);
 
-    private void OnDestroy() => Unsubscribe();
-
-    public void BeginQuest(vc_QuestRoom activeQuestRoom, vc_QuestTimer questTimer)
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
     {
-        _questRoom = activeQuestRoom;
-        _started = true;
-        _done = false;
-        _working = false;
-        _pushes = 0;
+        npcName = "Aling Rosa",
+        bestFitTag = "repair",
+        bestFitSeconds = 1f,
+        prepTag = "inspect",
+        prepUnlocksTag = "build",
+        prepLine = "You sweep the pipe with a magnifier...",
+        preferredTag = "push",
+        preferenceLine = "By hand, just like he used to. Salamat, anak!",
+        fastLines = new[]
+        {
+            ("push", "One shove and it's free?! Just like he used to do it!"),
+            ("build", "A whole new pipe that fast? I didn't know you could do that!"),
+        },
+    };
 
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
+    private int _pushes;
+    private Vector3 _pumpBase;
+    private float _dripClock, _sprayClock;
+    private SpriteRenderer _crackRing;
+
+    protected override Vector3 BarWorldPosition =>
+        (pump != null ? pump.transform.position : transform.position) + new Vector3(-0.5f, 1.65f, 0f);
+
+    private Vector3 Crack => pump != null ? pump.transform.TransformPoint(CrackLocal) : transform.position;
+    private Vector3 Handle => pump != null ? pump.transform.TransformPoint(HandleLocal) : transform.position;
+
+    private void Awake()
+    {
+        if (pump != null)
+        {
+            sortingLayer = pump.sortingLayerName;
+            _pumpBase = pump.transform.localPosition;
+        }
+        if ((helperWalk == null || helperWalk.Length == 0) && plumberWalk != null) helperWalk = plumberWalk;
+    }
+
+    protected override void OnBegin()
+    {
+        _pushes = 0;
+        _dripClock = _sprayClock = 0f;
+        ClearSpawned();
+        _crackRing = null;
         if (pump != null)
         {
             pump.sprite = pumpBroken;
-            _pumpBase = pump.transform.localPosition;
+            pump.transform.localPosition = _pumpBase;
         }
-        Subscribe();
 
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Broken Pump",
-            "The yard pump is broken. Get it working again.",
+            "Aling Rosa's yard pump leaks from a cracked joint, and the handle is stuck.",
             new[] { "Fix the water pump" });
     }
 
+    // ── Idle life: the crack drips and spurts while the pump is broken ───
+
     private void Update()
     {
-        // a slow drip while the pump is broken
-        if (!_started || _done || pump == null || waterDrop == null) return;
+        if (!Started || Done || pump == null) return;
         _dripClock += Time.deltaTime;
-        if (_dripClock >= 0.9f) { _dripClock = 0f; StartCoroutine(Drip()); }
+        _sprayClock += Time.deltaTime;
+        if (_dripClock >= 0.9f && waterDrop != null) { _dripClock = 0f; StartCoroutine(Drip()); }
+        if (_sprayClock >= 2.2f)
+        {
+            _sprayClock = Random.Range(0f, 0.8f);
+            Fx(splashFrames, Crack + new Vector3(-0.12f, 0.02f, 0f), 10f, 0.12f, pump.sortingOrder + 3);
+            Sfx("splash", 0.25f, 0.15f);
+        }
     }
 
     // ── Skill handling ───────────────────────────────────────────────────
 
-    private void HandleSkillUsed(int slotIndex, vc_PlayerSkill skill)
+    protected override void OnSkill(vc_SkillData d)
     {
-        if (!_started || _done || skill == null || skill.SkillData == null) return;
-        vc_SkillData d = skill.SkillData;
-
-        // best fit always wins, even over a slow fix already running
+        // best fit always wins, even over a slow fix that's already running
         if (d.HasTag("repair"))
         {
-            StopWork();
-            _work = StartCoroutine(Fix("You tighten the cracked joint. Good as new!", repairTime, pumpFixed, shake: true));
+            StartWork(TightenRoutine(PathTime(repairTime)));
             return;
         }
 
-        if (_working)
-        {
-            vc_QuestHUD.Instance?.ShowFeedbackTimed("Already working on it...", 1.5f);
-            return;
-        }
+        if (BlockedByWork()) return;
 
-        if (d.HasTag("push"))
-        {
-            _pushes++;
-            if (_pushes < pushPresses)
-            {
-                vc_QuestHUD.Instance?.ShowFeedbackTimed($"You heave the stuck handle... it budges ({_pushes}/{pushPresses})", 2f);
-                StartCoroutine(Shake(0.35f, 2));
-                SunodGame.Core.vc_Sfx.Play("step_done", 0.6f, 0.05f);
-            }
-            else
-            {
-                _work = StartCoroutine(Fix("The handle pops free. Water flows again!", 0.6f, pumpFixed, shake: true));
-            }
-            return;
-        }
-
-        if (d.HasTag("build"))
-        {
-            _work = StartCoroutine(Fix("You build a bypass pipe around the crack. Slow, but it works.", buildTime, pumpBypass ?? pumpFixed, shake: true,
-                                       startMsg: "Building a bypass pipe..."));
-            return;
-        }
-
+        if (d.HasTag("push")) { PushPress(); return; }
+        if (d.HasTag("build")) { StartWork(BuildRoutine(PathTime(buildTime), CurrentInstant)); return; }
         if (d.HasTag("plan") || d.HasTag("survey") || d.HasTag("inspect"))
         {
-            _work = StartCoroutine(Fix("Found it: a loose valve. You fix it by hand.", figureOutTime, pumpFixed, shake: false,
-                                       startMsg: "Figuring out what's wrong..."));
+            StartWork(FigureOutRoutine(PathTime(figureOutTime)));
             return;
         }
+        if (d.HasTag("summon")) { StartWork(PlumberRoutine(PathTime(plumberWalkTime + plumberFixTime))); return; }
 
-        if (d.HasTag("summon"))
-        {
-            _work = StartCoroutine(CallPlumber());
-            return;
-        }
-
-        vc_QuestHUD.Instance?.ShowFeedbackTimed("That won't fix a pump. Something hands-on might.", 2.2f);
+        Toast("That won't fix a pump. Something hands-on might.", 2.2f);
     }
 
-    // ── Fix routines ─────────────────────────────────────────────────────
-
-    private IEnumerator Fix(string doneMsg, float seconds, Sprite result, bool shake, string startMsg = null)
+    protected override void OnWorkCancelled()
     {
-        _working = true;
-        if (!string.IsNullOrEmpty(startMsg)) vc_QuestHUD.Instance?.ShowFeedbackTimed(startMsg, Mathf.Max(1.5f, seconds));
-        ShowBar(true);
+        if (pump != null) pump.transform.localPosition = _pumpBase;
+    }
 
+    // ── Prep: Inspect sweeps a magnifier along the pipe and rings the crack ─
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Sfx("scan", 0.6f, 0.05f);
+        SpriteRenderer glass = magnifier != null ? Spawn(magnifier, Crack + new Vector3(-0.7f, 0.7f, 0f), (pump != null ? pump.sortingOrder : 5) + 8, "Magnifier") : null;
+        Vector3 a = Crack + new Vector3(-0.7f, 0.7f, 0f), b = Crack + new Vector3(0.7f, -0.2f, 0f);
+        float t = 0f;
+        while (t < 0.75f)
+        {
+            t += Time.deltaTime;
+            if (glass != null) glass.transform.position = Snap(Vector3.Lerp(a, b, Mathf.SmoothStep(0f, 1f, t / 0.75f)));
+            yield return null;
+        }
+        // back to the crack: found it
+        if (glass != null) glass.transform.position = Snap(Crack + new Vector3(0.08f, 0.1f, 0f));
+        Sfx("step_done", 0.45f, 0.05f);
+        if (exclaim != null) Fx(new[] { exclaim }, Crack + new Vector3(0f, 0.5f, 0f), 2.5f, 0.15f, 40);
+        Fx(ringFrames, Crack, 8f, 0f, 39);
+        _crackRing = ringFrames != null && ringFrames.Length > 0
+            ? Spawn(ringFrames[ringFrames.Length - 1], Crack, (pump != null ? pump.sortingOrder : 5) + 7, "CrackRing") : null;
+        yield return new WaitForSeconds(0.25f);
+        if (glass != null) Destroy(glass.gameObject);
+    }
+
+    // ── Repair (best fit): tighten the cracked joint ─────────────────────
+
+    private IEnumerator TightenRoutine(float seconds)
+    {
+        Toast("You tighten the cracked joint...", Mathf.Max(1.2f, seconds));
+        ShowBar(true);
         float t = 0f, tick = 0f;
         while (t < seconds)
         {
             t += Time.deltaTime;
             tick += Time.deltaTime;
             SetBar(t / seconds);
-            if (tick >= 0.45f)
+            if (tick >= 0.25f)
             {
                 tick = 0f;
-                SunodGame.Core.vc_Sfx.Play("timer_tick", 0.35f, 0.1f);
-                if (shake) StartCoroutine(Shake(0.15f, 1));
+                Sfx("clack", 0.5f);
+                Fx(sparkFrames, Crack, 14f, 0.1f, 40);
             }
             yield return null;
         }
-
-        ShowBar(false);
-        Finish(doneMsg, result);
+        Fixed(pumpFixed, "You tighten the cracked joint. Good as new!");
     }
 
-    private IEnumerator CallPlumber()
+    // ── Push (same kind, x3): work the stuck handle loose ────────────────
+
+    private void PushPress()
     {
-        _working = true;
-        vc_QuestHUD.Instance?.ShowFeedbackTimed("You call the plumber. He's on his way...", 3f);
-        ShowBar(true);
+        _pushes++;
+        int need = PathPresses(pushPresses);
+        StartCoroutine(Shake(pump != null ? pump.transform : null, _pumpBase, 0.35f, 2));
+        Fx(dustFrames, Handle, 10f, 0.15f, 40);
+        Sfx("scrape", 0.55f, 0.1f);
 
-        // plumber walks in from the room's left side to the pump
-        Vector3 to = pump != null ? pump.transform.position + new Vector3(-0.9f, -0.3f, 0f) : transform.position;
-        Vector3 from = to + new Vector3(-6f, 0f, 0f);
-        _plumber = MakePlumber(from);
-
-        float total = plumberWalkTime + plumberFixTime, t = 0f;
-        while (t < plumberWalkTime)
+        if (_pushes < need)
         {
-            t += Time.deltaTime;
-            SetBar(t / total);
-            if (_plumber != null)
-            {
-                _plumber.transform.position = Snap(Vector3.Lerp(from, to, t / plumberWalkTime));
-                if (plumberWalk != null && plumberWalk.Length > 0)
-                    _plumber.sprite = plumberWalk[(int)(t * 8f) % plumberWalk.Length];
-            }
-            yield return null;
+            Toast($"You heave the stuck handle... it budges ({_pushes}/{need})", 2f);
+            return;
         }
+        StartWork(HandleFreeRoutine());
+    }
 
-        if (_plumber != null && plumberWalk != null && plumberWalk.Length > 0) _plumber.sprite = plumberWalk[0];
-        vc_QuestHUD.Instance?.ShowFeedbackTimed("The plumber gets to work...", plumberFixTime);
-        float tick = 0f;
-        while (t < total)
+    private IEnumerator HandleFreeRoutine()
+    {
+        Toast("The handle pops free!", 1.2f);
+        ShowBar(true);
+        yield return Step(0.6f, 0f, 1f);
+        Fx(splashFrames, pump != null ? pump.transform.position + new Vector3(0.25f, 0.2f, 0f) : transform.position, 10f, 0.1f, 40);
+        Fixed(pumpFixed, "The handle pops free. Water flows again!");
+    }
+
+    // ── Build (same kind, 5s; prepped or Lv3 = one go): a bypass pipe ────
+
+    private IEnumerator BuildRoutine(float seconds, bool snap)
+    {
+        Toast(snap ? "You snap a short bypass on in one go!" : "Building a bypass pipe around the crack...", Mathf.Max(1.5f, seconds));
+        ShowBar(true);
+        float t = 0f, tick = 0f;
+        while (t < seconds)
         {
             t += Time.deltaTime;
             tick += Time.deltaTime;
-            SetBar(t / total);
-            if (tick >= 0.45f) { tick = 0f; SunodGame.Core.vc_Sfx.Play("timer_tick", 0.35f, 0.1f); StartCoroutine(Shake(0.15f, 1)); }
+            SetBar(t / seconds);
+            if (tick >= (snap ? 0.18f : 0.45f))
+            {
+                tick = 0f;
+                Sfx("hammer", 0.5f, 0.1f);
+                Fx(hammerFrames, Crack + new Vector3(0.15f, 0.35f, 0f), 10f, 0f, 41);
+                StartCoroutine(Shake(pump != null ? pump.transform : null, _pumpBase, 0.12f, 1));
+            }
             yield return null;
         }
-
-        ShowBar(false);
-        Finish("The plumber fixed it. Thanks for calling him!", pumpFixed);
+        Fx(sparkFrames, Crack, 14f, 0.15f, 40);
+        Fixed(pumpBypass != null ? pumpBypass : pumpFixed,
+              snap ? "A neat bypass, on in one go!" : "You build a bypass pipe around the crack. Slow, but it works.");
     }
 
-    private void Finish(string msg, Sprite result)
+    // ── Plan / Survey / Inspect (other kind, 8s): work out the fault ─────
+
+    private IEnumerator FigureOutRoutine(float seconds)
     {
-        if (_done) return;
-        _done = true;
-        _working = false;
-        Unsubscribe();
+        Toast("Figuring out what's wrong...", Mathf.Max(1.5f, seconds * 0.6f));
+        ShowBar(true);
+        float look = seconds * 0.65f, t = 0f, tick = 0f;
+        while (t < seconds)
+        {
+            t += Time.deltaTime;
+            tick += Time.deltaTime;
+            SetBar(t / seconds);
+            if (tick >= 0.6f)
+            {
+                tick = 0f;
+                if (t < look) Fx(ringFrames, Crack + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.3f, 0.4f), 0f), 8f, 0f, 40);
+                else { Sfx("clack", 0.4f); Fx(sparkFrames, Crack, 14f, 0.1f, 40); }
+            }
+            if (t >= look && t - Time.deltaTime < look) Toast("Found it: a loose joint. Fixing it by hand...", 2f);
+            yield return null;
+        }
+        Fixed(pumpFixed, "Found the fault and fixed it by hand.");
+    }
+
+    // ── Call (other kind, ~10s): the plumber walks over and fixes it ─────
+
+    private IEnumerator PlumberRoutine(float seconds)
+    {
+        float walk = seconds * plumberWalkTime / Mathf.Max(0.01f, plumberWalkTime + plumberFixTime);
+        float fix = seconds - walk;
+        Toast("You call the plumber. He's on his way...", 3f);
+        ShowBar(true);
+
+        Vector3 to = pump != null ? pump.transform.position + new Vector3(-0.9f, -0.3f, 0f) : transform.position;
+        Vector3 from = to + new Vector3(-6f, 0f, 0f);
+        SpriteRenderer plumber = SpawnHelper(from, (pump != null ? pump.sortingOrder : 5) + 2);
+        if (plumber != null) plumber.transform.localScale = Vector3.one * plumberPpuScale;
+
+        yield return HelperWalk(from, to, walk, t => SetBar(t / seconds));
+
+        Toast("The plumber gets to work...", fix);
+        float t2 = 0f, tick = 0f;
+        while (t2 < fix)
+        {
+            t2 += Time.deltaTime;
+            tick += Time.deltaTime;
+            SetBar((walk + t2) / seconds);
+            if (tick >= 0.45f)
+            {
+                tick = 0f;
+                Sfx("hammer", 0.4f, 0.1f);
+                StartCoroutine(Shake(pump != null ? pump.transform : null, _pumpBase, 0.15f, 1));
+            }
+            yield return null;
+        }
+        Fixed(pumpFixed, "The plumber fixed it. Thanks for calling him!");
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────
+
+    private void Fixed(Sprite result, string msg)
+    {
         if (pump != null)
         {
             pump.transform.localPosition = _pumpBase;
             if (result != null) pump.sprite = result;
         }
-        SunodGame.Core.vc_Sfx.Play("step_done", 0.8f);
-        vc_FloatingMessage.Instance?.Show(msg);
-        StartCoroutine(CompleteAfter(0.6f));
-    }
-
-    private IEnumerator CompleteAfter(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        _started = false;
-        vc_QuestHUD.Instance?.CheckObjective(0);
-        mainMarker?.Hide();
-        _questRoom?.OnQuestComplete();
-    }
-
-    private void StopWork()
-    {
-        if (_work != null) StopCoroutine(_work);
-        _work = null;
-        _working = false;
-        ShowBar(false);
-        if (_plumber != null) Destroy(_plumber.gameObject);
-        if (pump != null) pump.transform.localPosition = _pumpBase;
-    }
-
-    // ── Visual helpers ───────────────────────────────────────────────────
-
-    private IEnumerator Shake(float duration, int px)
-    {
-        if (pump == null) yield break;
-        float t = 0f;
-        int i = 0;
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            float off = (i++ % 2 == 0 ? 1 : -1) * px / 22f;
-            pump.transform.localPosition = _pumpBase + new Vector3(off, 0f, 0f);
-            yield return new WaitForSeconds(0.04f);
-        }
-        pump.transform.localPosition = _pumpBase;
+        if (_crackRing != null) Destroy(_crackRing.gameObject);
+        Fx(splashFrames, pump != null ? pump.transform.position + new Vector3(0.3f, 0.15f, 0f) : transform.position, 10f, 0.1f, 40);
+        Finish(msg);
     }
 
     private IEnumerator Drip()
     {
         var go = new GameObject("Drip");
         go.transform.SetParent(pump.transform, false);
-        go.transform.localPosition = new Vector3(-0.3f, 0.95f, 0f);
+        go.transform.localPosition = CrackLocal;
         var sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = waterDrop;
         sr.sortingLayerName = pump.sortingLayerName;
@@ -277,69 +350,9 @@ public class vc_BrokenPumpQuest : MonoBehaviour, vc_IQuestLogic
         while (t < 0.5f && go != null)
         {
             t += Time.deltaTime;
-            go.transform.localPosition = new Vector3(-0.3f, 0.95f - Mathf.Round(t * 1.8f * 22f) / 22f, 0f);
+            go.transform.localPosition = new Vector3(CrackLocal.x, CrackLocal.y - Mathf.Round(t * 1.8f * 22f) / 22f, 0f);
             yield return null;
         }
         if (go != null) Destroy(go);
-    }
-
-    private void ShowBar(bool on)
-    {
-        if (on && _bar == null && pump != null)
-        {
-            Sprite px = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0f, 0.5f), 4f);
-            _bar = new GameObject("WorkBar").transform;
-            _bar.SetParent(pump.transform, false);
-            _bar.localPosition = new Vector3(-0.5f, 1.65f, 0f);
-            var bg = _bar.gameObject.AddComponent<SpriteRenderer>();
-            bg.sprite = px; bg.color = new Color32(46, 34, 40, 230);
-            bg.sortingLayerName = pump.sortingLayerName; bg.sortingOrder = pump.sortingOrder + 5;
-            _bar.localScale = new Vector3(1f, 0.16f, 1f);
-
-            _barFill = new GameObject("Fill").transform;
-            _barFill.SetParent(_bar, false);
-            _barFill.localPosition = new Vector3(0.03f, 0f, 0f);
-            var fg = _barFill.gameObject.AddComponent<SpriteRenderer>();
-            fg.sprite = px; fg.color = new Color32(255, 204, 66, 255);
-            fg.sortingLayerName = pump.sortingLayerName; fg.sortingOrder = pump.sortingOrder + 6;
-            _barFill.localScale = new Vector3(0f, 0.6f, 1f);
-        }
-        if (_bar != null) _bar.gameObject.SetActive(on);
-        if (on) SetBar(0f);
-    }
-
-    private void SetBar(float k)
-    {
-        if (_barFill == null) return;
-        k = Mathf.Clamp01(k);
-        _barFill.localScale = new Vector3(Mathf.Round(k * 30f) / 30f * 0.94f, 0.6f, 1f);
-    }
-
-    private SpriteRenderer MakePlumber(Vector3 at)
-    {
-        var go = new GameObject("Plumber");
-        go.transform.SetParent(transform, true);
-        go.transform.position = Snap(at);
-        go.transform.localScale = Vector3.one * plumberPpuScale;
-        var sr = go.AddComponent<SpriteRenderer>();
-        if (plumberWalk != null && plumberWalk.Length > 0) sr.sprite = plumberWalk[0];
-        sr.sortingLayerName = pump != null ? pump.sortingLayerName : "Default";
-        sr.sortingOrder = pump != null ? pump.sortingOrder + 2 : 5;
-        return sr;
-    }
-
-    private static Vector3 Snap(Vector3 p) => new Vector3(Mathf.Round(p.x * 32f) / 32f, Mathf.Round(p.y * 32f) / 32f, p.z);
-
-    private void Subscribe()
-    {
-        if (vc_SkillManager.Instance == null) return;
-        vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
-        vc_SkillManager.Instance.SkillUsed += HandleSkillUsed;
-    }
-
-    private void Unsubscribe()
-    {
-        if (vc_SkillManager.Instance != null)
-            vc_SkillManager.Instance.SkillUsed -= HandleSkillUsed;
     }
 }

@@ -140862,7 +140862,8 @@ MonoBehaviour:
   npcName: Aling Rosa
   questCode: R6
   questPrefab: {fileID: 4503196664744615152, guid: 20dd18b894030b349926690db6454cfb, type: 3}
-  askLine: Oh no, my faucet is leaking again! Can you help me fix it?
+  askLine: My yard pump's leaking again! My late husband always fixed it by hand...
+    please don't replace anything.
   thanksLine: No more drip-drip-drip. Thank you!
   idleFrames:
   - {fileID: 21300000, guid: 0a3f5fcb7a7b33d4abca96555655da9a, type: 3}

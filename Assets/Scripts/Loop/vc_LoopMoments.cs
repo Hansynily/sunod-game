@@ -613,6 +613,13 @@ public class vc_LoopMoments : MonoBehaviour
         var name = Text((skill.DisplayName ?? skill.skillName).ToUpperInvariant(), 20, Ink);
         card.Add(name);
 
+        // Skill level: remembering a skill keeps it (SKILL_SYSTEM_DESIGN.md §6)
+        int level = vc_SkillLevels.CarriedLevel(skill);
+        var lv = Text(level >= vc_SkillLevels.MaxLevel ? $"Lv{level} (max)" : $"Lv{level}", 15,
+            level >= vc_SkillLevels.MaxLevel ? (Color)new Color32(170, 120, 0, 255) : level == 2 ? (Color)new Color32(90, 100, 130, 255) : Ink);
+        lv.style.marginTop = 2;
+        card.Add(lv);
+
         var mark = Text("REMEMBERED", 14, Color.white);
         mark.name = "held-mark";
         mark.style.position = Position.Absolute;

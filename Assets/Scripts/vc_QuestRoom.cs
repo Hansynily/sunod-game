@@ -423,6 +423,7 @@ public class vc_QuestRoom : MonoBehaviour
                 ? vc_SessionTelemetry.Instance.BuildRunStateRecords()
                 : new List<SunodGame.Models.RunStateQuestRecordDto>(),
             owned_skills = new List<string>(data.unlockedSkills),
+            skill_xp = vc_SkillLevels.ToEntries(),
             total_stars = data.totalStars,
             floor_scene = SunodGame.Core.vc_FloorLoader.Instance != null && !string.IsNullOrEmpty(SunodGame.Core.vc_FloorLoader.Instance.CurrentFloorScene)
                 ? SunodGame.Core.vc_FloorLoader.Instance.CurrentFloorScene

@@ -99,6 +99,8 @@ public class vc_CatExamMinigame : vc_FitQuestBase
     private VisualElement _exam;
 
     protected override Vector3 BarWorldPosition => (cat != null ? cat.transform.position : transform.position) + new Vector3(-0.5f, 1.6f, 0f);
+    // minigames score themselves: no press limit or skill XP
+    protected override bool UsesSkillSystem => false;
 
     private void Awake()
     {

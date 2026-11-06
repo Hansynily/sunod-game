@@ -132,6 +132,10 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
                 equippedCount++;
         }
 
+        // Skill levels come back with the skills (older saves have none: everything Lv1).
+        vc_SkillLevels.Load(vc_SkillLevels.PendingRestore);
+        vc_SkillLevels.PendingRestore = null;
+
         _skillRestoreApplied = true;
         PendingOwnedSkillNames = null;
         Debug.Log($"[vc_QuestAvailabilityFilter] Restored {equippedCount} skill(s) for the resumed run.");
@@ -177,6 +181,9 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         // Loop 2+: skills the player chose to remember start in their kind's slot (the
         // default of that kind stays in the inventory). Still one skill per kind.
         ApplyKeptSkills();
+
+        // Fresh run: every skill at Lv1, except the remembered ones, which keep their XP.
+        vc_SkillLevels.StartRun();
 
         _startingKitApplied = true;
         Debug.Log($"[vc_QuestAvailabilityFilter] Applied starting kit ({gameSettings.startingSkills.Length} skill(s)).");
