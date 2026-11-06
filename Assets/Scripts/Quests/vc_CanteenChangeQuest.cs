@@ -47,9 +47,31 @@ public class vc_CanteenChangeQuest : vc_FitQuestBase
     [SerializeField] private float collectTime = 4f;
     [SerializeField] private float planTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Charm (prep) a friendly "Wait lang!" and the kids line up
+    // patiently, then Collect piles every coin and pays them all at once. Preference: Direct.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Manang Fe",
+        presses = 6,
+        bestFitTag = "inspect",
+        bestFitSeconds = 2f,
+        prepTag = "charm",
+        prepUnlocksTag = "collect",
+        prepLine = "\"Wait lang, ha!\" You smile and the kids line up patiently.",
+        preferredTag = "direct",
+        preferenceLine = "So tidy! I can find every peso now. Galing!",
+        fastLines = new[]
+        {
+            ("collect", "All the coins sorted already? Galing!"),
+            ("direct", "So tidy! I can find every peso now."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _kidRest;
     private bool[] _paid;
-    private int _served;
+    private int _served, _directPress;
     private float _idleClock, _dotsClock;
     private GameObject _slip;
 
@@ -68,6 +90,7 @@ public class vc_CanteenChangeQuest : vc_FitQuestBase
     {
         if (_slip != null) Destroy(_slip);
         _served = 0;
+        _directPress = 0;
         _idleClock = 0.8f; _dotsClock = 2f;
         for (int i = 0; i < kids.Length; i++)
         {
@@ -81,7 +104,7 @@ public class vc_CanteenChangeQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Canteen Change",
-            "The canteen line is long. Help Manang Fe count the change.",
+            "Manang Fe's canteen line is long and her coin tray is a mess. Help her with the change, and keep the coins tidy.",
             new[] { "Count the change" });
     }
 
@@ -113,10 +136,26 @@ public class vc_CanteenChangeQuest : vc_FitQuestBase
     {
         if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime))); return; }
         if (d.HasTag("direct")) { DirectPress(); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
         Toast("This needs careful counting.", 2.2f);
+    }
+
+    // Prep (Charm): a friendly "Wait lang!"; the kids hop, a check pops over each, and they wait calmly.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        _idleClock = 3f;
+        Toast(Profile.prepLine, 1.5f);
+        SunodGame.Core.vc_Sfx.Play("chime", 0.5f, 0.05f);
+        for (int i = 0; i < kids.Length; i++)
+        {
+            StartCoroutine(Hop(i, 2));
+            if (checkMark != null) Fx(new[] { checkMark }, Top(i), 1.5f, 0.2f, 24);
+            if (sparkFrames != null) Fx(sparkFrames, Top(i) + new Vector3(0.2f, -0.1f, 0f), 12f, 0.15f);
+            yield return new WaitForSeconds(0.2f);
+        }
+        yield return new WaitForSeconds(0.25f);
     }
 
     protected override void OnWorkCancelled()
@@ -146,11 +185,11 @@ public class vc_CanteenChangeQuest : vc_FitQuestBase
 
     // ── Collect: piles by value, then pay ────────────────────────────────
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float collectTime)
     {
-        Toast("You gather the coins into piles...", collectTime);
+        Toast(Prepared ? "You pile every coin at once and pay them all!" : "You gather the coins into piles...", collectTime);
         ShowBar(true);
-        float gather = collectTime - 1.5f, t = 0f;
+        float gather = collectTime * 0.625f, t = 0f;
         int hops = 8;
         float per = gather / hops;
         for (int h = 0; h < hops; h++)
@@ -180,27 +219,50 @@ public class vc_CanteenChangeQuest : vc_FitQuestBase
 
     // ── Direct: sort the tray, then serve the line one kid per press ─────
 
+    // One kid per press at Lv1 (3 presses), 2 at Lv2, 1 at Lv3: each press serves its share of the line.
     private void DirectPress()
     {
         if (_served == 0) SortTray();
+        if (NextUnpaid() < 0) return;
+        _directPress++;
+        int total = kids.Length;
+        int need = Mathf.Clamp(PathPresses(total), 1, Mathf.Max(1, total));
+        int remaining = UnpaidCount();
+        int pressesLeft = Mathf.Max(1, need - _directPress + 1);
+        int count = _directPress >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        bool last = count >= remaining;
+        if (last) { StartWork(DirectFinishRoutine(count)); return; }
+        for (int k = 0; k < count; k++) ServeNext();
+        Toast($"Next in line! ({_served}/{total})", 1.8f);
+    }
+
+    private void ServeNext()
+    {
         int i = NextUnpaid();
         if (i < 0) return;
         _served++;
         ShowNumber(Owed(i));
         SunodGame.Core.vc_Sfx.Play("beep", 0.5f);
         Pay(i);
-        int total = kids.Length;
-        if (NextUnpaid() >= 0)
+    }
+
+    private IEnumerator DirectFinishRoutine(int count)
+    {
+        Toast(count > 1 ? "You serve the whole line, slot by slot!" : "The last kid in line is served.", 2f);
+        ShowBar(true);
+        for (int k = 0; k < count; k++)
         {
-            Toast($"Next in line! ({_served}/{total})", 1.8f);
-            return;
+            ServeNext();
+            SetBar((k + 1f) / count);
+            yield return new WaitForSeconds(0.3f);
         }
+        yield return new WaitForSeconds(0.4f);
         Finish("The whole line is served, neat and orderly.");
     }
 
     // ── Plan: sums on paper first, then pay ──────────────────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float planTime)
     {
         Toast("You work the sums out on paper first...", planTime);
         ShowBar(true);
@@ -213,7 +275,7 @@ public class vc_CanteenChangeQuest : vc_FitQuestBase
             var sr = _slip.AddComponent<SpriteRenderer>();
             sr.sprite = paperSlip; sr.sortingLayerName = sortingLayer; sr.sortingOrder = 14;
         }
-        float work = planTime - 2.4f, t = 0f;
+        float work = planTime * 0.7f, t = 0f;
         while (t < work)
         {
             Fx(scribbleFrames, at + new Vector3(Random.Range(-0.15f, 0.15f), Random.Range(-0.05f, 0.25f), 0f), 6f, 0f, 22);

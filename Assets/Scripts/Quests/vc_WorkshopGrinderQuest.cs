@@ -45,6 +45,28 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
     [SerializeField] private float buildTime = 4f;
     [SerializeField] private float inspectTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Inspect (prep) measures the bracket with calipers, then Build
+    // makes a perfect jig and it is ground straight at once. Preference: Repair (a sharp wheel).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mang Erning",
+        presses = 3,
+        bestFitTag = "push",
+        bestFitSeconds = 2f,
+        prepTag = "inspect",
+        prepUnlocksTag = "build",
+        prepLine = "You measure the bracket with calipers...",
+        preferredTag = "repair",
+        preferenceLine = "A sharp wheel and a clean cut. That's how it's done, hijo!",
+        fastLines = new[]
+        {
+            ("repair", "The wheel's sharp again and the bracket fits!"),
+            ("build", "A jig that fast? A perfect fit!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3 _partRest, _gogglesRest;
     private bool _sharp;
     private float _idleClock;
@@ -70,7 +92,7 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Workshop Job",
-            "The water pump's motor bracket broke. Mang Erning cut a new steel bracket, but its edges are too rough to slide into the pump's slot.",
+            "The water pump's motor bracket broke. Mang Erning cut a new steel bracket, but its edges are too rough to slide into the pump's slot. His grinding wheel has gone dull, so he'd be glad if someone fixed it first.",
             new[]
             {
                 "Grind the rough steel bracket down to size",
@@ -96,9 +118,9 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
     {
         if (d.HasTag("push")) { StartWork(PushRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("repair")) { StartWork(RepairRoutine()); return; }
-        if (d.HasTag("build")) { StartWork(BuildRoutine()); return; }
-        if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
+        if (d.HasTag("repair")) { StartWork(RepairRoutine(PathTime(repairTime))); return; }
+        if (d.HasTag("build")) { StartWork(BuildRoutine(PathTime(buildTime), CurrentInstant)); return; }
+        if (d.HasTag("inspect")) { StartWork(InspectRoutine(PathTime(inspectTime))); return; }
         Toast("That won't shape the steel bracket.", 2.2f);
     }
 
@@ -117,34 +139,39 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         Finish("Smooth and square. The bracket slides right into the pump!");
     }
 
-    private IEnumerator RepairRoutine()
+    private IEnumerator RepairRoutine(float seconds)
     {
-        Toast("You fix the dull grinding wheel first...", repairTime);
+        Toast("You fix the dull grinding wheel first...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         Vector3 w = Wheel();
         float t = 0f;
+        float fitT = Mathf.Min(0.6f, seconds * 0.25f);
+        float hit = seconds * 0.5f / 5f;
         for (int i = 0; i < 5; i++)
         {
             Fx(hammerFrames, w + new Vector3(0.15f, 0.35f, 0f), 8f);
             SunodGame.Core.vc_Sfx.Play("hammer", 0.5f, 0.1f);
             Fx(sparkFrames, w, 14f, 0.1f);
-            yield return BarStep(0.5f, t / repairTime, (t + 0.5f) / repairTime);
-            t += 0.5f;
+            yield return BarStep(hit, t / seconds, (t + hit) / seconds);
+            t += hit;
         }
         _sharp = true;
         if (grinder != null && grinderSpin != null && grinderSpin.Length > 0) grinder.sprite = grinderSpin[0];
         Fx(shineFrames, w + new Vector3(0f, 0.3f, 0f), 12f, 0.15f);
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
-        yield return Grind(repairTime - t - 0.6f, t, repairTime, true);
-        yield return Fit(repairTime - 0.6f, repairTime);
+        yield return Grind(Mathf.Max(0.2f, seconds - t - fitT), t, seconds, true);
+        yield return Fit(seconds - fitT, seconds);
         Finish("Sharp wheel, clean cut. The bracket fits the pump!");
     }
 
-    private IEnumerator BuildRoutine()
+    private IEnumerator BuildRoutine(float seconds, bool oneGo)
     {
-        Toast("You build a guide jig first...", buildTime);
+        Toast(oneGo ? "A perfect jig, ground straight in one go!" : "You build a guide jig first...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         float t = 0f;
+        float fitT = Mathf.Min(0.6f, seconds * 0.25f);
+        float jigT = seconds * (oneGo ? 0.3f : 0.4f);
+        float per = jigT / 3f;
         if (jig != null && grinder != null)
         {
             _jig = new GameObject("GuideJig");
@@ -157,22 +184,23 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         {
             SunodGame.Core.vc_Sfx.Play("clack", 0.6f, 0.1f);
             if (_jig != null) Fx(dustFrames, _jig.transform.position, 10f, 0.15f);
-            yield return BarStep(0.55f, t / buildTime, (t + 0.55f) / buildTime);
-            t += 0.55f;
+            yield return BarStep(per, t / seconds, (t + per) / seconds);
+            t += per;
         }
-        yield return Grind(buildTime - t - 0.6f, t, buildTime, true);
-        yield return Fit(buildTime - 0.6f, buildTime);
-        Finish("The jig kept the bracket straight. Perfect fit!");
+        yield return Grind(Mathf.Max(0.2f, seconds - t - fitT), t, seconds, true);
+        yield return Fit(seconds - fitT, seconds);
+        Finish(oneGo ? "A perfect jig, and the bracket went straight in. One go!" : "The jig kept the bracket straight. Perfect fit!");
     }
 
-    private IEnumerator InspectRoutine()
+    private IEnumerator InspectRoutine(float seconds)
     {
-        Toast("Grind the bracket a little, measure, repeat...", inspectTime);
+        Toast("Grind the bracket a little, measure, repeat...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
-        float t = 0f, step = (inspectTime - 0.6f) / 3f;
+        float fitT = Mathf.Min(0.6f, seconds * 0.25f);
+        float t = 0f, step = (seconds - fitT) / 3f;
         for (int pass = 0; pass < 3; pass++)
         {
-            yield return Grind(step * 0.55f, t, inspectTime, pass == 2);
+            yield return Grind(step * 0.55f, t, seconds, pass == 2);
             t += step * 0.55f;
             // back to the vise to measure
             yield return Slide(part.transform.position, _partRest, 0.2f);
@@ -180,11 +208,27 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
             SunodGame.Core.vc_Sfx.Play("timer_tick", 0.5f);
             Sprite verdict = pass < 2 ? crossMark : checkMark;
             if (verdict != null) StartCoroutine(Later(0.3f, () => Fx(new[] { verdict }, _partRest + new Vector3(0.35f, 0.6f, 0f), 1.6f, 0.15f, 25)));
-            yield return BarStep(step * 0.45f - 0.2f, t / inspectTime, (t + step * 0.45f) / inspectTime);
+            yield return BarStep(Mathf.Max(0f, step * 0.45f - 0.2f), t / seconds, (t + step * 0.45f) / seconds);
             t += step * 0.45f;
         }
-        yield return Fit(t, inspectTime);
+        yield return Fit(t, seconds);
         Finish("Measured three times. The bracket fits just right.");
+    }
+
+    // ── Prep: Inspect measures the bracket with calipers ─────────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (part != null && part.transform.position != _partRest) part.transform.position = _partRest;
+        if (ruler != null) Fx(new[] { ruler }, _partRest + new Vector3(0f, 0.35f, 0f), 1.6f, 0f, 24);
+        SunodGame.Core.vc_Sfx.Play("timer_tick", 0.5f);
+        yield return new WaitForSeconds(0.5f);
+        if (crossMark != null) Fx(new[] { crossMark }, _partRest + new Vector3(0.35f, 0.6f, 0f), 2.5f, 0.1f, 25);
+        yield return new WaitForSeconds(0.25f);
+        if (checkMark != null) Fx(new[] { checkMark }, _partRest + new Vector3(0.35f, 0.6f, 0f), 1.5f, 0.15f, 25);
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.25f);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

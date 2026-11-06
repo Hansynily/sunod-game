@@ -47,6 +47,28 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
     [SerializeField] private float kidSpeed = 2.4f;
     [SerializeField] private float arriveRange = 1.7f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Survey (prep) spots her classroom sign down the hall, then
+    // Teach points it out and she walks there happily at once. Preference: Heal.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ate Mia",
+        presses = 5,
+        bestFitTag = "guide",
+        bestFitSeconds = 2f,
+        prepTag = "survey",
+        prepUnlocksTag = "teach",
+        prepLine = "You look down the hall... there's her classroom sign!",
+        preferredTag = "heal",
+        preferenceLine = "She's so calm now. You're so gentle. Salamat!",
+        fastLines = new[]
+        {
+            ("heal", "She stopped crying right away. You're so gentle."),
+            ("teach", "She found it by herself! You taught her that fast?"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private enum Mode { Sad, Calm }
     private Mode _mode;
     private SpriteRenderer _kidSr;
@@ -86,7 +108,7 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Lost Friend",
-            "Your classmate got lost on the way to class. Help them find their way.",
+            "Ate Mia says a little one got lost on the way to class and won't stop crying. Gently help her find the way.",
             new[] { "Get your friend to class" });
     }
 
@@ -154,12 +176,30 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
 
         if (BlockedByWork()) return;
 
-        if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(TeacherRoutine()); return; }
+        if (d.HasTag("heal")) { StartWork(HealRoutine(PathTime(healTime))); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime))); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime))); return; }
+        if (d.HasTag("summon")) { StartWork(TeacherRoutine(PathTime(teacherWalkTime + teacherMeetTime + teacherBackTime))); return; }
 
         Toast("Your friend needs someone to look after them.", 2.4f);
+    }
+
+    // Prep (Survey): a magnifier-free look down the hall; her classroom sign lights up with a check.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("scan", 0.5f, 0.05f);
+        Vector3 door = DoorPoint();
+        if (plaques != null && plaques.Length > 0)
+            Fx(new[] { plaques[plaques.Length - 1] }, door + new Vector3(0f, 1.9f, 0f), 1.2f, 0.2f, 24);
+        for (int i = 0; i < 3; i++)
+        {
+            Fx(checkFrames, Vector3.Lerp(kid.position, door, (i + 1f) / 4f) + new Vector3(0f, 0.9f, 0f), 2.5f, 0.2f);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f, 0.1f);
+            yield return new WaitForSeconds(0.22f);
+        }
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.4f, 0.05f);
+        yield return new WaitForSeconds(0.2f);
     }
 
     protected override void OnWorkCancelled()
@@ -255,24 +295,25 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
 
     // ── Heal: calm them down first, then they come along ─────────────────
 
-    private IEnumerator HealRoutine()
+    private IEnumerator HealRoutine(float healTime)
     {
         Toast("You calm your friend down...", healTime);
         ShowBar(true);
         float t = 0f, heart = 0f;
         bool calm = false, wave = false;
+        float calmAt = healTime * 0.65f, waveAt = healTime * 0.825f;
         while (t < healTime)
         {
             t += Time.deltaTime;
             heart += Time.deltaTime;
-            if (heart >= 0.8f && t < 2.6f)
+            if (heart >= 0.8f && t < calmAt)
             {
                 heart = 0f;
                 Fx(heartFrames, kid.position + new Vector3(Random.Range(-0.3f, 0.3f), 1.3f, 0f), 3f, 0.35f);
                 SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f, 0.1f);
             }
-            if (!calm && t >= 2.6f) { calm = true; SetMode(Mode.Calm); }
-            if (!wave && t >= 3.3f) { wave = true; SetSprite(happyFrames, 0); SunodGame.Core.vc_Sfx.Play("chime", 0.6f); }
+            if (!calm && t >= calmAt) { calm = true; SetMode(Mode.Calm); }
+            if (!wave && t >= waveAt) { wave = true; SetSprite(happyFrames, 0); SunodGame.Core.vc_Sfx.Play("chime", 0.6f); }
             SetBar(t / healTime);
             yield return null;
         }
@@ -284,13 +325,13 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
 
     // ── Teach: show them how to read the signs; they find the way ────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float teachTime)
     {
-        Toast("You show them how to read the signs...", teachTime);
+        Toast(Prepared ? "You point out her sign. She nods and heads off!" : "You show them how to read the signs...", teachTime);
         ShowBar(true);
         float t = 0f;
         int shown = 0;
-        float[] when = { 0.3f, 1.4f, 2.5f };
+        float[] when = { teachTime * 0.06f, teachTime * 0.28f, teachTime * 0.5f };
         float[] dx = { -0.7f, 0f, 0.7f };
         while (t < teachTime)
         {
@@ -301,8 +342,8 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
                 SunodGame.Core.vc_Sfx.Play("page_next", 0.5f, 0.1f);
                 shown++;
             }
-            if (_mode == Mode.Sad && t >= 3.2f) SetMode(Mode.Calm);
-            if (t >= 4.2f) SetSprite(happyFrames, 0);
+            if (_mode == Mode.Sad && t >= teachTime * 0.64f) SetMode(Mode.Calm);
+            if (t >= teachTime * 0.84f) SetSprite(happyFrames, 0);
             SetBar(t / teachTime);
             yield return null;
         }
@@ -322,7 +363,7 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
 
     // ── Direct: point out the way, step by step ──────────────────────────
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float directTime)
     {
         Toast("You point the way, step by step...", 3f);
         SetMode(Mode.Calm);
@@ -363,7 +404,7 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
 
     // ── Call: the teacher comes and takes them to class ──────────────────
 
-    private IEnumerator TeacherRoutine()
+    private IEnumerator TeacherRoutine(float total)
     {
         Toast("You call the teacher over...", 3f);
         ShowBar(true);
@@ -371,34 +412,35 @@ public class vc_LostFriendFitQuest : vc_FitQuestBase
         Vector3 from = door + new Vector3(0f, 0.4f, 0f);
         Vector3 meet = kid.position + new Vector3(0.8f, 0f, 0f);
         SpawnHelper(from, 7);
-        float total = teacherWalkTime + teacherMeetTime + teacherBackTime, t = 0f;
+        float scale = total / (teacherWalkTime + teacherMeetTime + teacherBackTime);
+        float walkT = teacherWalkTime * scale, meetT = teacherMeetTime * scale, backT = teacherBackTime * scale, t = 0f;
 
-        yield return HelperWalk(from, meet, teacherWalkTime, e => { SetBar(e / total); MoveBar(KidBarPos()); });
-        t = teacherWalkTime;
+        yield return HelperWalk(from, meet, walkT, e => { SetBar(e / total); MoveBar(KidBarPos()); });
+        t = walkT;
 
         // they meet: the kid cheers up
-        Toast("The teacher found your friend!", teacherMeetTime + 1f);
+        Toast("The teacher found your friend!", meetT + 1f);
         SetMode(Mode.Calm);
         SetSprite(happyFrames, 0);
         SunodGame.Core.vc_Sfx.Play("chime", 0.7f);
         Fx(heartFrames, kid.position + new Vector3(0f, 1.3f, 0f), 3f, 0.35f);
         float m = 0f;
-        while (m < teacherMeetTime)
+        while (m < meetT)
         {
             m += Time.deltaTime;
             SetBar((t + m) / total);
             yield return null;
         }
-        t += teacherMeetTime;
+        t += meetT;
 
         // hand in hand back to class
         Vector3 kidFrom = kid.position, teacherFrom = meet;
         Vector3 kidTo = door + new Vector3(-0.4f, 0f, 0f), teacherTo = door + new Vector3(0.4f, 0.1f, 0f);
         float b = 0f;
-        while (b < teacherBackTime)
+        while (b < backT)
         {
             b += Time.deltaTime;
-            float k = Mathf.Clamp01(b / teacherBackTime);
+            float k = Mathf.Clamp01(b / backT);
             Vector3 kn = Vector3.Lerp(kidFrom, kidTo, k);
             _kidSr.flipX = kn.x < kid.position.x ? true : _kidSr.flipX;
             SetKidPos(kn);

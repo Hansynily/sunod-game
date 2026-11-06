@@ -12,6 +12,9 @@ public class vc_QuestSkillProfile
     /// <summary>NPC who asked (for their lines).</summary>
     public string npcName;
 
+    /// <summary>This quest's press limit (longest real solution + the stage's spare). 0 = stage default.</summary>
+    public int presses;
+
     /// <summary>Tag of the best-fit skill (fast, never slowed by stage or level).</summary>
     public string bestFitTag;
     /// <summary>The best fit's time: what a Lv3 same-category skill or a prepped skill takes.</summary>

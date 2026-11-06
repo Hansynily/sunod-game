@@ -38,6 +38,26 @@ public class vc_CampusPaperQuest : vc_FitQuestKit
     [SerializeField] private int rewritePresses = 3;
     [SerializeField] private float surveyTime = 8f;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Kevin",
+        presses = 4,
+        bestFitTag = "craft",
+        bestFitSeconds = 2f,
+        prepTag = "survey",
+        prepUnlocksTag = "paint",
+        prepLine = "You grab quick interview notes...",
+        preferredTag = "paint",
+        preferenceLine = "Pictures! People will actually read it now. Thanks!",
+        fastLines = new[]
+        {
+            ("paint", "Front page material, with pictures! Already?!"),
+            ("barrier", "One rewrite and it's perfect?"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private int _rewrites;
     private float _clockTick, _ballClock;
 
@@ -51,7 +71,7 @@ public class vc_CampusPaperQuest : vc_FitQuestKit
         if (typewriter != null && typeFrames.Length > 0) typewriter.sprite = typeFrames[0];
         _clockTick = 0f; _ballClock = 1.5f;
         vc_QuestHUD.Instance?.ShowQuestInfo("Quest", "Campus Paper",
-            "The campus paper needs a story by tonight. Help Kevin write it.", new[] { "Write the story" });
+            "Kevin's campus paper needs a story by tonight, and it needs pictures too. Help him write it.", new[] { "Write the story" });
     }
 
     // ── Idle life: the deadline clock ticks, drafts get crumpled ─────────
@@ -99,10 +119,28 @@ public class vc_CampusPaperQuest : vc_FitQuestKit
     {
         if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime), CurrentInstant)); return; }
         if (d.HasTag("barrier")) { RewritePress(); return; }
-        if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
+        if (d.HasTag("survey")) { StartWork(SurveyRoutine(PathTime(surveyTime))); return; }
         Toast("A story needs a writer's touch.", 2.2f);
+    }
+
+    // Prep: Survey flies quick interview notes in; Paint then illustrates the whole story at once.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 at = typewriter != null ? typewriter.bounds.center + new Vector3(-1.2f, 0.6f, 0f) : transform.position;
+        SpriteRenderer nb = notebook != null ? Spawn(notebook, at, 20, "InterviewNotes") : null;
+        if (questionBubble != null) Fx(new[] { questionBubble }, at + new Vector3(0f, 0.8f, 0f), 0.8f, 0.2f, 24);
+        for (int i = 0; i < 4; i++)
+        {
+            Fx(scribbleFrames, at + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.1f, 0.2f), 0f), 6f, 0f, 22);
+            Sfx("scribble", 0.35f);
+            yield return new WaitForSeconds(0.22f);
+        }
+        if (nb != null) Destroy(nb.gameObject);
+        Fx(sparkFrames, BoardCenter(), 12f, 0.15f);
+        yield return new WaitForSeconds(0.1f);
     }
 
     private IEnumerator CraftRoutine()
@@ -118,56 +156,71 @@ public class vc_CampusPaperQuest : vc_FitQuestKit
         Splash("Front page story, done before the deadline!");
     }
 
-    private IEnumerator PaintRoutine()
+    private IEnumerator PaintRoutine(float seconds, bool oneGo)
     {
-        Toast("You illustrate the story...", paintTime);
+        Toast(oneGo ? "You illustrate the whole story at once..." : "You illustrate the story...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
         SetPage(1);
+        float splatT = seconds * 0.625f / 5f;
         for (int i = 0; i < 5; i++)
         {
             Fx(splatFrames, BoardCenter() + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.4f, 0.4f), 0f), 10f, 0f, 22);
             Sfx("brush", 0.4f);
-            yield return Tick(0.5f, c, paintTime);
+            yield return Tick(splatT, c, seconds);
         }
         Toast("...and write the captions.", 1.4f);
-        yield return Type(paintTime - c[0] - 0.1f, c, paintTime);
+        yield return Type(seconds * 0.35f, c, seconds);
         SetPage(2);
-        yield return Tick(paintTime - c[0], c, paintTime);
-        Splash("Pictures and captions. The story pops!");
+        yield return Tick(Mathf.Max(0f, seconds - c[0]), c, seconds);
+        Splash(oneGo ? "Pictures and captions, all in one go!" : "Pictures and captions. The story pops!");
     }
 
     private void RewritePress()
     {
         _rewrites++;
+        int need = Mathf.Max(1, PathPresses(rewritePresses));
         TossBall();
         StartCoroutine(TypeBurst(0.4f));
         SetPage(Mathf.Min(2, _rewrites));
         Fx(sparkFrames, BoardCenter(), 12f, 0.15f);
-        if (_rewrites < rewritePresses) { Toast($"You rework the messy draft ({_rewrites}/{rewritePresses})", 2f); return; }
-        Splash("Three rewrites later, the story shines!");
+        if (_rewrites < need) { Toast($"You rework the messy draft ({_rewrites}/{need})", 2f); return; }
+        StartWork(RewriteFinishRoutine(need == 1));
     }
 
-    private IEnumerator SurveyRoutine()
+    private IEnumerator RewriteFinishRoutine(bool oneGo)
     {
-        Toast("You interview people and do research...", surveyTime);
+        Toast(oneGo ? "One rewrite reshapes the whole draft!" : "One last rewrite...", 1.5f);
+        ShowBar(true);
+        SetPage(1);
+        Sfx("clack", 0.4f);
+        Fx(sparkFrames, BoardCenter(), 12f, 0.15f);
+        yield return Step(0.35f, 0f, 0.5f);
+        SetPage(2);
+        yield return Step(0.35f, 0.5f, 1f);
+        Splash(oneGo ? "One rewrite and the story shines!" : "Three rewrites later, the story shines!");
+    }
+
+    private IEnumerator SurveyRoutine(float seconds)
+    {
+        Toast("You interview people and do research...", Mathf.Max(1.5f, seconds * 0.5f));
         ShowBar(true);
         var c = new float[1];
         Vector3 at = typewriter != null ? typewriter.bounds.center + new Vector3(-1.2f, 0.6f, 0f) : transform.position;
         var nb = notebook != null ? Spawn(notebook, at, 20, "InterviewNotes") : null;
         if (questionBubble != null) Fx(new[] { questionBubble }, at + new Vector3(0f, 0.8f, 0f), 0.8f, 0.2f, 24);
-        while (c[0] < surveyTime - 2.6f)
+        while (c[0] < seconds * 0.675f)
         {
             Fx(scribbleFrames, at + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.1f, 0.2f), 0f), 6f, 0f, 22);
             Sfx("scribble", 0.35f);
-            yield return Tick(0.4f, c, surveyTime);
+            yield return Tick(0.4f, c, seconds);
         }
         if (nb != null) Destroy(nb.gameObject);
-        yield return Type(1.2f, c, surveyTime);
+        yield return Type(seconds * 0.15f, c, seconds);
         SetPage(1);
-        yield return Type(surveyTime - c[0] - 0.1f, c, surveyTime);
+        yield return Type(seconds * 0.15f, c, seconds);
         SetPage(2);
-        yield return Tick(surveyTime - c[0], c, surveyTime);
+        yield return Tick(Mathf.Max(0f, seconds - c[0]), c, seconds);
         Splash("Well researched. A solid front-page story!");
     }
 

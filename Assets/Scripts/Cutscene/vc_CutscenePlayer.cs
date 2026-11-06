@@ -461,13 +461,13 @@ namespace SunodGame.Cutscene
             System.Action<System.Action> moment = _interlude;
             _interlude = null;
             _transitioning = true;
-            _dialogBox?.SetDisplay(false);
-            _btnSkip?.SetDisplay(false);
+            vc_UIAnim.Hide(_dialogBox, null, vc_UIAnim.Exit.SlideDown);
+            vc_UIAnim.Hide(_btnSkip, null, vc_UIAnim.Exit.Fade);
             moment(() =>
             {
                 _transitioning = false;
-                _dialogBox?.SetDisplay(true);
-                _btnSkip?.SetDisplay(true);
+                vc_UIAnim.Show(_dialogBox, vc_UIAnim.Enter.SlideUp);
+                vc_UIAnim.Show(_btnSkip, vc_UIAnim.Enter.Fade);
                 resume?.Invoke();
             });
             return true;

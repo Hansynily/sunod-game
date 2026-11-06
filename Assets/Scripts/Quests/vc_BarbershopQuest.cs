@@ -49,6 +49,31 @@ public class vc_BarbershopQuest : vc_FitQuestBase
     [SerializeField] private float persuadeTime = 4f;
     [SerializeField] private float directTime = 7f;
     [SerializeField] private float craftTime = 8f;
+    [SerializeField] private float mapTime = 4f;
+
+    // Skill system v2 (QUEST_REDESIGN.md): Direct (prep) hands out queue numbers by itself, then
+    // Call brings everyone through in order at once. Preference: Charm (keep the line happy).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mang Ramil",
+        presses = 5,
+        bestFitTag = "command",
+        bestFitSeconds = 2f,
+        prepTag = "direct",
+        prepUnlocksTag = "summon",
+        prepLine = "Queue-number tickets hand themselves out down the line...",
+        preferredTag = "charm",
+        preferenceLine = "Not one grumpy face left! Salamat, iho!",
+        fastLines = new[]
+        {
+            ("summon", "The whole line, done!"),
+            ("charm", "Nobody's grumpy anymore!"),
+            ("persuade", "Sold out of tonic already!"),
+            ("map", "The shop flows so much better now!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
 
     // 0 waiting, 1 walking/in chair, 2 done
     private int[] _state;
@@ -94,7 +119,7 @@ public class vc_BarbershopQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Barbershop Rush",
-            "The line is long at Mang Ramil's barbershop. Help run it.",
+            "Mang Ramil: the line is long and the customers get grumpy when they wait. Help him run the shop. He loves a happy, smiling line.",
             new[] { "Keep the shop running" });
     }
 
@@ -126,10 +151,11 @@ public class vc_BarbershopQuest : vc_FitQuestBase
         if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("summon")) { CallNext(); return; }
-        if (d.HasTag("charm")) { StartWork(CharmRoutine()); return; }
-        if (d.HasTag("persuade")) { StartWork(TonicRoutine()); return; }
-        if (d.HasTag("direct")) { StartWork(QueueRoutine()); return; }
-        if (d.HasTag("craft")) { StartWork(SelfCutRoutine()); return; }
+        if (d.HasTag("charm")) { StartWork(CharmRoutine(PathTime(charmTime))); return; }
+        if (d.HasTag("persuade")) { StartWork(TonicRoutine(PathTime(persuadeTime))); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime))); return; }
+        if (d.HasTag("direct")) { StartWork(QueueRoutine(PathTime(directTime))); return; }
+        if (d.HasTag("craft")) { StartWork(SelfCutRoutine(PathTime(craftTime))); return; }
         Toast("The shop needs someone to run it.", 2.2f);
     }
 
@@ -153,26 +179,60 @@ public class vc_BarbershopQuest : vc_FitQuestBase
 
     // ── Call: "Next!", one per press ─────────────────────────────────────
 
+    // 3 presses at Lv1, 2 at Lv2, 1 at Lv3 or after the Direct prep (then the whole line goes through at once).
     private void CallNext()
     {
-        int i = NextWaiting();
-        if (i < 0) return;
-        if (FreeChair() < 0) { Toast("Both chairs are busy...", 1.4f); return; }
         _calls++;
-        if (shoutBubble != null) Fx(new[] { shoutBubble }, Top(customers[i].transform.position) + new Vector3(0.6f, 0.3f, 0f), 1.4f, 0.1f, 25);
-        SunodGame.Core.vc_Sfx.Play("bell", 0.6f);
-        StartCoroutine(Serve(i, 0.5f));
-        if (NextWaiting() >= 0)
+        int need = Mathf.Max(1, PathPresses(callPresses));
+        if (_calls >= need)
         {
-            Toast($"\"Next!\" ({_calls}/{callPresses})", 1.6f);
+            StartWork(CallFinishRoutine(need == 1));
             return;
         }
-        Finish("\"Next!\" Every customer got a fresh cut.");
+
+        int waiting = 0;
+        for (int w = 0; w < customers.Length; w++) if (_state[w] == 0) waiting++;
+        int share = Mathf.Max(1, Mathf.CeilToInt(waiting / (float)(need - _calls + 1)));
+        for (int n = 0; n < share; n++)
+        {
+            int i = NextWaiting();
+            if (i < 0 || FreeChair() < 0) break;
+            CallOut(i);
+            StartCoroutine(Serve(i, 0.5f));
+        }
+        Toast($"\"Next!\" ({_calls}/{need})", 1.6f);
+    }
+
+    private void CallOut(int i)
+    {
+        if (shoutBubble != null) Fx(new[] { shoutBubble }, Top(customers[i].transform.position) + new Vector3(0.6f, 0.3f, 0f), 1.4f, 0.1f, 25);
+        SunodGame.Core.vc_Sfx.Play("bell", 0.6f);
+    }
+
+    // The last press: everyone still waiting is called through in order, then the quest ends.
+    private IEnumerator CallFinishRoutine(bool oneGo)
+    {
+        Toast(oneGo ? "\"Next! Next! Next!\" The whole line comes through in order!" : "\"Next!\" You call the rest of the line...", 2f);
+        ShowBar(true);
+        float gap = oneGo ? 0.1f : 0.25f, cut = oneGo ? 0.45f : 0.5f;
+        int k;
+        while ((k = NextWaiting()) >= 0)
+        {
+            if (FreeChair() < 0) { yield return null; continue; }
+            CallOut(k);
+            StartCoroutine(Serve(k, cut));
+            int served = 0;
+            for (int s = 0; s < customers.Length; s++) if (_state[s] != 0) served++;
+            SetBar(served / (float)Mathf.Max(1, customers.Length));
+            yield return new WaitForSeconds(gap);
+        }
+        while (!AllDone()) yield return null;
+        Finish(oneGo ? "\"Next!\" The whole line went through in one go!" : "\"Next!\" Every customer got a fresh cut.");
     }
 
     // ── Charm: a happy line while the cuts go on ─────────────────────────
 
-    private IEnumerator CharmRoutine()
+    private IEnumerator CharmRoutine(float charmTime)
     {
         Toast("You keep the waiting line happy...", charmTime);
         ShowBar(true);
@@ -187,7 +247,7 @@ public class vc_BarbershopQuest : vc_FitQuestBase
 
     // ── Persuade: hair tonic add-on ──────────────────────────────────────
 
-    private IEnumerator TonicRoutine()
+    private IEnumerator TonicRoutine(float persuadeTime)
     {
         Toast("You sell a hair tonic while they wait...", persuadeTime);
         ShowBar(true);
@@ -202,13 +262,73 @@ public class vc_BarbershopQuest : vc_FitQuestBase
         Finish("Line moved, and you sold the tonic too!");
     }
 
+    // ── Map: rearrange the chairs and bench so the line flows ────────────
+
+    private IEnumerator MapRoutine(float mapTime)
+    {
+        Toast("You rearrange the chairs and bench so the line flows...", Mathf.Min(2.5f, mapTime));
+        ShowBar(true);
+        float slide = Mathf.Max(0.4f, mapTime * 0.4f), t = 0f, scrape = 0f;
+        Vector3 mid = chairSeats != null && chairSeats.Length > 0 ? Mid() : transform.position;
+        var from = new Vector3[customers.Length];
+        var to = new Vector3[customers.Length];
+        for (int i = 0; i < customers.Length; i++)
+        {
+            from[i] = customers[i].transform.position;
+            Vector3 dir = mid - from[i];
+            dir.z = 0f;
+            to[i] = dir.sqrMagnitude > 0.01f ? from[i] + dir.normalized * 0.5f : from[i];
+        }
+        if (chairSeats != null)
+            foreach (Transform seat in chairSeats) StartCoroutine(Shake(seat, seat.localPosition, 0.5f, 1));
+        while (t < slide)
+        {
+            t += Time.deltaTime;
+            scrape += Time.deltaTime;
+            float k = Mathf.SmoothStep(0f, 1f, t / slide);
+            for (int i = 0; i < customers.Length; i++)
+                if (_state[i] == 0) customers[i].transform.position = Snap(Vector3.Lerp(from[i], to[i], k));
+            if (scrape >= 0.4f)
+            {
+                scrape = 0f;
+                SunodGame.Core.vc_Sfx.Play("scrape", 0.4f, 0.1f);
+            }
+            SetBar(t / mapTime);
+            yield return null;
+        }
+        for (int i = 0; i < customers.Length; i++)
+            if (_state[i] == 0)
+            {
+                customers[i].transform.position = to[i];
+                Fx(sparkFrames, Top(to[i]) - new Vector3(0f, 0.5f, 0f), 12f, 0.1f);
+            }
+        yield return ServeAllInOrder(Mathf.Max(0.4f, mapTime - slide), slide, mapTime, null);
+        Finish("The shop flows so much better. The line just glides through!");
+    }
+
+    // ── Prep (Direct): queue numbers hand themselves out down the line ───
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        float gap = 0.9f / Mathf.Max(1, customers.Length);
+        for (int i = 0; i < customers.Length; i++)
+        {
+            if (_state[i] == 0 && queueTags != null && i < queueTags.Length)
+                Fx(new[] { queueTags[i] }, Top(customers[i].transform.position), 1.4f, 0.15f, 24);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.05f);
+            yield return new WaitForSeconds(gap);
+        }
+        yield return new WaitForSeconds(0.1f);
+    }
+
     // ── Direct: queue numbers, then in order ─────────────────────────────
 
-    private IEnumerator QueueRoutine()
+    private IEnumerator QueueRoutine(float directTime)
     {
         Toast("You hand out queue numbers...", directTime);
         ShowBar(true);
-        float tagTime = 2.4f, t = 0f;
+        float tagTime = 2.4f * directTime / 7f, t = 0f;
         float per = tagTime / Mathf.Max(1, customers.Length);
         for (int i = 0; i < customers.Length; i++)
         {
@@ -218,13 +338,13 @@ public class vc_BarbershopQuest : vc_FitQuestBase
             yield return BarStep(per, t / directTime, (t + per) / directTime);
             t += per;
         }
-        yield return ServeAllInOrder(directTime - t, t, directTime, null);
+        yield return ServeAllInOrder(Mathf.Max(0.4f, directTime - t), t, directTime, null);
         Finish("Numbered and orderly. The line is done!");
     }
 
     // ── Craft: cut it yourself, slowly ───────────────────────────────────
 
-    private IEnumerator SelfCutRoutine()
+    private IEnumerator SelfCutRoutine(float craftTime)
     {
         Toast("You pick up the scissors yourself...", craftTime);
         ShowBar(true);

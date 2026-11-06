@@ -49,6 +49,28 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
     [SerializeField] private float vetWalkTime = 6f;
     [SerializeField] private float vetFixTime = 4f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Craft (prep) puts together a soft nest box, then Guide
+    // leads the sparrow straight in. Preference: Teach (the kids learn to care for it).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Liza",
+        presses = 4,
+        bestFitTag = "heal",
+        bestFitSeconds = 2f,
+        prepTag = "craft",
+        prepUnlocksTag = "guide",
+        prepLine = "You put together a soft little nest box...",
+        preferredTag = "teach",
+        preferenceLine = "The kids learned how to care for it. Thank you!",
+        fastLines = new[]
+        {
+            ("guide", "Straight into the nest! It trusts you."),
+            ("teach", "The kids learned so fast! They'll take care of it now."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3 _birdRest;
     private bool _hurt, _flipRest;
     private float _breathClock, _chirpClock;
@@ -81,7 +103,7 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Fallen Sparrow",
-            "A small bird is hurt and needs your help. Treat its injuries.",
+            "Liza found a hurt sparrow by the river. She wants the kids to learn how to care for it too, so teaching them would make her happy.",
             new[] { "Help the hurt sparrow" });
     }
 
@@ -114,10 +136,10 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
     {
         if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("guide")) { StartWork(GuideRoutine()); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
-        if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(VetRoutine()); return; }
+        if (d.HasTag("guide")) { StartWork(GuideRoutine(PathTime(guideTime), CurrentInstant)); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime))); return; }
+        if (d.HasTag("craft")) { StartWork(CraftRoutine(PathTime(craftTime))); return; }
+        if (d.HasTag("summon")) { StartWork(VetRoutine(PathTime(vetWalkTime + vetFixTime))); return; }
         Toast("The bird needs gentle care.", 2.2f);
     }
 
@@ -160,9 +182,9 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
 
     // ── Guide: hop by hop into the nest box ──────────────────────────────
 
-    private IEnumerator GuideRoutine()
+    private IEnumerator GuideRoutine(float guideTime, bool oneGo)
     {
-        Toast("You guide the sparrow toward the nest...", guideTime);
+        Toast(oneGo ? "You lead the sparrow straight into the nest box!" : "You guide the sparrow toward the nest...", Mathf.Max(1.5f, guideTime));
         ShowBar(true);
         SetBandaged();
         bird.sprite = sit;
@@ -195,14 +217,14 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
         bird.sortingOrder = 7;
         Fx(heartFx, to + new Vector3(0f, 0.7f, 0f), 2f, 0.4f);
         SunodGame.Core.vc_Sfx.Play("chirp", 0.7f);
-        Finish("The sparrow settles into its nest. Safe and warm!");
+        Finish(oneGo ? "Straight into the nest, in one go. Safe and warm!" : "The sparrow settles into its nest. Safe and warm!");
     }
 
     // ── Teach: two kids learn how to care for it ─────────────────────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float teachTime)
     {
-        Toast("You show the kids how to care for it...", teachTime);
+        Toast("You show the kids how to care for it...", Mathf.Max(1.5f, teachTime));
         ShowBar(true);
         Vector3 b = bird.transform.position;
         Vector3[] to = { b + new Vector3(-1.0f, -0.35f, 0f), b + new Vector3(1.0f, -0.35f, 0f) };
@@ -220,7 +242,7 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
             _spawned.Add(go);
         }
 
-        float walk = 2.4f, t = 0f;
+        float walk = teachTime * 0.48f, step = teachTime * 0.18f, t = 0f;
         while (t < walk)
         {
             t += Time.deltaTime;
@@ -237,30 +259,31 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
         // each kid copies you: bandage, then hearts
         Fx(new[] { bandageRoll }, kids[0].transform.position + new Vector3(0.5f, 1.1f, 0f), 1.8f, -0.4f);
         SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f);
-        yield return BarStep(0.9f, walk / teachTime, (walk + 0.9f) / teachTime);
+        yield return BarStep(step, walk / teachTime, (walk + step) / teachTime);
         SetBandaged();
         Fx(sparkFrames, b + new Vector3(0.1f, 0.2f, 0f), 12f, 0.15f);
         SunodGame.Core.vc_Sfx.Play("step_done", 0.5f);
         Fx(heartFx, kids[1].transform.position + new Vector3(0f, 1.2f, 0f), 2f, 0.4f);
-        yield return BarStep(0.9f, (walk + 0.9f) / teachTime, (walk + 1.8f) / teachTime);
+        yield return BarStep(step, (walk + step) / teachTime, (walk + 2f * step) / teachTime);
 
         bird.sprite = sit;
         for (int i = 0; i < 2; i++) if (kidHappy != null && kidHappy.Length > 1) kids[i].sprite = kidHappy[1];
         Fx(heartFx, b + new Vector3(0f, 0.8f, 0f), 2f, 0.4f);
         SunodGame.Core.vc_Sfx.Play("chirp", 0.6f);
-        yield return BarStep(teachTime - walk - 1.8f, (walk + 1.8f) / teachTime, 1f);
+        yield return BarStep(Mathf.Max(0.05f, teachTime - walk - 2f * step), (walk + 2f * step) / teachTime, 1f);
         _ending = StartCoroutine(Hops(bird, 2));
         Finish("The kids learned to help. The sparrow perks up!");
     }
 
     // ── Craft: gather twigs, make a splint, fit it ───────────────────────
 
-    private IEnumerator CraftRoutine()
+    private IEnumerator CraftRoutine(float seconds)
     {
-        Toast("You make a little splint for the wing...", craftTime);
+        Toast("You make a little splint for the wing...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         Vector3 b = bird.transform.position;
         float t = 0f;
+        float k = seconds / Mathf.Max(0.1f, craftTime);   // scale the authored sub-timings
 
         // gather three twigs
         Vector3[] spots = { b + new Vector3(-1.3f, -0.2f, 0f), b + new Vector3(-0.2f, -0.55f, 0f), b + new Vector3(1.1f, -0.25f, 0f) };
@@ -268,8 +291,8 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
         {
             Fx(new[] { twig }, spots[i] + new Vector3(0f, 0.5f, 0f), 1.4f, -0.3f);
             SunodGame.Core.vc_Sfx.Play("clack", 0.4f, 0.12f);
-            yield return BarStep(0.9f, t / craftTime, (t + 0.9f) / craftTime);
-            t += 0.9f;
+            yield return BarStep(0.9f * k, t / seconds, (t + 0.9f * k) / seconds);
+            t += 0.9f * k;
         }
 
         // tie them with tape and tap into shape
@@ -277,55 +300,57 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
         for (int i = 0; i < 4; i++)
         {
             Fx(hammerFrames, b + new Vector3(-0.1f + 0.1f * (i % 2), 0.9f, 0f), 8f);
-            yield return new WaitForSeconds(0.14f);
+            yield return new WaitForSeconds(0.14f * k);
             SunodGame.Core.vc_Sfx.Play("hammer", 0.4f, 0.1f);
             Fx(sparkFrames, b + new Vector3(0f, 0.55f, 0f), 12f, 0.1f);
-            yield return BarStep(0.5f, t / craftTime, (t + 0.5f) / craftTime);
-            t += 0.5f;
+            yield return BarStep(0.5f * k, t / seconds, (t + 0.5f * k) / seconds);
+            t += 0.5f * k;
         }
 
         // fit the splint
         Fx(new[] { twig }, b + new Vector3(0.2f, 0.6f, 0f), 2f, -0.3f);
-        yield return BarStep(0.7f, t / craftTime, (t + 0.7f) / craftTime);
-        t += 0.7f;
+        yield return BarStep(0.7f * k, t / seconds, (t + 0.7f * k) / seconds);
+        t += 0.7f * k;
         _hurt = false;
         bird.sprite = splint;
         SunodGame.Core.vc_Sfx.Play("step_done", 0.5f);
         Fx(sparkFrames, b + new Vector3(0.1f, 0.25f, 0f), 12f, 0.15f);
-        yield return BarStep(0.6f, t / craftTime, (t + 0.6f) / craftTime);
-        t += 0.6f;
+        yield return BarStep(0.6f * k, t / seconds, (t + 0.6f * k) / seconds);
+        t += 0.6f * k;
         Fx(heartFx, b + new Vector3(0f, 0.8f, 0f), 2f, 0.4f);
         SunodGame.Core.vc_Sfx.Play("chirp", 0.6f);
-        yield return BarStep(Mathf.Max(0.05f, craftTime - t), t / craftTime, 1f);
+        yield return BarStep(Mathf.Max(0.05f, seconds - t), t / seconds, 1f);
         _ending = StartCoroutine(FlyAway());
         Finish("The little splint holds. The sparrow flaps free!");
     }
 
     // ── Call: the volunteer vet walks over and treats it ─────────────────
 
-    private IEnumerator VetRoutine()
+    private IEnumerator VetRoutine(float total)
     {
+        float walkT = total * vetWalkTime / Mathf.Max(0.01f, vetWalkTime + vetFixTime);
+        float fixT = total - walkT;
+        float f = fixT / Mathf.Max(0.01f, vetFixTime);   // scale the authored treatment steps
         Toast("You call the volunteer vet...", 3f);
         ShowBar(true);
         Vector3 b = bird.transform.position;
         Vector3 to = b + new Vector3(-1.1f, -0.3f, 0f);
         Vector3 from = to + new Vector3(-6f, 0f, 0f);
         SpawnHelper(from, 7);
-        float total = vetWalkTime + vetFixTime;
 
-        yield return HelperWalk(from, to, vetWalkTime, t => SetBar(t / total));
+        yield return HelperWalk(from, to, walkT, el => SetBar(el / total));
 
-        Toast("The vet gets to work...", vetFixTime);
+        Toast("The vet gets to work...", Mathf.Max(1.5f, fixT));
         Fx(new[] { medkit }, to + new Vector3(0.5f, 1.2f, 0f), 1.6f, -0.2f);
         SunodGame.Core.vc_Sfx.Play("quest_start", 0.35f);
-        float t = vetWalkTime;
-        yield return BarStep(1.2f, t / total, (t + 1.2f) / total); t += 1.2f;
+        float t = walkT;
+        yield return BarStep(1.2f * f, t / total, (t + 1.2f * f) / total); t += 1.2f * f;
         Fx(new[] { bandageRoll }, b + new Vector3(0.1f, 0.9f, 0f), 1.8f, -0.45f);
-        yield return BarStep(1.2f, t / total, (t + 1.2f) / total); t += 1.2f;
+        yield return BarStep(1.2f * f, t / total, (t + 1.2f * f) / total); t += 1.2f * f;
         SetBandaged();
         Fx(sparkFrames, b + new Vector3(0.1f, 0.2f, 0f), 12f, 0.15f);
         SunodGame.Core.vc_Sfx.Play("step_done", 0.5f);
-        yield return BarStep(0.9f, t / total, (t + 0.9f) / total); t += 0.9f;
+        yield return BarStep(0.9f * f, t / total, (t + 0.9f * f) / total); t += 0.9f * f;
         bird.sprite = sit;
         Fx(heartFx, b + new Vector3(0f, 0.8f, 0f), 2f, 0.4f);
         SunodGame.Core.vc_Sfx.Play("chirp", 0.6f);
@@ -367,6 +392,30 @@ public class vc_SparrowRescueQuest : vc_FitQuestBase
             yield return null;
         }
         bird.gameObject.SetActive(false);
+    }
+
+    // ── Prep: Craft puts together a soft little nest box ─────────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 n = nest != null ? nest.position : (bird != null ? bird.transform.position + new Vector3(2.5f, 0.5f, 0f) : transform.position);
+        for (int i = 0; i < 3; i++)
+        {
+            Fx(new[] { twig }, n + new Vector3(-0.6f + i * 0.6f, 0.9f, 0f), 1.4f, -0.4f);
+            SunodGame.Core.vc_Sfx.Play("clack", 0.4f, 0.12f);
+            yield return new WaitForSeconds(0.18f);
+        }
+        Fx(new[] { tape }, n + new Vector3(0f, 0.8f, 0f), 1.4f, 0.1f);
+        for (int i = 0; i < 2; i++)
+        {
+            Fx(hammerFrames, n + new Vector3(-0.1f + 0.2f * i, 0.5f, 0f), 8f);
+            SunodGame.Core.vc_Sfx.Play("hammer", 0.4f, 0.1f);
+            yield return new WaitForSeconds(0.14f);
+        }
+        Fx(sparkFrames, n + new Vector3(0f, 0.3f, 0f), 12f, 0.15f);
+        Fx(heartFx, n + new Vector3(0f, 0.8f, 0f), 2f, 0.4f);
+        yield return new WaitForSeconds(0.2f);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

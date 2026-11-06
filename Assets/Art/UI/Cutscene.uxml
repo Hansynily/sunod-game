@@ -6,14 +6,14 @@
 
         <ui:VisualElement name="fade-overlay" class="fade-overlay" picking-mode="Ignore"/>
 
-        <ui:VisualElement name="dialog-box" class="dialog-box">
+        <!-- UI V2 story box: cream card along the bottom, tap anywhere on it to advance -->
+        <ui:VisualElement name="dialog-box" class="dialog-box sn-panel">
             <ui:Label name="dialog-text" class="dialog-text" text=""/>
-            <ui:Label name="next-indicator" class="next-indicator hidden" text="&#9660;"/>
+            <!-- "tap to go on" chevron, drawn with borders (no glyph needed) -->
+            <ui:Label name="next-indicator" class="next-indicator hidden" text="" picking-mode="Ignore"/>
         </ui:VisualElement>
 
-        <ui:Button name="btn-skip" class="btn-skip sl-button">
-            <ui:Label text="Skip" class="btn-skip-label"/>
-        </ui:Button>
+        <ui:Button name="btn-skip" class="btn-skip sn-btn sn-btn--small" text="Skip"/>
 
     </ui:VisualElement>
 </ui:UXML>

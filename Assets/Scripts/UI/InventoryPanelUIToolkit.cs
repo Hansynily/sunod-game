@@ -4,11 +4,22 @@ using UnityEngine.UIElements;
 
 namespace SunodGame.UI
 {
+    /// <summary>
+    /// Skill equip screen (UI V2). Scrim fades + sheet pops in, slots and cards cascade in,
+    /// the slot the picked skill goes in pulses, equipping punches the slot. Cards and slots
+    /// carry the RIASEC kind colour (vc_UITheme.Riasec) and silver/gold Lv badges.
+    /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public class InventoryPanelUIToolkit : MonoBehaviour
     {
         private VisualElement _overlay;
+        private VisualElement _panel;
+        private VisualElement _slotsGrid;
         private ScrollView    _cardsScroll;
+        private bool          _open;
+        private vc_UIAnim.Handle _readyPulse;
+        private VisualElement    _readySlot;
+        private readonly Label[] _slotLv = new Label[vc_SkillManager.SlotCount];
 
         private readonly VisualElement[] _slotIcons   = new VisualElement[vc_SkillManager.SlotCount];
         private readonly VisualElement[] _slotFrames  = new VisualElement[vc_SkillManager.SlotCount];
@@ -40,12 +51,12 @@ namespace SunodGame.UI
 
         private static readonly Dictionary<string, string> RiasecNames = new()
         {
-            { "r", "REALISTIC" },
-            { "i", "INVESTIGATIVE" },
-            { "a", "ARTISTIC" },
-            { "s", "SOCIAL" },
-            { "e", "ENTERPRISING" },
-            { "c", "CONVENTIONAL" }
+            { "r", "Realistic" },
+            { "i", "Investigative" },
+            { "a", "Artistic" },
+            { "s", "Social" },
+            { "e", "Enterprising" },
+            { "c", "Conventional" }
         };
 
         private void OnEnable()
@@ -53,6 +64,8 @@ namespace SunodGame.UI
             var root = GetComponent<UIDocument>().rootVisualElement;
 
             _overlay     = root.Q<VisualElement>("overlay");
+            _panel       = root.Q<VisualElement>("inv-panel");
+            _slotsGrid   = root.Q<VisualElement>("inv-slots");
             _cardsScroll = root.Q<ScrollView>("cards-scroll");
 
             // Detail pane
@@ -83,9 +96,25 @@ namespace SunodGame.UI
                 _slotEmpties[i] = root.Q<Label>($"slot-empty-{i}");
                 _slotNames[i]   = root.Q<Label>($"slot-name-{i}");
                 _slotFrames[i]?.RegisterCallback<ClickEvent>(_ => OnSlotClicked(idx));
+
+                // kind ring + a Lv badge holder on each slot
+                if (_slotFrames[i] != null)
+                {
+                    vc_UITheme.Border(_slotFrames[i], 4f, vc_UITheme.Riasec(vc_SkillManager.CategoryLetterForSlot(i)));
+                    _slotFrames[i].style.borderBottomWidth = 7f;
+                    if (_slotLv[i] == null && _slotFrames[i].parent != null)
+                    {
+                        _slotLv[i] = new Label { name = $"slot-lv-{i}", pickingMode = PickingMode.Ignore };
+                        _slotLv[i].AddToClassList("sn-badge");
+                        _slotLv[i].AddToClassList("slot-lv");
+                        _slotLv[i].style.display = DisplayStyle.None;
+                        _slotFrames[i].parent.Add(_slotLv[i]);
+                    }
+                }
             }
 
-            Hide();
+            vc_UIAnim.PressAll(root);
+            HideNow();      // start closed, no animation
 
             vc_PlayerOptions.Changed += OnOptionsChanged;
         }
@@ -117,20 +146,82 @@ namespace SunodGame.UI
         public void Show()
         {
             TryBindInventoryEvent();
-            _overlay.style.display = DisplayStyle.Flex;
+            bool wasOpen = _open;
+            _open = true;
             ClearSelection();
             PopulateCards();
             RefreshSlots();
             SetSlotsReady(false);
             SetHideTargets(false);
+
+            if (!wasOpen)
+            {
+                vc_UIAnim.Show(_overlay, vc_UIAnim.Enter.Fade);
+                vc_UIAnim.Show(_panel, vc_UIAnim.Enter.Pop, 0.03f);
+                if (_slotsGrid != null)
+                {
+                    var wrappers = new List<VisualElement>();
+                    foreach (VisualElement row in _slotsGrid.Children())
+                        foreach (VisualElement w in row.Children()) wrappers.Add(w);
+                    vc_UIAnim.Stagger(wrappers, vc_UIAnim.Enter.Pop, 0.04f, 0.12f);
+                }
+                StaggerCards(0.3f);
+            }
+            else
+            {
+                _overlay.style.display = DisplayStyle.Flex;
+            }
         }
 
         public void Hide()
         {
-            if (_overlay != null)
-                _overlay.style.display = DisplayStyle.None;
+            if (!_open) { HideNow(); return; }
+            _open = false;
+            // sheet shrinks out, scrim fades with it
+            AnimHide(_panel, vc_UIAnim.Exit.Shrink);
+            AnimHide(_overlay, vc_UIAnim.Exit.Fade);
             ClearSelection();
+            SetSlotsReady(false);
             SetHideTargets(true);
+        }
+
+        /// <summary>Instant close (scene start / disable): no animation.</summary>
+        private void HideNow()
+        {
+            _open = false;
+            SnapHidden(_overlay);
+            if (_panel != null) { vc_UIAnim.StopAll(_panel); ClearInline(_panel); _panel.style.display = DisplayStyle.Flex; }
+            ClearSelection();
+            SetSlotsReady(false);
+            SetHideTargets(true);
+        }
+
+        private static void AnimHide(VisualElement ve, vc_UIAnim.Exit kind)
+        {
+            if (ve == null) return;
+            if (ve.resolvedStyle.display == DisplayStyle.None) { SnapHidden(ve); return; }
+            vc_UIAnim.Hide(ve, null, kind);
+        }
+
+        private static void SnapHidden(VisualElement ve)
+        {
+            if (ve == null) return;
+            vc_UIAnim.StopAll(ve);
+            ClearInline(ve);
+            ve.style.display = DisplayStyle.None;
+        }
+
+        private static void ClearInline(VisualElement ve)
+        {
+            ve.style.opacity = StyleKeyword.Null;
+            ve.style.scale = StyleKeyword.Null;
+            ve.style.translate = StyleKeyword.Null;
+        }
+
+        private void StaggerCards(float delay)
+        {
+            if (_cardsScroll == null) return;
+            vc_UIAnim.Stagger(_cardsScroll.contentContainer.Children(), vc_UIAnim.Enter.SlideUp, 0.03f, delay);
         }
 
         private void SetHideTargets(bool active)
@@ -149,8 +240,11 @@ namespace SunodGame.UI
 
         private void ShowEmptyDetail()
         {
-            if (_detailEmpty != null)  _detailEmpty.style.display  = DisplayStyle.Flex;
-            if (_detailFilled != null) _detailFilled.style.display = DisplayStyle.None;
+            bool wasHidden = _detailEmpty != null && _detailEmpty.style.display == DisplayStyle.None;
+            if (_detailFilled != null) { vc_UIAnim.StopAll(_detailFilled); ClearInline(_detailFilled); _detailFilled.style.display = DisplayStyle.None; }
+            if (_detailEmpty == null) return;
+            if (wasHidden && _open) vc_UIAnim.Show(_detailEmpty, vc_UIAnim.Enter.Fade);
+            else _detailEmpty.style.display = DisplayStyle.Flex;
         }
 
         private void PopulateCards()
@@ -173,9 +267,21 @@ namespace SunodGame.UI
             var row = new VisualElement();
             row.AddToClassList("skill-row");
 
-            // Icon frame
-            var iconFrame = new VisualElement();
+            string letter = (skill.riaSecLetter ?? "?").ToUpper();
+            bool riasec = letter.Length == 1 && "RIASEC".IndexOf(letter[0]) >= 0;
+            Color kind = riasec ? vc_UITheme.Riasec(letter) : vc_UITheme.Brown;
+
+            // kind strip along the top
+            var strip = new VisualElement { pickingMode = PickingMode.Ignore };
+            strip.AddToClassList("row-strip");
+            strip.style.backgroundColor = kind;
+            row.Add(strip);
+
+            // Icon disc, ringed in the kind colour
+            var iconFrame = new VisualElement { pickingMode = PickingMode.Ignore };
             iconFrame.AddToClassList("row-icon-frame");
+            vc_UITheme.Border(iconFrame, 3f, kind);
+            iconFrame.style.borderBottomWidth = 5f;
             var icon = new VisualElement();
             icon.AddToClassList("row-icon");
             icon.style.backgroundImage = vc_RiasecSymbols.Background(skill.riaSecLetter);
@@ -187,11 +293,10 @@ namespace SunodGame.UI
             textBlock.AddToClassList("row-textblock");
 
             int lv = vc_SkillLevels.Level(skill);
-            var nameLabel = new Label(lv > 1 ? $"{skill.DisplayName}  Lv{lv}" : skill.DisplayName);
+            var nameLabel = new Label(skill.DisplayName);
             nameLabel.AddToClassList("row-name");
             textBlock.Add(nameLabel);
 
-            string letter = (skill.riaSecLetter ?? "?").ToUpper();
             string riasecName = RiasecNames.TryGetValue(letter.ToLower(), out var n) ? n : "-";
             var metaLabel = new Label(riasecName);
             metaLabel.AddToClassList("row-meta");
@@ -208,7 +313,18 @@ namespace SunodGame.UI
             tag.Add(tagLetter);
             row.Add(tag);
 
+            // Lv badge: silver Lv2, gold Lv3
+            if (lv > 1)
+            {
+                var lvBadge = new Label($"Lv{lv}") { pickingMode = PickingMode.Ignore };
+                lvBadge.AddToClassList("sn-badge");
+                lvBadge.AddToClassList(lv >= vc_SkillLevels.MaxLevel ? "sn-badge--gold" : "sn-badge--silver");
+                lvBadge.AddToClassList("row-lv");
+                row.Add(lvBadge);
+            }
+
             row.RegisterCallback<ClickEvent>(_ => OnRowClicked(row, skill));
+            vc_UIAnim.Press(row, 0.94f);
             return row;
         }
 
@@ -225,16 +341,32 @@ namespace SunodGame.UI
             SetCategorySlotReady(skill);
         }
 
+        private static void Punch(VisualElement ve, float amount = 0.18f) => vc_UIAnim.Punch(ve, amount);
+
         private void PopulateDetail(vc_SkillData skill)
         {
-            if (_detailEmpty != null)  _detailEmpty.style.display  = DisplayStyle.None;
-            if (_detailFilled != null) _detailFilled.style.display = DisplayStyle.Flex;
+            if (_detailEmpty != null) { vc_UIAnim.StopAll(_detailEmpty); ClearInline(_detailEmpty); _detailEmpty.style.display = DisplayStyle.None; }
+            if (_detailFilled != null)
+            {
+                if (_open) vc_UIAnim.Show(_detailFilled, vc_UIAnim.Enter.SlideUp, 0f, null, 0.22f);
+                else _detailFilled.style.display = DisplayStyle.Flex;
+            }
 
             if (_detailIcon != null)
                 _detailIcon.style.backgroundImage = vc_RiasecSymbols.Background(skill.riaSecLetter);
 
+            // ring the detail disc in the kind colour
+            VisualElement detailFrame = _detailIcon?.parent;
+            if (detailFrame != null)
+            {
+                string l = (skill.riaSecLetter ?? "").Trim().ToUpperInvariant();
+                bool known = l.Length == 1 && "RIASEC".IndexOf(l[0]) >= 0;
+                vc_UITheme.Border(detailFrame, 4f, known ? vc_UITheme.Riasec(l) : vc_UITheme.Brown);
+                detailFrame.style.borderBottomWidth = 7f;
+            }
+
             if (_detailName != null)
-                _detailName.text = (skill.DisplayName ?? "UNNAMED").ToUpper();
+                _detailName.text = skill.DisplayName ?? "Unnamed";
 
             string letter = (skill.riaSecLetter ?? "?").ToUpper();
             string letterLower = letter.ToLower();
@@ -250,7 +382,7 @@ namespace SunodGame.UI
                 _detailTag.AddToClassList($"riasec-{letterLower}");
             }
 
-            if (_detailDesc != null)   _detailDesc.text   = (string.IsNullOrEmpty(skill.description) ? "No description available." : skill.description) + LevelLine(skill);
+            if (_detailDesc != null)   _detailDesc.text   = (string.IsNullOrEmpty(skill.description) ? "-" : skill.description) + LevelLine(skill);
             if (_detailAction != null) _detailAction.text = string.IsNullOrEmpty(skill.DisplayName) ? "-" : skill.DisplayName;
         }
 
@@ -258,7 +390,7 @@ namespace SunodGame.UI
         private static string LevelLine(vc_SkillData skill)
         {
             int lv = vc_SkillLevels.Level(skill), next = vc_SkillLevels.XpToNext(skill);
-            return lv >= vc_SkillLevels.MaxLevel ? $"\n\nLv{lv} (max)" : $"\n\nLv{lv} - {vc_SkillLevels.Xp(skill)} XP, {next} more to Lv{lv + 1}";
+            return lv >= vc_SkillLevels.MaxLevel ? $"\nLv{lv} (max)" : $"\nLv{lv} - {vc_SkillLevels.Xp(skill)} XP, {next} to Lv{lv + 1}";
         }
 
         private void OnSlotClicked(int slotIndex)
@@ -268,8 +400,8 @@ namespace SunodGame.UI
 
             if (vc_SkillManager.Instance.GetSkillInSlot(slotIndex) == _selectedSkill)
             {
-                vc_DialogPanel.Instance?.ShowMessage("Already Equipped",
-                    $"Already equipped.", null);
+                vc_DialogPanel.Instance?.ShowMessage("Equipped",
+                    "Already in this slot.", null);
                 return;
             }
 
@@ -278,6 +410,7 @@ namespace SunodGame.UI
             {
                 string categoryName = vc_SkillManager.CategoryNameForSlot(homeSlot);
                 vc_FloatingMessage.Instance?.Show($"Goes in the {categoryName} slot.");
+                if (slotIndex >= 0 && slotIndex < _slotFrames.Length) vc_UIAnim.Shake(_slotFrames[slotIndex]);
                 return;
             }
 
@@ -290,6 +423,10 @@ namespace SunodGame.UI
 
             RefreshSlots();
             SetSlotsReady(false);
+
+            // equip feedback: the slot bounces
+            if (_slotFrames[slotIndex] != null) Punch(_slotFrames[slotIndex], 0.2f);
+            if (_slotIcons[slotIndex] != null) Punch(_slotIcons[slotIndex], 0.3f);
         }
 
         private void RefreshSlots()
@@ -311,13 +448,24 @@ namespace SunodGame.UI
 
                 if (_slotNames[i] != null)
                     _slotNames[i].text = data != null
-                        ? (data.DisplayName ?? "-").ToUpper()
-                        : "--";
+                        ? (data.DisplayName ?? "-")
+                        : "-";
+
+                if (_slotLv[i] != null)
+                {
+                    int lv = data != null ? vc_SkillLevels.Level(data) : 1;
+                    _slotLv[i].text = $"Lv{lv}";
+                    _slotLv[i].EnableInClassList("sn-badge--gold", lv >= vc_SkillLevels.MaxLevel);
+                    _slotLv[i].EnableInClassList("sn-badge--silver", lv > 1 && lv < vc_SkillLevels.MaxLevel);
+                    _slotLv[i].style.display = lv > 1 ? DisplayStyle.Flex : DisplayStyle.None;
+                }
             }
         }
 
         private void SetSlotsReady(bool ready)
         {
+            vc_UIAnim.StopPulse(ref _readyPulse, _readySlot);
+            _readySlot = null;
             for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 if (_slotFrames[i] == null) continue;
@@ -334,6 +482,8 @@ namespace SunodGame.UI
             if (slotIndex < 0 || slotIndex >= _slotFrames.Length || _slotFrames[slotIndex] == null) return;
 
             _slotFrames[slotIndex].AddToClassList("ready");
+            _readySlot = _slotFrames[slotIndex];
+            _readyPulse = vc_UIAnim.Pulse(_readySlot, 0.07f, 0.9f);
         }
 
         private void OnCheatClicked()
@@ -343,18 +493,19 @@ namespace SunodGame.UI
 
             _cheat?.UnlockAll();
             PopulateCards();
+            StaggerCards(0f);
         }
 
         private void OnSkillAdded(vc_SkillData _)
         {
-            if (_overlay?.style.display == DisplayStyle.Flex)
+            if (_open)
                 PopulateCards();
         }
 
         // Skill-name language may have switched: rebuild the visible names if the panel is open.
         private void OnOptionsChanged()
         {
-            if (_overlay == null || _overlay.style.display != DisplayStyle.Flex) return;
+            if (_overlay == null || !_open) return;
 
             var selected = _selectedSkill;
             PopulateCards();

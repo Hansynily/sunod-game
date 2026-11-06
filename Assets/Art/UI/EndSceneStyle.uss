@@ -1,215 +1,143 @@
-/* Root */
+/* =================================================================
+   SUNOD - Results screen (UI V2, 2026-11-07)
+   Cards = theme sn-panel / sn-card, buttons = sn-btn (SunodTheme.tss).
+   Motion: EndSceneUIToolkit.cs (vc_UIAnim).
+   ================================================================= */
+
+/* Root: sky art behind everything */
 .root-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     flex-direction: column;
     background-image: url("/Assets/Art/UI/Menu/menu_sky_bg.png");
     -unity-background-scale-mode: scale-and-crop;
     align-items: center;
+    padding: 24px 24px 16px 24px;
 }
 
-/* Center */
 .center-wrapper {
     flex-grow: 1;
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     width: 100%;
 }
 
-/* Panel - the career result card, framed in Sprout Lands wood */
+/* ---------- RESULT CARD ---------- */
 .result-panel {
-    width: 85%;
-    max-width: 700px;
-    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
-    -unity-background-scale-mode: stretch-to-fill;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    padding: 0 44px 32px 44px;
+    width: 680px;
+    max-width: 70%;
+    max-height: 100%;
     align-items: stretch;
-    -unity-slice-left: 10;
-    -unity-slice-top: 10;
-    -unity-slice-right: 10;
-    -unity-slice-bottom: 10;
-    -unity-slice-scale: 1px;
+    padding: 12px 28px 22px 28px;
 }
 
-/* Survey card - same wood frame as the result panel, sits to its right */
-.survey-card {
-    width: 360px;
-    margin-left: 24px;
-    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
-    -unity-background-scale-mode: stretch-to-fill;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    padding: 0 28px 28px 28px;
-    align-items: center;
-    -unity-slice-left: 10;
-    -unity-slice-top: 10;
-    -unity-slice-right: 10;
-    -unity-slice-bottom: 10;
-    -unity-slice-scale: 1px;
-}
-.survey-note {
-    font-size: 22px;
-    color: rgb(90, 70, 50);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin-bottom: 10px;
-}
-/* Dark brown pixel frame, then a plain white square so the code always scans */
-.survey-qr-frame {
-    width: 200px; height: 200px;
-    padding: 10px;
-    margin-bottom: 14px;
-    background-color: rgb(255, 255, 255);
-    border-width: 4px;
-    border-color: rgb(60, 54, 66);
-    border-radius: 0;
-}
-.survey-qr {
-    flex-grow: 1;
-    background-image: url("/Assets/Art/UI/Menu/survey_qr.png");
-    -unity-background-scale-mode: scale-to-fit;
-}
-.survey-link-btn {
-    height: 64px;
-    min-width: 0;
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    padding: 0 12px;
-}
-.survey-link-label {
-    font-size: 22px;
-}
-
-/* Header Badge */
 .panel-header {
     align-items: center;
-    align-self: center;
-    background-image: none;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    border-bottom-width: 3px;
-    border-bottom-color: rgb(210, 150, 64);
-    margin-top: 12px; margin-bottom: 10px;
-    padding: 0 18px 6px 18px;
+    margin-bottom: 4px;
 }
 .header-text {
-    font-size: 22px;
-    color: rgb(90, 62, 38);
     -unity-text-align: middle-center;
 }
 
-/* Career Section */
 .career-section {
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 .recommended-label {
-    font-size: 22px;
-    color: rgb(90, 70, 50);
     -unity-text-align: middle-center;
-    margin-bottom: 6px;
+    margin-bottom: 0;
 }
+/* the big reveal: gold chip with the career name */
 .career-name {
-    font-size: 42px;
-    color: rgb(180, 100, 30);
+    font-size: 44px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
     -unity-text-align: middle-center;
-    margin-bottom: 8px;
+    white-space: normal;
+    background-color: var(--sn-gold);
+    border-color: var(--sn-gold-dark);
+    border-width: 3px;
+    border-bottom-width: 6px;
+    border-radius: 999px;
+    padding: 4px 32px 4px 32px;
+    margin: 8px 0 8px 0;
 }
 .riasec-note {
-    font-size: 22px;
-    color: rgb(90, 70, 50);
     -unity-text-align: middle-center;
 }
-
-/* Divider */
-.divider {
-    height: 2px;
-    background-color: rgb(150, 105, 60);
-    opacity: 0.5;
-    margin-top: 8px; margin-bottom: 8px;
+.partial-note {
+    color: var(--sn-red-dark);
+    margin-top: 4px;
 }
 
-/* Stats */
+/* ---------- STATS ---------- */
 .stats-section {
-    padding: 0 8px;
+    padding: 4px 20px 4px 20px;
 }
 .stat-row {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 2px; min-height: 40px;
+    min-height: 48px;
+    border-bottom-width: 2px;
+    border-color: var(--sn-paper-line);
+}
+.stat-row--last {
+    border-bottom-width: 0;
 }
 .stat-label {
-    font-size: 22px;
-    color: rgb(90, 70, 50);
-    width: 200px;
+    width: 230px;
+    flex-shrink: 0;
+    font-size: 24px;
+    color: var(--sn-ink-muted);
 }
 .stat-value {
     flex-grow: 1;
-    font-size: 22px;
-    color: rgb(60, 54, 66);
+    flex-shrink: 1;
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-right;
+    white-space: normal;
 }
 .stat-gold {
-    color: rgb(180, 100, 30);
+    color: var(--sn-gold-dark);
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
 }
 
-/* Action Buttons */
+/* ---------- WEBSITE CARD ---------- */
+.survey-card {
+    width: 320px;
+    margin-left: 24px;
+    align-items: stretch;
+    padding: 12px 20px 16px 20px;
+}
+.survey-header-text {
+    -unity-text-align: middle-center;
+    margin-bottom: 8px;
+}
+.survey-link-btn {
+    margin: 0;
+    padding: 6px 16px 6px 16px;
+}
+.survey-link-label {
+    font-size: 24px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+/* ---------- ACTIONS (primary on the right) ---------- */
 .action-row {
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
-    padding-bottom: 12px;
     width: 100%;
+    max-width: 1024px;
+    flex-shrink: 0;
 }
 .action-btn {
-    align-items: center;
-    justify-content: center;
-    height: 80px;
-    min-width: 200px;
-    background-image: url("/Assets/Art/UI/Panels/button_wide.png");
-    -unity-background-scale-mode: stretch-to-fill;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    padding: 0 32px;
-    margin-left: 12px;
-    margin-right: 12px;
-    transition-property: translate;
-    transition-duration: 0.05s;
-    -unity-slice-left: 8;
-    -unity-slice-top: 6;
-    -unity-slice-right: 8;
-    -unity-slice-bottom: 8;
-    -unity-slice-scale: 1px;
+    min-width: 220px;
+    margin: 0 0 0 16px;
 }
-.action-btn:active {
-    background-image: url("/Assets/Art/UI/Panels/button_wide_pressed.png");
-}
-.action-btn-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-}
-
-.btn-play-again {
-    -unity-background-image-tint-color: rgb(200, 240, 190);
-}
-
-.btn-main-menu {
-}
-
-/* Neutralise Unity's default button hover/focus/disabled chrome */
-.action-btn:hover, .action-btn:focus, .action-btn:disabled {
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-}
-
-.survey-link-label { font-size: 18px; letter-spacing: 0; white-space: nowrap; }
-.result-panel, .survey-card { max-height: 84%; }
-

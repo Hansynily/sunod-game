@@ -12,6 +12,8 @@ using UnityEngine;
 ///   plan     I  off-letter   make a pay schedule first, then fill the tray                8s
 ///   anything else: a hint, no effect
 ///
+/// Prep: Plan (pressed first) pins up a pay schedule; Direct then sorts every envelope at once.
+/// Preference: Direct (Mr. Go: "sort them by name"). Bonus only.
 /// While a slow fix is running the best fit (inspect) takes over at once.
 /// </summary>
 [DisallowMultipleComponent]
@@ -52,6 +54,26 @@ public class vc_PaydayQuest : vc_FitQuestBase
     private int _gen;                      // bumped on cancel so in-flight envelopes drop out
     private readonly List<GameObject> _spawned = new List<GameObject>();
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mr. Go",
+        presses = 3,
+        bestFitTag = "inspect",
+        bestFitSeconds = 2f,
+        prepTag = "plan",
+        prepUnlocksTag = "direct",
+        prepLine = "You pin up the pay schedule...",
+        preferredTag = "direct",
+        preferenceLine = "Sorted by name, just how I like it. Salamat!",
+        fastLines = new[]
+        {
+            ("collect", "All in the tray already!"),
+            ("direct", "Sorted by name, perfectly. Everyone gets paid on time!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     protected override Vector3 BarWorldPosition => (desk != null ? desk.position : transform.position) + new Vector3(-0.5f, 1.8f, 0f);
 
     protected override void OnBegin()
@@ -63,7 +85,7 @@ public class vc_PaydayQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Payday Envelopes",
-            "It's payday. Get everyone's pay envelopes ready.",
+            "Mr. Go needs everyone's pay envelopes ready for payday. He wants them sorted by name.",
             new[] { "Prepare the envelopes" });
     }
 
@@ -96,9 +118,9 @@ public class vc_PaydayQuest : vc_FitQuestBase
         if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("collect")) { StartWork(CollectRoutine(collectTime, "All envelopes collected and ready!")); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime), "All envelopes collected and ready!")); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime), CurrentInstant)); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
 
         Toast("Payroll needs careful, orderly work.", 2.2f);
     }
@@ -108,6 +130,32 @@ public class vc_PaydayQuest : vc_FitQuestBase
         _gen++;
         CleanSpawned();
         if (stacks != null) foreach (Transform s in stacks) if (s != null) s.gameObject.SetActive(true);
+    }
+
+    // ── Prep: Plan pins up a pay schedule ────────────────────────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 at = (desk != null ? desk.position : transform.position) + new Vector3(-2.0f, 0.9f, 0f);
+        if (scheduleSheet != null)
+        {
+            GameObject sheet = Spawn("Schedule", scheduleSheet, 12);
+            sheet.transform.position = Snap(at);
+            StartCoroutine(PopScale(sheet.transform));
+        }
+        SunodGame.Core.vc_Sfx.Play("page_next", 0.7f);
+        for (int r = 0; r < 4; r++)
+        {
+            yield return new WaitForSeconds(0.15f);
+            if (rowCheck != null)
+            {
+                GameObject mark = Spawn("RowCheck", rowCheck, 13);
+                mark.transform.position = Snap(at + new Vector3(0.55f, 0.45f - r * 0.18f, 0f));
+            }
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.1f);
+        }
+        yield return new WaitForSeconds(0.3f);
     }
 
     private void CleanSpawned()
@@ -185,7 +233,7 @@ public class vc_PaydayQuest : vc_FitQuestBase
     {
         Vector3 to = trayPoint != null ? trayPoint.position : (desk != null ? desk.position : transform.position);
         int n = stacks.Length, count = n * PerStack;
-        float flight = 0.45f, spacing = Mathf.Max(0.05f, (total - flight) / count);
+        float flight = Mathf.Min(0.45f, total * 0.25f), spacing = Mathf.Max(0.05f, (total - flight) / count);
         int shown = 0;
         for (int i = 0; i < n; i++)
         {
@@ -224,10 +272,11 @@ public class vc_PaydayQuest : vc_FitQuestBase
 
     // ── Direct: sort by name into neat rows ──────────────────────────────
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float seconds, bool oneGo)
     {
-        Toast("Sorting the envelopes by name...", directTime);
-        Timeline(directTime);
+        float sc = seconds / 5f;
+        Toast(oneGo ? "Every envelope sorts itself in one go!" : "Sorting the envelopes by name...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         Vector3 d = desk.position;
         int n = stacks.Length * 3;
         var env = new List<Transform>();
@@ -241,9 +290,9 @@ public class vc_PaydayQuest : vc_FitQuestBase
         }
         foreach (Transform s in stacks) s.gameObject.SetActive(false);
         SunodGame.Core.vc_Sfx.Play("shuffle", 0.5f);
-        yield return Wait(0.3f);
+        yield return Wait(0.3f * sc);
 
-        float sortTime = directTime - 1.0f, per = sortTime / n;
+        float sortTime = seconds - 1.0f * sc, per = sortTime / n;
         for (int i = 0; i < n; i++)
         {
             Vector3 from = env[i].position;
@@ -262,18 +311,18 @@ public class vc_PaydayQuest : vc_FitQuestBase
             SunodGame.Core.vc_Sfx.Play("clack", 0.3f, 0.12f);
         }
         Fx(checkFrames, d + new Vector3(0f, 1.4f, 0f), 3f, 0.3f, 29);
-        yield return Wait(0.7f);
+        yield return Wait(0.7f * sc);
         foreach (Transform e in env) if (e != null) Destroy(e.gameObject);
         RevealTray();
-        Finish("You sorted every envelope by name!");
+        Finish(oneGo ? "Sorted by name in one go. Everyone gets paid on time!" : "You sorted every envelope by name!");
     }
 
     // ── Plan: a pay schedule first, then fill the tray ───────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float seconds)
     {
-        Toast("Making a pay schedule first...", planTime);
-        Timeline(planTime);
+        Toast("Making a pay schedule first...", Mathf.Max(1.5f, seconds * 0.6f));
+        Timeline(seconds);
         Vector3 at = (desk != null ? desk.position : transform.position) + new Vector3(-2.0f, 0.9f, 0f);
         GameObject sheet = Spawn("Schedule", scheduleSheet, 12);
         sheet.transform.position = Snap(at);
@@ -281,7 +330,7 @@ public class vc_PaydayQuest : vc_FitQuestBase
         SunodGame.Core.vc_Sfx.Play("page_next", 0.7f);
 
         int rows = 6;
-        float planPhase = planTime * 0.65f, per = planPhase / rows;
+        float planPhase = seconds * 0.65f, per = planPhase / rows;
         for (int i = 0; i < rows; i++)
         {
             yield return Wait(per);
@@ -291,8 +340,8 @@ public class vc_PaydayQuest : vc_FitQuestBase
             SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.1f);
         }
 
-        Toast("Now filling the tray...", planTime - planPhase);
-        yield return Gather(planTime - planPhase, true);
+        Toast("Now filling the tray...", Mathf.Max(1.2f, seconds - planPhase));
+        yield return Gather(seconds - planPhase, true);
         RevealTray();
         Finish("Your pay schedule got every envelope ready!");
     }

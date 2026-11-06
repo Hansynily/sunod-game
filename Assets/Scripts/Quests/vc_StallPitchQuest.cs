@@ -54,6 +54,30 @@ public class vc_StallPitchQuest : vc_FitQuestBase
     [SerializeField] private float planTime = 8f;
     [SerializeField] private float craftTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Plan (prep) puts a cost-and-profit chart on the easel, then
+    // Command runs a confident presentation in one go. Preference: Call (the taste test).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Marco",
+        presses = 4,
+        bestFitTag = "persuade",
+        bestFitSeconds = 2f,
+        prepTag = "plan",
+        prepUnlocksTag = "command",
+        prepLine = "You pin a cost-and-profit chart to the easel...",
+        preferredTag = "summon",
+        preferenceLine = "A real taste test! That's exactly what I hoped for. Salamat!",
+        fastLines = new[]
+        {
+            ("charm", "They loved you instantly!"),
+            ("map", "Showing them the crowd map sealed it!"),
+            ("command", "You owned that room!"),
+            ("summon", "One bite and they said yes!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _rest;
     private float _idleClock;
     private GameObject _stamp;
@@ -79,7 +103,7 @@ public class vc_StallPitchQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Stall Pitch",
-            "Marco wants the fair committee to say yes to his food stall.",
+            "Marco wants the fair committee to say yes to his food stall. He's sure they would, if they could just taste it.",
             new[] { "Win over the committee" });
     }
 
@@ -107,12 +131,12 @@ public class vc_StallPitchQuest : vc_FitQuestBase
     {
         if (d.HasTag("persuade")) { StartWork(PersuadeRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("charm")) { StartWork(CharmRoutine()); return; }
-        if (d.HasTag("map")) { StartWork(MapRoutine()); return; }
-        if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(TasteTestRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(ChartRoutine()); return; }
-        if (d.HasTag("craft")) { StartWork(SampleRoutine()); return; }
+        if (d.HasTag("charm")) { StartWork(CharmRoutine(PathTime(charmTime))); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime))); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime), CurrentInstant)); return; }
+        if (d.HasTag("summon")) { StartWork(TasteTestRoutine(PathTime(callTime))); return; }
+        if (d.HasTag("plan")) { StartWork(ChartRoutine(PathTime(planTime))); return; }
+        if (d.HasTag("craft")) { StartWork(SampleRoutine(PathTime(craftTime))); return; }
         Toast("That won't win the committee over.", 2.2f);
     }
 
@@ -131,51 +155,51 @@ public class vc_StallPitchQuest : vc_FitQuestBase
 
     // ── Charm: a big smile wins the room ─────────────────────────────────
 
-    private IEnumerator CharmRoutine()
+    private IEnumerator CharmRoutine(float total)
     {
-        Toast("You win the room over with a smile...", charmTime);
+        Toast("You win the room over with a smile...", total);
         ShowBar(true);
         Bubble(smileBubble, Speaker());
-        float warm = charmTime - 1.2f, t = 0f;
+        float warm = total * 0.6f, t = 0f;
         for (int i = 0; i < judges.Length; i++)
         {
             Bubble(heartBubble, Top(i));
             SunodGame.Core.vc_Sfx.Play("chime", 0.4f, 0.2f);
             float per = warm / judges.Length;
-            yield return BarStep(per, t / charmTime, (t + per) / charmTime);
+            yield return BarStep(per, t / total, (t + per) / total);
             Face(i, judgeSmile);
             t += per;
         }
-        yield return NodAll(t, charmTime - t, charmTime);
+        yield return NodAll(t, total - t, total);
         Approve("They couldn't say no to that smile. Approved!");
     }
 
     // ── Map: where the stall catches the crowd ───────────────────────────
 
-    private IEnumerator MapRoutine()
+    private IEnumerator MapRoutine(float total)
     {
-        Toast("You show them the best spot on the fair map...", mapTime);
+        Toast("You show them the best spot on the fair map...", total);
         ShowBar(true);
         Board(2);
         SunodGame.Core.vc_Sfx.Play("page_next", 0.5f);
-        float t = 0f, point = mapTime - 1.5f;
+        float t = 0f, point = total * 0.625f, step = Mathf.Clamp(point / 4f, 0.1f, 0.5f);
         while (t < point)
         {
             Fx(sparkFrames, BoardSpot(0.25f, 0.2f), 12f, 0.1f);
-            yield return BarStep(0.5f, t / mapTime, (t + 0.5f) / mapTime);
-            t += 0.5f;
+            yield return BarStep(step, t / total, (t + step) / total);
+            t += step;
         }
-        yield return NodAll(t, mapTime - t, mapTime);
+        yield return NodAll(t, total - t, total);
         Approve("Right where the crowd passes. Approved!");
     }
 
     // ── Command: confident presentation ──────────────────────────────────
 
-    private IEnumerator CommandRoutine()
+    private IEnumerator CommandRoutine(float total, bool oneGo)
     {
-        Toast("You take charge of the presentation!", commandTime);
+        Toast(oneGo ? "The chart backs every word. You take charge!" : "You take charge of the presentation!", total);
         ShowBar(true);
-        float t = 0f, talk = commandTime - 1.5f;
+        float t = 0f, talk = total * 0.625f, step = Mathf.Clamp(talk / 4f, 0.1f, 0.6f);
         int beat = 0;
         while (t < talk)
         {
@@ -183,58 +207,58 @@ public class vc_StallPitchQuest : vc_FitQuestBase
             SunodGame.Core.vc_Sfx.Play("bell", 0.4f, 0.1f);
             // the judges sit up straight
             for (int i = 0; i < judges.Length; i++) StartCoroutine(Hop(i, 1));
-            yield return BarStep(0.6f, t / commandTime, (t + 0.6f) / commandTime);
-            t += 0.6f; beat++;
+            yield return BarStep(step, t / total, (t + step) / total);
+            t += step; beat++;
         }
-        yield return NodAll(t, commandTime - t, commandTime);
-        Approve("Confident and clear. Approved!");
+        yield return NodAll(t, total - t, total);
+        Approve(oneGo ? "A confident presentation, in one go. Approved!" : "Confident and clear. Approved!");
     }
 
     // ── Call: a taste test crowd ─────────────────────────────────────────
 
-    private IEnumerator TasteTestRoutine()
+    private IEnumerator TasteTestRoutine(float total)
     {
-        Toast("You call students over for a taste test...", callTime);
+        Toast("You call students over for a taste test...", total);
         ShowBar(true);
         if (sampleTray != null) sampleTray.enabled = true;
         Vector3 to = (sampleTray != null ? sampleTray.transform.position : transform.position) + new Vector3(-0.8f, -0.4f, 0f);
         Vector3 from = to + new Vector3(-5f, 0f, 0f);
         SpawnHelper(from, 6);
-        float walk = callTime - 2f;
-        yield return HelperWalk(from, to, walk, t => SetBar(t / callTime));
+        float walk = total * 0.6f;
+        yield return HelperWalk(from, to, walk, t => SetBar(t / total));
         Bubble(heartBubble, to + new Vector3(0f, 1.6f, 0f));
         SunodGame.Core.vc_Sfx.Play("cheer", 0.6f);
-        yield return NodAll(walk, callTime - walk, callTime);
+        yield return NodAll(walk, total - walk, total);
         Approve("The students loved it. Approved!");
     }
 
     // ── Plan: cost-and-profit chart ──────────────────────────────────────
 
-    private IEnumerator ChartRoutine()
+    private IEnumerator ChartRoutine(float total)
     {
-        Toast("You lay out a cost-and-profit chart...", planTime);
+        Toast("You lay out a cost-and-profit chart...", total);
         ShowBar(true);
-        float t = 0f, draw = planTime - 2f;
+        float t = 0f, draw = total * 0.75f, step = Mathf.Clamp(draw / 5f, 0.1f, 0.45f);
         while (t < draw)
         {
             Fx(scribbleFrames, BoardSpot(Random.Range(-0.4f, 0.4f), Random.Range(-0.3f, 0.3f)), 6f, 0f, 22);
             SunodGame.Core.vc_Sfx.Play("scribble", 0.3f, 0.15f, 0.3f);
             if (t > draw * 0.5f) Board(1);
-            yield return BarStep(0.45f, t / planTime, (t + 0.45f) / planTime);
-            t += 0.45f;
+            yield return BarStep(step, t / total, (t + step) / total);
+            t += step;
         }
         Board(1);
-        yield return NodAll(t, planTime - t, planTime);
+        yield return NodAll(t, total - t, total);
         Approve("The numbers add up. Approved!");
     }
 
     // ── Craft: sample plate and poster ───────────────────────────────────
 
-    private IEnumerator SampleRoutine()
+    private IEnumerator SampleRoutine(float total)
     {
-        Toast("You make a tasty sample plate and a poster...", craftTime);
+        Toast("You make a tasty sample plate and a poster...", total);
         ShowBar(true);
-        float t = 0f, make = craftTime - 2.2f;
+        float t = 0f, make = total * 0.725f, step = Mathf.Clamp(make / 6f, 0.1f, 0.5f);
         bool trayShown = false;
         while (t < make)
         {
@@ -242,13 +266,30 @@ public class vc_StallPitchQuest : vc_FitQuestBase
             if (!trayShown && t > make * 0.4f && sampleTray != null) { sampleTray.enabled = true; trayShown = true; Fx(sparkFrames, sampleTray.bounds.center, 12f, 0.1f); }
             if (t > make * 0.75f) Board(3);
             if (trayShown && sampleTray != null) Fx(steamFrames, sampleTray.bounds.center + new Vector3(0f, 0.3f, 0f), 6f, 0.3f, 22);
-            yield return BarStep(0.5f, t / craftTime, (t + 0.5f) / craftTime);
-            t += 0.5f;
+            yield return BarStep(step, t / total, (t + step) / total);
+            t += step;
         }
         Board(3);
         if (sampleTray != null) sampleTray.enabled = true;
-        yield return NodAll(t, craftTime - t, craftTime);
+        yield return NodAll(t, total - t, total);
         Approve("It looks delicious. Approved!");
+    }
+
+    // Prep (Plan): scribbles, then the profit chart appears on the easel board (it stays up for the pitch).
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        for (int k = 0; k < 4; k++)
+        {
+            Fx(scribbleFrames, BoardSpot(Random.Range(-0.4f, 0.4f), Random.Range(-0.3f, 0.3f)), 6f, 0f, 22);
+            SunodGame.Core.vc_Sfx.Play("scribble", 0.3f, 0.15f, 0.3f);
+            if (k == 2) Board(1);
+            yield return new WaitForSeconds(0.2f);
+        }
+        Board(1);
+        Fx(sparkFrames, BoardSpot(0f, 0.2f), 12f, 0.1f);
+        for (int i = 0; i < judges.Length; i++) Bubble(dotsBubble, Top(i));
+        yield return new WaitForSeconds(0.2f);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────
@@ -256,7 +297,7 @@ public class vc_StallPitchQuest : vc_FitQuestBase
     /// <summary>Judges nod one by one, then smile.</summary>
     private IEnumerator NodAll(float t0, float span, float total)
     {
-        float per = span / Mathf.Max(1, judges.Length), t = t0;
+        float per = Mathf.Max(0.2f, span) / Mathf.Max(1, judges.Length), t = t0;
         for (int i = 0; i < judges.Length; i++)
         {
             Face(i, judgeNod);

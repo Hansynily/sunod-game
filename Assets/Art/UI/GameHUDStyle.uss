@@ -1,225 +1,273 @@
-/* Full screen, transparent, pass-through */
+/* UI V2 game HUD (2026-11-07): radial skill menu bottom-right + bag button.
+   Tokens/components come from SunodTheme.tss. Geometry constants mirror vc_SkillRadialMenu
+   (Size 480, Hub 140, Petal 128, Radius 172). */
+
 .hud-root {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* ---------- radial ---------- */
+/* panel is 720 units tall (1280x720, match height): draw the 480 radial at 0.62 */
+.skill-radial-wrap {
+    position: absolute;
     right: 0;
     bottom: 0;
-    flex-direction: column;
-    justify-content: flex-end;
+    width: 480px;
+    height: 480px;
+    transform-origin: right bottom;
+    scale: 0.62 0.62;
 }
-
-/* Bottom strip — preview + slots grouped right */
-.hud-bar {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding: 16px 20px;
-}
-
-/* ============================
-   Inventory Preview Button
-   ============================ */
-.inventory-preview-btn {
-    background-image: url("/Assets/Art/UI/Panels/button.png");
-    -unity-background-scale-mode: stretch-to-fill;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    padding: 20px;
-    margin-right: 18px;
-    align-self: flex-end;
-    transition-property: translate;
-    transition-duration: 0.05s;
-    -unity-slice-left: 6;
-    -unity-slice-top: 6;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 8;
-    -unity-slice-scale: 1px;
-}
-.inventory-preview-btn:active {
-    background-image: url("/Assets/Art/UI/Panels/button_pressed.png");
-}
-
-.preview-grid {
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 192px;
-}
-
-.preview-circle {
-    width: 54px;
-    height: 54px;
-    border-radius: 27px;
-    background-color: rgba(20, 30, 58, 0.9);
-    border-color: rgb(80, 100, 145);
-    border-width: 2px;
-    margin: 5px;
-    -unity-background-scale-mode: scale-to-fit;
-}
-
-/* ============================
-   Skill Slots Grid — 2 rows x 3 (top: R I A, bottom: S E C)
-   ============================ */
-.skill-slots-grid {
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.skill-slots-row {
-    flex-direction: row;
-    align-items: flex-end;
-}
-.skill-slots-row:first-child {
-    margin-bottom: 6px;
-}
-
-/* Skill card: card (icon ring + icon, level badge) -> skill name */
-.slot-wrapper {
-    flex-direction: column;
-    align-items: center;
-    margin-left: 10px;
-}
-
-/* RIASEC category name removed from the HUD (too busy) */
-.slot-category {
-    display: none;
-}
-
-.slot-diamond-container {
-    width: 116px;
-    height: 104px;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-}
-
-.skill-slot-btn {
-    rotate: 0deg;
-    width: 116px;
-    height: 104px;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card.png");
-    -unity-slice-left: 6;
-    -unity-slice-top: 6;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 9;
-    -unity-slice-scale: 1px;
-    border-width: 0;
-    border-bottom-width: 5px;
-    border-radius: 0;
-    align-items: center;
-    justify-content: flex-start;
-}
-.skill-slot-btn:hover {
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card.png");
-}
-.skill-slot-btn:active {
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card_pressed.png");
-}
-.skill-slot-btn:focus {
-    background-color: rgba(0,0,0,0);
-}
-.skill-slot-btn:disabled {
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card_disabled.png");
-    opacity: 1;
-}
-
-/* Per-category colour strip along the card bottom (T3, D1 slot order 0=R,1=I,2=A,3=S,4=E,5=C) */
-.cat-R { border-color: rgb(217, 58, 74); }
-.cat-I { border-color: rgb(240, 138, 36); }
-.cat-A { border-color: rgb(142, 79, 214); }
-.cat-S { border-color: rgb(47, 163, 90); }
-.cat-E { border-color: rgb(47, 111, 214); }
-.cat-C { border-color: rgb(34, 179, 196); }
-
-/* Icon ring near the top of the card */
-.slot-inner {
-    rotate: 0deg;
+.skill-radial {
     position: absolute;
-    top: 10px;
-    left: 20px;
-    width: 76px;
-    height: 80px;
+    left: 0;
+    top: 0;
+    width: 480px;
+    height: 480px;
+}
+
+.radial-hub {
+    position: absolute;
+    left: 170px;
+    top: 170px;
+    width: 140px;
+    height: 140px;
+    border-radius: 70px;
+    background-color: var(--sn-green);
+    border-color: var(--sn-green-dark);
+    border-width: 4px;
+    border-bottom-width: 10px;
     align-items: center;
     justify-content: center;
+    transition-property: background-color, border-color;
+    transition-duration: 0.2s;
 }
-
-.slot-icon {
+.radial-hub--open {
+    background-color: rgb(96, 172, 106);
+}
+.radial-hub--alert {
+    background-color: var(--sn-gold);
+    border-color: var(--sn-gold-dark);
+}
+.radial-hub-icon {
+    width: 92px;
+    height: 92px;
+}
+.radial-hub-tag {
     position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 4px;
-    -unity-background-scale-mode: scale-to-fit;
+    left: 196px;
+    top: 296px;
+    width: 88px;
+    height: 32px;
+    font-size: 19px;
 }
 
-/* Empty slot: category symbol shown dimmed */
-.slot-icon--empty {
-    opacity: 0.35;
-}
-
-/* "+" shown when slot is empty */
-.slot-empty-plus {
+/* gold ring around the hub while open */
+.radial-ring {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    font-size: 42px;
-    color: rgb(140, 115, 105);
-    -unity-text-align: middle-center;
+    left: 156px;
+    top: 156px;
+    width: 168px;
+    height: 168px;
+    border-radius: 84px;
+    border-width: 6px;
+    border-color: var(--sn-gold);
+    background-color: rgba(255, 224, 138, 0.18);
+}
+.radial-burst {
+    position: absolute;
+    left: 160px;
+    top: 160px;
+    width: 160px;
+    height: 160px;
+    border-radius: 80px;
+    border-width: 5px;
+    border-color: rgb(255, 236, 170);
 }
 
-/* Skill name under the card */
-.slot-name {
-    margin-top: 4px;
-    width: 136px;
-    margin-left: -10px;
-    margin-right: -10px;
-    letter-spacing: 0;
-    font-size: 20px;
-    -unity-font-style: bold;
-    color: rgb(255, 250, 235);
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: rgb(42, 40, 52);
-    text-shadow: 2px 2px 0 rgb(42, 40, 52);
-    -unity-text-align: upper-center;
-    white-space: normal;
-    overflow: hidden;
-    max-height: 52px;
-    padding: 2px 4px 4px 4px;
-    background-color: rgba(40, 26, 18, 0.55);
-    border-radius: 4px;
+/* petals */
+.radial-petal {
+    position: absolute;
+    width: 128px;
+    height: 128px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    border-width: 0;
+    min-height: 0;
+    min-width: 0;
 }
-
-/* Neutralise Unity's default button hover/focus/disabled chrome */
-.inventory-preview-btn:hover, .inventory-preview-btn:focus, .inventory-preview-btn:disabled {
-    background-color: rgba(0,0,0,0);
+.radial-petal:hover, .radial-petal:focus, .radial-petal:active,
+.radial-petal:hover:enabled, .radial-petal:active:enabled {
+    background-color: rgba(0, 0, 0, 0);
     border-width: 0;
 }
+.radial-petal:disabled { opacity: 0.45; }
 
-/* ---------- skill cooldown (shade drains downward, seconds in the middle) ---------- */
-.slot-cooldown {
+.radial-face {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    border-radius: 64px;
+    background-color: var(--sn-cream);
+    border-color: var(--sn-brown);
+    border-width: 3px;
+    border-bottom-width: 8px;
+    overflow: hidden;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 12px;
+    transition-property: background-color, border-color;
+    transition-duration: 0.12s;
+}
+.radial-disc {
+    width: 62px;
+    height: 62px;
+    border-radius: 31px;
+    background-color: var(--sn-cream-hi);
+    border-width: 4px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.radial-icon {
+    width: 42px;
+    height: 42px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+.radial-name {
+    margin-top: 2px;
+    width: 116px;
+    font-size: 20px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: upper-center;
+    white-space: normal;
+    letter-spacing: 0.5px;
+    padding: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+.radial-shade {
     position: absolute;
     left: 0; right: 0; bottom: 0;
     height: 0%;
-    background-color: rgba(20, 14, 10, 0.62);
+    background-color: rgba(70, 46, 30, 0.55);
 }
-.slot-cooldown-label {
+.radial-cd {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    font-size: 28px;
-    color: rgb(255, 248, 230);
+    left: 0; top: 0; right: 0; bottom: 0;
+    font-size: 36px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-cream-hi);
     -unity-text-align: middle-center;
     -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(20, 14, 10);
+    -unity-text-outline-color: var(--sn-brown-dark);
 }
-.skill-slot-btn--cooling .slot-icon {
-    opacity: 0.55;
+.radial-petal--cooling .radial-disc { opacity: 0.6; }
+
+.radial-badge {
+    position: absolute;
+    top: -12px;
+    left: 38px;
+    width: 52px;
+    height: 28px;
+    font-size: 17px;
+    padding: 0;
+}
+.radial-gem {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 18px;
+    height: 18px;
+    rotate: 45deg;
+    background-color: rgb(176, 140, 255);
+    border-width: 2px;
+    border-color: rgb(80, 56, 140);
+    border-radius: 3px;
+}
+
+/* thumb over a petal (hold + drag) */
+.radial-petal--hover .radial-face {
+    background-color: rgb(255, 240, 196);
+    border-color: var(--sn-gold-dark);
+}
+/* the prep-unlocked skill */
+.radial-petal--glow .radial-face {
+    background-color: rgb(255, 236, 178);
+    border-color: var(--sn-gold-dark);
+    border-width: 5px;
+    border-bottom-width: 9px;
+}
+.radial-petal--empty .radial-face {
+    background-color: var(--sn-cream-lo);
+}
+
+/* gold ring flashing out of a used petal */
+.radial-flash {
+    position: absolute;
+    width: 128px;
+    height: 128px;
+    border-radius: 64px;
+}
+
+/* ---------- bag (inventory) ---------- */
+.inventory-preview-btn {
+    position: absolute;
+    right: 306px;
+    bottom: 20px;
+    width: 84px;
+    height: 84px;
+    min-width: 84px;
+    min-height: 84px;
+    margin: 0;
+    padding: 0;
+    border-radius: 42px;
+    background-color: var(--sn-cream);
+    background-image: none;
+    border-color: var(--sn-brown);
+    border-width: 3px;
+    border-bottom-width: 8px;
+    align-items: center;
+    justify-content: center;
+    transition-property: scale, translate, border-bottom-width;
+    transition-duration: 0.08s;
+}
+.inventory-preview-btn:hover:enabled, .inventory-preview-btn:focus {
+    background-color: var(--sn-cream-hi);
+    border-color: var(--sn-brown);
+}
+.inventory-preview-btn:active:enabled {
+    translate: 0 4px;
+    border-bottom-width: 4px;
+    scale: 0.95 0.95;
+}
+
+/* a satchel drawn with boxes: flap + body */
+.bag-icon {
+    width: 38px;
+    height: 30px;
+    margin-top: -4px;
+    background-color: rgb(196, 140, 86);
+    border-color: var(--sn-brown-dark);
+    border-width: 3px;
+    border-radius: 10px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+.preview-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 66px;
+    margin-top: 6px;
+}
+.preview-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    margin: 2px;
+    border-width: 2px;
+    border-color: var(--sn-cream-hi);
 }

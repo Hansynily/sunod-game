@@ -99,6 +99,8 @@ public class vc_TownStage : MonoBehaviour
 
     public bool InQuest => _inQuest;
     public bool Busy => _busy;
+    /// <summary>A town event's cutscene holds the town like the sleep cutscene does (no prompts, no hint arrow).</summary>
+    public void SetBusy(bool busy) { _busy = busy; RefreshTownControls(); }
     public int Day => _day;
     public int Energy => Mathf.Max(0, questsPerDay - _questsToday);
     public int BuiltQuestCount => _npcs.Count(n => n.HasQuest);
@@ -106,6 +108,10 @@ public class vc_TownStage : MonoBehaviour
     public int PassedCount => _npcs.Count(n => n.HasQuest && n.Attempted && n.Passed);
     public int OpenCount => _npcs.Count(n => n.IsOpen);
     public int RequestsLeftToday => _today.Count(n => n.IsOpen);
+    /// <summary>Who is asking for help today (the plaza board's posters), in order.</summary>
+    public IReadOnlyList<vc_TownNPC> TodayRequests => _today;
+    /// <summary>Every quest giver in this town.</summary>
+    public IReadOnlyList<vc_TownNPC> QuestGivers => _npcs;
     public bool StageDone => BuiltQuestCount > 0 && OpenCount == 0;
 
     /// <summary>
@@ -135,6 +141,14 @@ public class vc_TownStage : MonoBehaviour
         if (GetComponent<vc_TownAtmosphere>() == null) gameObject.AddComponent<vc_TownAtmosphere>();
         // chickens, the town cat, laundry lines, morning mist, dew
         if (GetComponent<vc_TownCritters>() == null) gameObject.AddComponent<vc_TownCritters>();
+        // rare town events, morning letters, the plaza bulletin board (TASKS §3.1)
+        if (GetComponent<vc_TownEvents>() == null) gameObject.AddComponent<vc_TownEvents>();
+        // the plaza quest board + the quest journal
+        if (GetComponent<vc_QuestBoard>() == null) gameObject.AddComponent<vc_QuestBoard>();
+        // the coast: foam washing in and out, wave crests rolling in
+        if (transform.Find("ShoreFoam") != null && GetComponent<vc_SeaWaves>() == null) gameObject.AddComponent<vc_SeaWaves>();
+        // warm low sun: cast shadows, warm wash + vignette, deeper sea
+        if (GetComponent<vc_TownLighting>() == null) gameObject.AddComponent<vc_TownLighting>();
         // the Keepsake Shop stall, a few steps from home
         if (_homes.Length > 0 && _homes[0] != null && GetComponentInChildren<vc_KeepsakeStall>() == null)
         {
@@ -316,8 +330,9 @@ public class vc_TownStage : MonoBehaviour
             .OrderBy(_ => Random.value)
             .ToList();
 
-        for (int i = 0; i < asking.Count; i++)
-            asking[i].PlaceAt(i < spots.Count ? spots[i] : asking[i].HomePosition);
+        // Planned towns (2026-11-07): everyone asks at their own place (shop door, pond, beach),
+        // which the plaza board and the journal point to. No more shuffling.
+        foreach (vc_TownNPC n in asking) n.PlaceAt(n.HomePosition);
     }
 
     private void StartDay()
@@ -361,6 +376,7 @@ public class vc_TownStage : MonoBehaviour
         RefreshHomes();
         RefreshHud();
         RefreshTownControls();
+        GetComponent<vc_TownEvents>()?.OnDayStart(_day);
     }
 
     // ── NPC interaction ───────────────────────────────────────────────────
@@ -370,6 +386,7 @@ public class vc_TownStage : MonoBehaviour
     private void Update()
     {
         UpdateHintArrow();
+        UpdateTalkButton();
         KeepPlayerInTown();
         // Old Sneakers keepsake: faster walking around town, never inside a quest room.
         PlayerController.SpeedMultiplier = !_inQuest && vc_LoopMeta.HasMemento("sneakers") ? 1.25f : 1f;
@@ -397,11 +414,68 @@ public class vc_TownStage : MonoBehaviour
             return;
         }
 
+        // today's event host, the bulletin board, a letter by the door
+        if (GetComponent<vc_TownEvents>()?.TryTap(world, player.transform.position) == true) { _lastTalkTime = Time.time; return; }
+
         // roaming townsfolk and people at today's happenings talk too
         if (GetComponent<vc_TownLife>()?.TryTalk(world, player.transform.position, _day, stageId) == true)
             _lastTalkTime = Time.time;
         else
             GetComponent<vc_TownCritters>()?.TryPet(world, player.transform.position);   // pet the town cat
+    }
+
+    // ── Talk button (TASKS §3.2): players didn't know they could tap people ──
+    // Whenever someone (or something) you can talk to is close, a Talk / Read / Open button
+    // shows with the side controls. Tapping people still works too.
+
+    private const float TalkRange = 1.7f;
+    private float _nextTalkCheck;
+
+    private void UpdateTalkButton()
+    {
+        if (Time.time < _nextTalkCheck) return;
+        _nextTalkCheck = Time.time + 0.2f;
+        vc_RunProgressUI ui = vc_RunProgressUI.Instance;
+        if (ui == null) return;
+
+        PlayerController player = FindFirstObjectByType<PlayerController>();
+        vc_QuestBoard board = GetComponent<vc_QuestBoard>();
+        bool boardOpen = board != null && board.IsOpen;
+        // the journal: always there in town (with how many accepted requests are waiting)
+        ui.SetJournalButton(_inQuest || _busy || boardOpen ? -1 : (board != null ? board.JournalEntries().Count : 0), () => board?.OpenJournal());
+        bool blocked = _inQuest || _busy || boardOpen || player == null || (vc_DialogPanel.Instance != null && vc_DialogPanel.Instance.IsOpen);
+        if (blocked) { ui.SetTalkButton(null, null); return; }
+
+        Vector2 pp = player.transform.position;
+        float best = TalkRange;
+        string label = null;
+        System.Action act = null;
+
+        foreach (vc_TownNPC npc in _npcs)
+        {
+            if (!npc.gameObject.activeInHierarchy || npc.Leaving) continue;
+            float d = Vector2.Distance(pp, npc.transform.position);
+            if (d >= best) continue;
+            vc_TownNPC who = npc;
+            best = d;
+            label = npc.HasQuest && npc.IsOpen && !npc.Attempted ? "Talk!" : "Talk";
+            act = () => { _promptCooldownUntil = 0f; OnNpcApproached(who); };
+        }
+
+        vc_TownEvents events = GetComponent<vc_TownEvents>();
+        if (events != null && events.Nearest(pp, best, out float de, out string le, out System.Action ae) && de < best)
+        {
+            best = de; label = le; act = ae;
+        }
+
+        vc_TownLife life = GetComponent<vc_TownLife>();
+        if (life != null && life.NearestTalker(pp, best, out Vector2 at) && Vector2.Distance(pp, at) < best)
+        {
+            label = "Talk";
+            act = () => { if (life.TryTalk(at + new Vector2(0f, 0.6f), player.transform.position, _day, stageId)) _lastTalkTime = Time.time; };
+        }
+
+        ui.SetTalkButton(label, act);
     }
 
     private float _nextBoundsCheck;
@@ -544,18 +618,13 @@ public class vc_TownStage : MonoBehaviour
     }
 
     /// <summary>
-    /// Skill system v2: advice only, never required. "Recommended: Lv2 Realistic skill" plus
-    /// what the player's skill of that kind is at, so a lower level just reads as "slower".
+    /// Skill system v2: advice only, never required. Just the level ("Rec. Lv2"), never which
+    /// skill or kind: picking the skill is the player's call.
     /// </summary>
     private static string RecommendedLine(string questCode)
     {
         if (string.IsNullOrEmpty(questCode)) return "";
-        string letter = questCode.Substring(0, 1).ToUpperInvariant();
-        int rec = vc_SkillLevels.RecommendedLevel(vc_SkillLevels.StageIndex, questCode);
-        int have = vc_SkillLevels.EquippedLevel(letter);
-        string kind = KindNames.TryGetValue(letter, out string k) ? k : letter;
-        string note = have >= rec ? "" : " - lower works, just slower";
-        return $"\n\nRecommended: Lv{rec} {kind} (yours: Lv{have}){note}";
+        return $"\n\nRec. Lv{vc_SkillLevels.RecommendedLevel(vc_SkillLevels.StageIndex, questCode)}";
     }
 
     private static readonly HashSet<string> MemoryOpenersShown = new HashSet<string>();
@@ -1398,6 +1467,31 @@ public class vc_TownStage : MonoBehaviour
         PlayerController player = FindFirstObjectByType<PlayerController>();
         return player != null ? player.transform.position : transform.position;
     }
+
+    /// <summary>Quest journal: fade out, appear next to 'who', fade in.</summary>
+    public void TeleportTo(vc_TownNPC who)
+    {
+        if (who == null || _inQuest || _busy) return;
+        StartCoroutine(TeleportRoutine(who));
+    }
+
+    private IEnumerator TeleportRoutine(vc_TownNPC who)
+    {
+        _busy = true;
+        RefreshTownControls();
+        vc_RunProgressUI ui = vc_RunProgressUI.Instance;
+        if (ui != null) yield return ui.FadeScreen(1f, 0.3f);
+        vc_Sfx_Play("quest_start");
+        MovePlayer(SafeTownSpot(who.transform.position + new Vector3(0f, -1.3f, 0f)));
+        _lastTalkTime = Time.time;
+        _promptCooldownUntil = Time.time + 0.6f;
+        yield return new WaitForSeconds(0.15f);
+        if (ui != null) yield return ui.FadeScreen(0f, 0.35f);
+        _busy = false;
+        RefreshTownControls();
+    }
+
+    private static void vc_Sfx_Play(string clip) => SunodGame.Core.vc_Sfx.Play(clip, 0.5f);
 
     private void MovePlayer(Vector3 pos)
     {

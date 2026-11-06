@@ -47,6 +47,28 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
     [SerializeField] private float solveTime = 5f;
     [SerializeField] private float inspectTime = 7f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Inspect (prep) makes paw prints glow in the grass, then
+    // Solve reveals the burrow at once. Preference: Plan (the quiet blind).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Kuya Migs",
+        presses = 5,
+        bestFitTag = "survey",
+        bestFitSeconds = 1.5f,
+        prepTag = "inspect",
+        prepUnlocksTag = "unlock",
+        prepLine = "You crouch low... little paw prints glow in the grass.",
+        preferredTag = "plan",
+        preferenceLine = "They walked right up to us! You're a natural.",
+        fastLines = new[]
+        {
+            ("plan", "They walked right up to us! You're a natural."),
+            ("unlock", "You found their burrow already? Wow."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private SpriteRenderer[] _sr;
     private vc_HopWander[] _hop;
     private Vector3[] _restLocal;
@@ -98,7 +120,7 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Watch the Rabbits",
-            "The rabbits behave in curious ways. Find out what they're up to.",
+            "Kuya Migs spotted skittish rabbits in the meadow. Find out what they're up to without scaring them off.",
             new[] { "Study the rabbits' behavior" });
     }
 
@@ -178,9 +200,9 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
 
         if (BlockedByWork()) return;
 
-        if (d.HasTag("plan")) { StopHiding(); StartWork(PlanRoutine()); return; }
-        if (d.HasTag("unlock")) { StopHiding(); StartWork(SolveRoutine()); return; }
-        if (d.HasTag("inspect")) { StopHiding(); StartWork(InspectRoutine()); return; }
+        if (d.HasTag("plan")) { StopHiding(); StartWork(PlanRoutine(PathTime(planTime))); return; }
+        if (d.HasTag("unlock")) { StopHiding(); StartWork(SolveRoutine(PathTime(solveTime))); return; }
+        if (d.HasTag("inspect")) { StopHiding(); StartWork(InspectRoutine(PathTime(inspectTime))); return; }
 
         Toast("Rabbits spook easily. Watch and think.", 2.2f);
     }
@@ -242,7 +264,7 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
 
     // ── Plan: set up a blind, the rabbits drift out to you ───────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float planTime)
     {
         Toast("Setting up a quiet spot by the bush...", planTime);
         ShowBar(true);
@@ -298,7 +320,7 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
 
     // ── Solve: work out why they dig - the burrow shows up ───────────────
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float solveTime)
     {
         Toast("Working out why they keep digging...", solveTime);
         ShowBar(true);
@@ -321,7 +343,7 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
         {
             t += Time.deltaTime;
             SetBar(t / solveTime);
-            if (!revealed && t >= 2.2f)
+            if (!revealed && t >= solveTime * 0.44f)
             {
                 revealed = true;
                 if (burrow != null)
@@ -332,7 +354,7 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
                 }
                 Fx(dustFrames, c + new Vector3(0f, 0.1f, 0f), 8f, 0.25f);
             }
-            if (!bulb && t >= solveTime - 1.1f)
+            if (!bulb && t >= solveTime * 0.78f)
             {
                 bulb = true;
                 Fx(bulbFrames, c + new Vector3(0f, 1.6f, 0f), 2f, 0.3f, 25);
@@ -378,9 +400,47 @@ public class vc_RabbitWatchQuest : vc_FitQuestBase
         if (sr != null) { Color c = sr.color; c.a = 1f; sr.color = c; }
     }
 
+    // Prep (Inspect): a magnifier sweeps the grass and the paw prints light up on the way to the burrow.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("scan", 0.5f, 0.05f);
+        Vector3 c = center != null ? center.position : transform.position;
+        Vector3 start = c + new Vector3(-4.2f, -0.6f, 0f), end = c + new Vector3(-0.9f, -0.15f, 0f);
+
+        GameObject lens = null;
+        if (magnifier != null)
+        {
+            lens = new GameObject("Magnifier");
+            lens.transform.SetParent(transform, true);
+            var lr = lens.AddComponent<SpriteRenderer>();
+            lr.sprite = magnifier; lr.sortingLayerName = sortingLayer; lr.sortingOrder = 22;
+        }
+        const int prints = 7;
+        for (int i = 0; i < prints; i++)
+        {
+            float k = i / (prints - 1f);
+            Vector3 p = Vector3.Lerp(start, end, k) + new Vector3(0f, (i % 2 == 0 ? 0.12f : -0.12f), 0f);
+            var go = new GameObject("Paw");
+            go.transform.SetParent(transform, true);
+            go.transform.position = Snap(p);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = pawPrint; sr.sortingLayerName = sortingLayer; sr.sortingOrder = 2;
+            sr.color = new Color(1f, 0.95f, 0.6f);
+            _spawned.Add(go);
+            if (lens != null) lens.transform.position = Snap(p + new Vector3(0.1f, 0.5f, 0f));
+            Fx(ringFrames, p, 8f);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.35f, 0.12f);
+            yield return new WaitForSeconds(0.11f);
+        }
+        if (lens != null) Destroy(lens);
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.2f);
+    }
+
     // ── Inspect: follow the paw tracks to the burrow ─────────────────────
 
-    private IEnumerator InspectRoutine()
+    private IEnumerator InspectRoutine(float inspectTime)
     {
         Toast("Checking the ground for tracks...", inspectTime);
         ShowBar(true);

@@ -49,7 +49,31 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
     [SerializeField] private float mapTime = 4f;
     [SerializeField] private float commandTime = 4f;
     [SerializeField] private float paintTime = 8f;
+    [SerializeField] private float callTime = 4f;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Agent Mel",
+        presses = 3,
+        bestFitTag = "persuade",
+        bestFitSeconds = 1.5f,
+        prepTag = "paint",
+        prepUnlocksTag = "map",
+        prepLine = "You give the walls a fresh coat of paint...",
+        preferredTag = "map",
+        preferenceLine = "They did love that view! Thank you!",
+        fastLines = new[]
+        {
+            ("charm", "They're smiling already!"),
+            ("map", "That view sold it!"),
+            ("command", "What a tour!"),
+            ("summon", "The neighbour sealed the deal!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
+    private readonly List<GameObject> _prepPaint = new List<GameObject>();
     private Vector3 _buyerStart, _signRest;
     private float _elapsed, _total = 1f;
     private float _idleClock, _swayClock;
@@ -62,11 +86,14 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
     {
         if (buyer != null) _buyerStart = buyer.transform.position;
         if (sign != null) _signRest = sign.localPosition;
+        if ((helperWalk == null || helperWalk.Length == 0) && buyerWalk != null) helperWalk = buyerWalk;
     }
 
     protected override void OnBegin()
     {
         CleanSpawned();
+        foreach (GameObject g in _prepPaint) if (g != null) Destroy(g);
+        _prepPaint.Clear();
         if (_banner != null) Destroy(_banner);
         _banner = null;
         if (buyer != null)
@@ -82,7 +109,7 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Open House",
-            "A buyer is looking around. Sell them the house.",
+            "Agent Mel is holding an open house, but the buyer keeps staring out the window. Sell them the house. (Mel thinks that view is the selling point.)",
             new[] { "Sell the house" });
     }
 
@@ -127,10 +154,11 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
         if (d.HasTag("persuade")) { StartWork(PersuadeRoutine()); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("charm")) { StartWork(CharmRoutine()); return; }
-        if (d.HasTag("map")) { StartWork(MapRoutine()); return; }
-        if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
+        if (d.HasTag("charm")) { StartWork(CharmRoutine(PathTime(charmTime))); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime), CurrentInstant)); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime))); return; }
+        if (d.HasTag("summon")) { StartWork(CallRoutine(PathTime(callTime))); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime))); return; }
 
         Toast("That won't sell a house.", 2.2f);
     }
@@ -181,12 +209,12 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
 
     // ── Charm: the buyer warms up ────────────────────────────────────────
 
-    private IEnumerator CharmRoutine()
+    private IEnumerator CharmRoutine(float seconds)
     {
-        Toast("You turn on the charm...", charmTime);
-        Timeline(charmTime);
+        Toast("You turn on the charm...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         Vector3 b = buyer.transform.position;
-        float per = charmTime * 0.7f / 3f;
+        float per = seconds * 0.7f / 3f;
         for (int i = 0; i < 3; i++)
         {
             Fx(heartFrames, b + new Vector3(-0.3f + i * 0.3f, 0.9f, 0f), 3f, 0.6f, 26);
@@ -195,18 +223,18 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
             yield return Wait(per);
         }
         Fx(new[] { bubbleSmile }, b + new Vector3(0f, 1.2f, 0f), 1.5f, 0.15f, 26);
-        yield return Wait(charmTime * 0.1f);
+        yield return Wait(seconds * 0.1f);
         yield return Sell("They warmed right up. Sold!");
     }
 
     // ── Map: show them the view from the best room ───────────────────────
 
-    private IEnumerator MapRoutine()
+    private IEnumerator MapRoutine(float seconds, bool oneGo)
     {
-        Toast("You show them the view...", mapTime);
-        Timeline(mapTime);
-        yield return WalkTo(bestRoom.position + new Vector3(0f, -0.9f, 0f), mapTime * 0.5f);
-        float per = mapTime * 0.3f / 4f;
+        Toast(oneGo ? "You walk them straight to the view..." : "You show them the view...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
+        yield return WalkTo(bestRoom.position + new Vector3(0f, -0.9f, 0f), seconds * 0.5f);
+        float per = seconds * 0.3f / 4f;
         for (int i = 0; i < 4; i++)
         {
             Fx(sparkFrames, window.position + new Vector3(-0.5f + i * 0.35f, 0.2f + (i % 2) * 0.3f, 0f), 10f, 0.2f, 27);
@@ -214,18 +242,18 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
             yield return Wait(per);
         }
         Fx(new[] { bubbleSmile }, buyer.transform.position + new Vector3(0f, 1.2f, 0f), 1.5f, 0.15f, 26);
-        yield return Wait(mapTime * 0.1f);
-        yield return Sell("The buyer loves the view! Sold!");
+        yield return Wait(seconds * 0.1f);
+        yield return Sell(oneGo ? "Straight to the view in one go. Sold!" : "The buyer loves the view! Sold!");
     }
 
     // ── Command: lead the tour ───────────────────────────────────────────
 
-    private IEnumerator CommandRoutine()
+    private IEnumerator CommandRoutine(float seconds)
     {
-        Toast("You lead the tour...", commandTime);
-        Timeline(commandTime);
+        Toast("You lead the tour...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         int n = tourStops.Length;
-        float walkTotal = commandTime * 0.75f, per = walkTotal / n;
+        float walkTotal = seconds * 0.75f, per = walkTotal / n;
         for (int i = 0; i < n; i++)
         {
             Vector3 stop = tourStops[i].position + new Vector3(0f, -0.8f, 0f);
@@ -236,20 +264,20 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
             yield return Wait(per * 0.3f);
         }
         Fx(new[] { bubbleSmile }, buyer.transform.position + new Vector3(0f, 1.2f, 0f), 1.5f, 0.15f, 26);
-        yield return Wait(commandTime * 0.1f);
+        yield return Wait(seconds * 0.1f);
         yield return Sell("You led the tour like a pro. Sold!");
     }
 
     // ── Paint: stage the house with fresh walls ──────────────────────────
 
-    private IEnumerator PaintRoutine()
+    private IEnumerator PaintRoutine(float seconds)
     {
-        Toast("You freshen up the walls...", paintTime);
-        Timeline(paintTime);
+        Toast("You freshen up the walls...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         Vector3 w = window.position;
         GameObject roller = Spawn("Roller", paintRoller, 27);
         int rows = 4;
-        float paintPhase = paintTime * 0.65f, per = paintPhase / rows;
+        float paintPhase = seconds * 0.65f, per = paintPhase / rows;
         for (int r = 0; r < rows; r++)
         {
             float y = w.y - 0.55f + r * 0.28f;
@@ -270,10 +298,79 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
         Destroy(roller);
         Fx(sparkFrames, w + new Vector3(0f, 0.3f, 0f), 10f, 0.3f, 27);
 
-        yield return WalkTo(bestRoom.position + new Vector3(0f, -0.9f, 0f), paintTime * 0.25f);
+        yield return WalkTo(bestRoom.position + new Vector3(0f, -0.9f, 0f), seconds * 0.25f);
         Fx(new[] { bubbleSmile }, buyer.transform.position + new Vector3(0f, 1.2f, 0f), 1.5f, 0.15f, 26);
-        yield return Wait(paintTime * 0.08f);
+        yield return Wait(seconds * 0.08f);
         yield return Sell("The fresh paint staged the house. Sold!");
+    }
+
+    // ── Prep (Paint): fresh walls; Map then walks the buyer straight to the view ──
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (window == null) { yield return new WaitForSeconds(1f); yield break; }
+        Vector3 w = window.position;
+        GameObject roller = Spawn("Roller", paintRoller, 27);
+        int rows = 3;
+        float per = 0.28f;
+        for (int r = 0; r < rows; r++)
+        {
+            float y = w.y - 0.55f + r * 0.28f;
+            GameObject stripe = Spawn("PrepPaint", paintStripe, 12, false);
+            _prepPaint.Add(stripe);
+            float x0 = w.x - 2.6f, x1 = w.x + 2.6f, t = 0f;
+            while (t < per)
+            {
+                t += Time.deltaTime;
+                float k = Mathf.Clamp01(t / per);
+                float x = Mathf.Lerp(x0, x1, k);
+                roller.transform.position = Snap(new Vector3(x, y + 0.1f, 0f));
+                stripe.transform.position = Snap(new Vector3((x0 + x) / 2f, y, 0f));
+                stripe.transform.localScale = new Vector3(Mathf.Max(0.05f, (x - x0) / (24f / 22f)), 1f, 1f);
+                yield return null;
+            }
+            SunodGame.Core.vc_Sfx.Play("shuffle", 0.3f, 0.1f);
+        }
+        Destroy(roller);
+        Fx(sparkFrames, w + new Vector3(0f, 0.3f, 0f), 10f, 0.3f, 27);
+        yield return new WaitForSeconds(0.15f);
+    }
+
+    // ── Call: a happy neighbour comes over and praises the street ────────
+
+    private IEnumerator CallRoutine(float seconds)
+    {
+        float walk = seconds * 0.55f, talk = seconds - walk;
+        Toast("You call a happy neighbour over...", Mathf.Max(1.5f, seconds * 0.7f));
+        Timeline(seconds);
+        Vector3 to = buyer.transform.position + new Vector3(1.1f, 0f, 0f);
+        Vector3 from = to + new Vector3(5f, 0f, 0f);
+        SpriteRenderer neighbour = SpawnHelper(from, buyer.sortingOrder + 1);
+        if (neighbour != null) { neighbour.color = new Color(1f, 0.86f, 0.78f, 1f); neighbour.flipX = true; }
+
+        yield return HelperWalk(from, to, Mathf.Max(0.3f, walk), n => SetBar(n / seconds));
+
+        if (neighbour != null) neighbour.flipX = false;
+        buyer.flipX = false;
+        Toast("\"Best street in town. You'll love it here!\"", Mathf.Max(1.2f, talk));
+        float spent = 0f, tick = 0f, beat = Mathf.Max(0.3f, talk / 3f);
+        while (spent < talk)
+        {
+            spent += Time.deltaTime;
+            tick += Time.deltaTime;
+            SetBar((walk + spent) / seconds);
+            if (tick >= beat)
+            {
+                tick = 0f;
+                Fx(new[] { bubbleSmile }, to + new Vector3(0f, 1.2f, 0f), 1.5f, 0.15f, 26);
+                Fx(heartFrames, buyer.transform.position + new Vector3(0f, 0.9f, 0f), 3f, 0.6f, 26);
+                SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f, 0.15f);
+            }
+            yield return null;
+        }
+        Fx(new[] { bubbleDeal }, buyer.transform.position + new Vector3(0f, 1.2f, 0f), 2f, 0.15f, 26);
+        yield return Sell("The neighbour sealed the deal. Sold!");
     }
 
     // ── Shared ───────────────────────────────────────────────────────────
@@ -337,13 +434,13 @@ public class vc_OpenHouseQuest : vc_FitQuestBase
         if (buyerWalk != null && buyerWalk.Length > 0) buyer.sprite = buyerWalk[0];
     }
 
-    private GameObject Spawn(string name, Sprite s, int order)
+    private GameObject Spawn(string name, Sprite s, int order, bool track = true)
     {
         var go = new GameObject(name);
         go.transform.SetParent(transform, true);
         var sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = s; sr.sortingLayerName = sortingLayer; sr.sortingOrder = order;
-        _spawned.Add(go);
+        if (track) _spawned.Add(go);
         return go;
     }
 }

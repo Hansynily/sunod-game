@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using SunodGame.Core;
+using SunodGame.UI;
 
 [DisallowMultipleComponent]
 public class vc_EndRunUI : MonoBehaviour
@@ -24,11 +25,39 @@ public class vc_EndRunUI : MonoBehaviour
         _root = root.Q<VisualElement>("end-run-root");
         _btn  = root.Q<Button>("end-run-btn");
         _btn?.RegisterCallback<ClickEvent>(_ => OnClicked());
+        vc_UIAnim.Press(_btn);
+        _shown = false;
         _root?.SetDisplay(false);
     }
 
-    public void Show() => _root?.SetDisplay(true);
-    public void Hide() => _root?.SetDisplay(false);
+    private bool _shown;
+    private vc_UIAnim.Handle _pulse;
+
+    /// <summary>Slides up from the bottom edge, then breathes gently until it's used.</summary>
+    public void Show()
+    {
+        if (_root == null || _shown) return;
+        _shown = true;
+        vc_UIAnim.StopPulse(ref _pulse, _root);
+        vc_UIAnim.Show(_root, vc_UIAnim.Enter.SlideUp, 0f, () =>
+        {
+            if (_shown && _pulse == null) _pulse = vc_UIAnim.Pulse(_root, 0.04f, 1.4f);
+        });
+    }
+
+    public void Hide()
+    {
+        _shown = false;
+        vc_UIAnim.StopPulse(ref _pulse, _root);
+        if (_root == null) return;
+        if (_root.resolvedStyle.display == DisplayStyle.None)
+        {
+            vc_UIAnim.StopAll(_root);
+            _root.SetDisplay(false);
+            return;
+        }
+        vc_UIAnim.Hide(_root, null, vc_UIAnim.Exit.SlideDown);
+    }
 
     /// <summary>Submits the run and goes to the results, skipping the End Run button (town mode's final stage).</summary>
     public void SubmitNow()
@@ -51,11 +80,11 @@ public class vc_EndRunUI : MonoBehaviour
         }
 
         dialog.ShowChoice(
-            title:        "No More Quests",
-            body:         "You finished all the quests.\nSee your results?",
+            title:        "All done!",
+            body:         "No quests left.\nSee your results?",
             icon:         null,
-            confirmLabel: "Yes",
-            cancelLabel:  "No",
+            confirmLabel: "Results",
+            cancelLabel:  "Not yet",
             onConfirm:    () => StartCoroutine(SubmitAndGoToEnd()),
             onCancel:     null
         );

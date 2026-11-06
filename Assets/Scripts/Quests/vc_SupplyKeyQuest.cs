@@ -56,6 +56,28 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
     [SerializeField] private float locksmithFixTime = 4f;
     [SerializeField] private float keyFlightTime = 0.6f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Map (prep) sketches the shelf layout, then Direct sorts every
+    // shelf in one sweep and the key turns up. Preference: Direct (leave the shelves neat).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Principal Reyes",
+        presses = 5,
+        bestFitTag = "inspect",
+        bestFitSeconds = 2f,
+        prepTag = "map",
+        prepUnlocksTag = "direct",
+        prepLine = "You sketch where every shelf and box sits...",
+        preferredTag = "direct",
+        preferenceLine = "Neat and tidy. Just how I like my shelves!",
+        fastLines = new[]
+        {
+            ("collect", "Everything gathered and the key found? Impressive."),
+            ("direct", "Neat AND fast. You should run this school."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3 _padlockRest, _binRest;
     private Vector3[] _itemRest;
     private Vector3[] _shelfRest;
@@ -98,7 +120,7 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Missing Key",
-            "The spare key is lost somewhere in the supply room. Take stock and find it.",
+            "Principal Reyes lost the spare key somewhere in the cluttered supply room. Find it, and leave the shelves neat.",
             new[] { "Find the key and open the storeroom" });
     }
 
@@ -128,13 +150,33 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
         if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
-        if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(LocksmithRoutine()); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime))); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime))); return; }
+        if (d.HasTag("unlock")) { StartWork(SolveRoutine(PathTime(solveTime))); return; }
+        if (d.HasTag("survey")) { StartWork(SurveyRoutine(PathTime(surveyTime))); return; }
+        if (d.HasTag("summon")) { StartWork(LocksmithRoutine(PathTime(locksmithWalkTime + locksmithFixTime))); return; }
 
         Toast("Try a careful, orderly approach.", 2.2f);
+    }
+
+    // Prep (Map): a quick sketch of the room; every shelf gets a ring and a check mark.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("brush", 0.4f, 0.1f);
+        int ns = shelves != null ? shelves.Length : 0;
+        float gap = 0.8f / Mathf.Max(1, ns);
+        for (int s = 0; s < ns; s++)
+        {
+            if (shelves[s] == null) continue;
+            Vector3 p = shelves[s].position + new Vector3(0f, 0.9f, 0f);
+            Fx(ringFrames, p, 8f, 0f, 24);
+            Fx(checkFrames, p + new Vector3(0f, 0.7f, 0f), 2.5f, 0.2f, 24);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.35f, 0.12f);
+            yield return new WaitForSeconds(gap);
+        }
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.2f);
     }
 
     // ── Inspect: check every label, the key box glints ───────────────────
@@ -167,13 +209,13 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
 
     // ── Collect: supplies into the bin, the key drops out ────────────────
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float collectTime)
     {
         Toast("Gathering the supplies into the bin...", collectTime);
         ShowBar(true);
         float t = 0f;
         int n = looseItems != null ? looseItems.Length : 0;
-        float gap = 0.55f, fly = 0.5f;
+        float scale = collectTime / this.collectTime; float gap = 0.55f * scale, fly = 0.5f * scale;
         for (int i = 0; i < n; i++)
         {
             if (looseItems[i] != null) StartCoroutine(FlyItem(looseItems[i], bin.position + new Vector3(0f, 0.45f, 0f), fly, 0.9f));
@@ -205,13 +247,13 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
 
     // ── Direct: label and sort the shelves ───────────────────────────────
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float directTime)
     {
         Toast("Labelling and sorting the shelves...", directTime);
         ShowBar(true);
         float t = 0f;
         int ns = shelves != null ? shelves.Length : 0;
-        float per = 3.2f / Mathf.Max(1, ns * 3);
+        float scale = directTime / this.directTime; float per = 3.2f * scale / Mathf.Max(1, ns * 3);
         for (int s = 0; s < ns; s++)
         {
             StartCoroutine(Shake(shelves[s], _shelfRest[s], 0.3f, 1));
@@ -229,7 +271,7 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
         Vector3 from = mid.position + new Vector3(0.2f, 1.0f, 0f);
         SunodGame.Core.vc_Sfx.Play("scrape", 0.35f);
         RevealKey(from);
-        float drop = 0.5f;
+        float drop = 0.5f * scale;
         yield return Fly(key.transform, from, mid.position + new Vector3(0.4f, -0.35f, 0f), drop, 0.2f);
         t += drop;
         SetBar(t / directTime);
@@ -253,7 +295,7 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
 
     // ── Solve: reason it out, rule the shelves out one by one ────────────
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float solveTime)
     {
         Toast("Where was the key used last? You work it out...", solveTime);
         ShowBar(true);
@@ -264,12 +306,12 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
         if (questionBubble != null) Fx(new[] { questionBubble }, lockPos + new Vector3(0f, 0.7f, 0f), 1f / 1.2f, 0.2f, 24);
         SunodGame.Core.vc_Sfx.Play("idea", 0.4f);
         if (padlock != null) StartCoroutine(Shake(padlock.transform, _padlockRest, 0.3f, 1));
-        yield return BarStep(1.2f, 0f, 1.2f / solveTime);
-        t = 1.2f;
+        float think = 1.2f * solveTime / this.solveTime; yield return BarStep(think, 0f, think / solveTime);
+        t = think;
 
         // go through the shelves in order: each one is ruled out with a cross
         int ns = shelves != null ? shelves.Length : 0;
-        float per = (solveTime - 1.2f - 1.4f) / Mathf.Max(1, ns);
+        float per = solveTime * (1f - 2.6f / this.solveTime) / Mathf.Max(1, ns);
         for (int s = 0; s < ns; s++)
         {
             if (shelves[s] == null) continue;
@@ -295,7 +337,7 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
 
     // ── Survey: a scanner beam sweeps the room ───────────────────────────
 
-    private IEnumerator SurveyRoutine()
+    private IEnumerator SurveyRoutine(float surveyTime)
     {
         Toast("Sweeping the room with a scanner...", surveyTime);
         ShowBar(true);
@@ -309,7 +351,7 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
         var lit = new HashSet<Transform>();
         float keyX = keyBox.transform.position.x;
         bool glinted = false;
-        float sweepEnd = surveyTime - 1.4f;
+        float sweepEnd = surveyTime * 0.8f;
         while (t < sweepEnd)
         {
             t += Time.deltaTime;
@@ -344,23 +386,23 @@ public class vc_SupplyKeyQuest : vc_FitQuestBase
 
     // ── Call: the locksmith opens the door ───────────────────────────────
 
-    private IEnumerator LocksmithRoutine()
+    private IEnumerator LocksmithRoutine(float total)
     {
         Toast("You call the locksmith...", 3f);
         ShowBar(true);
         Vector3 to = door.position + new Vector3(-1.3f, -0.9f, 0f);
         Vector3 from = to + new Vector3(-8f, 0f, 0f);
         SpawnHelper(from, 6);
-        float total = locksmithWalkTime + locksmithFixTime;
-        yield return HelperWalk(from, to, locksmithWalkTime, t => SetBar(t / total));
+        float walkT = total * locksmithWalkTime / (locksmithWalkTime + locksmithFixTime), fixT = total - walkT;
+        yield return HelperWalk(from, to, walkT, t => SetBar(t / total));
 
-        Toast("The locksmith works on the lock...", locksmithFixTime);
+        Toast("The locksmith works on the lock...", fixT);
         float tt = 0f, tick = 0f;
-        while (tt < locksmithFixTime)
+        while (tt < fixT)
         {
             tt += Time.deltaTime;
             tick += Time.deltaTime;
-            SetBar((locksmithWalkTime + tt) / total);
+            SetBar((walkT + tt) / total);
             if (tick >= 0.5f)
             {
                 tick = 0f;

@@ -52,12 +52,35 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
     [SerializeField] private float solveTime = 5f;
     [SerializeField] private float collectTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Collect (prep) slides the pots into a neat labelled row,
+    // then Survey measures the whole row in one sweep. Preference: Survey.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Teacher Joy",
+        presses = 6,
+        bestFitTag = "plan",
+        bestFitSeconds = 2f,
+        prepTag = "collect",
+        prepUnlocksTag = "survey",
+        prepLine = "The pots slide into a neat row, each with a label...",
+        preferredTag = "survey",
+        preferenceLine = "Every pot measured and logged. That's how a scientist does it!",
+        fastLines = new[]
+        {
+            ("survey", "Every pot measured that fast? Class, did you see that?"),
+            ("unlock", "You figured out the shade problem already!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private const int Wilt = 4;
-    private int _measured;
+    private int _measured, _measurePress;
     private Vector3 _barPos;
     private float _sparkClock, _noticeClock;
     private bool _noticing;
     private Transform _player;
+    private Vector3[] _potOrig;
     private Vector3[] _potRest;
     private Vector3 _awningRest;
     private GameObject _lens;
@@ -67,17 +90,20 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
     private void Awake()
     {
         _potRest = new Vector3[pots.Length];
-        for (int i = 0; i < pots.Length; i++) _potRest[i] = pots[i].transform.localPosition;
+        _potOrig = new Vector3[pots.Length];
+        for (int i = 0; i < pots.Length; i++) _potRest[i] = _potOrig[i] = pots[i].transform.localPosition;
         if (awning != null) _awningRest = awning.localPosition;
     }
 
     protected override void OnBegin()
     {
         _measured = 0;
+        _measurePress = 0;
         _noticing = false;
         _noticeClock = 0f;
         for (int i = 0; i < pots.Length; i++)
         {
+            _potRest[i] = _potOrig[i];
             pots[i].transform.localPosition = _potRest[i];
             SetStage(i, 0);
         }
@@ -91,7 +117,7 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Seedling Study",
-            "Find out what makes the seedlings grow.",
+            "Teacher Joy wants the class to see how seedlings are measured. Find out what makes them grow.",
             new[] { "Study the seedlings" });
     }
 
@@ -173,8 +199,8 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
         if (BlockedByWork()) return;
 
         if (d.HasTag("survey")) { StopNoticing(); MeasurePress(); return; }
-        if (d.HasTag("unlock")) { StopNoticing(); _barPos = Center() + new Vector3(-0.5f, 1.7f, 0f); StartWork(SolveRoutine()); return; }
-        if (d.HasTag("collect")) { StopNoticing(); _barPos = Center() + new Vector3(-0.5f, 1.7f, 0f); StartWork(CollectRoutine()); return; }
+        if (d.HasTag("unlock")) { StopNoticing(); _barPos = Center() + new Vector3(-0.5f, 1.7f, 0f); StartWork(SolveRoutine(PathTime(solveTime))); return; }
+        if (d.HasTag("collect")) { StopNoticing(); _barPos = Center() + new Vector3(-0.5f, 1.7f, 0f); StartWork(CollectRoutine(PathTime(collectTime))); return; }
 
         Toast("This needs some careful study.", 2.2f);
     }
@@ -220,10 +246,44 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
 
     // ── Survey: measure one pot per press ────────────────────────────────
 
+    // 3 presses at Lv1 (a pot each), 2 at Lv2, 1 at Lv3 or after the Collect prep (one sweep along the row).
     private void MeasurePress()
     {
-        int i = Mathf.Clamp(_measured, 0, pots.Length - 1);
-        _measured++;
+        _measurePress++;
+        int total = measurePresses;
+        int need = Mathf.Clamp(PathPresses(total), 1, total);
+        int remaining = total - _measured;
+        int pressesLeft = Mathf.Max(1, need - _measurePress + 1);
+        int count = _measurePress >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        int first = _measured;
+        _measured += count;
+
+        if (_measured >= total)
+        {
+            StartWork(MeasureFinishRoutine(first, count));
+            return;
+        }
+        for (int k = 0; k < count; k++) MeasurePot(first + k);
+        Toast($"You measure a pot and log it ({_measured}/{total})", 2f);
+    }
+
+    private IEnumerator MeasureFinishRoutine(int first, int count)
+    {
+        Toast(count > 1 ? "One sweep along the row, every pot measured!" : "The last pot is measured and logged.", 2.2f);
+        ShowBar(true);
+        for (int k = 0; k < count; k++)
+        {
+            MeasurePot(first + k);
+            SetBar((k + 1f) / count);
+            yield return new WaitForSeconds(count > 1 ? 0.3f : 0.1f);
+        }
+        yield return new WaitForSeconds(0.3f);
+        Finish("Three pots measured. The sunny one grew the most!");
+    }
+
+    private void MeasurePot(int index)
+    {
+        int i = Mathf.Clamp(index, 0, pots.Length - 1);
         int[] shown = { 3, 2, 1 };
         SetStage(i, shown[i % 3]);
 
@@ -237,16 +297,61 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
         Fx(tapRingFrames, pots[i].transform.position + new Vector3(0.75f, 0.7f, 0f), 6f);
         Fx(checkFrames, (notes != null ? notes.position : Center()) + new Vector3(-0.4f + i * 0.4f, 0.8f, 0f), 2f, 0.2f);
         SunodGame.Core.vc_Sfx.Play("page_next", 0.6f, 0.08f);
+    }
 
-        if (_measured < measurePresses)
-            Toast($"You measure a pot and log it ({_measured}/{measurePresses})", 2f);
-        else
-            Finish("Three pots measured. The sunny one grew the most!");
+    // Prep (Collect): the pots slide into a neat, evenly spaced row and a label pops over each.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.5f);
+        SunodGame.Core.vc_Sfx.Play("skill_pickup", 0.5f, 0.08f);
+        int n = pots.Length;
+        var from = new Vector3[n];
+        var to = new Vector3[n];
+        float minX = float.MaxValue, maxX = float.MinValue, y = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            from[i] = pots[i].transform.position;
+            minX = Mathf.Min(minX, from[i].x);
+            maxX = Mathf.Max(maxX, from[i].x);
+            y += from[i].y;
+        }
+        y /= n;
+        for (int i = 0; i < n; i++)
+        {
+            int rank = 0;
+            for (int j = 0; j < n; j++) if (from[j].x < from[i].x || (from[j].x == from[i].x && j < i)) rank++;
+            to[i] = Snap(new Vector3(n > 1 ? Mathf.Lerp(minX, maxX, rank / (n - 1f)) : minX, y, 0f));
+        }
+
+        const float slide = 0.45f;
+        float t = 0f;
+        while (t < slide)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / slide));
+            for (int i = 0; i < n; i++) pots[i].transform.position = Snap(Vector3.Lerp(from[i], to[i], k));
+            yield return null;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            pots[i].transform.position = to[i];
+            _potRest[i] = pots[i].transform.localPosition;
+        }
+
+        // a label pops over each pot, one after another
+        for (int i = 0; i < n; i++)
+        {
+            StartCoroutine(Hop(pots[i].transform, _potRest[i], 1));
+            Fx(new[] { leafToken }, pots[i].transform.position + new Vector3(0f, 1.05f, 0f), 1.4f, 0.2f, 24);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f, 0.1f);
+            yield return new WaitForSeconds(0.12f);
+        }
+        yield return new WaitForSeconds(0.2f);
     }
 
     // ── Solve: why does the shaded pot wilt? ─────────────────────────────
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float solveTime)
     {
         Toast("Working out why one pot is wilting...", solveTime);
         ShowBar(true);
@@ -269,15 +374,15 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
             // magnifier sweeps over the wilted pot
             float sway = Mathf.Sin(t * 3f) * 0.25f;
             if (_lens != null) _lens.transform.position = Snap(potC.position + new Vector3(sway, 0.55f, 0f));
-            if (!q && t >= 1.4f) { q = true; Fx(questionFrames, potC.position + new Vector3(0.2f, 1.4f, 0f), 2f, 0.3f); SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f); }
-            if (!lift && t >= 2.8f)
+            if (!q && t >= solveTime * 0.28f) { q = true; Fx(questionFrames, potC.position + new Vector3(0.2f, 1.4f, 0f), 2f, 0.3f); SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f); }
+            if (!lift && t >= solveTime * 0.56f)
             {
                 lift = true;
                 SunodGame.Core.vc_Sfx.Play("rustle", 0.5f);
                 if (awning != null) StartCoroutine(Lift(awning));
                 if (beam != null) { beam.transform.position = Snap(potC.position + new Vector3(0f, 0.3f, 0f)); beam.gameObject.SetActive(true); StartCoroutine(BeamPulse()); }
             }
-            if (!bulb && t >= solveTime - 1.2f)
+            if (!bulb && t >= solveTime * 0.76f)
             {
                 bulb = true;
                 if (_lens != null) Destroy(_lens);
@@ -285,7 +390,7 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
                 Fx(bulbFrames, potC.position + new Vector3(0f, 1.6f, 0f), 2f, 0.3f, 25);
                 SunodGame.Core.vc_Sfx.Play("idea", 0.7f);
             }
-            if (!perk && t >= solveTime - 0.6f) { perk = true; Grow(2, 2); }
+            if (!perk && t >= solveTime * 0.88f) { perk = true; Grow(2, 2); }
             yield return null;
         }
         if (_lens != null) Destroy(_lens);
@@ -306,7 +411,7 @@ public class vc_SeedlingStudyQuest : vc_FitQuestBase
 
     // ── Collect: leaf data flies onto the chart ──────────────────────────
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float collectTime)
     {
         Toast("Gathering each pot's results...", collectTime);
         ShowBar(true);

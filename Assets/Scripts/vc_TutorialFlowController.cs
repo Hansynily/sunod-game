@@ -467,10 +467,15 @@ public class vc_TutorialFlowController : MonoBehaviour
         {
             var root = doc.rootVisualElement;
             if (root == null || root.Q("slot-btn-0") == null) continue;
-            if (slot >= 0) { vc_UIPointer.PointAt(root.Q("slot-btn-" + slot)); return; }
-            var all = new UnityEngine.UIElements.VisualElement[vc_SkillManager.SlotCount];
-            for (int i = 0; i < all.Length; i++) all[i] = root.Q("slot-btn-" + i);
-            vc_UIPointer.PointAt(all);
+            // UI V2: skills live in the radial menu; open it, then point once the petals land
+            SunodGame.UI.GameHUDUIToolkit.OpenSkillMenu();
+            root.schedule.Execute(() =>
+            {
+                if (slot >= 0) { vc_UIPointer.PointAt(root.Q("slot-btn-" + slot)); return; }
+                var all = new UnityEngine.UIElements.VisualElement[vc_SkillManager.SlotCount];
+                for (int i = 0; i < all.Length; i++) all[i] = root.Q("slot-btn-" + i);
+                vc_UIPointer.PointAt(all);
+            }).StartingIn(450);
             return;
         }
     }

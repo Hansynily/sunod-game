@@ -46,6 +46,28 @@ public class vc_ParadeDrumQuest : vc_FitQuestBase
     [SerializeField] private float barrierTime = 5f;
     [SerializeField] private float teachTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Repair (prep) patches the dent, then Paint splashes colour
+    // and the drum booms right away. Preference: Paint.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Paolo",
+        presses = 5,
+        bestFitTag = "craft",
+        bestFitSeconds = 2f,
+        prepTag = "repair",
+        prepUnlocksTag = "paint",
+        prepLine = "You patch the dent in the drumhead...",
+        preferredTag = "paint",
+        preferenceLine = "It looks as cool as it sounds! Salamat!",
+        fastLines = new[]
+        {
+            ("paint", "It looks AMAZING and you were so fast!"),
+            ("barrier", "The dent's gone in a blink? Whoa!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3 _drumRest;
     private float _idleClock, _sway;
     private bool _swayFlip;
@@ -76,7 +98,7 @@ public class vc_ParadeDrumQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Parade Drum",
-            "The parade drum is dented and silent. Get it sounding for the parade.",
+            "Paolo's parade drum is dented and dull. Get it sounding, and looking, great for the parade.",
             new[] { "Play the drum" });
     }
 
@@ -115,11 +137,28 @@ public class vc_ParadeDrumQuest : vc_FitQuestBase
 
         if (BlockedByWork()) return;
 
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
-        if (d.HasTag("barrier")) { StartWork(BarrierRoutine()); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime))); return; }
+        if (d.HasTag("barrier")) { StartWork(BarrierRoutine(PathTime(barrierTime))); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime))); return; }
 
         Toast("That won't make music.", 2.2f);
+    }
+
+    // Prep (Repair): a quick patch on the dent, hammer ring and a shake.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 c = drum.transform.position;
+        for (int i = 0; i < 3; i++)
+        {
+            SunodGame.Core.vc_Sfx.Play("hammer", 0.5f, 0.1f);
+            Fx(ringFrames, c + new Vector3(-0.2f, 0.4f, 0f), 8f, 0f, 21);
+            StartCoroutine(Shake(drum.transform, _drumRest, 0.1f, 1));
+            yield return new WaitForSeconds(0.22f);
+        }
+        if (drumPatched != null) drum.sprite = drumPatched;
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.2f);
     }
 
     protected override void OnWorkCancelled()
@@ -148,7 +187,7 @@ public class vc_ParadeDrumQuest : vc_FitQuestBase
 
     // ── Paint: splash on colour, then play it loud ───────────────────────
 
-    private IEnumerator PaintRoutine()
+    private IEnumerator PaintRoutine(float paintTime)
     {
         Toast("Painting the drum bright...", paintTime);
         ShowBar(true);
@@ -190,7 +229,7 @@ public class vc_ParadeDrumQuest : vc_FitQuestBase
 
     // ── Barrier: reshape the dented head, then play ──────────────────────
 
-    private IEnumerator BarrierRoutine()
+    private IEnumerator BarrierRoutine(float barrierTime)
     {
         Toast("Reshaping the dented drumhead...", barrierTime);
         ShowBar(true);
@@ -228,7 +267,7 @@ public class vc_ParadeDrumQuest : vc_FitQuestBase
 
     // ── Teach: the band kids learn the rhythm and march in time ──────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float teachTime)
     {
         Toast("You teach the band kids the rhythm...", 3f);
         ShowBar(true);
@@ -251,7 +290,7 @@ public class vc_ParadeDrumQuest : vc_FitQuestBase
             _kids.Add(go);
         }
 
-        float walkEnd = 3.4f, beat = 0.5f, nextBeat = walkEnd, t = 0f;
+        float walkEnd = teachTime * 0.425f, beat = 0.5f, nextBeat = walkEnd, t = 0f;
         bool taught = false;
         while (t < teachTime)
         {

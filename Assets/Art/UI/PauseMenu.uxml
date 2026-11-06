@@ -2,60 +2,71 @@
     <ui:Style src="PauseMenuStyle.uss" />
 
     <!--
-        Full-screen root — picking-mode Ignore so the HUD button area
-        is transparent to pointer events when the overlay is closed.
+        UI V2 pause menu. Full-screen root, picking-mode Ignore so the world stays tappable
+        while the menu is closed. Child order matters: vc_CameraZoom inserts its -/+ row at
+        index 1 (between the HUD button and the overlay), so keep the button first.
     -->
     <ui:VisualElement name="pause-root" class="pause-root" picking-mode="Ignore">
 
-        <!-- ── HUD Pause Button (always visible, top-right) ─────────────── -->
-        <ui:Button name="pause-hud-btn" class="pause-hud-btn sl-button" text="">
+        <!-- HUD pause button: round icon button, top-right -->
+        <ui:Button name="pause-hud-btn" class="pause-hud-btn sn-btn sn-btn--icon" text="">
             <ui:VisualElement class="pause-icon" picking-mode="Ignore">
                 <ui:VisualElement class="pause-icon-bar" picking-mode="Ignore" />
                 <ui:VisualElement class="pause-icon-bar" picking-mode="Ignore" />
             </ui:VisualElement>
         </ui:Button>
 
-        <!-- ── Full-screen dimmed overlay (hidden by default) ───────────── -->
-        <ui:VisualElement name="pause-overlay" class="pause-overlay">
+        <!-- Scrim + sheet (hidden by default) -->
+        <ui:VisualElement name="pause-overlay" class="pause-overlay sn-scrim">
 
-            <!-- Centered card -->
-            <ui:VisualElement name="pause-box" class="pause-box">
+            <ui:VisualElement name="pause-box" class="pause-box sn-panel sn-sheet">
 
-                <!-- Title -->
-                <ui:Label name="pause-title" text="PAUSED" class="pause-title" picking-mode="Ignore" />
-
-                <!-- Gold divider under title -->
-                <ui:VisualElement class="pause-divider" picking-mode="Ignore" />
+                <!-- Header: centred title, round close top-right -->
+                <ui:VisualElement class="pause-header">
+                    <ui:Label name="pause-title" text="Paused" class="pause-title sn-title" picking-mode="Ignore" />
+                    <ui:Button name="pause-close-btn" class="pause-close-btn sn-btn sn-btn--icon-sm" text="×" />
+                </ui:VisualElement>
 
                 <!-- Save / timer notice (text set in vc_PauseMenu) -->
-                <ui:Label name="pause-notice" text="" class="pause-notice" picking-mode="Ignore" />
+                <ui:Label name="pause-notice" text="" class="pause-notice sn-caption" picking-mode="Ignore" />
 
-                <!-- ── Main buttons (Resume / Exit) ───────────────────── -->
+                <!-- Settings + Resume / Quit -->
                 <ui:VisualElement name="pause-main-btns" class="pause-main-btns">
-                    <ui:VisualElement name="pause-settings" class="pause-settings">
-                        <ui:Label text="Sound effects" class="pause-setting-label" picking-mode="Ignore" />
-                        <ui:Slider name="pause-sfx-slider" class="pause-slider" low-value="0" high-value="1" value="1" />
-                        <ui:Label text="Music" class="pause-setting-label" picking-mode="Ignore" />
-                        <ui:Slider name="pause-music-slider" class="pause-slider" low-value="0" high-value="1" value="0.5" />
-                        <ui:Label name="pause-zoom-label" text="Camera zoom (far - near)" class="pause-setting-label" picking-mode="Ignore" />
-                        <ui:SliderInt name="pause-zoom-slider" class="pause-slider" low-value="0" high-value="3" value="1" />
-                        <ui:Label text="Skill names" class="pause-setting-label" picking-mode="Ignore" />
-                        <ui:VisualElement class="pause-choice-row">
-                            <ui:Button name="pause-names-en" class="pause-choice-btn sl-button" text="English" />
-                            <ui:Button name="pause-names-fil" class="pause-choice-btn sl-button" text="Filipino" />
-                        </ui:VisualElement>                    </ui:VisualElement>
+                    <ui:VisualElement name="pause-settings" class="pause-settings sn-card">
+                        <ui:VisualElement class="pause-setting-row">
+                            <ui:Label text="Sound" class="pause-setting-label" picking-mode="Ignore" />
+                            <ui:Slider name="pause-sfx-slider" class="pause-slider" low-value="0" high-value="1" value="1" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="pause-setting-row">
+                            <ui:Label text="Music" class="pause-setting-label" picking-mode="Ignore" />
+                            <ui:Slider name="pause-music-slider" class="pause-slider" low-value="0" high-value="1" value="0.5" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="pause-zoom-row" class="pause-setting-row">
+                            <ui:Label name="pause-zoom-label" text="Zoom" class="pause-setting-label" picking-mode="Ignore" />
+                            <ui:SliderInt name="pause-zoom-slider" class="pause-slider" low-value="0" high-value="3" value="1" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="pause-setting-row pause-setting-row--last">
+                            <ui:Label text="Skill names" class="pause-setting-label" picking-mode="Ignore" />
+                            <ui:VisualElement class="pause-choice-row">
+                                <ui:Button name="pause-names-en" class="pause-choice-btn sn-btn sn-btn--small" text="English" />
+                                <ui:Button name="pause-names-fil" class="pause-choice-btn sn-btn sn-btn--small" text="Filipino" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- primary on the right -->
                     <ui:VisualElement class="pause-action-row">
-                        <ui:Button name="btn-resume" class="pause-btn pause-btn-resume" text="RESUME" />
-                        <ui:Button name="btn-exit"   class="pause-btn pause-btn-exit"   text="QUIT TO MENU" />
+                        <ui:Button name="btn-exit"   class="pause-btn pause-btn-exit sn-btn"   text="Quit" />
+                        <ui:Button name="btn-resume" class="pause-btn pause-btn-resume sn-btn sn-btn--primary" text="Resume" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 
-                <!-- ── Exit confirmation (hidden by default) ──────────── -->
+                <!-- Inline quit confirm (fallback when there's no DialogPanel) -->
                 <ui:VisualElement name="pause-confirm" class="pause-confirm">
-                    <ui:Label name="confirm-body" text="" class="confirm-body" picking-mode="Ignore" />
+                    <ui:Label name="confirm-body" text="" class="confirm-body sn-body" picking-mode="Ignore" />
                     <ui:VisualElement class="confirm-btn-row">
-                        <ui:Button name="btn-exit-yes" class="pause-btn confirm-btn-yes" text="YES, QUIT" />
-                        <ui:Button name="btn-exit-no"  class="pause-btn confirm-btn-no"  text="NO, BACK" />
+                        <ui:Button name="btn-exit-no"  class="pause-btn confirm-btn-no sn-btn"  text="Back" />
+                        <ui:Button name="btn-exit-yes" class="pause-btn confirm-btn-yes sn-btn sn-btn--danger" text="Quit" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 

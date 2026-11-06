@@ -52,6 +52,28 @@ public class vc_HarvestTallyQuest : vc_FitQuestBase
     [SerializeField] private float directTime = 5f;
     [SerializeField] private float planTime = 7f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Plan (prep) rules the tally sheet on the board, then Direct lines
+    // the baskets up and totals them in one go. Preference: Collect (bring the baskets together, her back hurts).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Aling Nena",
+        presses = 4,
+        bestFitTag = "inspect",
+        bestFitSeconds = 2f,
+        prepTag = "plan",
+        prepUnlocksTag = "direct",
+        prepLine = "You rule a tally sheet on the board...",
+        preferredTag = "collect",
+        preferenceLine = "You brought the baskets together for me? My back thanks you, anak!",
+        fastLines = new[]
+        {
+            ("collect", "All the baskets here already? My back thanks you."),
+            ("direct", "Neat rows and totals! Salamat, anak."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _basketRest, _crowRest;
     private Vector3 _scarecrowRest;
     private float _clock, _near;
@@ -89,7 +111,7 @@ public class vc_HarvestTallyQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Harvest Tally",
-            "The harvest is in. Count it up and write the totals down.",
+            "Aling Nena's harvest is in. Count it up and write the totals down. Her back hurts, so she'd love it if the baskets were brought together for her.",
             new[] { "Record the harvest" });
     }
 
@@ -177,9 +199,9 @@ public class vc_HarvestTallyQuest : vc_FitQuestBase
         if (d.HasTag("inspect")) { StopShed(); StartWork(InspectRoutine()); return; }
         if (BlockedByWork()) return;
         StopShed();
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime))); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime), CurrentInstant)); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
         Toast("This needs careful counting.", 2.2f);
     }
 
@@ -224,59 +246,81 @@ public class vc_HarvestTallyQuest : vc_FitQuestBase
 
     // ── Collect: gather the baskets, then count them ─────────────────────
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float total)
     {
-        Toast("Gathering the baskets together...", collectTime);
+        float sc = total / collectTime;
+        Toast("Gathering the baskets together...", total);
         ShowBar(true);
         for (int i = 0; i < baskets.Length; i++)
         {
             int k = i;
-            StartCoroutine(Slide(baskets[k].transform, gatherSlots != null && k < gatherSlots.Length ? gatherSlots[k].position : _basketRest[k], 0.1f + k * 0.4f, 0.9f));
+            StartCoroutine(Slide(baskets[k].transform, gatherSlots != null && k < gatherSlots.Length ? gatherSlots[k].position : _basketRest[k], (0.1f + k * 0.4f) * sc, 0.9f * sc));
         }
-        yield return Timeline(collectTime, 0f,
-            At(1.9f, () => SetBoard(1)),
-            At(2.1f, () => CountBasket(0)),
-            At(2.6f, () => CountBasket(1)),
-            At(3.1f, () => CountBasket(2)),
-            At(collectTime - 0.4f, ShowTotal));
+        yield return Timeline(total, 0f,
+            At(1.9f * sc, () => SetBoard(1)),
+            At(2.1f * sc, () => CountBasket(0)),
+            At(2.6f * sc, () => CountBasket(1)),
+            At(3.1f * sc, () => CountBasket(2)),
+            At(total - 0.4f * sc, ShowTotal));
         Finish("All baskets collected and counted!");
     }
 
     // ── Direct: line up the baskets and write the totals ─────────────────
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float total, bool oneGo)
     {
-        Toast("Lining the baskets up in a row...", directTime);
+        float sc = total / directTime;
+        Toast(oneGo ? "The sheet is ready: baskets in a row, totals in one go!" : "Lining the baskets up in a row...", total);
         ShowBar(true);
         for (int i = 0; i < baskets.Length; i++)
         {
             int k = i;
-            StartCoroutine(Slide(baskets[k].transform, rowSlots != null && k < rowSlots.Length ? rowSlots[k].position : _basketRest[k], 0.3f + k * 0.5f, 0.9f));
+            StartCoroutine(Slide(baskets[k].transform, rowSlots != null && k < rowSlots.Length ? rowSlots[k].position : _basketRest[k], (0.3f + k * 0.5f) * sc, 0.9f * sc));
         }
-        yield return Timeline(directTime, 0f,
-            At(2.5f, () => SetBoard(1)),
-            At(2.8f, () => CountBasket(0)),
-            At(3.3f, () => CountBasket(1)),
-            At(3.8f, () => CountBasket(2)),
-            At(directTime - 0.5f, ShowTotal));
-        Finish("You lined up the baskets and wrote the totals!");
+        yield return Timeline(total, 0f,
+            At(2.5f * sc, () => SetBoard(1)),
+            At(2.8f * sc, () => CountBasket(0)),
+            At(3.3f * sc, () => CountBasket(1)),
+            At(3.8f * sc, () => CountBasket(2)),
+            At(total - 0.5f * sc, ShowTotal));
+        Finish(oneGo ? "Neat rows and a full tally, all in one go!" : "You lined up the baskets and wrote the totals!");
     }
 
     // ── Plan: rule the tally sheet first, then fill it ───────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float total)
     {
-        Toast("Ruling a tally sheet first...", planTime);
+        float sc = total / planTime;
+        Toast("Ruling a tally sheet first...", total);
         ShowBar(true);
-        yield return Timeline(planTime, 0f,
-            At(0.4f, () => { SunodGame.Core.vc_Sfx.Play("scribble", 0.5f); Fx(sparkFrames, board.transform.position + new Vector3(-0.5f, 1.5f, 0f), 12f, 0.1f); }),
-            At(1.2f, () => { SetBoard(1); SunodGame.Core.vc_Sfx.Play("cut_whoosh", 0.4f); Fx(sparkFrames, board.transform.position + new Vector3(0f, 1.0f, 0f), 12f, 0.1f); }),
-            At(2.4f, () => SunodGame.Core.vc_Sfx.Play("scribble", 0.4f)),
-            At(3.4f, () => CountBasket(0)),
-            At(4.4f, () => CountBasket(1)),
-            At(5.4f, () => CountBasket(2)),
-            At(planTime - 0.5f, ShowTotal));
+        yield return Timeline(total, 0f,
+            At(0.4f * sc, () => { SunodGame.Core.vc_Sfx.Play("scribble", 0.5f); Fx(sparkFrames, board.transform.position + new Vector3(-0.5f, 1.5f, 0f), 12f, 0.1f); }),
+            At(1.2f * sc, () => { SetBoard(1); SunodGame.Core.vc_Sfx.Play("cut_whoosh", 0.4f); Fx(sparkFrames, board.transform.position + new Vector3(0f, 1.0f, 0f), 12f, 0.1f); }),
+            At(2.4f * sc, () => SunodGame.Core.vc_Sfx.Play("scribble", 0.4f)),
+            At(3.4f * sc, () => CountBasket(0)),
+            At(4.4f * sc, () => CountBasket(1)),
+            At(5.4f * sc, () => CountBasket(2)),
+            At(total - 0.5f * sc, ShowTotal));
         Finish("With the sheet ready, the tally was easy!");
+    }
+
+    // Prep (Plan): the tally sheet is ruled on the board (and stays), ready for Direct to fill in.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (board != null)
+        {
+            SunodGame.Core.vc_Sfx.Play("scribble", 0.5f);
+            Fx(sparkFrames, board.transform.position + new Vector3(-0.5f, 1.5f, 0f), 12f, 0.1f);
+        }
+        yield return new WaitForSeconds(0.45f);
+        SetBoard(1);
+        if (board != null)
+        {
+            SunodGame.Core.vc_Sfx.Play("cut_whoosh", 0.4f);
+            Fx(sparkFrames, board.transform.position + new Vector3(0f, 1.0f, 0f), 12f, 0.1f);
+        }
+        yield return new WaitForSeconds(0.55f);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

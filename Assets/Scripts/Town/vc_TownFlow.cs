@@ -43,6 +43,8 @@ public class vc_TownFlow : MonoBehaviour
     public static bool IsQuestDone(string questId) => !string.IsNullOrEmpty(questId) && Completed.Contains(questId);
     public static void MarkQuestDone(string questId) { if (!string.IsNullOrEmpty(questId)) Completed.Add(questId); }
     public static void ResetRun() => Completed.Clear();
+    /// <summary>Every saved progress id of this run (quests and markers), read-only.</summary>
+    public static IEnumerable<string> CompletedIds => Completed;
 
     /// <summary>Debug menu: forget ids whose text matches (a quest and its day markers).</summary>
     public static void ForgetQuestIds(System.Predicate<string> match) => Completed.RemoveWhere(match);

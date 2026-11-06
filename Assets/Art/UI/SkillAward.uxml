@@ -1,12 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="SkillAwardStyle.uss" />
 
-    <!-- Hallway skill pick: dimmed overlay + Sprout Lands board with 3 skill cards -->
-    <ui:VisualElement name="award-root" class="award-root">
-        <ui:VisualElement name="award-box" class="award-box">
+    <!-- UI V2 skill reward: warm scrim + cream board that drops in, 3 skill cards, gold claim button.
+         Card children, the gold shine sweep and all motion are built in vc_SkillAwardPopup.cs. -->
+    <ui:VisualElement name="award-root" class="award-root sn-scrim">
+        <ui:VisualElement name="award-box" class="award-box sn-panel sn-sheet">
 
-            <ui:Label name="award-title" text="Choose a Skill" class="award-title" picking-mode="Ignore" />
-            <ui:Label name="award-subtitle" text="Pick one to take with you." class="award-subtitle" picking-mode="Ignore" />
+            <ui:Label name="award-title" text="Pick a skill" class="award-title sn-title" picking-mode="Ignore" />
+            <ui:Label name="award-subtitle" text="Take one with you." class="award-subtitle sn-caption" picking-mode="Ignore" />
 
             <ui:VisualElement name="award-cards" class="award-cards">
                 <ui:Button name="award-card-0" class="award-card" />
@@ -14,7 +15,7 @@
                 <ui:Button name="award-card-2" class="award-card" />
             </ui:VisualElement>
 
-            <ui:Button name="award-confirm" text="Take Skill" class="award-confirm" />
+            <ui:Button name="award-confirm" text="Take skill" class="award-confirm sn-btn sn-btn--gold" />
 
         </ui:VisualElement>
     </ui:VisualElement>

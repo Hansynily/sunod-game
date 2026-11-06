@@ -43,6 +43,28 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
     [SerializeField] private float buildTime = 5f;
     [SerializeField] private float inspectTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Inspect (prep) flips through the spec sheet and tags the
+    // parts, then Build snaps the rig together and runs everything at once. Preference: Build.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Coach Ramon",
+        presses = 5,
+        bestFitTag = "repair",
+        bestFitSeconds = 2f,
+        prepTag = "inspect",
+        prepUnlocksTag = "build",
+        prepLine = "You flip through the spec sheet and tag every part...",
+        preferredTag = "build",
+        preferenceLine = "A test rig the team can reuse! You read my mind.",
+        fastLines = new[]
+        {
+            ("push", "You stress-tested them all in one go?!"),
+            ("build", "A rig that fast? The team's going to love this."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _rest;
     private bool[] _tested;
     private int _pushes;
@@ -76,7 +98,7 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Parts Check",
-            "The robotics team needs every part tested before the contest.",
+            "The robotics team needs every part tested before the contest. Coach Ramon would love a test rig the team can reuse.",
             new[] { "Test the robot parts" });
     }
 
@@ -100,8 +122,8 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
         if (d.HasTag("repair")) { StartWork(RepairRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("push")) { PushPress(); return; }
-        if (d.HasTag("build")) { StartWork(BuildRoutine()); return; }
-        if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
+        if (d.HasTag("build")) { StartWork(BuildRoutine(PathTime(buildTime), CurrentInstant)); return; }
+        if (d.HasTag("inspect")) { StartWork(InspectRoutine(PathTime(inspectTime))); return; }
         Toast("These parts need hands-on testing.", 2.2f);
     }
 
@@ -113,6 +135,25 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
     }
 
     // ── Repair: fast test, fix the bad gear ──────────────────────────────
+
+    // Prep (Inspect): the spec sheet pops up, a magnifier glides over the bench and every part gets tagged.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (specSheet != null) { specSheet.gameObject.SetActive(true); StartCoroutine(Pop(specSheet.transform)); }
+        SunodGame.Core.vc_Sfx.Play("page_next", 0.5f);
+        int n = parts.Length;
+        float per = 0.8f / Mathf.Max(1, n);
+        for (int i = 0; i < n; i++)
+        {
+            if (magnifier != null) Fx(new[] { magnifier }, parts[i].transform.position + new Vector3(0.15f, 0.2f, 0f), 4f, 0f, 24);
+            Fx(ringFrames, parts[i].transform.position, 8f);
+            SunodGame.Core.vc_Sfx.Play("scan", 0.3f, 0.1f, 0.4f);
+            yield return new WaitForSeconds(per);
+        }
+        if (specSheet != null) specSheet.gameObject.SetActive(false);
+        yield return new WaitForSeconds(0.2f);
+    }
 
     private IEnumerator RepairRoutine()
     {
@@ -144,15 +185,23 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
 
     // ── Push: stress-test by hand, one press at a time ───────────────────
 
+    // 3 presses at Lv1, 2 at Lv2, 1 at Lv3: every press tests its share of the good parts; the
+    // last one runs through StartWork, tests whatever is left and snaps the cracked gear.
     private void PushPress()
     {
         _pushes++;
+        int need = Mathf.Max(1, PathPresses(pushPresses));
+        if (_pushes >= need)
+        {
+            StartWork(PushFinishRoutine(need == 1));
+            return;
+        }
         // the good parts first; the cracked gear snaps on the last press
         int good = 0;
-        for (int i = 0; i < parts.Length; i++) if (i != badIndex) good++;
-        int share = Mathf.CeilToInt(good / (float)Mathf.Max(1, pushPresses - 1));
+        for (int i = 0; i < parts.Length; i++) if (i != badIndex && !_tested[i]) good++;
+        int share = Mathf.CeilToInt(good / (float)Mathf.Max(1, need - _pushes + 1));
         int done = 0;
-        for (int i = 0; i < parts.Length && done < share && _pushes < pushPresses; i++)
+        for (int i = 0; i < parts.Length && done < share; i++)
         {
             if (i == badIndex || _tested[i]) continue;
             StartCoroutine(Shake(parts[i].transform, parts[i].transform.localPosition, 0.3f, 1));
@@ -161,12 +210,25 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
         }
         SunodGame.Core.vc_Sfx.Play("step_done", 0.5f, 0.05f);
 
-        if (_pushes < pushPresses)
+        Toast($"You bend and twist the parts ({_pushes}/{need})", 2f);
+    }
+
+    private IEnumerator PushFinishRoutine(bool oneGo)
+    {
+        Toast(oneGo ? "You stress-test every part in one go!" : "One last squeeze on the parts...", 2f);
+        ShowBar(true);
+        int left = 0;
+        for (int i = 0; i < parts.Length; i++) if (i != badIndex && !_tested[i]) left++;
+        int k = 0;
+        for (int i = 0; i < parts.Length; i++)
         {
-            Toast($"You bend and twist the parts ({_pushes}/{pushPresses})", 2f);
-            return;
+            if (i == badIndex || _tested[i]) continue;
+            StartCoroutine(Shake(parts[i].transform, parts[i].transform.localPosition, 0.3f, 1));
+            Pass(i);
+            k++;
+            SetBar(k / (float)(left + 1));
+            yield return new WaitForSeconds(oneGo ? 0.2f : 0.1f);
         }
-        for (int i = 0; i < parts.Length; i++) if (i != badIndex && !_tested[i]) Pass(i);
         if (Valid(badIndex) && !_tested[badIndex])
         {
             Mark(badIndex, false);
@@ -174,56 +236,61 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
             SunodGame.Core.vc_Sfx.Play("hammer", 0.6f);
             Fix(badIndex);
         }
-        AllPass("The cracked gear snapped. Swapped for a good one!");
+        SetBar(1f);
+        yield return new WaitForSeconds(0.6f);
+        AllPass(oneGo ? "Every part stress-tested at once. The cracked gear snapped and was swapped!" : "The cracked gear snapped. Swapped for a good one!");
     }
 
     // ── Build: a test rig, parts run through one by one ──────────────────
 
-    private IEnumerator BuildRoutine()
+    private IEnumerator BuildRoutine(float seconds, bool oneGo)
     {
-        Toast("You build a test rig...", buildTime);
+        Toast(oneGo ? "The rig snaps together. Running every part at once..." : "You build a test rig...", seconds);
         ShowBar(true);
         float t = 0f;
         if (testRig != null)
         {
             testRig.gameObject.SetActive(true);
             yield return Pop(testRig.transform);
+            t = 0.24f;
+            float hit = Mathf.Max(0.05f, Mathf.Min(0.3f, (seconds * 0.3f - t) / 3f));
             for (int k = 0; k < 3; k++)
             {
                 Fx(hammerFrames, testRig.bounds.center + new Vector3(0.3f, 0.4f, 0f), 8f);
                 SunodGame.Core.vc_Sfx.Play("hammer", 0.5f, 0.1f);
-                yield return BarStep(0.3f, t / buildTime, (t + 0.3f) / buildTime);
-                t += 0.3f;
+                yield return BarStep(hit, t / seconds, (t + hit) / seconds);
+                t += hit;
             }
         }
-        float per = (buildTime - t) / Mathf.Max(1, parts.Length);
+        float per = Mathf.Max(0.1f, (seconds - t) / Mathf.Max(1, parts.Length));
         Vector3 slot = testRig != null ? testRig.transform.position + new Vector3(0f, 0.25f, 0f) : transform.position;
         for (int i = 0; i < parts.Length; i++)
         {
             Transform p = parts[i].transform;
-            yield return Move(p, _rest[i], slot, per * 0.3f, t, buildTime);
+            yield return Move(p, _rest[i], slot, per * 0.3f, t, seconds);
             t += per * 0.3f;
             if (testRig != null) StartCoroutine(Shake(testRig.transform, testRig.transform.localPosition, per * 0.3f, 1));
             SunodGame.Core.vc_Sfx.Play("clack", 0.45f, 0.1f);
-            yield return BarStep(per * 0.3f, t / buildTime, (t + per * 0.3f) / buildTime);
+            yield return BarStep(per * 0.3f, t / seconds, (t + per * 0.3f) / seconds);
             t += per * 0.3f;
             if (i == badIndex && !_tested[i]) { Mark(i, false); Fix(i); }
             else if (!_tested[i]) Pass(i);
-            yield return Move(p, slot, _rest[i], per * 0.4f, t, buildTime);
+            yield return Move(p, slot, _rest[i], per * 0.4f, t, seconds);
             t += per * 0.4f;
         }
-        AllPass("The test rig caught the bad gear. All parts pass!");
+        AllPass(oneGo ? "The rig ran every part in one go. All pass!" : "The test rig caught the bad gear. All parts pass!");
     }
 
     // ── Inspect: check against the spec sheet, slowly ────────────────────
 
-    private IEnumerator InspectRoutine()
+    private IEnumerator InspectRoutine(float seconds)
     {
-        Toast("You check each part against the spec sheet...", inspectTime);
+        Toast("You check each part against the spec sheet...", seconds);
         ShowBar(true);
         if (specSheet != null) { specSheet.gameObject.SetActive(true); StartCoroutine(Pop(specSheet.transform)); }
         SunodGame.Core.vc_Sfx.Play("page_next", 0.5f);
-        float per = inspectTime / Mathf.Max(1, parts.Length), t = 0f;
+        float per = seconds / Mathf.Max(1, parts.Length), t = 0f;
+        float step = Mathf.Max(0.05f, Mathf.Min(0.25f, per * 0.25f));
         for (int i = 0; i < parts.Length; i++)
         {
             float k = 0f;
@@ -231,12 +298,12 @@ public class vc_RoboticsPartsQuest : vc_FitQuestBase
             {
                 if (magnifier != null) Fx(new[] { magnifier }, parts[i].transform.position + new Vector3(0.15f, 0.2f, 0f), 4f, 0f, 24);
                 SunodGame.Core.vc_Sfx.Play("scan", 0.25f, 0.1f, 0.4f);
-                yield return BarStep(0.25f, (t + k) / inspectTime, (t + k + 0.25f) / inspectTime);
-                k += 0.25f;
+                yield return BarStep(step, (t + k) / seconds, (t + k + step) / seconds);
+                k += step;
             }
             if (i == badIndex && !_tested[i]) { Mark(i, false); Fix(i); }
             else if (!_tested[i]) Pass(i);
-            yield return BarStep(per - k, (t + k) / inspectTime, (t + per) / inspectTime);
+            yield return BarStep(per - k, (t + k) / seconds, (t + per) / seconds);
             t += per;
         }
         AllPass("Checked against spec. Every part is good now.");

@@ -48,8 +48,30 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
     [SerializeField] private float commandTime = 8f;
     [SerializeField] private float teachTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Teach (prep) has each row hum its part once, then Paint
+    // colours the whole score and they sing right away. Preference: Barrier (each section shines).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mr. Santos",
+        presses = 5,
+        bestFitTag = "craft",
+        bestFitSeconds = 2f,
+        prepTag = "teach",
+        prepUnlocksTag = "paint",
+        prepLine = "Each row hums its part once...",
+        preferredTag = "barrier",
+        preferenceLine = "Every section had its own moment to shine. Bravo!",
+        fastLines = new[]
+        {
+            ("barrier", "Every section shining, all at once!"),
+            ("paint", "They read your score instantly. Bravo!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _rest;
-    private int _shaped;
+    private int _shaped, _shapePress;
     private float _idleClock;
 
     private int Rows => singers == null ? 0 : Mathf.CeilToInt(singers.Length / (float)Mathf.Max(1, perRow));
@@ -67,6 +89,7 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
     protected override void OnBegin()
     {
         _shaped = 0;
+        _shapePress = 0;
         _idleClock = 1f;
         for (int i = 0; i < singers.Length; i++) { singers[i].transform.position = _rest[i]; Mouth(i, false); }
         if (score != null) { score.sprite = scorePlain; score.enabled = false; }
@@ -76,7 +99,7 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Choir Practice",
-            "The school choir needs someone to lead them today.",
+            "Mr. Santos needs someone to lead the school choir today. He wants each section to shine on its own, so shaping them one by one would please him.",
             new[] { "Lead the choir" });
     }
 
@@ -113,9 +136,9 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
         if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("barrier")) { ShapePress(); return; }
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
-        if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime), CurrentInstant)); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime))); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime))); return; }
         Toast("The choir needs an artistic lead.", 2.2f);
     }
 
@@ -131,29 +154,61 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
 
     // ── Barrier: shape one section per press ─────────────────────────────
 
+    // 3 presses at Lv1, 2 at Lv2, 1 at Lv3: each press shapes its share of the sections that are
+    // left; the last one runs through StartWork and then they all blend.
     private void ShapePress()
     {
-        int row = _shaped % Mathf.Max(1, Rows);
-        _shaped++;
-        StartCoroutine(SingRow(row, 1.0f, true));
-        Fx(sparkFrames, RowCenter(row) + new Vector3(0f, 0.9f, 0f), 12f, 0.15f);
-        if (_shaped < shapePresses)
+        int total = Mathf.Max(1, shapePresses);
+        if (_shaped >= total) return;
+        _shapePress++;
+        int need = Mathf.Clamp(PathPresses(total), 1, total);
+        int remaining = total - _shaped;
+        int pressesLeft = Mathf.Max(1, need - _shapePress + 1);
+        int count = _shapePress >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        int first = _shaped;
+        _shaped += count;
+
+        if (_shaped >= total)
         {
-            Toast($"You shape this section's voice ({_shaped}/{shapePresses})", 2f);
+            StartWork(ShapeFinishRoutine(first, count));
             return;
         }
-        StartCoroutine(SingAllLoose(1.8f));
-        Finish("Every section shaped. Now they blend!");
+        Toast($"You shape this section's voice ({_shaped}/{total})", 2f);
+        for (int k = 0; k < count; k++) StartCoroutine(ShapeRow(first + k, k * 0.3f));
+    }
+
+    private IEnumerator ShapeRow(int unit, float delay)
+    {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+        int row = unit % Mathf.Max(1, Rows);
+        Fx(sparkFrames, RowCenter(row) + new Vector3(0f, 0.9f, 0f), 12f, 0.15f);
+        yield return SingRow(row, 1.0f, true);
+    }
+
+    private IEnumerator ShapeFinishRoutine(int first, int count)
+    {
+        Toast(count > 1 ? "You shape every section at once!" : "The last section finds its voice!", 2f);
+        ShowBar(true);
+        for (int k = 0; k < count; k++)
+        {
+            StartCoroutine(ShapeRow(first + k, 0f));
+            SetBar((k + 1f) / count);
+            yield return new WaitForSeconds(count > 1 ? 0.3f : 0f);
+        }
+        yield return new WaitForSeconds(0.5f);
+        yield return SingAllLoose(1.2f);
+        Finish(count > 1 ? "Every section shining, all at once. Now they blend!" : "Every section shaped. Now they blend!");
     }
 
     // ── Paint: colour-coded score, then sing ─────────────────────────────
 
-    private IEnumerator PaintRoutine()
+    private IEnumerator PaintRoutine(float seconds, bool oneGo)
     {
-        Toast("You draw a colour-coded score...", paintTime);
+        Toast(oneGo ? "You colour the whole score in one go!" : "You draw a colour-coded score...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         if (score != null) { score.enabled = true; score.sprite = scorePlain; }
-        float paint = paintTime - 2f, t = 0f;
+        float singT = seconds * 0.4f;
+        float paint = seconds - singT, t = 0f;
         int strokes = 5;
         float per = paint / strokes;
         for (int s = 0; s < strokes; s++)
@@ -161,22 +216,22 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
             if (score != null) Fx(splatFrames, score.bounds.center + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.15f, 0.2f), 0f), 10f, 0f, 22);
             SunodGame.Core.vc_Sfx.Play("brush", 0.45f, 0.1f);
             if (s == strokes - 1 && score != null) { score.sprite = scoreColor; Fx(sparkFrames, score.bounds.center, 12f, 0.15f); }
-            yield return BarStep(per, t / paintTime, (t + per) / paintTime);
+            yield return BarStep(per, t / seconds, (t + per) / seconds);
             t += per;
         }
-        yield return SingAll(paintTime - t, t, paintTime, hops: true);
-        Finish("Each section knows its colour. Lovely!");
+        yield return SingAll(seconds - t, t, seconds, hops: true);
+        Finish(oneGo ? "They read your score instantly. Lovely!" : "Each section knows its colour. Lovely!");
     }
 
     // ── Command: firm cues, a bit stiff ──────────────────────────────────
 
-    private IEnumerator CommandRoutine()
+    private IEnumerator CommandRoutine(float commandTime)
     {
-        Toast("You lead with firm cues!", commandTime);
+        Toast("You lead with firm cues!", Mathf.Max(1.5f, commandTime));
         ShowBar(true);
         float t = 0f;
         int beat = 0;
-        float cue = 0.8f;
+        float cue = Mathf.Min(0.8f, commandTime / 6f);
         while (t < commandTime - 0.01f)
         {
             Baton(beat % 2 == 0 ? 0 : 2);
@@ -196,11 +251,11 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
 
     // ── Teach: each section its part ─────────────────────────────────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float teachTime)
     {
-        Toast("You teach each section its part...", teachTime);
+        Toast("You teach each section its part...", Mathf.Max(1.5f, teachTime));
         ShowBar(true);
-        float allSing = 1.6f, t = 0f;
+        float allSing = teachTime * 0.2f, t = 0f;
         int rows = Rows;
         float per = (teachTime - allSing) / Mathf.Max(1, rows);
         for (int r = 0; r < rows; r++)
@@ -214,6 +269,25 @@ public class vc_ChoirPracticeQuest : vc_FitQuestBase
         }
         yield return SingAll(teachTime - t, t, teachTime, hops: true);
         Finish("Every section learned its part!");
+    }
+
+    // ── Prep: Teach has each row hum its part once ───────────────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        int rows = Mathf.Max(1, Rows);
+        float gap = 0.8f / rows;
+        for (int r = 0; r < rows; r++)
+        {
+            Piano(1);
+            SunodGame.Core.vc_Sfx.Play("piano_note", 0.45f, 0.3f);
+            StartCoroutine(SingRow(r, 0.3f, false));
+            yield return new WaitForSeconds(gap);
+            Piano(0);
+        }
+        yield return new WaitForSeconds(0.3f);
+        for (int i = 0; i < singers.Length; i++) Mouth(i, false);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

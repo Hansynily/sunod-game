@@ -57,6 +57,7 @@
     <Compile Include="Assets\Scripts\Editor\vc_LoopCutsceneBuilder.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_MinigameWiring.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_CutsceneSync.cs" />
+    <Compile Include="Assets\Scripts\Editor\vc_TownBuilder.Plans.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_TownBuilder.cs" />
   </ItemGroup>
   <ItemGroup>

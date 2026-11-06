@@ -115,6 +115,7 @@ public class vc_TownLife : MonoBehaviour
 
     private vc_TownGrid _grid;
     private readonly List<(Vector3 spot, Vector2 face)> _places = new List<(Vector3, Vector2)>();
+    private readonly List<Vector3> _playSpots = new List<Vector3>();
     private string[] _names = new string[0];
 
     // ── setup ─────────────────────────────────────────────────────────────
@@ -383,6 +384,22 @@ public class vc_TownLife : MonoBehaviour
                 if (ok.HasValue) _places.Add((ok.Value, face));
             }
         }
+        // planned towns: the builder's hangouts (beach hut, park benches, the plaza...) are
+        // favourite places, so they're in the list a few times; "play" spots host happenings
+        _playSpots.Clear();
+        Transform spots = transform.Find("Spots");
+        if (spots != null)
+            foreach (Transform s in spots)
+            {
+                if (s.name == "play") _playSpots.Add(s.position);
+                if (s.name != "hang") continue;
+                for (int k = 0; k < 3; k++)
+                {
+                    Vector2? ok = _grid.NearestWalkable((Vector2)s.position + new Vector2(Random.Range(-1.2f, 1.2f), Random.Range(-0.8f, 0.8f)), 3);
+                    if (ok.HasValue) _places.Add((ok.Value, Vector2.down));
+                }
+            }
+
         Tilemap plaza = transform.Find("Grid")?.Find("plaza")?.GetComponent<Tilemap>();
         if (plaza != null)
         {
@@ -399,6 +416,26 @@ public class vc_TownLife : MonoBehaviour
     }
 
     // ── talking ───────────────────────────────────────────────────────────
+
+    /// <summary>The closest townsperson within range of the player (for the Talk button).</summary>
+    public bool NearestTalker(Vector2 playerPos, float range, out Vector2 at)
+    {
+        at = Vector2.zero;
+        float best = range;
+        bool found = false;
+        foreach (Roamer r in _roamers)
+        {
+            float d = Vector2.Distance(playerPos, r.go.transform.position);
+            if (d < best) { best = d; at = r.go.transform.position; found = true; }
+        }
+        foreach (Actor a in _eventActors)
+        {
+            if (a.go == null) continue;
+            float d = Vector2.Distance(playerPos, a.go.transform.position);
+            if (d < best) { best = d; at = a.go.transform.position; found = true; }
+        }
+        return found;
+    }
 
     /// <summary>
     /// Tap on a townsperson standing near the player: they stop, turn to the player and say
@@ -460,7 +497,10 @@ public class vc_TownLife : MonoBehaviour
         {
             int k = kinds[rng.Next(kinds.Count)];
             kinds.Remove(k);
-            Vector3 spot = RandomOpenSpot(2.4f, 80, rng);
+            // most happenings go to the town's planned spots (beach, park, meadow, quad)
+            Vector3 spot = _playSpots.Count > 0 && rng.NextDouble() < 0.8
+                ? _playSpots[rng.Next(_playSpots.Count)] + new Vector3((float)rng.NextDouble() * 1.6f - 0.8f, (float)rng.NextDouble() * 1.2f - 0.6f, 0f)
+                : RandomOpenSpot(2.4f, 80, rng);
             if (float.IsNaN(spot.x)) continue;
             int before = _eventActors.Count;
             switch (k)

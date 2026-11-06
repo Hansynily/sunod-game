@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using SunodGame.UI;
 
 /// <summary>
 /// Tutorial pointer: a bouncing pixel arrow plus a blinking frame around a piece of UI, so
@@ -20,6 +21,10 @@ public class vc_UIPointer : MonoBehaviour
     private const int SortingOrder = 25;      // over the dialog panel (20) and skill award (21)
     private const float Pad = 8f;
     private const float ArrowSize = 56f;      // 14px art at 4x
+    private const float FrameWidth = 5f;
+    // UI V2: soft gold ring that blinks to cream (rounded like the sn-* cards)
+    private static readonly Color FrameLo = new Color(vc_UITheme.CreamHi.r, vc_UITheme.CreamHi.g, vc_UITheme.CreamHi.b, 0.85f);
+    private bool _hiding;
 
     private static vc_UIPointer _instance;
 
@@ -78,8 +83,11 @@ public class vc_UIPointer : MonoBehaviour
     public static void Hide()
     {
         if (_instance == null) return;
-        _instance._target = null;
-        _instance._root?.SetDisplay(false);
+        vc_UIPointer p = _instance;
+        p._target = null;
+        if (p._root == null || p._root.style.display == DisplayStyle.None) return;
+        p._hiding = true;
+        vc_UIAnim.Hide(p._root, () => p._hiding = false, vc_UIAnim.Exit.Fade);
     }
 
     public static bool IsShowing => _instance != null && _instance._target != null;
@@ -92,7 +100,11 @@ public class vc_UIPointer : MonoBehaviour
         if (p == null) return;
         p._target = target;
         p._shownAt = Time.unscaledTime;
-        p._root.SetDisplay(true);
+        if (p._root.style.display == DisplayStyle.None || p._hiding)
+        {
+            p._hiding = false;
+            vc_UIAnim.Show(p._root, vc_UIAnim.Enter.Fade);
+        }
         p.Tick();
     }
 
@@ -129,7 +141,8 @@ public class vc_UIPointer : MonoBehaviour
 
         _frame = new VisualElement { pickingMode = PickingMode.Ignore };
         _frame.style.position = Position.Absolute;
-        SetBorder(_frame, 4f, (Color)new Color32(255, 214, 90, 255));
+        SetBorder(_frame, FrameWidth, vc_UITheme.Gold);
+        vc_UITheme.Radius(_frame, 22f);
         _root.Add(_frame);
 
         _arrow = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -144,7 +157,7 @@ public class vc_UIPointer : MonoBehaviour
         }
         else
         {
-            _arrow.style.backgroundColor = (Color)new Color32(255, 214, 90, 255);
+            _arrow.style.backgroundColor = vc_UITheme.Gold;
         }
         _root.Add(_arrow);
         _root.SetDisplay(false);
@@ -168,7 +181,7 @@ public class vc_UIPointer : MonoBehaviour
         _frame.style.width = r.width + Pad * 2f;
         _frame.style.height = r.height + Pad * 2f;
         bool hi = Mathf.Repeat(t, 0.8f) < 0.4f;
-        SetBorder(_frame, 4f, hi ? (Color)new Color32(255, 214, 90, 255) : (Color)new Color32(255, 250, 230, 200));
+        SetBorder(_frame, FrameWidth, hi ? vc_UITheme.Gold : FrameLo);
 
         // arrow bounces toward the target in whole-pixel steps; it sits above the target, or
         // below it when the target is near the top of the screen

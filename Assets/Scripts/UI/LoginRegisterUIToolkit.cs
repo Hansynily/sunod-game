@@ -67,9 +67,15 @@ namespace SunodGame.UI
         private int _devTaps;
         private float _devFirstTap;
 
+        // UI V2 motion: idle float on the SUNOD logos, breathing "Loading..."
+        private readonly List<IVisualElementScheduledItem> _floatItems = new List<IVisualElementScheduledItem>();
+        private vc_UIAnim.Handle _loadingPulse;
+        private bool _introPlayed;
+
         private void OnEnable()
         {
             var root = GetComponent<UIDocument>().rootVisualElement;
+            _introPlayed = false;
 
             // Panels
             _panelLogin    = root.Q<VisualElement>("panel-login");
@@ -111,10 +117,10 @@ namespace SunodGame.UI
             // Placeholder + password masking
             SetupPlaceholder(_inputUsername,    "Username");
             SetupPlaceholder(_inputPassword,    "Password",          isPassword: true);
-            SetupPlaceholder(_inputRegName,     "Full name...");
-            SetupPlaceholder(_inputRegUsername, "Choose username...");
-            SetupPlaceholder(_inputRegEmail,    "Choose email...");
-            SetupPlaceholder(_inputRegPassword, "Choose password...", isPassword: true);
+            SetupPlaceholder(_inputRegName,     "Full name");
+            SetupPlaceholder(_inputRegUsername, "Username");
+            SetupPlaceholder(_inputRegEmail,    "Email");
+            SetupPlaceholder(_inputRegPassword, "Password", isPassword: true);
 
             PopulateDropdowns();
 
@@ -147,6 +153,96 @@ namespace SunodGame.UI
             ShowLogin();
             SetLoading(false);
             ApplyDevBackendVisibility();
+
+            // UI V2: squish on every button, gentle float on the logos
+            vc_UIAnim.PressAll(root);
+            StartLogoFloat(root);
+        }
+
+        // ============================
+        // UI V2 motion helpers
+        // ============================
+
+        private void StartLogoFloat(VisualElement root)
+        {
+            StopLogoFloat();
+            int i = 0;
+            root.Query<Label>(className: "brand-title").ForEach(label =>
+            {
+                float phase = i++ * 0.7f;
+                _floatItems.Add(label.schedule.Execute(() =>
+                {
+                    float y = Mathf.Sin(Time.unscaledTime * 1.4f + phase) * 5f;
+                    label.style.translate = new Translate(0f, y);
+                }).Every(16));
+            });
+        }
+
+        private void StopLogoFloat()
+        {
+            foreach (IVisualElementScheduledItem item in _floatItems) item?.Pause();
+            _floatItems.Clear();
+        }
+
+        private static bool IsShown(VisualElement ve) =>
+            ve != null && ve.style.display != DisplayStyle.None && ve.resolvedStyle.display != DisplayStyle.None
+            && !ve.ClassListContains("hidden");
+
+        /// <summary>Crossfade between the Login and Register screens; the card pops in.</summary>
+        private void SwitchPanel(VisualElement show, VisualElement hide)
+        {
+            ClearErrors();
+
+            if (hide != null)
+            {
+                if (IsShown(hide))
+                    vc_UIAnim.Hide(hide, () => hide.style.display = DisplayStyle.None, vc_UIAnim.Exit.Fade, 0f, false, 0.14f);
+                else
+                {
+                    vc_UIAnim.StopAll(hide);
+                    hide.style.display = DisplayStyle.None;
+                }
+            }
+
+            if (show == null) return;
+            show.RemoveFromClassList("hidden");   // inline display (vc_UIAnim) drives it from here on
+            vc_UIAnim.Show(show, vc_UIAnim.Enter.Fade, 0f, null, 0.2f);
+            vc_UIAnim.Show(show.Q<VisualElement>(className: "auth-box"), vc_UIAnim.Enter.Pop, _introPlayed ? 0f : 0.12f);
+            if (!_introPlayed)
+                vc_UIAnim.Show(show.Q<VisualElement>(className: "brand-area"), vc_UIAnim.Enter.Drop);
+            _introPlayed = true;
+        }
+
+        /// <summary>Modal open: scrim fades, sheet pops.</summary>
+        private static void OpenModal(VisualElement scrim)
+        {
+            if (scrim == null) return;
+            scrim.RemoveFromClassList("hidden");
+            vc_UIAnim.Show(scrim, vc_UIAnim.Enter.Fade);
+            vc_UIAnim.Show(scrim.Q<VisualElement>(className: "sn-sheet"), vc_UIAnim.Enter.Pop);
+        }
+
+        /// <summary>Modal close: sheet shrinks first, then the scrim fades out.</summary>
+        private static void CloseModal(VisualElement scrim)
+        {
+            if (scrim == null) return;
+            vc_UIAnim.Hide(scrim.Q<VisualElement>(className: "sn-sheet"));
+            // done also runs when Hide skips (already hidden), so the scrim always ends display:none
+            vc_UIAnim.Hide(scrim, () => scrim.style.display = DisplayStyle.None, vc_UIAnim.Exit.Fade, 0.08f);
+        }
+
+        private static void FadeIn(VisualElement ve)
+        {
+            if (ve == null) return;
+            vc_UIAnim.Tween(ve, 0.22f, vc_UIAnim.OutCubic,
+                e => ve.style.opacity = e,
+                () => ve.style.opacity = StyleKeyword.Null, 0f, false);
+        }
+
+        private static VisualElement AuthBoxOf(VisualElement ve)
+        {
+            while (ve != null && !ve.ClassListContains("auth-box")) ve = ve.parent;
+            return ve;
         }
 
         private void OnDisable()
@@ -162,6 +258,8 @@ namespace SunodGame.UI
             _btnPresetCustom?     .UnregisterCallback<ClickEvent>(_ => OnCustomPresetClicked());
             _btnDevBackend?       .UnregisterCallback<ClickEvent>(_ => OpenBackendSettings());
             _brandBanner?         .UnregisterCallback<PointerDownEvent>(OnBrandTapped);
+            StopLogoFloat();
+            vc_UIAnim.StopPulse(ref _loadingPulse, _lblLoading);
         }
 
         private void OnBrandTapped(PointerDownEvent evt)
@@ -184,16 +282,12 @@ namespace SunodGame.UI
 
         private void ShowLogin()
         {
-            _panelLogin?   .RemoveFromClassList("hidden");
-            _panelRegister?.AddToClassList("hidden");
-            ClearErrors();
+            SwitchPanel(_panelLogin, _panelRegister);
         }
 
         private void ShowRegister()
         {
-            _panelLogin?   .AddToClassList("hidden");
-            _panelRegister?.RemoveFromClassList("hidden");
-            ClearErrors();
+            SwitchPanel(_panelRegister, _panelLogin);
         }
 
         // ============================
@@ -305,7 +399,7 @@ namespace SunodGame.UI
                 {
                     SetLoading(false);
                     ShowLogin();
-                    ShowError(_lblErrorLogin, GetAuthMessage(auth, "Account created. Check your email to verify it, then log in."));
+                    ShowError(_lblErrorLogin, GetAuthMessage(auth, "Account made! Verify your email, then log in."), isGood: true);
                 },
                 onError: (err) => { SetLoading(false); ShowError(_lblErrorRegister, err); });
         }
@@ -385,22 +479,33 @@ namespace SunodGame.UI
         private void ApplyDevBackendVisibility()
         {
             if (_btnDevBackend == null) return;
+            Button btn = _btnDevBackend;
             if (showDeveloperBackendControls)
-                _btnDevBackend.RemoveFromClassList("hidden");
+            {
+                btn.RemoveFromClassList("hidden");
+                vc_UIAnim.Show(btn, vc_UIAnim.Enter.Pop);
+            }
+            else if (IsShown(btn))
+            {
+                vc_UIAnim.Hide(btn, () => { btn.AddToClassList("hidden"); btn.style.display = StyleKeyword.Null; });
+            }
             else
-                _btnDevBackend.AddToClassList("hidden");
+            {
+                btn.AddToClassList("hidden");
+                btn.style.display = StyleKeyword.Null;
+            }
         }
 
         private void OpenBackendSettings()
         {
             if (_panelBackend == null) return;
             RefreshBackendSettingsView();
-            _panelBackend.RemoveFromClassList("hidden");
+            OpenModal(_panelBackend);
         }
 
         private void CloseBackendSettings()
         {
-            _panelBackend?.AddToClassList("hidden");
+            CloseModal(_panelBackend);
         }
 
         private void OnRailwayPresetClicked()
@@ -505,11 +610,15 @@ namespace SunodGame.UI
         // Helpers
         // ============================
 
-        private void ShowError(Label label, string message)
+        /// <summary>Message under the fields. Errors are red and shake the card; isGood is a green note.</summary>
+        private void ShowError(Label label, string message, bool isGood = false)
         {
             if (label == null) return;
             label.text = message;
+            label.EnableInClassList("error-label--ok", isGood);
             label.RemoveFromClassList("hidden");
+            FadeIn(label);
+            if (!isGood) vc_UIAnim.Shake(AuthBoxOf(label), 12f);
         }
 
         private void ClearErrors()
@@ -522,8 +631,18 @@ namespace SunodGame.UI
         {
             if (_lblLoading != null)
             {
-                if (isLoading) _lblLoading.RemoveFromClassList("hidden");
-                else           _lblLoading.AddToClassList("hidden");
+                if (isLoading)
+                {
+                    bool wasHidden = _lblLoading.ClassListContains("hidden");
+                    _lblLoading.RemoveFromClassList("hidden");
+                    if (wasHidden) FadeIn(_lblLoading);
+                    if (_loadingPulse == null) _loadingPulse = vc_UIAnim.Pulse(_lblLoading, 0.05f, 0.9f);
+                }
+                else
+                {
+                    _lblLoading.AddToClassList("hidden");
+                    vc_UIAnim.StopPulse(ref _loadingPulse, _lblLoading);
+                }
             }
             _btnLogin?    .SetEnabled(!isLoading);
             _btnRegister? .SetEnabled(!isLoading);

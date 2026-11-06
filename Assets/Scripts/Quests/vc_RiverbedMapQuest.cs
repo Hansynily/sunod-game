@@ -43,7 +43,29 @@ public class vc_RiverbedMapQuest : vc_FitQuestBase
     [SerializeField] private float mapTime = 7f;
     [SerializeField] private float collectTime = 8f;
 
-    private int _stage, _ropes;
+    // Skill system v2 (QUEST_REDESIGN.md): Collect (prep) pulls old depth notes from the boat log,
+    // then Plan lays the whole grid and fills it at once. Preference: Solve (every depth by hand).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Prof. Lim",
+        presses = 5,
+        bestFitTag = "survey",
+        bestFitSeconds = 2f,
+        prepTag = "collect",
+        prepUnlocksTag = "plan",
+        prepLine = "You pull old depth notes out of the boat log...",
+        preferredTag = "unlock",
+        preferenceLine = "Every depth measured by hand. My students will learn so much!",
+        fastLines = new[]
+        {
+            ("unlock", "Every depth by hand, and that fast? Remarkable."),
+            ("plan", "A perfect grid already. Excellent work."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
+    private int _stage, _ropes, _ropePress;
     private float _bobClock, _rippleClock;
     private int _bobFrame;
     private Vector3 _boatRest;
@@ -60,14 +82,14 @@ public class vc_RiverbedMapQuest : vc_FitQuestBase
     protected override void OnBegin()
     {
         ClearSpawned();
-        _stage = 0; _ropes = 0;
+        _stage = 0; _ropes = 0; _ropePress = 0;
         SetMap(0);
         _bobClock = 0f; _rippleClock = 1.5f;
 
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Riverbed Map",
-            "Prof. Lim needs the river bottom mapped for the field trip.",
+            "Prof. Lim needs the river bottom mapped for the field trip. He wants his students to see the depths measured by hand.",
             new[] { "Map the riverbed" });
     }
 
@@ -103,10 +125,34 @@ public class vc_RiverbedMapQuest : vc_FitQuestBase
         if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("unlock")) { RopePress(); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
-        if (d.HasTag("map")) { StartWork(SketchRoutine()); return; }
-        if (d.HasTag("collect")) { StartWork(LogRoutine()); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime), CurrentInstant)); return; }
+        if (d.HasTag("map")) { StartWork(SketchRoutine(PathTime(mapTime))); return; }
+        if (d.HasTag("collect")) { StartWork(LogRoutine(PathTime(collectTime))); return; }
         Toast("Mapping takes a careful eye.", 2.2f);
+    }
+
+    // Prep (Collect): old depth notes flutter out of the boat log and the map gains a first contour.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 at = (boat != null ? boat.position : transform.position) + new Vector3(0f, 0.9f, 0f);
+        Sprite page = boatLog != null ? boatLog : Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
+        GameObject notes = Spawn("BoatLog", page, at, 8);
+        if (boatLog == null) notes.transform.localScale = new Vector3(0.3f, 0.4f, 1f);
+        float t = 0f;
+        const float dur = 0.8f;
+        while (t < dur)
+        {
+            t += Time.deltaTime;
+            if (notes != null) notes.transform.position = Snap(at + new Vector3(0f, Mathf.Lerp(0f, 0.5f, t / dur), 0f));
+            yield return null;
+        }
+        SunodGame.Core.vc_Sfx.Play("page_next", 0.5f, 0.1f);
+        Fx(sparkFrames, BoardCenter(), 12f, 0.1f);
+        if (notes != null) { _spawned.Remove(notes); Destroy(notes); }
+        _stage = 1;
+        SetMap(1);
+        yield return new WaitForSeconds(0.2f);
     }
 
     // ── Survey: sonar sweep ──────────────────────────────────────────────
@@ -132,24 +178,47 @@ public class vc_RiverbedMapQuest : vc_FitQuestBase
 
     // ── Solve: weighted rope at each buoy ────────────────────────────────
 
+    // 3 presses at Lv1 (a buoy each), 2 at Lv2, 1 at Lv3 or after the Collect prep: every press
+    // measures its share of the buoys that are left; the last one runs through StartWork.
     private void RopePress()
     {
-        if (_ropes >= buoys.Length) return;
-        int i = _ropes++;
-        StartCoroutine(DropRope(i));
-        if (_ropes < Mathf.Min(ropePresses, buoys.Length))
+        int total = Mathf.Min(ropePresses, buoys.Length);
+        if (_ropes >= total) return;
+        _ropePress++;
+        int need = Mathf.Clamp(PathPresses(total), 1, total);
+        int remaining = total - _ropes;
+        int pressesLeft = Mathf.Max(1, need - _ropePress + 1);
+        int count = _ropePress >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        int first = _ropes;
+        _ropes += count;
+
+        if (_ropes >= total)
         {
-            Toast($"You read the depth at this buoy ({_ropes}/{ropePresses})", 2f);
+            StartWork(RopeFinishRoutine(first, count, count > 1));
             return;
         }
-        StartCoroutine(FinishAfter(0.8f, "Every buoy measured. Map complete!"));
+        Toast($"You read the depth at this buoy ({_ropes}/{total})", 2f);
+        for (int k = 0; k < count; k++) StartCoroutine(DropRopeAfter(first + k, k * 0.25f));
     }
 
-    private IEnumerator FinishAfter(float s, string msg)
+    private IEnumerator DropRopeAfter(int i, float delay)
     {
-        Working = true; // no new paths while the last rope sinks; best fit may still take over
-        yield return new WaitForSeconds(s);
-        Finish(msg);
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+        yield return DropRope(i);
+    }
+
+    private IEnumerator RopeFinishRoutine(int first, int count, bool oneGo)
+    {
+        Toast(oneGo ? "Ropes over every buoy at once!" : "Last buoy: you read the depth...", 2f);
+        ShowBar(true);
+        for (int k = 0; k < count; k++)
+        {
+            StartCoroutine(DropRope(first + k));
+            SetBar((k + 1f) / count);
+            yield return new WaitForSeconds(count > 1 ? 0.25f : 0f);
+        }
+        yield return new WaitForSeconds(0.8f);
+        Finish(oneGo ? "Every buoy measured in one go. Map complete!" : "Every buoy measured. Map complete!");
     }
 
     private IEnumerator DropRope(int i)
@@ -175,11 +244,11 @@ public class vc_RiverbedMapQuest : vc_FitQuestBase
 
     // ── Plan: buoy grid, then row by row ─────────────────────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float seconds, bool oneGo)
     {
-        Toast("You set up a measuring grid...", planTime);
+        Toast(oneGo ? "The notes fit the grid. Filling it all in at once..." : "You set up a measuring grid...", seconds);
         ShowBar(true);
-        float t = 0f, setup = 1.6f;
+        float t = 0f, setup = seconds * 0.32f;
         // grid dots across the water
         if (gridDot != null && buoys.Length > 0)
         {
@@ -194,36 +263,36 @@ public class vc_RiverbedMapQuest : vc_FitQuestBase
                 }
             SunodGame.Core.vc_Sfx.Play("plop", 0.4f, 0.2f);
         }
-        yield return BarStep(setup, 0f, setup / planTime);
+        yield return BarStep(setup, 0f, setup / seconds);
         t = setup;
         int n = buoys.Length;
-        float per = (planTime - t) / Mathf.Max(1, n);
+        float per = (seconds - t) / Mathf.Max(1, n);
         for (int i = 0; i < n; i++)
         {
             Fx(rippleFrames, BuoyBase(i), 6f, 0f, 3);
-            yield return BarStep(per * 0.6f, t / planTime, (t + per * 0.6f) / planTime);
+            yield return BarStep(per * 0.6f, t / seconds, (t + per * 0.6f) / seconds);
             Reading(i);
-            yield return BarStep(per * 0.4f, (t + per * 0.6f) / planTime, (t + per) / planTime);
+            yield return BarStep(per * 0.4f, (t + per * 0.6f) / seconds, (t + per) / seconds);
             t += per;
         }
-        Finish("Grid measured, row by row. Map done!");
+        Finish(oneGo ? "The grid filled in one go. Map done!" : "Grid measured, row by row. Map done!");
     }
 
     // ── Map: sketch from the shore ───────────────────────────────────────
 
-    private IEnumerator SketchRoutine()
+    private IEnumerator SketchRoutine(float seconds)
     {
-        Toast("You sketch the river from the shore...", mapTime);
+        Toast("You sketch the river from the shore...", seconds);
         ShowBar(true);
-        float t = 0f;
+        float t = 0f, step = Mathf.Max(0.1f, seconds * 0.064f);
         int nextStage = 1;
-        while (t < mapTime)
+        while (t < seconds)
         {
             Fx(scribbleFrames, BoardCenter() + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.3f, 0.4f), 0f), 6f, 0f, 22);
             SunodGame.Core.vc_Sfx.Play("scribble", 0.3f, 0.15f, 0.3f);
-            if (nextStage <= 3 && t >= mapTime * nextStage / 3.4f) { SetMap(nextStage); nextStage++; }
-            yield return BarStep(0.45f, t / mapTime, (t + 0.45f) / mapTime);
-            t += 0.45f;
+            if (nextStage <= 3 && t >= seconds * nextStage / 3.4f) { SetMap(nextStage); nextStage++; }
+            yield return BarStep(step, t / seconds, (t + step) / seconds);
+            t += step;
         }
         SetMap(3);
         Finish("A slow sketch, but the map is done.");
@@ -231,20 +300,20 @@ public class vc_RiverbedMapQuest : vc_FitQuestBase
 
     // ── Collect: depth readings from the boat log ────────────────────────
 
-    private IEnumerator LogRoutine()
+    private IEnumerator LogRoutine(float seconds)
     {
-        Toast("You gather readings from the boat log...", collectTime);
+        Toast("You gather readings from the boat log...", seconds);
         ShowBar(true);
         Vector3 at = (boat != null ? boat.position : transform.position) + new Vector3(0f, 0.9f, 0f);
         if (boatLog != null) Spawn("BoatLog", boatLog, at, 8);
         int n = buoys.Length;
-        float per = collectTime / Mathf.Max(1, n), t = 0f;
+        float per = seconds / Mathf.Max(1, n), t = 0f;
         for (int i = 0; i < n; i++)
         {
             SunodGame.Core.vc_Sfx.Play("page_next", 0.5f, 0.1f);
-            yield return BarStep(per * 0.7f, t / collectTime, (t + per * 0.7f) / collectTime);
+            yield return BarStep(per * 0.7f, t / seconds, (t + per * 0.7f) / seconds);
             Reading(i);
-            yield return BarStep(per * 0.3f, (t + per * 0.7f) / collectTime, (t + per) / collectTime);
+            yield return BarStep(per * 0.3f, (t + per * 0.7f) / seconds, (t + per) / seconds);
             t += per;
         }
         Finish("All the boat's readings are on the map.");

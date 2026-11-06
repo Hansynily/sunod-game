@@ -38,6 +38,28 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
     [SerializeField] private float healTime = 5f;
     [SerializeField] private float paintTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Paint (prep) doodles pictures beside the words, then Guide
+    // reads the whole book with the kids at once. Preference: Heal.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Toto",
+        presses = 5,
+        bestFitTag = "teach",
+        bestFitSeconds = 2f,
+        prepTag = "paint",
+        prepUnlocksTag = "guide",
+        prepLine = "You doodle little pictures beside the hard words...",
+        preferredTag = "heal",
+        preferenceLine = "She came out to read with us! Salamat!",
+        fastLines = new[]
+        {
+            ("guide", "We read the whole book! Again, again!"),
+            ("heal", "She came out to read with us! She never does that!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private SpriteRenderer[] _sr;
     private Vector3[] _rest;
     private int[] _restOrder;
@@ -92,7 +114,7 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Story Time",
-            "Toto and his friends are learning to read. One of them is too shy and scared to join. Help them!",
+            "Toto wants help reading the storybook. His little sister is too shy to join and hides behind the beanbag. Help them!",
             new[] { "Read the storybook with the little kids" });
     }
 
@@ -140,10 +162,34 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
     {
         if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("guide")) { StartWork(GuideRoutine()); return; }
-        if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
+        if (d.HasTag("guide")) { StartWork(GuideRoutine(PathTime(guideTime))); return; }
+        if (d.HasTag("heal")) { StartWork(HealRoutine(PathTime(healTime))); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime))); return; }
         Toast("Reading needs a patient teacher.", 2.2f);
+    }
+
+    // Prep (Paint): quick doodles pop up beside the words (they stay until the quest restarts).
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        _idleClock = 3f;
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 c = rug != null ? rug.position : transform.position;
+        Vector3[] spots = { c + new Vector3(-1.2f, -1.1f, 0f), c + new Vector3(0f, -1.25f, 0f), c + new Vector3(1.2f, -1.1f, 0f) };
+        int cards = Mathf.Min(3, pictures != null ? pictures.Length : 0);
+        for (int i = 0; i < cards; i++)
+        {
+            var go = new GameObject("Doodle");
+            go.transform.SetParent(transform, true);
+            go.transform.position = Snap(spots[i]);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = pictures[i]; sr.sortingLayerName = sortingLayer; sr.sortingOrder = 12;
+            _spawned.Add(go);
+            StartCoroutine(PopScale(go.transform));
+            Fx(sparkFrames, spots[i] + new Vector3(0.3f, 0.2f, 0f), 12f, 0.15f);
+            SunodGame.Core.vc_Sfx.Play("brush", 0.4f, 0.12f);
+            yield return new WaitForSeconds(0.25f);
+        }
+        yield return new WaitForSeconds(0.25f);
     }
 
     // ── Teach: letter bubbles over each kid ──────────────────────────────
@@ -174,9 +220,9 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
 
     // ── Guide: read the whole book, flipping pages ───────────────────────
 
-    private IEnumerator GuideRoutine()
+    private IEnumerator GuideRoutine(float guideTime)
     {
-        Toast("You read the whole book together...", guideTime);
+        Toast(Prepared ? "You read the whole book together, pictures and all!" : "You read the whole book together...", guideTime);
         ShowBar(true);
         int flips = 4;
         float per = guideTime / flips, t = 0f;
@@ -200,21 +246,21 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
 
     // ── Heal: coax the shy kid out, then everyone reads ──────────────────
 
-    private IEnumerator HealRoutine()
+    private IEnumerator HealRoutine(float healTime)
     {
         Toast("The shy kid is scared. You comfort them...", healTime);
         ShowBar(true);
-        float total = healTime, t = 0f;
+        float total = healTime, t = 0f, sc = healTime / 5f;
 
         if (_shy && heart != null) Fx(new[] { heart }, Top(shyKid), 1.5f, 0.3f, 24);
         SunodGame.Core.vc_Sfx.Play("quest_start", 0.35f);
-        yield return BarStep(0.8f, 0f, 0.8f / total);
-        t = 0.8f;
+        yield return BarStep(0.8f * sc, 0f, 0.8f / 5f);
+        t = 0.8f * sc;
 
         if (_shy)
         {
             Vector3 from = kids[shyKid].position, to = _readPos;
-            float walk = 2.2f, w = 0f;
+            float walk = 2.2f * sc, w = 0f;
             int hops = 5;
             while (w < walk)
             {
@@ -246,14 +292,14 @@ public class vc_StoryTimeQuest : vc_FitQuestBase
 
     // ── Paint: draw pictures for the story ───────────────────────────────
 
-    private IEnumerator PaintRoutine()
+    private IEnumerator PaintRoutine(float paintTime)
     {
         Toast("You draw pictures to go with the story...", paintTime);
         ShowBar(true);
         Vector3 c = rug != null ? rug.position : transform.position;
         Vector3[] spots = { c + new Vector3(-1.2f, -1.1f, 0f), c + new Vector3(0f, -1.25f, 0f), c + new Vector3(1.2f, -1.1f, 0f) };
         int cards = Mathf.Min(3, pictures != null ? pictures.Length : 0);
-        float per = (paintTime - 1.8f) / Mathf.Max(1, cards), t = 0f;
+        float per = paintTime * 0.775f / Mathf.Max(1, cards), t = 0f;
         for (int i = 0; i < cards; i++)
         {
             var go = new GameObject("Picture");

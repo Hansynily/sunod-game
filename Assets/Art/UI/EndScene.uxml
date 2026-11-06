@@ -1,69 +1,64 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="EndSceneStyle.uss" />
+    <!-- UI V2 results screen: cream result card (+ website card), actions along the bottom.
+         Motion (cards pop, stats cascade, numbers count up): EndSceneUIToolkit.cs. -->
     <ui:VisualElement name="root" class="root-container">
 
         <ui:VisualElement class="center-wrapper">
-            <ui:VisualElement class="result-panel">
+            <ui:VisualElement name="result-panel" class="result-panel sn-panel">
 
                 <ui:VisualElement class="panel-header">
-                    <ui:Label text="Career Result" class="header-text" />
+                    <ui:Label text="Your result" class="header-text sn-title" />
                 </ui:VisualElement>
 
-                <ui:VisualElement class="career-section">
-                    <ui:Label text="Recommended Career" class="recommended-label" />
+                <ui:VisualElement name="career-section" class="career-section">
+                    <ui:Label text="Best fit" class="recommended-label sn-caption" />
                     <ui:Label name="lbl-career-name" text="..." class="career-name" />
-                    <ui:Label text="Based on your RIASEC profile." class="riasec-note" />
-                    <ui:Label name="lbl-partial-note" text="" class="riasec-note partial-note" />
+                    <ui:Label text="From your RIASEC profile." class="riasec-note sn-caption" />
+                    <ui:Label name="lbl-partial-note" text="" class="riasec-note partial-note sn-caption" />
                 </ui:VisualElement>
 
-                <ui:VisualElement class="divider" />
-
-                <ui:VisualElement class="stats-section">
+                <ui:VisualElement name="stats-section" class="stats-section sn-card">
 
                     <ui:VisualElement class="stat-row">
-                        <ui:Label text="Holland Code:" class="stat-label" />
+                        <ui:Label text="Holland code" class="stat-label" />
                         <ui:Label name="lbl-holland-code" text="---" class="stat-value stat-gold" />
                     </ui:VisualElement>
 
                     <ui:VisualElement class="stat-row">
-                        <ui:Label text="Top Traits:" class="stat-label" />
+                        <ui:Label text="Top traits" class="stat-label" />
                         <ui:Label name="lbl-top-traits" text="---" class="stat-value" />
                     </ui:VisualElement>
 
                     <ui:VisualElement class="stat-row">
-                        <ui:Label text="Quests Passed:" class="stat-label" />
+                        <ui:Label text="Quests passed" class="stat-label" />
                         <ui:Label name="lbl-quests" text="--/--" class="stat-value stat-gold" />
                     </ui:VisualElement>
 
-                    <ui:VisualElement class="stat-row">
-                        <ui:Label text="Stars Earned:" class="stat-label" />
+                    <ui:VisualElement class="stat-row stat-row--last">
+                        <ui:Label text="Stars" class="stat-label" />
                         <ui:Label name="lbl-stars" text="--" class="stat-value stat-gold" />
                     </ui:VisualElement>
 
                 </ui:VisualElement>
 
-                <ui:VisualElement class="divider" />
-
             </ui:VisualElement>
 
             <!-- Website card: a link to the SUNOD server's site (vc_SiteLink). -->
-            <ui:VisualElement name="survey-card" class="survey-card">
+            <ui:VisualElement name="survey-card" class="survey-card sn-panel">
                 <ui:VisualElement class="panel-header">
-                    <ui:Label text="SUNOD Online" class="header-text" />
+                    <ui:Label text="SUNOD online" class="header-text survey-header-text sn-subtitle" />
                 </ui:VisualElement>
-                <ui:Button name="btn-survey-link" class="action-btn survey-link-btn">
-                    <ui:Label name="lbl-survey-link" text="Visit SUNOD Website" class="action-btn-label survey-link-label" />
+                <ui:Button name="btn-survey-link" class="action-btn survey-link-btn sn-btn">
+                    <ui:Label name="lbl-survey-link" text="Visit website" class="action-btn-label survey-link-label" />
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement class="action-row">
-            <ui:Button name="btn-play-again" class="action-btn btn-play-again">
-                <ui:Label text="Play Again" class="action-btn-label" />
-            </ui:Button>
-            <ui:Button name="btn-main-menu" class="action-btn btn-main-menu">
-                <ui:Label text="Back to Menu" class="action-btn-label" />
-            </ui:Button>
+        <!-- primary on the right -->
+        <ui:VisualElement name="action-row" class="action-row">
+            <ui:Button name="btn-main-menu" class="action-btn btn-main-menu sn-btn" text="Menu" />
+            <ui:Button name="btn-play-again" class="action-btn btn-play-again sn-btn sn-btn--primary" text="Play again" />
         </ui:VisualElement>
 
     </ui:VisualElement>

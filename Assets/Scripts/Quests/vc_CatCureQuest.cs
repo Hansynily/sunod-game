@@ -52,6 +52,27 @@ public class vc_CatCureQuest : vc_FitQuestBase
     [SerializeField] private float inspectTime = 8f;
     [SerializeField] private float healTime = 8f;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Dr. Santos",
+        presses = 3,
+        bestFitTag = "unlock",
+        bestFitSeconds = 2f,
+        prepTag = "heal",
+        prepUnlocksTag = "survey",
+        prepLine = "You stroke the cat gently until it stops shivering...",
+        preferredTag = "plan",
+        preferenceLine = "Careful, one by one. That's how it's done. Thank you!",
+        fastLines = new[]
+        {
+            ("survey", "You read her symptoms that fast? Impressive."),
+            ("plan", "Careful and quick. She's going to be okay."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
+    private bool _calm;
     private float _elapsed, _total = 1f;
     private float _idleClock;
     private Vector3 _catRest;
@@ -69,13 +90,14 @@ public class vc_CatCureQuest : vc_FitQuestBase
     {
         CleanSpawned();
         _cured = false;
+        _calm = false;
         if (cat != null) { cat.color = sickColor; cat.transform.position = _catRest; }
         if (pestle != null) pestle.gameObject.SetActive(true);
 
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Cat Medicine",
-            "The clinic cat is sick and shivering. There are four medicines on the table, but only one will cure it. Figure out which one - by reasoning it out, studying its symptoms, or testing them.",
+            "Dr. Santos has a sick, shivering cat at the clinic. There are four medicines on the table, but only one will cure it. Figure out which one - by reasoning it out, studying its symptoms, or testing them one by one (the doctor likes careful testing).",
             new[]
             {
                 "Find out what is making the cat sick",
@@ -88,7 +110,7 @@ public class vc_CatCureQuest : vc_FitQuestBase
 
     private void Update()
     {
-        if (!Started || Done || cat == null || _cured) return;
+        if (!Started || Done || cat == null || _cured || _calm) return;
         _idleClock -= Time.deltaTime;
         if (_idleClock > 0f) return;
         _idleClock = 2.4f;
@@ -115,10 +137,10 @@ public class vc_CatCureQuest : vc_FitQuestBase
         if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
-        if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
-        if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
+        if (d.HasTag("survey")) { StartWork(SurveyRoutine(PathTime(surveyTime), CurrentInstant)); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
+        if (d.HasTag("inspect")) { StartWork(InspectRoutine(PathTime(inspectTime))); return; }
+        if (d.HasTag("heal")) { StartWork(HealRoutine(PathTime(healTime))); return; }
 
         Toast("That won't cure the cat. Think it through: what's wrong with it, and which medicine fixes it?", 2.8f);
     }
@@ -127,6 +149,34 @@ public class vc_CatCureQuest : vc_FitQuestBase
     {
         CleanSpawned();
         if (cat != null && !_cured) cat.transform.position = _catRest;
+    }
+
+    // Prep (Heal): stroke the cat until it stops shivering; Survey then reads the symptoms at once.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (cat == null) { yield return new WaitForSeconds(1f); _calm = true; yield break; }
+        Vector3 c = cat.transform.position;
+        Color from = cat.color;
+        Color calmColor = Color.Lerp(sickColor, Color.white, 0.7f);
+        float t = 0f, heart = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime;
+            heart -= Time.deltaTime;
+            cat.color = Color.Lerp(from, calmColor, t);
+            if (heart <= 0f)
+            {
+                heart = 0.3f;
+                Fx(heartFrames, c + new Vector3(Random.Range(-0.4f, 0.4f), 0.7f, 0f), 3f, 0.6f, 26);
+                SunodGame.Core.vc_Sfx.Play("text_blip", 0.3f, 0.2f);
+            }
+            yield return null;
+        }
+        _calm = true;
+        cat.color = calmColor;
+        cat.transform.position = _catRest;
+        SunodGame.Core.vc_Sfx.Play("meow", 0.4f);
     }
 
     private void CleanSpawned()
@@ -157,7 +207,7 @@ public class vc_CatCureQuest : vc_FitQuestBase
 
     private IEnumerator SolveRoutine()
     {
-        Toast("Working out the right remedy...", solveTime);
+        Toast("Working out the right remedy...", Mathf.Max(1.5f, solveTime));
         Timeline(solveTime);
         Fx(bulbFrames, table.position + new Vector3(0f, 1.9f, 0f), 2f, 0.3f, 26);
         SunodGame.Core.vc_Sfx.Play("idea", 0.7f);
@@ -171,20 +221,20 @@ public class vc_CatCureQuest : vc_FitQuestBase
 
     // ── Survey: study the symptoms, then pick the bottle ─────────────────
 
-    private IEnumerator SurveyRoutine()
+    private IEnumerator SurveyRoutine(float seconds, bool oneGo)
     {
-        Toast("Studying the cat's symptoms...", surveyTime);
-        Timeline(surveyTime);
+        Toast(oneGo ? "You read her symptoms at a glance..." : "Studying the cat's symptoms...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         Vector3 c = cat.transform.position;
         Fx(new[] { thermometer }, c + new Vector3(-0.45f, 0.7f, 0f), 1.8f, 0.3f, 26);
         SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f);
-        yield return Wait(surveyTime * 0.2f);
+        yield return Wait(seconds * 0.2f);
         Fx(ringFrames, c + new Vector3(0f, 0.3f, 0f), 6f);
         Fx(new[] { bubbleSick }, c + new Vector3(0f, 1.1f, 0f), 1.8f, 0.15f, 26);
-        yield return Wait(surveyTime * 0.2f);
+        yield return Wait(seconds * 0.2f);
 
         GameObject lens = Spawn("Lens", magnifier, 27);
-        float per = surveyTime * 0.45f / bottles.Length;
+        float per = seconds * 0.45f / bottles.Length;
         for (int i = 0; i < bottles.Length; i++)
         {
             lens.transform.position = Snap(bottles[i].transform.position + new Vector3(0.2f, 0.7f, 0f));
@@ -195,18 +245,18 @@ public class vc_CatCureQuest : vc_FitQuestBase
         }
         Destroy(lens);
         yield return Wait(per * 0.5f);
-        yield return Deliver(rightBottle, surveyTime * 0.12f, "You read the symptoms and picked the right bottle!");
+        yield return Deliver(rightBottle, seconds * 0.12f, oneGo ? "One look at her symptoms, and you picked the right bottle!" : "You read the symptoms and picked the right bottle!");
     }
 
     // ── Plan: test the treatments one by one ─────────────────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float seconds)
     {
-        Toast("Testing the treatments one by one...", planTime);
-        Timeline(planTime);
+        Toast("Testing the treatments one by one...", seconds);
+        Timeline(seconds);
         int n = bottles.Length;
         int[] order = { 0, 2, rightBottle };
-        float per = planTime * 0.8f / order.Length;
+        float per = seconds * 0.8f / order.Length;
         foreach (int i in order)
         {
             Vector3 from = bottles[i].transform.position + new Vector3(0f, 0.7f, 0f);
@@ -235,17 +285,17 @@ public class vc_CatCureQuest : vc_FitQuestBase
             }
             yield return Wait(per * 0.5f);
         }
-        yield return Deliver(rightBottle, planTime * 0.2f, "Your tests found the right treatment!");
+        yield return Deliver(rightBottle, seconds * 0.2f, "Your tests found the right treatment!");
     }
 
     // ── Inspect: read every label ────────────────────────────────────────
 
-    private IEnumerator InspectRoutine()
+    private IEnumerator InspectRoutine(float seconds)
     {
-        Toast("Reading each medicine label...", inspectTime);
-        Timeline(inspectTime);
+        Toast("Reading each medicine label...", seconds);
+        Timeline(seconds);
         GameObject lens = Spawn("Lens", magnifier, 27);
-        float per = inspectTime * 0.75f / bottles.Length;
+        float per = seconds * 0.75f / bottles.Length;
         for (int i = 0; i < bottles.Length; i++)
         {
             Vector3 p = bottles[i].transform.position;
@@ -257,23 +307,23 @@ public class vc_CatCureQuest : vc_FitQuestBase
         }
         Destroy(lens);
         Highlight(rightBottle);
-        yield return Wait(inspectTime * 0.05f);
-        yield return Deliver(rightBottle, inspectTime * 0.2f, "You read every label and found the right medicine!");
+        yield return Wait(seconds * 0.05f);
+        yield return Deliver(rightBottle, seconds * 0.2f, "You read every label and found the right medicine!");
     }
 
     // ── Heal: nurse the cat slowly back to health ────────────────────────
 
-    private IEnumerator HealRoutine()
+    private IEnumerator HealRoutine(float seconds)
     {
-        Toast("You nurse the cat gently...", healTime);
-        Timeline(healTime);
+        Toast("You nurse the cat gently...", seconds);
+        Timeline(seconds);
         Vector3 c = cat.transform.position;
         float t = 0f, heart = 0f;
-        while (t < healTime)
+        while (t < seconds)
         {
             t += Time.deltaTime; Tick(Time.deltaTime);
             heart -= Time.deltaTime;
-            cat.color = Color.Lerp(sickColor, Color.white, t / healTime);
+            cat.color = Color.Lerp(sickColor, Color.white, t / seconds);
             if (heart <= 0f)
             {
                 heart = 0.55f;

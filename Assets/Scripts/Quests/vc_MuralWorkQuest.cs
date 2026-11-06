@@ -41,7 +41,30 @@ public class vc_MuralWorkQuest : vc_FitQuestBase
     [SerializeField] private float reliefTime = 5f;
     [SerializeField] private float planTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Build (prep) raises a quick scaffold, then Barrier
+    // sculpts the whole relief from the top in one go. Preference: Barrier (people can touch it).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ate Carla",
+        presses = 4,
+        bestFitTag = "paint",
+        bestFitSeconds = 2f,
+        prepTag = "build",
+        prepUnlocksTag = "barrier",
+        prepLine = "You put up a quick scaffold along the wall...",
+        preferredTag = "barrier",
+        preferenceLine = "I can touch every bit of it! Perfect for the play.",
+        fastLines = new[]
+        {
+            ("craft", "That collage is gorgeous and you were so quick!"),
+            ("barrier", "I can touch every bit of it! Done already?!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private readonly List<GameObject> _spawned = new List<GameObject>();
+    private readonly List<GameObject> _scaffold = new List<GameObject>();
     private GameObject _brushGo;
     private float _idleClock;
 
@@ -51,12 +74,14 @@ public class vc_MuralWorkQuest : vc_FitQuestBase
     protected override void OnBegin()
     {
         ClearSpawned();
+        foreach (GameObject g in _scaffold) if (g != null) Destroy(g);
+        _scaffold.Clear();
         _idleClock = 1.2f;
         if (blankWall != null) { blankWall.gameObject.SetActive(true); blankWall.sortingOrder = 1; }
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "The Mural",
-            "The wall is blank. Bring it to life.",
+            "The wall behind the stage is blank. Ate Carla wants a set people can touch, so something with real texture would make her happy.",
             new[] { "Fill the wall with a mural" });
     }
 
@@ -93,9 +118,9 @@ public class vc_MuralWorkQuest : vc_FitQuestBase
     {
         if (d.HasTag("paint")) { StartWork(PaintRoutine(paintTime, 1.0f)); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
-        if (d.HasTag("barrier")) { StartWork(ReliefRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("craft")) { StartWork(CraftRoutine(PathTime(craftTime))); return; }
+        if (d.HasTag("barrier")) { StartWork(ReliefRoutine(PathTime(reliefTime), CurrentInstant)); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
         Toast("The wall needs an artist.", 2.2f);
     }
 
@@ -142,9 +167,9 @@ public class vc_MuralWorkQuest : vc_FitQuestBase
 
     // ── Craft: paper pieces fly in and are pasted down ───────────────────
 
-    private IEnumerator CraftRoutine()
+    private IEnumerator CraftRoutine(float craftTime)
     {
-        Toast("You cut and paste a paper collage...", craftTime);
+        Toast("You cut and paste a paper collage...", Mathf.Max(1.5f, craftTime));
         ShowBar(true);
         int n = paperLayers.Length;
         float per = craftTime / n;
@@ -174,9 +199,9 @@ public class vc_MuralWorkQuest : vc_FitQuestBase
 
     // ── Barrier: sculpt a raised relief ──────────────────────────────────
 
-    private IEnumerator ReliefRoutine()
+    private IEnumerator ReliefRoutine(float reliefTime, bool oneGo)
     {
-        Toast("You sculpt a raised relief on the wall...", reliefTime);
+        Toast(oneGo ? "From the scaffold, you sculpt the whole relief in one go!" : "You sculpt a raised relief on the wall...", Mathf.Max(1.5f, reliefTime));
         ShowBar(true);
         int n = reliefLayers.Length;
         float per = reliefTime / n;
@@ -200,16 +225,16 @@ public class vc_MuralWorkQuest : vc_FitQuestBase
             sr.transform.position = home;
             SetAlpha(sr, 1f);
         }
-        Finish("You sculpted a raised relief. It looks amazing!");
+        Finish(oneGo ? "The whole relief, sculpted in one go!" : "You sculpted a raised relief. It looks amazing!");
     }
 
     // ── Plan: draw a grid and sketch, then paint ─────────────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float planTime)
     {
-        Toast("You sketch a design on a grid first...", planTime);
+        Toast("You sketch a design on a grid first...", Mathf.Max(1.5f, planTime));
         ShowBar(true);
-        float gridT = 1.3f, sketchT = 2.4f, paintT = planTime - gridT - sketchT;
+        float gridT = planTime * 0.16f, sketchT = planTime * 0.3f, paintT = planTime - gridT - sketchT;
 
         SpriteRenderer g = AddLayer(grid, 12, 0f);
         SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f);
@@ -239,6 +264,51 @@ public class vc_MuralWorkQuest : vc_FitQuestBase
         t = 0f;
         while (t < 0.3f) { t += Time.deltaTime; SetAlpha(g, 1f - t / 0.3f); SetAlpha(s, 1f - t / 0.3f); yield return null; }
         Finish("Your careful design came out perfectly!");
+    }
+
+    // ── Prep: Build raises a quick scaffold along the wall ───────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Sprite px = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0f), 4f);
+        Color wood = new Color32(150, 104, 62, 255);
+        Vector3 c = WallCenter;
+        float h = 2.3f;
+        Transform[] poles = new Transform[2];
+        for (int i = 0; i < 2; i++)
+        {
+            GameObject go = new GameObject("ScaffoldPole");
+            go.transform.SetParent(transform, true);
+            go.transform.position = Snap(c + new Vector3(i == 0 ? -2.6f : 2.6f, -1.2f, 0f));
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = px; sr.color = wood; sr.sortingLayerName = sortingLayer; sr.sortingOrder = 18;
+            go.transform.localScale = new Vector3(0.12f, 0.01f, 1f);
+            _scaffold.Add(go);
+            poles[i] = go.transform;
+        }
+        SunodGame.Core.vc_Sfx.Play("hammer", 0.5f, 0.1f);
+        float t = 0f, rise = 0.6f;
+        while (t < rise)
+        {
+            t += Time.deltaTime;
+            float f = Mathf.SmoothStep(0f, 1f, t / rise);
+            for (int i = 0; i < 2; i++) if (poles[i] != null) poles[i].localScale = new Vector3(0.12f, Mathf.Max(0.01f, h * f), 1f);
+            yield return null;
+        }
+        // the plank across the top
+        GameObject plank = new GameObject("ScaffoldPlank");
+        plank.transform.SetParent(transform, true);
+        plank.transform.position = Snap(c + new Vector3(0f, -1.2f + h - 0.1f, 0f));
+        var psr = plank.AddComponent<SpriteRenderer>();
+        psr.sprite = px; psr.color = wood; psr.sortingLayerName = sortingLayer; psr.sortingOrder = 18;
+        plank.transform.localScale = new Vector3(5.4f, 0.14f, 1f);
+        _scaffold.Add(plank);
+        SunodGame.Core.vc_Sfx.Play("clack", 0.5f, 0.1f);
+        Fx(dustFrames, c + new Vector3(0f, h - 1.2f, 0f), 10f, 0.15f, 23);
+        Fx(sparkFrames, c + new Vector3(-2.6f, 0.2f, 0f), 12f, 0.2f, 23);
+        Fx(sparkFrames, c + new Vector3(2.6f, 0.2f, 0f), 12f, 0.2f, 23);
+        yield return new WaitForSeconds(0.3f);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

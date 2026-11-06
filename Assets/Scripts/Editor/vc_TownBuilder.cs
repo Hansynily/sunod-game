@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -54,6 +54,38 @@ public static partial class vc_TownBuilder
         public void Path(string mat, int x, int y, int w, int h) => paths.Add((mat, new RectInt(x, y, w, h)));
         public void Water(int x, int y, int w, int h) => water.Add(new RectInt(x, y, w, h));
         public void Obj(string s, float x, float y, bool collide = true) => objs.Add((s, x, y, collide));
+
+        // ── planned layouts (2026-11-07): curved streets, round plazas, ponds, a coast ──
+        public readonly List<(string mat, Vector2[] pts, float width, bool bridge)> roads = new List<(string, Vector2[], float, bool)>();
+        public readonly List<(string mat, Vector2 c, Vector2 r, float wobble)> blobs = new List<(string, Vector2, Vector2, float)>();
+        public readonly List<(string name, Vector2 p)> spots = new List<(string, Vector2)>();
+        public float seaY = float.NaN, seaAmp = 1f, sandWidth = 4f;   // a coast along the bottom edge
+
+        /// <summary>A street through these points (x, y pairs), smoothed into curves, 'width' tiles wide.</summary>
+        public void Road(string mat, float width, params float[] xy) => roads.Add((mat, Pts(xy), width, false));
+        /// <summary>A paved crossing over water: a road that also removes the water under it.</summary>
+        public void Bridge(string mat, float width, params float[] xy) => roads.Add((mat, Pts(xy), width, true));
+        /// <summary>A rounded patch (plaza, yard, pond, meadow) with a slightly wavy edge.</summary>
+        public void Blob(string mat, float cx, float cy, float rx, float ry, float wobble = 0.08f) => blobs.Add((mat, new Vector2(cx, cy), new Vector2(rx, ry), wobble));
+        /// <summary>The sea along the bottom: shoreline around y, sand beach 'sand' tiles deep.</summary>
+        public void Sea(float y, float amp, float sand) { seaY = y; seaAmp = amp; sandWidth = sand; }
+        /// <summary>A named spot for the town's life: "play" (happenings), "hang" (roamers), "stage", "board".</summary>
+        public void Spot(string name, float x, float y) => spots.Add((name, new Vector2(x, y)));
+
+        /// <summary>A house with a small fenced front yard (gap at the door) and a side fence.</summary>
+        public void House(string s, float x, float y, bool fence = true)
+        {
+            Obj(s, x, y);
+            if (fence) yards.Add((s, x, y));
+        }
+        public readonly List<(string house, float x, float y)> yards = new List<(string, float, float)>();
+
+        private static Vector2[] Pts(float[] xy)
+        {
+            var p = new Vector2[xy.Length / 2];
+            for (int i = 0; i < p.Length; i++) p[i] = new Vector2(xy[i * 2], xy[i * 2 + 1]);
+            return p;
+        }
         public void Trees(int x, int y, int w, int h, int count, params string[] kinds) => trees.Add((new RectInt(x, y, w, h), count, kinds));
         public void N(string code, string name, string look, float x, float y, string prefab, string ask, string thanks)
             => npcs.Add(new Npc { code = code, name = name, look = look, x = x, y = y, prefab = prefab, ask = ask, thanks = thanks });
@@ -102,11 +134,38 @@ public static partial class vc_TownBuilder
     /// <summary>For the Unity CLI: rebuilds without the confirmation dialog.</summary>
     public static void RebuildAllNoPrompt() => Build(true);
 
+    private static Town[] AllTowns() => new[] { ElementaryPlan(), HighSchoolPlan(), CollegePlan() };
+
+    /// <summary>For the Unity CLI: rebuild one town ("elementary", "highschool", "college") + Game_Scene_Town.</summary>
+    public static string RebuildTownNoPrompt(string id)
+    {
+        LastWarnings.Clear();
+        ImportSprites();
+        Directory.CreateDirectory(SceneDir);
+        var towns = AllTowns();
+        foreach (Town t in towns) if (t.id == id) BuildTown(t);
+        BuildGameScene(towns);
+        AssetDatabase.SaveAssets();
+        return LastWarnings.Count == 0 ? $"{id}: nothing on a street" : $"{id}: {LastWarnings.Count} on a street: " + string.Join(" | ", LastWarnings);
+    }
+
+    /// <summary>Objects the last build placed on a street (Road cells), for fixing the layout.</summary>
+    public static readonly List<string> LastWarnings = new List<string>();
+
+    /// <summary>Does this footprint (bottom strip of a sprite) touch a street cell?</summary>
+    private static bool OnStreet(HashSet<Vector2Int> streets, float x0, float x1, float y0, float y1)
+    {
+        for (int cx = Mathf.FloorToInt(x0); cx <= Mathf.FloorToInt(x1 - 0.01f); cx++)
+            for (int cy = Mathf.FloorToInt(y0); cy <= Mathf.FloorToInt(y1 - 0.01f); cy++)
+                if (streets.Contains(new Vector2Int(cx, cy))) return true;
+        return false;
+    }
+
     private static void Build(bool overwrite)
     {
         ImportSprites();
         Directory.CreateDirectory(SceneDir);
-        var towns = new[] { Elementary(), HighSchool(), College() };
+        var towns = AllTowns();
         foreach (Town t in towns)
         {
             if (!overwrite && File.Exists($"{SceneDir}/{t.scene}.unity"))
@@ -210,15 +269,87 @@ public static partial class vc_TownBuilder
         foreach (var (mat, r) in t.paths) AddRect(byMat, mat, r);
         foreach (RectInt r in t.water) AddRect(byMat, "water", r);
 
+        // planned shapes: blobs (plazas, yards, ponds), the sea + beach, curved streets, bridges
+        var sea = new HashSet<Vector2Int>();
+        var shore = new List<Vector2Int>();
+        foreach (var (mat, c, rad, wobble) in t.blobs) AddBlob(byMat, mat, c, rad, wobble, t.seed);
+        if (!float.IsNaN(t.seaY)) AddSea(byMat, sea, shore, t);
+        foreach (var (mat, pts, width, bridge) in t.roads) if (!bridge) AddRoad(byMat, mat, pts, width);
+        foreach (string mat in new List<string>(byMat.Keys)) Tidy(byMat[mat], sea);
+        // the streets people walk (Road() only; plazas, yards and soil are meant to have things on them)
+        var streets = new HashSet<Vector2Int>();
+        foreach (var (mat, pts, width, bridge) in t.roads)
+        {
+            if (mat == "water") continue;
+            var tmp = new Dictionary<string, HashSet<Vector2Int>>();
+            AddRoad(tmp, mat, pts, width);
+            streets.UnionWith(tmp[mat]);
+        }
+        // Bridges and piers: over the water they're a wooden deck (water stays visible under it,
+        // but nothing blocks walking); on land the approach is ordinary road.
+        var deck = new List<(Vector2Int cell, bool alongX)>();
+        foreach (var (mat, pts, width, bridge) in t.roads)
+        {
+            if (!bridge) continue;
+            var cells = new HashSet<Vector2Int>();
+            AddRoad(new Dictionary<string, HashSet<Vector2Int>> { { mat, cells } }, mat, pts, width);
+            bool alongX = Mathf.Abs(pts[pts.Length - 1].x - pts[0].x) >= Mathf.Abs(pts[pts.Length - 1].y - pts[0].y);
+            byMat.TryGetValue("water", out var wat);
+            var overWater = new HashSet<Vector2Int>();
+            if (wat != null) foreach (Vector2Int c in cells) if (wat.Contains(c)) overWater.Add(c);
+            foreach (Vector2Int c in overWater) deck.Add((c, alongX));
+            cells.ExceptWith(overWater);
+            if (cells.Count > 0)
+            {
+                var set = SetFor(byMat, mat);
+                set.UnionWith(cells);
+                Tidy(set, null);
+            }
+            if (wat != null) { wat.ExceptWith(overWater); Tidy(wat, sea); wat.ExceptWith(overWater); }
+            sea.ExceptWith(overWater);
+        }
+        if (byMat.TryGetValue("water", out var waterAfter))
+            foreach (var (c, _) in deck) waterAfter.Remove(c);
+
         foreach (var kv in byMat)
         {
             var m = Materials[kv.Key];
             Tilemap tm = MakeTilemap(grid.transform, kv.Key, m.order, kv.Key == "water");
             foreach (Vector2Int c in kv.Value)
             {
-                Vector2Int cell = AutotileCell(kv.Value, c, m.bx, m.by, m.ix, m.iy);
+                // the open sea is all open water (no stone rim); the foam line marks the shore
+                Vector2Int cell = kv.Key == "water" && sea.Contains(c) ? new Vector2Int(m.bx + 1, m.by + 1)
+                    : AutotileCell(kv.Value, c, m.bx, m.by, m.ix, m.iy);
                 tm.SetTile(new Vector3Int(c.x, c.y, 0), Cell(cell.x, cell.y));
                 if (c.x >= 0 && c.y >= 0 && c.x < t.w && c.y < t.h) occ[c.x, c.y] = true;
+            }
+        }
+
+        // bridge / pier decks: open water drawn under them on a layer that doesn't block, planks on top
+        if (deck.Count > 0)
+        {
+            var wm = Materials["water"];
+            Tilemap under = MakeTilemap(grid.transform, "DeckWater", wm.order, false);
+            var deckRoot = new GameObject("Decks").transform;
+            deckRoot.SetParent(root.transform, false);
+            foreach (var (c, alongX) in deck)
+            {
+                under.SetTile(new Vector3Int(c.x, c.y, 0), Cell(wm.bx + 1, wm.by + 1));
+                GameObject p = PlaceSprite(deckRoot, alongX ? "plank_v" : "plank_h", c.x + 0.5f, c.y, false);
+                if (p != null) p.GetComponentInChildren<SpriteRenderer>().sortingOrder = -13;
+                if (c.x >= 0 && c.y >= 0 && c.x < t.w && c.y < t.h) occ[c.x, c.y] = true;
+            }
+        }
+
+        // shore foam along the top of the sea
+        if (shore.Count > 0)
+        {
+            var foamRoot = new GameObject("ShoreFoam").transform;
+            foamRoot.SetParent(root.transform, false);
+            foreach (Vector2Int c in shore)
+            {
+                GameObject f = PlaceSprite(foamRoot, ((c.x & 1) == 0) ? "foam0" : "foam1", c.x + 0.5f, c.y + 1f - 6f / 16f, false);
+                if (f != null) f.GetComponentInChildren<SpriteRenderer>().sortingOrder = -14;
             }
         }
 
@@ -241,16 +372,58 @@ public static partial class vc_TownBuilder
         // buildings / props
         var objRoot = new GameObject("Objects").transform;
         objRoot.SetParent(root.transform, false);
+        var placedRects = new List<(string, Rect)>();
         foreach (var (s, x, y, collide) in t.objs)
         {
             GameObject go = PlaceSprite(objRoot, s, x, y, collide);
             if (go != null) MarkSprite(occ, s, x, y);
+            float hw = SpriteSize(s).x * 0.4f;
+            // things standing on top of each other (footprints of solid props / buildings)
+            if (collide && !s.StartsWith("fence") && !s.StartsWith("tree_"))
+            {
+                var me = Rect.MinMaxRect(x - hw, y, x + hw, y + 0.7f);
+                foreach (var (os, orect) in placedRects) if (orect.Overlaps(me)) LastWarnings.Add($"{s} @({x}, {y}) overlaps {os}");
+                placedRects.Add((s, me));
+            }
+            if (collide && OnStreet(streets, x - hw, x + hw, y, y + 0.6f)) LastWarnings.Add($"{s} @({x}, {y})");
+        }
+
+        // little fenced front yards: a fence row a step in front of the house, open at the door
+        foreach (var (house, hx, hy) in t.yards)
+        {
+            float half = SpriteSize(house).x / 2f + 1.1f, fy = hy - 1.6f;
+            for (float fx = hx - half + 0.5f; fx <= hx - 1.5f; fx += 1f)
+            {
+                if (OnStreet(streets, fx - 0.5f, fx + 0.5f, fy, fy + 0.8f)) continue;   // never across a street
+                PlaceSprite(objRoot, "fence_h", fx, fy, true);
+                MarkRect(occ, fx - 0.5f, fy - 0.3f, fx + 0.5f, fy + 1.3f);
+            }
+            for (float fx = hx + half - 0.5f; fx >= hx + 1.5f; fx -= 1f)
+            {
+                if (OnStreet(streets, fx - 0.5f, fx + 0.5f, fy, fy + 0.8f)) continue;
+                PlaceSprite(objRoot, "fence_h", fx, fy, true);
+                MarkRect(occ, fx - 0.5f, fy - 0.3f, fx + 0.5f, fy + 1.3f);
+            }
+        }
+
+        // named spots for the town's life (happenings, hangouts, the event stage, the board)
+        var spotRoot = new GameObject("Spots").transform;
+        spotRoot.SetParent(root.transform, false);
+        foreach (var (name, p) in t.spots)
+        {
+            var s = new GameObject(name).transform;
+            s.SetParent(spotRoot, false);
+            s.position = new Vector3(p.x, p.y, 0f);
+            if (name == "stall") MarkRect(occ, p.x - 2.6f, p.y - 1.2f, p.x + 2.6f, p.y + 3.6f);
+            else MarkRect(occ, p.x - 1f, p.y - 1f, p.x + 1f, p.y + 1f);
+            if (name == "stall" && OnStreet(streets, p.x - 2.2f, p.x + 2.2f, p.y - 0.4f, p.y + 1.2f)) LastWarnings.Add($"stall spot @({p.x}, {p.y})");
         }
 
         // the rebuildable home
         if (!string.IsNullOrEmpty(t.home))
         {
             PlaceHome(objRoot, t.home, t.homePos.x, t.homePos.y);
+            if (OnStreet(streets, t.homePos.x - 2.2f, t.homePos.x + 2.2f, t.homePos.y - 0.9f, t.homePos.y + 0.6f)) LastWarnings.Add("home (or its debris)");
             MarkSprite(occ, t.home + "_home3", t.homePos.x, t.homePos.y);
         }
 
@@ -381,6 +554,130 @@ public static partial class vc_TownBuilder
         Debug.Log($"[vc_TownBuilder] {path}: {t.npcs.Count} NPCs, {t.npcs.FindAll(n => n.prefab != null).Count} with built quests.");
     }
 
+    // ── planned shapes ──────────────────────────────────────────────────────
+
+    private static HashSet<Vector2Int> SetFor(Dictionary<string, HashSet<Vector2Int>> byMat, string mat)
+    {
+        if (!byMat.TryGetValue(mat, out var set)) byMat[mat] = set = new HashSet<Vector2Int>();
+        return set;
+    }
+
+    /// <summary>
+    /// A polyline with each corner rounded off (a curve of ~1.6 tiles, less on short legs), so
+    /// straight runs stay straight and turns are smooth; painted with a round brush.
+    /// </summary>
+    private static void AddRoad(Dictionary<string, HashSet<Vector2Int>> byMat, string mat, Vector2[] pts, float width)
+    {
+        var set = SetFor(byMat, mat);
+        var p = new List<Vector2> { pts[0] };
+        for (int i = 1; i < pts.Length - 1; i++)
+        {
+            Vector2 prev = pts[i - 1], at = pts[i], next = pts[i + 1];
+            float cut0 = Mathf.Min(1.6f, Vector2.Distance(prev, at) * 0.45f), cut1 = Mathf.Min(1.6f, Vector2.Distance(at, next) * 0.45f);
+            Vector2 a = at + (prev - at).normalized * cut0, b = at + (next - at).normalized * cut1;
+            for (int s = 0; s <= 6; s++)
+            {
+                float u = s / 6f;
+                p.Add((1 - u) * (1 - u) * a + 2 * (1 - u) * u * at + u * u * b);   // quadratic curve through the corner
+            }
+        }
+        p.Add(pts[pts.Length - 1]);
+        float r = width / 2f;
+        for (int i = 0; i < p.Count - 1; i++)
+        {
+            float len = Vector2.Distance(p[i], p[i + 1]);
+            int steps = Mathf.Max(1, Mathf.CeilToInt(len / 0.25f));
+            for (int s = 0; s <= steps; s++)
+            {
+                Vector2 c = Vector2.Lerp(p[i], p[i + 1], s / (float)steps);
+                for (int x = Mathf.FloorToInt(c.x - r - 1); x <= Mathf.CeilToInt(c.x + r + 1); x++)
+                    for (int y = Mathf.FloorToInt(c.y - r - 1); y <= Mathf.CeilToInt(c.y + r + 1); y++)
+                        if (Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), c) <= r) set.Add(new Vector2Int(x, y));
+            }
+        }
+    }
+
+    private static void AddBlob(Dictionary<string, HashSet<Vector2Int>> byMat, string mat, Vector2 c, Vector2 rad, float wobble, int seed)
+    {
+        var set = SetFor(byMat, mat);
+        float s = (seed + c.x * 3.1f + c.y * 1.7f) % 6.28f;
+        for (int x = Mathf.FloorToInt(c.x - rad.x * 1.3f); x <= Mathf.CeilToInt(c.x + rad.x * 1.3f); x++)
+            for (int y = Mathf.FloorToInt(c.y - rad.y * 1.3f); y <= Mathf.CeilToInt(c.y + rad.y * 1.3f); y++)
+            {
+                float dx = (x + 0.5f - c.x) / rad.x, dy = (y + 0.5f - c.y) / rad.y;
+                float a = Mathf.Atan2(dy, dx);
+                float edge = 1f + wobble * (Mathf.Sin(3f * a + s) + 0.5f * Mathf.Sin(5f * a + 2f * s));
+                if (dx * dx + dy * dy <= edge * edge) set.Add(new Vector2Int(x, y));
+            }
+    }
+
+    /// <summary>
+    /// The sea along the bottom, far past the map so zooming out shows open water, with a wavy
+    /// shoreline and a sand beach above it. The sand also runs a few tiles under the water so
+    /// its grassy edge never shows at the waterline.
+    /// </summary>
+    private static void AddSea(Dictionary<string, HashSet<Vector2Int>> byMat, HashSet<Vector2Int> sea, List<Vector2Int> shore, Town t)
+    {
+        var water = SetFor(byMat, "water");
+        var sand = SetFor(byMat, "sand");
+        float s = t.seed * 0.37f;
+        for (int x = -Margin - 40; x < t.w + Margin + 40; x++)
+        {
+            float line = t.seaY + t.seaAmp * (Mathf.Sin(x * 0.17f + s) + 0.6f * Mathf.Sin(x * 0.067f + 2f * s));
+            int top = Mathf.RoundToInt(line);
+            int beach = Mathf.RoundToInt(t.sandWidth + 1.4f * Mathf.Sin(x * 0.11f + s * 1.3f));
+            for (int y = -Margin - 40; y <= top; y++)
+            {
+                var c = new Vector2Int(x, y);
+                water.Add(c);
+                sea.Add(c);
+            }
+            for (int y = top - 3; y <= top + beach; y++) sand.Add(new Vector2Int(x, y));
+            if (x >= -Margin && x < t.w + Margin) shore.Add(new Vector2Int(x, top));
+        }
+    }
+
+    /// <summary>
+    /// Makes a shape autotile cleanly: fills one-tile notches, then drops cells that aren't
+    /// part of any full 2x2 block (one-tile spurs and diagonal-only joins have no matching tile).
+    /// </summary>
+    private static void Tidy(HashSet<Vector2Int> set, HashSet<Vector2Int> keep)
+    {
+        for (int pass = 0; pass < 3; pass++)
+        {
+            var add = new List<Vector2Int>();
+            var bounds = new HashSet<Vector2Int>();
+            foreach (Vector2Int c in set)
+                foreach (Vector2Int d in new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right })
+                    bounds.Add(c + d);
+            foreach (Vector2Int c in bounds)
+            {
+                if (set.Contains(c)) continue;
+                int n = 0;
+                foreach (Vector2Int d in new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right })
+                    if (set.Contains(c + d)) n++;
+                if (n >= 3) add.Add(c);
+            }
+            set.UnionWith(add);
+
+            var drop = new List<Vector2Int>();
+            foreach (Vector2Int c in set)
+            {
+                if (keep != null && keep.Contains(c)) continue;
+                bool inBlock = false;
+                for (int ox = -1; ox <= 0 && !inBlock; ox++)
+                    for (int oy = -1; oy <= 0 && !inBlock; oy++)
+                    {
+                        Vector2Int o = c + new Vector2Int(ox, oy);
+                        inBlock = set.Contains(o) && set.Contains(o + Vector2Int.right) && set.Contains(o + Vector2Int.up) && set.Contains(o + Vector2Int.one);
+                    }
+                if (!inBlock) drop.Add(c);
+            }
+            set.ExceptWith(drop);
+            if (add.Count == 0 && drop.Count == 0) break;
+        }
+    }
+
     private static void AddRect(Dictionary<string, HashSet<Vector2Int>> byMat, string mat, RectInt r)
     {
         if (!byMat.TryGetValue(mat, out var set)) byMat[mat] = set = new HashSet<Vector2Int>();
@@ -501,16 +798,20 @@ public static partial class vc_TownBuilder
     {
         // A thick ring of trees: the inner row marks the playable edge, the outer rows
         // fill the margin so the camera only ever sees forest past the town.
+        // a coast replaces the bottom ring (the sea is the edge there), and the side rings stop
+        // at the beach
+        bool coast = !float.IsNaN(t.seaY);
+        float sideFrom = coast ? t.seaY + t.sandWidth + 1.5f : 0f;
         for (int ring = 0; ring < 4; ring++)
         {
             float step = 2.6f;
             float inset = -0.4f - ring * 2.4f;
             for (float x = inset; x <= t.w - inset; x += step)
             {
-                PlaceSprite(parent, Pick(t, rng), x + Jit(rng), inset - 0.2f + Jit(rng), ring == 0);
+                if (!coast) PlaceSprite(parent, Pick(t, rng), x + Jit(rng), inset - 0.2f + Jit(rng), ring == 0);
                 PlaceSprite(parent, Pick(t, rng), x + Jit(rng), t.h - inset - 2.4f + Jit(rng), ring == 0);
             }
-            for (float y = inset + step; y <= t.h - inset - step; y += step)
+            for (float y = Mathf.Max(inset + step, sideFrom); y <= t.h - inset - step; y += step)
             {
                 PlaceSprite(parent, Pick(t, rng), inset + Jit(rng), y + Jit(rng), ring == 0);
                 PlaceSprite(parent, Pick(t, rng), t.w - inset + Jit(rng), y + Jit(rng), ring == 0);
@@ -840,319 +1141,5 @@ public static partial class vc_TownBuilder
         EditorBuildSettings.scenes = list.ToArray();
     }
 
-    // â”€â”€ layouts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-    private static Town Elementary()
-    {
-        var t = new Town
-        {
-            scene = "Town_Elementary", id = "elementary", title = "Elementary", w = 48, h = 36, seed = 11,
-            spawn = new Vector2(24f, 6.5f),
-            intro = "You're in grade school now. People around the neighborhood need a hand - look for anyone with a ! above their head.",
-            complete = "You helped the whole neighborhood! The years go by, and high school is next.",
-            borderTrees = new[] { "tree_green", "tree_round", "tree_pine" },
-        };
-        // streets (dirt), plaza, schoolyard, pond
-        t.Path("dirt", 3, 15, 42, 2);
-        t.Path("dirt", 23, 3, 2, 23);
-        t.Path("dirt", 8, 25, 32, 2);
-        t.Path("dirt", 10, 5, 2, 10);
-        t.Path("dirt", 10, 17, 2, 8);
-        t.Path("dirt", 36, 5, 2, 10);
-        t.Path("plaza", 20, 12, 8, 8);
-        t.Path("sand", 13, 28, 22, 6);
-        t.Water(39, 4, 6, 5);
-
-        // school
-        t.Obj("hall_grand", 24f, 29f);
-        t.Obj("hall_small2", 17f, 29.2f);
-        t.Obj("sign_school", 19.5f, 28.1f);
-        t.Obj("flagpole", 28.6f, 28.4f);
-        t.Obj("swing", 30.8f, 30.6f);
-        t.Obj("slide", 33.2f, 28.5f);
-        t.Obj("cabin", 37.6f, 28f);
-        t.Obj("sign_canteen", 40.8f, 28f);
-        // homes (west)
-        t.Obj("house_red", 6f, 19f);
-        t.Obj("house_peach", 16f, 19f);
-        t.Obj("house_slate", 6f, 9.4f);
-        t.Obj("house_red_window", 16f, 9.4f);
-        t.home = "house_peach2"; t.homePos = new Vector2(16.4f, 3.2f);
-        t.requestPos = new Vector2(24f, 15f);
-        t.nightDreams = new[]
-        {
-            "You dream of your house again - the roof torn open, the street empty. It feels far away... for now.",
-            "In the dream, the shadowy figure points at the sky. \"Learn,\" it says. \"Learn everything you can.\"",
-            "Tonight the dream is quiet. Just the sound of wind, and a clock ticking somewhere.",
-        };
-        t.dreamAfter = new[]
-        {
-            "The years pass. Grade school ends, and you start to grow up.",
-            "The dreams don't stop. If anything, they're clearer now: cracked walls, flooded streets, people running.",
-            "Whatever is coming, you're not a little kid anymore. High school is next.",
-        };
-        // fair + toy store (east of plaza)
-        t.Obj("stall_orange", 30.6f, 17.6f);
-        t.Obj("stall_green", 34.2f, 17.6f);
-        t.Obj("sign_fair", 37.2f, 17.7f);
-        t.Obj("shop_reddoor", 43f, 17.6f);
-        t.Obj("sign_toys", 39.9f, 17.7f);
-        // plaza
-        t.Obj("lamp_white", 19.5f, 12.2f); t.Obj("lamp_white", 28.5f, 12.2f);
-        t.Obj("lamp_white", 19.5f, 19.6f); t.Obj("lamp_white", 28.5f, 19.6f);
-        t.Obj("bench", 26.5f, 18.1f);
-        // park + garden (south-east)
-        t.Obj("sign_park", 38.6f, 12.4f);
-        t.Obj("bench", 41.5f, 10.4f);
-        t.Obj("garden_bed", 31f, 10.4f);
-        t.Obj("garden_bed", 33.6f, 10.4f);
-        t.Obj("sign_garden", 28.6f, 10.4f);
-        t.Obj("lamp_blue", 12.8f, 24.2f); t.Obj("lamp_blue", 34.8f, 24.2f);
-
-        t.Trees(26, 3, 9, 6, 4, "tree_round", "tree_green");
-        t.Trees(2, 26, 6, 9, 5, "tree_green", "tree_pine");
-        t.Trees(40, 27, 7, 8, 4, "tree_round", "tree_pink");
-        t.Trees(28, 20, 18, 4, 4, "tree_round");
-        t.Trees(2, 11, 7, 4, 2, "tree_green");
-
-        const string R = "Room_";
-        t.N("R6", "Aling Rosa", "amelia_0", 6f, 18.3f, R + "House_BrokenPumpQuestNew",
-            "My yard pump's leaking again! My late husband always fixed it by hand... please don't replace anything.", "No more drip-drip-drip. Thank you!");
-        t.N("R2", "Mang Ben", "bob_1", 16f, 18.3f, R + "River_RiverCrossing",
-            "The river is too deep and my old bridge is broken. Can you help me get across?", "Now I can get to the other side again!");
-        t.N("R8", "Lolo Ador", "bob_3", 6f, 8.7f, R + "House_CreakyFloorboards",
-            "My floor creaks every time I take a step. Can you fix the loose boards?", "So quiet now. Salamat, apo!");
-        t.N("S4", "Tita Lorna", "amelia_2", 16f, 8.7f, R + "Forest_MorningExercise",
-            "Can you show me some morning stretches? I always forget how!", "I feel so awake now!");
-        t.N("I2", "Kuya Migs", "adam_1", 30f, 6.6f, R + "Forest_WatchTheRabbits",
-            "There are rabbits in the meadow! Want to watch what they do?", "You noticed so much about them!");
-        t.N("I3", "Teacher Joy", "amelia_1", 33.6f, 9.6f, R + "Forest_SeedlingStudy",
-            "Our class is growing seedlings. Can you help me check how they're doing?", "Great notes, little scientist!");
-        t.N("I6", "Nico", "adam_2", 38.4f, 6.4f, R + "River_FishCount",
-            "How many fish live in this pond? Let's count them!", "Wow, that's a lot of fish!");
-        t.N("A6", "Paolo", "alex_1", 21.9f, 16.6f, R + "School_ParadeDrum",
-            "The parade needs a drummer! Can you play the drum with us?", "You kept the beat perfectly!");
-        t.N("E2", "Jun", "alex_2", 30.6f, 16.9f, R + "School_SnackStall",
-            "Help me sell snacks at our school fair stall?", "We sold out! Thanks, partner!");
-        t.N("E8", "Mr. Tan", "bob_2", 43f, 16.9f, R + "House_ToyStore",
-            "My toy store is so busy today! Can you help me run it?", "Best helper in town!");
-        t.N("A3", "Ms. Dela Cruz", "amelia_3", 22f, 28.2f, R + "School_FairPoster",
-            "We need a poster for the school fair. Will you make one?", "That poster is beautiful!");
-        t.N("C2", "Principal Reyes", "bob_0", 26f, 28.2f, R + "House_MissingKeyQuest",
-            "I can't find the key to the supply room. Can you help me look?", "Everything's back in order. Thank you!");
-        t.N("A4", "Bea", "alex_3", 14.3f, 30.2f, R + "School_ClassSong",
-            "Our class needs a song for the program. Will you help me write it?", "Everyone's humming our song!");
-        t.N("S6", "Ate Mia", "amelia_0", 32f, 29.4f, R + "School_LostFriendQuest",
-            "Can you help me look after the younger kids at the playground?", "They had so much fun with you!");
-        t.N("S7", "Toto", "adam_3", 9.6f, 27.8f, R + "School_StoryTime",
-            "Can you help me read this storybook? Some words are hard.", "I read the whole book!");
-        t.N("C6", "Manang Fe", "amelia_2", 37.6f, 27.3f, R + "School_CanteenChange",
-            "The canteen is so busy! Can you help me count the change?", "Not a single peso missing!");
-        return t;
-    }
-
-    private static Town HighSchool()
-    {
-        var t = new Town
-        {
-            scene = "Town_HighSchool", id = "highschool", title = "High School", w = 50, h = 38, seed = 22,
-            spawn = new Vector2(24.9f, 12f),
-            intro = "You're in high school now, and the town is busier than ever. Look for people with a ! - they could use your help.",
-            complete = "The whole town knows your name now. The dreams are getting sharper... college is next.",
-            borderTrees = new[] { "tree_green", "tree_pine", "tree_round", "tree_pink" },
-        };
-        t.Water(2, 2, 46, 4);
-        t.Path("sand", 4, 6, 42, 2);
-        t.Path("cobble", 3, 17, 44, 2);
-        t.Path("cobble", 24, 8, 2, 27);
-        t.Path("cobble", 6, 27, 38, 2);
-        t.Path("cobble", 10, 8, 2, 9);
-        t.Path("cobble", 38, 8, 2, 9);
-        t.Path("plaza", 19, 14, 12, 8);
-
-        t.Obj("hall_grand", 12f, 29.4f);
-        t.Obj("sign_hs", 7.6f, 29.4f);
-        t.Obj("flagpole", 15.8f, 29.5f);
-        t.Obj("hall_deck", 38f, 29.4f);
-        t.Obj("sign_hall", 33.4f, 29.4f);
-        t.Obj("sign_choir", 42.4f, 29.4f);
-        t.Obj("house_red2", 14f, 19.6f);
-        t.Obj("sign_radio", 10.4f, 19.7f);
-        t.Obj("house_slate2", 35f, 19.6f);
-        t.Obj("sign_barber", 31.8f, 23.5f);
-        t.Obj("house_peach3", 43f, 19.6f);
-        t.Obj("sign_thrift", 43f, 23.5f);
-        t.Obj("tent_red", 15.5f, 10f);
-        t.Obj("tent_green", 20.5f, 9.6f);
-        t.Obj("stall_blue", 6.4f, 11.4f);
-        t.Obj("sign_market", 6.4f, 15.4f);
-        t.Obj("house_red_tall", 44f, 10.4f);
-        t.home = "house_slate"; t.homePos = new Vector2(31f, 10.4f);
-        t.requestPos = new Vector2(25f, 17f);
-        t.nightDreams = new[]
-        {
-            "You dream of the town square, but the buildings are leaning, and the river is far too high.",
-            "The shadowy figure is closer tonight. \"You're getting stronger,\" it says. \"Keep going.\"",
-            "In the dream you see your friends, helping each other carry things to higher ground.",
-        };
-        t.dreamAfter = new[]
-        {
-            "High school is over. The town you grew up in feels smaller now.",
-            "Every night the dream is the same, and every night it's a little closer.",
-            "You leave for college. You can feel it: the day is almost here.",
-        };
-        t.Obj("dock", 25f, 5f, false);
-        t.Obj("sign_river", 29f, 8.2f);
-        t.Obj("lamp_red", 18.5f, 14f); t.Obj("lamp_red", 31.5f, 14f);
-        t.Obj("lamp_red", 18.5f, 21.6f); t.Obj("lamp_red", 31.5f, 21.6f);
-        t.Obj("bench_long", 22f, 20.6f); t.Obj("bench_long", 28f, 20.6f);
-        t.Obj("plant_pot", 23f, 14.4f); t.Obj("plant_pot2", 27f, 14.4f);
-        t.Obj("crates", 17.8f, 7.9f);
-
-        t.Trees(2, 30, 4, 6, 3, "tree_green", "tree_pine");
-        t.Trees(44, 24, 5, 12, 4, "tree_round", "tree_pink");
-        t.Trees(26, 30, 6, 6, 3, "tree_pink", "tree_round");
-        t.Trees(2, 19, 6, 6, 2, "tree_green");
-
-        const string R = "Room_";
-        t.N("R4", "Kuya Dan", "adam_0", 14f, 19f, R + "School_RadioRepair",
-            "The radio club's old radio stopped working. Can you put it back together?", "We're back on the air!");
-        t.N("A8", "Ate Carla", "amelia_1", 36.2f, 28.8f, R + "House_MuralQuestNew",
-            "We need a set painted for the town play. Want to design it?", "The stage looks amazing!");
-        t.N("A1", "Mr. Santos", "bob_0", 40.6f, 28.8f, R + "School_ChoirPractice",
-            "The school choir needs someone to lead them today. Can you do it?", "What a performance!");
-        t.N("S2", "Liza", "alex_2", 33f, 7.6f, R + "Forest_FallenSparrowQuest",
-            "We're volunteering to clean up by the river. Want to join?", "The riverbank looks so much better!");
-        t.N("I8", "Prof. Lim", "bob_1", 27.8f, 7.6f, R + "River_RiverbedMap",
-            "Help me map the bottom of the river for our field trip?", "This map is perfect for the class!");
-        t.N("C8", "Mang Tonyo", "bob_3", 20.4f, 7.6f, R + "River_DocksideLedger",
-            "Boats keep coming in. Can you keep track of what we ship and receive?", "Every box accounted for!");
-        t.N("R1", "Coach Ramon", "adam_3", 10.2f, 28.8f, R + "School_RoboticsParts",
-            "Our robotics team needs every part checked before the contest. Can you test them?", "Not a single bad part!");
-        t.N("I1", "Ms. Garcia", "amelia_3", 13.8f, 28.8f, R + "School_SkeletonModel",
-            "Can you help me put the skeleton model together for biology class?", "You know your bones!");
-        t.N("C4", "Mrs. Ong", "amelia_0", 17.4f, 28.8f, R + "School_StudentRecords",
-            "The student records are all mixed up. Can you sort them?", "Everything's filed. Thank you!");
-        t.N("R7", "Joy", "alex_0", 15.5f, 9.3f, R + "School_FundraiserKits",
-            "We're putting together kits for the fundraiser. Can you help assemble them?", "We'll raise so much with these!");
-        t.N("E1", "Marco", "adam_2", 20.5f, 8.9f, R + "School_StallPitch",
-            "I want to pitch my food stall idea to the fair committee. Help me sell it?", "They said yes!");
-        t.N("C5", "Aling Nena", "amelia_2", 6.4f, 10.7f, R + "River_HarvestTally",
-            "Can you help me tally today's harvest and write down the numbers?", "Neat and exact. Salamat!");
-        t.N("A2", "Direk Paulo", "alex_1", 25f, 20.6f, R + "School_OpeningNight",
-            "Opening night is tonight! Can you help me direct the class play?", "Standing ovation!");
-        t.N("S8", "Lola Ising", "amelia_1", 44f, 9.7f, R + "House_WalkLolaHome",
-            "Could you walk me home and help me with my chores today?", "You're such a kind young one.");
-        t.N("E4", "Mang Ramil", "bob_2", 35f, 18.9f, R + "House_Barbershop",
-            "My barbershop has a long line today. Can you help me run it?", "Every customer left smiling!");
-        t.N("E6", "Ate Joan", "alex_3", 43f, 18.9f, R + "House_ThriftShop",
-            "Can you run a shift at the thrift shop while I'm out?", "Best sales day this month!");
-        return t;
-    }
-
-    private static Town College()
-    {
-        var t = new Town
-        {
-            scene = "Town_College", id = "college", title = "College", w = 52, h = 40, seed = 33,
-            spawn = new Vector2(26f, 12f),
-            intro = "College, and the city is full of people who need you. The disaster is close now. Help everyone you can.",
-            complete = "You're ready. Whatever comes next, everything you've learned will decide your future.",
-            borderTrees = new[] { "tree_pine", "tree_round", "tree_green", "tree_palm" },
-            decor = new[] { "flower_white", "flower_blue", "tiny_flower1", "tiny_flower3", "clover", "clover", "bush", "bloom_blue", "mush_brown" },
-            decorDensity = 0.06f,
-        };
-        t.Water(30, 2, 20, 5);
-        t.Path("sand", 28, 7, 22, 2);
-        t.Path("plaza", 3, 19, 46, 3);
-        t.Path("plaza", 25, 9, 3, 26);
-        t.Path("plaza", 6, 29, 40, 2);
-        t.Path("cobble", 18, 31, 18, 6);
-        t.Path("plaza", 9, 8, 16, 2);
-
-        t.Obj("hall_grand", 22f, 32.6f);
-        t.Obj("sign_campus", 18.6f, 31.6f);
-        t.Obj("hall_deck", 31.4f, 32.6f);
-        t.Obj("sign_lab", 35.4f, 31.6f);
-        t.Obj("hall_small", 12f, 32.4f);
-        t.Obj("sign_paper", 8.4f, 31.8f);
-        t.Obj("house_slate_tall", 10f, 22.6f);
-        t.Obj("sign_hotel", 6.6f, 22.6f);
-        t.Obj("house_red_tall", 17.4f, 22.6f);
-        t.Obj("sign_bank", 21.4f, 22.6f);
-        t.Obj("house_slate3", 32f, 22.6f);
-        t.Obj("sign_office", 28.8f, 26.4f);
-        t.Obj("house_peach", 40f, 22.6f);
-        t.Obj("sign_cafe", 44.4f, 22.6f);
-        t.Obj("hall_small2", 10f, 12.6f);
-        t.Obj("sign_clinic", 6.2f, 12.6f);
-        t.Obj("house_peach_tall", 18f, 12.6f);
-        t.Obj("sign_realty", 18f, 17.4f);
-        t.Obj("cabin", 5.8f, 4.4f);
-        t.home = "house_red"; t.homePos = new Vector2(15.4f, 3.6f);
-        t.requestPos = new Vector2(26f, 15f);
-        t.nightDreams = new[]
-        {
-            "You dream of the city at night. The lights flicker, then go out, one street at a time.",
-            "\"It's almost time,\" the shadowy figure whispers. \"Everything you've learned will matter.\"",
-            "You dream of the port. The water is still. Too still.",
-        };
-        t.dreamAfter = new[]
-        {
-            "And then, just before you become an adult... it happens. The disaster strikes.",
-            "But this time, you're ready. Every person you helped, every skill you learned, is part of who you are now.",
-            "Let's see what path all of that has opened for you.",
-        };
-        t.Obj("cabin", 34f, 10f);
-        t.Obj("sign_workshop", 30.6f, 10f);
-        t.Obj("tent_blue", 44f, 11f);
-        t.Obj("sign_studio", 44f, 15.6f);
-        t.Obj("dock", 38f, 5.6f, false);
-        t.Obj("sign_port", 42.6f, 9.6f);
-        t.Obj("crates", 46.5f, 8.2f);
-        foreach (float x in new[] { 4f, 13.5f, 22.5f, 30f, 37f, 46.5f }) t.Obj("lamp_white", x, 18.2f);
-        foreach (float x in new[] { 13.6f, 23.6f, 36f }) t.Obj("lamp_white", x, 22.4f);   // kept clear of the shop signs
-        t.Obj("plant_pot", 24f, 31.2f); t.Obj("plant_pot2", 29f, 31.2f);
-        t.Obj("bench_long", 16f, 28.2f); t.Obj("bench_long", 36f, 28.2f);
-
-        t.Trees(2, 27, 4, 9, 3, "tree_pine", "tree_round");
-        t.Trees(38, 31, 10, 6, 4, "tree_round", "tree_pine");
-        t.Trees(22, 3, 6, 4, 2, "tree_palm");
-        t.Trees(44, 25, 6, 3, 2, "tree_round");
-
-        const string R = "Room_";
-        t.N("I5", "Dr. Cruz", "bob_1", 24.4f, 32f, R + "Forest_GlowingMushrooms",
-            "Our research team found strange glowing mushrooms. Can you help us study them?", "This could be a big discovery!");
-        t.N("S1", "Ms. Rivera", "amelia_3", 17f, 31.6f, R + "School_CareerFair",
-            "Students keep asking me about careers. Can you help out at the career booth?", "You really helped them find a direction.");
-        t.N("I7", "Ana", "alex_2", 29.4f, 32f, R + "School_BioLab",
-            "I need help with the samples in the biology lab. Can you give me a hand?", "Perfect results. Great lab work!");
-        t.N("A5", "Kevin", "adam_0", 12f, 31.7f, R + "School_CampusPaper",
-            "The campus paper needs a story by tonight. Can you help me write it?", "Front page material!");
-        t.N("E3", "Mr. Lee", "bob_0", 10f, 21.9f, R + "House_HotelLobby",
-            "Guests are arriving all at once. Can you help me manage the hotel?", "Every guest checked in happy.");
-        t.N("C7", "Ms. Uy", "amelia_0", 17.4f, 21.9f, R + "House_BankTeller",
-            "The bank line is long. Can you handle a teller window for me?", "Every peso balanced. Thank you!");
-        t.N("E5", "Ms. Ria", "amelia_1", 31f, 21.9f, R + "School_InternTeam",
-            "My team at the internship needs a leader today. Can you run it?", "The team did great under you.");
-        t.N("C1", "Mr. Go", "bob_3", 34f, 21.9f, R + "School_PaydayOffice",
-            "It's payday. Can you help me prepare everyone's pay envelopes?", "Everyone got paid on time!");
-        t.N("C3", "Jay", "adam_1", 40f, 21.9f, R + "School_NetCafe",
-            "Can you help me make the customer bills at the net cafe?", "No billing mistakes today!");
-        t.N("I4", "Dr. Santos", "bob_2", 10f, 11.9f, R + "House_CatMedicineQuest",
-            "A sick cat was brought in. Can you help find the right treatment?", "She's going to be okay. Thank you.");
-        t.N("E7", "Agent Mel", "alex_0", 18f, 11.9f, R + "House_OpenHouse",
-            "I'm holding an open house today. Can you help me sell it?", "Sold! You're a natural.");
-        t.N("S3", "Kuya Joel", "adam_3", 8.4f, 4f, R + "School_SupportCorner",
-            "A friend is going through a hard time. Can you help them find support?", "Thank you for being there for them.");
-        t.N("S5", "Aling Cora", "amelia_2", 16f, 2.9f, R + "House_FamilyTalk",
-            "My family is having a hard day. Could you help us work things out?", "We feel so much better. Salamat.");
-        t.N("R5", "Mang Erning", "bob_1", 34f, 9.3f, R + "House_WorkshopGrinder",
-            "The water pump's motor bracket is too rough to fit. Can you grind it down on the workshop machine?", "A perfect fit!");
-        t.N("A7", "Direk Bong", "alex_1", 44f, 10.3f, R + "Forest_StuntSet",
-            "Our student film needs a stunt double. Up for it?", "That stunt was incredible!");
-        t.N("R3", "Engr. Paz", "adam_2", 35.6f, 7.4f, R + "River_PortGenerator",
-            "The port generator broke down. Can you help me get it running?", "Power's back on. Great work!");
-        return t;
-    }
+    // layouts: vc_TownBuilder.Plans.cs
 }

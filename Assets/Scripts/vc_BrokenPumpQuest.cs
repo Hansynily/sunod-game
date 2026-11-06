@@ -61,6 +61,7 @@ public class vc_BrokenPumpQuest : vc_FitQuestKit
     private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
     {
         npcName = "Aling Rosa",
+        presses = 6,
         bestFitTag = "repair",
         bestFitSeconds = 1f,
         prepTag = "inspect",

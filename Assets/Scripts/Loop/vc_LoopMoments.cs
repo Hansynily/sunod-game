@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using SunodGame.Core;
+using SunodGame.UI;
 
 /// <summary>
-/// The loop's big moments, shown full-screen over whatever scene is running, in the game's
-/// own style (pixel font from the panel theme, wood / cream / violet):
+/// The loop's big moments, shown full-screen over whatever scene is running, in the UI V2
+/// look (sn-* theme classes, Pixelify Sans, vc_UIAnim motion):
 ///  - Remember: inside the going-back cutscene, the skills you used this life float up as
 ///    cards and you hold on to a few (no menus),
 ///  - Wake up: the first morning of a new loop - "Loop 2", the skills you remembered pop in
@@ -45,12 +46,12 @@ public class vc_LoopMoments : MonoBehaviour
 
     public bool IsShowing => _stage != null && _stage.style.display == DisplayStyle.Flex;
 
-    private static readonly Color Ink = new Color32(60, 54, 66, 255);
-    private static readonly Color Cream = new Color32(247, 236, 214, 255);
-    private static readonly Color Gold = new Color32(255, 214, 90, 255);
-    private static readonly Color Violet = new Color32(176, 140, 255, 255);
-    private static readonly Color DeepViolet = new Color32(60, 40, 110, 255);
-    private static readonly Color Wood = new Color32(170, 121, 89, 255);
+    // night sky behind the big moments (Remember / Wake up)
+    private static readonly Color NightSky = new Color(0.12f, 0.10f, 0.22f, 0.96f);
+    private static readonly Color StarDot = new Color32(232, 226, 255, 255);
+    private static readonly Color HeldFill = new Color32(238, 230, 255, 255);
+    private static readonly Color HeldEdge = new Color32(96, 66, 170, 255);
+    private static readonly Color ErrorOnDark = new Color32(255, 170, 150, 255);
 
     private VisualElement _root, _stage, _pocket;
     private readonly List<VisualElement> _twinkles = new List<VisualElement>();
@@ -70,10 +71,11 @@ public class vc_LoopMoments : MonoBehaviour
         _root.Add(_stage);
 
         _pocket = new VisualElement { name = "loop-pocket", pickingMode = PickingMode.Position };
+        _pocket.AddToClassList("sn-chip");
         _pocket.style.position = Position.Absolute;
-        _pocket.style.flexDirection = FlexDirection.Row;
-        _pocket.style.alignItems = Align.Center;
-        _pocket.style.display = DisplayStyle.None;        _root.Add(_pocket);
+        _pocket.style.paddingLeft = 10; _pocket.style.paddingRight = 10;
+        _pocket.style.display = DisplayStyle.None;
+        _root.Add(_pocket);
 
         vc_LoopMeta.Changed += RefreshPocket;
     }
@@ -99,17 +101,17 @@ public class vc_LoopMoments : MonoBehaviour
                              Action<List<string>, Action<string>> confirm, Action done)
     {
         StopAllCoroutines();
-        BeginStage(new Color(0.055f, 0.047f, 0.133f, 0.97f), stars: true);
+        BeginStage(NightSky, stars: true);
 
         var held = new List<string>();
         foreach (string s in preselected ?? new List<string>())
             if (held.Count < slots && candidates.Exists(c => c.skillName == s)) held.Add(s);
 
-        var title = Text("What will you remember?", 44, Gold);
-        title.style.marginBottom = 6;
+        var title = Text("What will you remember?", "title", vc_UITheme.Gold);
+        title.style.marginBottom = 4;
         _stage.Add(title);
-        var sub = Text("", 24, Cream);
-        sub.style.marginBottom = 26;
+        var sub = Text("", "body", vc_UITheme.CreamHi);
+        sub.style.marginBottom = 24;
         _stage.Add(sub);
 
         var row = new VisualElement();
@@ -120,44 +122,53 @@ public class vc_LoopMoments : MonoBehaviour
         _stage.Add(row);
 
         var cards = new List<(vc_SkillData skill, VisualElement card)>();
+        void Apply(vc_SkillData skill, VisualElement card) =>
+            SetHeld(card, held.Contains(skill.skillName), held.Count >= slots);
         void Refresh()
         {
             sub.text = candidates.Count == 0
                 ? "Nothing new to remember."
                 : $"{held.Count} / {slots}";
-            foreach (var (skill, card) in cards)
-                SetHeld(card, held.Contains(skill.skillName), held.Count >= slots);
+            foreach (var (skill, card) in cards) Apply(skill, card);
         }
 
         for (int i = 0; i < candidates.Count; i++)
         {
             vc_SkillData skill = candidates[i];
+            // the slot bobs, the card inside pops / shakes / punches (one transform each)
+            var slot = new VisualElement { pickingMode = PickingMode.Ignore };
+            slot.style.marginLeft = 12; slot.style.marginRight = 12; slot.style.marginBottom = 18;
             VisualElement card = SkillCard(skill, 150);
-            card.style.marginLeft = 12; card.style.marginRight = 12; card.style.marginBottom = 18;
             card.pickingMode = PickingMode.Position;
             card.RegisterCallback<ClickEvent>(_ =>
             {
                 if (held.Remove(skill.skillName)) { vc_Sfx.Play("click", 0.5f, 0.05f); Refresh(); return; }
-                if (held.Count >= slots) { vc_Sfx.Play("click", 0.3f); Shake(card); return; }
+                if (held.Count >= slots) { vc_Sfx.Play("click", 0.3f); vc_UIAnim.Shake(card); return; }
                 held.Add(skill.skillName);
                 vc_Sfx.Play("page_next", 0.7f, 0.05f);
-                Burst(card, Violet, 10);
+                Burst(card, vc_UITheme.Violet, 10);
+                vc_UIAnim.Punch(card, 0.1f, 0.3f);
                 Refresh();
             });
-            row.Add(card);
+            slot.Add(card);
+            row.Add(slot);
             cards.Add((skill, card));
-            StartCoroutine(Float(card, i * 0.6f));
-            StartCoroutine(PopIn(card, 0.15f + i * 0.08f));
+            StartCoroutine(Float(slot, i * 0.6f));
+        }
+        Refresh();
+        for (int i = 0; i < cards.Count; i++)
+        {
+            var (skill, card) = cards[i];
+            vc_UIAnim.Show(card, vc_UIAnim.Enter.Pop, 0.15f + i * 0.06f, () => Apply(skill, card));
         }
 
-        var error = Text("", 22, new Color32(255, 150, 130, 255));
+        var error = Text("", "caption", ErrorOnDark);
         error.style.marginTop = 6;
         _stage.Add(error);
 
-        Button go = WoodButton(candidates.Count == 0 ? "Go back" : "Remember these");
-        go.style.marginTop = 10;
+        Button go = null;
         bool busy = false;
-        go.clicked += () =>
+        go = MakeButton(candidates.Count == 0 ? "Go back" : "Remember", () =>
         {
             if (busy) return;
             busy = true;
@@ -171,14 +182,15 @@ public class vc_LoopMoments : MonoBehaviour
                     busy = false;
                     go.SetEnabled(true);
                     error.text = err;
+                    vc_UIAnim.Shake(error);
                     return;
                 }
                 StartCoroutine(RememberOutro(cards, held, done));
             });
-        };
+        }, "primary");
+        go.style.marginTop = 10;
         _stage.Add(go);
-        Refresh();
-        StartCoroutine(FadeStage(0f, 1f, 0.4f));
+        vc_UIAnim.Show(go, vc_UIAnim.Enter.SlideUp, 0.3f + cards.Count * 0.06f);
     }
 
     private IEnumerator RememberOutro(List<(vc_SkillData skill, VisualElement card)> cards, List<string> held, Action done)
@@ -200,16 +212,29 @@ public class vc_LoopMoments : MonoBehaviour
             }
             yield return null;
         }
-        yield return FadeStage(1f, 0f, 0.3f);
+        yield return HideStage();
         EndStage();
         done?.Invoke();
     }
 
     private static void SetHeld(VisualElement card, bool held, bool full)
     {
-        Color edge = held ? Violet : new Color32(150, 130, 120, 255);
-        Border(card, held ? 5 : 3, edge, held ? DeepViolet : new Color32(100, 85, 82, 255));
-        card.style.backgroundColor = held ? (Color)new Color32(234, 224, 255, 255) : Cream;
+        if (held)
+        {
+            vc_UITheme.Border(card, 4f, vc_UITheme.Violet);
+            card.style.borderBottomColor = HeldEdge;
+            card.style.borderBottomWidth = 7f;
+            card.style.backgroundColor = HeldFill;
+        }
+        else
+        {
+            // back to the plain sn-card look
+            card.style.borderTopWidth = StyleKeyword.Null; card.style.borderBottomWidth = StyleKeyword.Null;
+            card.style.borderLeftWidth = StyleKeyword.Null; card.style.borderRightWidth = StyleKeyword.Null;
+            card.style.borderTopColor = StyleKeyword.Null; card.style.borderBottomColor = StyleKeyword.Null;
+            card.style.borderLeftColor = StyleKeyword.Null; card.style.borderRightColor = StyleKeyword.Null;
+            card.style.backgroundColor = StyleKeyword.Null;
+        }
         card.style.opacity = held || !full ? 1f : 0.55f;
         var mark = card.Q<Label>("held-mark");
         if (mark != null) mark.style.display = held ? DisplayStyle.Flex : DisplayStyle.None;
@@ -220,24 +245,25 @@ public class vc_LoopMoments : MonoBehaviour
     public void ShowWakeUp(int loop, string threat, List<vc_SkillData> remembered, List<vc_LoopMeta.Keepsake> keepsakes, Action done)
     {
         StopAllCoroutines();
-        BeginStage(new Color(0.055f, 0.047f, 0.133f, 0.94f), stars: true);
+        BeginStage(NightSky, stars: true);
         StartCoroutine(WakeUpRoutine(loop, threat, remembered, keepsakes, done));
     }
 
     private IEnumerator WakeUpRoutine(int loop, string threat, List<vc_SkillData> remembered, List<vc_LoopMeta.Keepsake> keepsakes, Action done)
     {
-        yield return FadeStage(0f, 1f, 0.5f);
+        yield return new WaitForSecondsRealtime(0.3f);
 
-        var big = Text($"LOOP {loop}", 72, Gold);
+        var big = Text($"Loop {loop}", "display", vc_UITheme.Gold);
+        big.style.fontSize = 72;
         _stage.Add(big);
         vc_Sfx.Play("step_done", 0.8f);
         yield return PopIn(big, 0f);
 
-        var line = Text("You remember.", 26, Cream);
+        var line = Text("You remember.", "body", vc_UITheme.CreamHi);
         line.style.marginTop = 4;
         line.style.marginBottom = 22;
         _stage.Add(line);
-        yield return FadeIn(line, 0.4f);
+        yield return FadeIn(line);
 
         var cards = new List<VisualElement>();
         if (remembered.Count > 0)
@@ -252,15 +278,15 @@ public class vc_LoopMoments : MonoBehaviour
                 row.Add(card);
                 cards.Add(card);
                 vc_Sfx.Play("page_next", 0.7f, 0.06f);
-                Burst(card, Violet, 12);
+                Burst(card, vc_UITheme.Violet, 12);
                 yield return PopIn(card, 0f);
-                yield return new WaitForSecondsRealtime(0.12f);
+                yield return new WaitForSecondsRealtime(0.08f);
             }
         }
 
         if (keepsakes.Count > 0)
         {
-            var label = Text("Keepsakes", 22, Cream);
+            var label = Text("Keepsakes", "caption", vc_UITheme.CreamHi);
             label.style.marginTop = 20;
             _stage.Add(label);
             var row = Row();
@@ -278,17 +304,18 @@ public class vc_LoopMoments : MonoBehaviour
         string warn = ThreatWarning(threat);
         if (!string.IsNullOrEmpty(warn))
         {
-            var w = Text(warn, 22, new Color32(255, 190, 150, 255));
+            var w = Text(warn, "body", ErrorOnDark);
             w.style.marginTop = 22;
             _stage.Add(w);
-            yield return FadeIn(w, 0.5f);
+            yield return FadeIn(w);
+            vc_UIAnim.Punch(w, 0.08f, 0.3f);
         }
 
-        Button begin = WoodButton("Begin");
-        begin.style.marginTop = 24;
         bool go = false;
-        begin.clicked += () => { vc_Sfx.Play("click", 0.6f); go = true; };
+        Button begin = MakeButton("Begin", () => { vc_Sfx.Play("click", 0.6f); go = true; }, "primary");
+        begin.style.marginTop = 24;
         _stage.Add(begin);
+        vc_UIAnim.Show(begin, vc_UIAnim.Enter.SlideUp);
         while (!go) yield return null;
         begin.SetEnabled(false);
 
@@ -325,30 +352,47 @@ public class vc_LoopMoments : MonoBehaviour
 
     // ══ Keepsake Shop (the stall in town) ═════════════════════════════════════════════
 
-    private VisualElement _shopList;
+    private VisualElement _shopList, _shopCard;
     private Label _shopStars, _shopError;
     private PlayerController _shopPlayer;
 
     public void ShowShop()
     {
         StopAllCoroutines();
-        BeginStage(new Color(0.02f, 0.02f, 0.06f, 0.75f), stars: false);
+        BeginStage(vc_UITheme.Scrim, stars: false);
         _shopPlayer = FindFirstObjectByType<PlayerController>();
         _shopPlayer?.MoveAction.Disable();
 
         var card = new VisualElement();
-        card.style.width = 700;
+        card.AddToClassList("sn-panel");
+        card.AddToClassList("sn-sheet");
+        card.style.width = 720;
         card.style.maxWidth = Length.Percent(92);
         card.style.maxHeight = Length.Percent(92);
-        card.style.paddingTop = 16; card.style.paddingBottom = 18;
-        card.style.paddingLeft = 24; card.style.paddingRight = 24;
-        card.style.backgroundColor = Cream;
-        Border(card, 5, Wood, new Color32(100, 85, 82, 255));
+        _shopCard = card;
         _stage.Add(card);
 
-        card.Add(Text("Keepsake Shop", 34, Ink));
-        _shopStars = Text("", 24, new Color32(168, 92, 30, 255));
-        _shopStars.style.marginBottom = 8;
+        // header: title centred, round close top-right
+        var header = new VisualElement();
+        header.AddToClassList("sn-header");
+        header.style.justifyContent = Justify.SpaceBetween;
+        var spacer = new VisualElement();
+        spacer.style.width = 72; spacer.style.flexShrink = 0;
+        header.Add(spacer);
+        var title = Text("Keepsake Shop", "title");
+        title.style.flexGrow = 1;
+        header.Add(title);
+        Button close = MakeButton("×", CloseShop, "icon-sm");
+        close.style.marginTop = 0; close.style.marginBottom = 0; close.style.marginRight = 0;
+        close.style.fontSize = 40;
+        header.Add(close);
+        card.Add(header);
+
+        _shopStars = Text("", "body");
+        _shopStars.AddToClassList("sn-chip");
+        _shopStars.AddToClassList("sn-semibold");
+        _shopStars.style.alignSelf = Align.Center;
+        _shopStars.style.marginBottom = 10;
         card.Add(_shopStars);
 
         var scroll = new ScrollView(ScrollViewMode.Vertical);
@@ -358,26 +402,31 @@ public class vc_LoopMoments : MonoBehaviour
         scroll.Add(_shopList);
         card.Add(scroll);
 
-        _shopError = Text("", 20, new Color32(190, 60, 50, 255));
+        _shopError = Text("", "caption", vc_UITheme.Red);
+        _shopError.style.marginTop = 6;
         card.Add(_shopError);
 
-        Button leave = WoodButton("Leave");
-        leave.style.alignSelf = Align.Center;
-        leave.style.marginTop = 8;
-        leave.clicked += CloseShop;
-        card.Add(leave);
-
         BuildShopRows();
-        StartCoroutine(FadeStage(0f, 1f, 0.2f));
+        vc_UIAnim.Show(card, vc_UIAnim.Enter.Pop);
+        if (_shopList != null) vc_UIAnim.Stagger(_shopList.Children(), vc_UIAnim.Enter.SlideUp, 0.04f, 0.12f);
         vc_LoopMeta.Fetch(_ => { if (_shopList != null && IsShowing) { vc_LoopMeta.MarkShopSeen(); BuildShopRows(); } });
     }
 
     private void CloseShop()
     {
+        if (_shopList == null) return;          // already closing
         vc_Sfx.Play("click", 0.5f);
         _shopList = null;
-        EndStage();
         _shopPlayer?.MoveAction.Enable();
+        StartCoroutine(CloseShopRoutine());
+    }
+
+    private IEnumerator CloseShopRoutine()
+    {
+        if (_shopCard != null) vc_UIAnim.Hide(_shopCard);
+        _shopCard = null;
+        yield return HideStage();
+        EndStage();
         RefreshPocket();
     }
 
@@ -386,8 +435,9 @@ public class vc_LoopMoments : MonoBehaviour
         if (_shopList == null) return;
         _shopList.Clear();
         var meta = vc_LoopMeta.Current;
-        _shopStars.text = meta != null ? $"Stars: {meta.stars}" : "";
-        if (meta == null) { _shopError.text = "Couldn't reach the server."; return; }
+        _shopStars.text = meta != null ? $"{meta.stars} stars" : "";
+        _shopStars.style.display = meta != null ? DisplayStyle.Flex : DisplayStyle.None;
+        if (meta == null) { _shopError.text = "No connection."; return; }
 
         foreach (vc_LoopMeta.Keepsake k in vc_LoopMeta.Keepsakes)
         {
@@ -396,35 +446,37 @@ public class vc_LoopMoments : MonoBehaviour
             int cost = vc_LoopMeta.Price(k.id);
 
             var row = new VisualElement();
+            row.AddToClassList("sn-card");
             row.style.flexDirection = FlexDirection.Row;
             row.style.alignItems = Align.Center;
-            row.style.paddingTop = 8; row.style.paddingBottom = 8;
-            row.style.borderBottomWidth = 2;
-            row.style.borderBottomColor = (Color)new Color32(214, 190, 150, 255);
-            row.style.opacity = unlocked ? 1f : 0.6f;
+            row.style.marginBottom = 10;
+            if (!unlocked) row.style.backgroundColor = vc_UITheme.CreamLo;
 
-            VisualElement icon = Icon(k.id, 44);
-            icon.style.marginRight = 12;
+            VisualElement icon = Icon(k.id, 52);
+            icon.style.marginRight = 14;
             icon.style.flexShrink = 0;
-            if (!unlocked) icon.style.unityBackgroundImageTintColor = new Color(0f, 0f, 0f, 0.9f);
+            if (!unlocked) icon.style.unityBackgroundImageTintColor = new Color(vc_UITheme.Ink.r, vc_UITheme.Ink.g, vc_UITheme.Ink.b, 0.85f);
             row.Add(icon);
 
             var body = new VisualElement();
             body.style.flexGrow = 1; body.style.flexShrink = 1;
-            var title = Text(unlocked ? k.name : "???", 24, Ink);
+            var title = Text(unlocked ? k.name : "???", "body");
+            title.AddToClassList("sn-semibold");
             title.style.unityTextAlign = TextAnchor.MiddleLeft;
             body.Add(title);
-            var sub = Text(unlocked ? k.effect : $"Help {k.giver} to unlock.", 20, new Color32(110, 84, 58, 255));
+            var sub = Text(unlocked ? k.effect : $"Help {k.giver}", "caption");
             sub.style.unityTextAlign = TextAnchor.MiddleLeft;
             body.Add(sub);
             row.Add(body);
 
-            Button btn = WoodButton(owned ? "Owned" : !unlocked ? "Locked" : $"{cost} stars");
-            btn.style.minWidth = 150; btn.style.height = 52; btn.style.fontSize = 22;
-            btn.style.flexShrink = 0;
-            if (owned || !unlocked || meta.stars < cost) btn.SetEnabled(false);
+            bool canBuy = !owned && unlocked && meta.stars >= cost;
             string id = k.id;
-            btn.clicked += () => BuyKeepsake(id);
+            Button btn = MakeButton(owned ? "Owned" : !unlocked ? "Locked" : $"{cost} stars",
+                () => BuyKeepsake(id), "small", canBuy ? "gold" : null);
+            btn.style.minWidth = 150;
+            btn.style.flexShrink = 0;
+            btn.style.marginRight = 0;
+            if (!canBuy) btn.SetEnabled(false);
             row.Add(btn);
             _shopList.Add(row);
         }
@@ -442,8 +494,14 @@ public class vc_LoopMoments : MonoBehaviour
                 vc_LoopMeta.Set(meta);
                 vc_Sfx.Play("step_done", 0.8f);
                 BuildShopRows();
+                if (_shopStars != null) vc_UIAnim.Punch(_shopStars, 0.12f, 0.3f);
             },
-            _ => { if (_shopError != null) _shopError.text = "Couldn't buy it."; });
+            _ =>
+            {
+                if (_shopError == null) return;
+                _shopError.text = "Couldn't buy.";
+                vc_UIAnim.Shake(_shopError);
+            });
     }
 
     // ══ Unlocked (small notice: a keepsake is now in the shop) ═══════════════════════
@@ -453,45 +511,54 @@ public class vc_LoopMoments : MonoBehaviour
     public void ShowUnlocked(vc_LoopMeta.Keepsake k)
     {
         if (k == null) return;
+        _notice?.parent?.RemoveFromHierarchy();
         _notice?.RemoveFromHierarchy();
+
+        // full-width strip that centres the card, so the card's own translate stays free for motion
+        var holder = new VisualElement { pickingMode = PickingMode.Ignore };
+        holder.style.position = Position.Absolute;
+        holder.style.top = 96;
+        holder.style.left = 0; holder.style.right = 0;
+        holder.style.alignItems = Align.Center;
+
         _notice = new VisualElement { pickingMode = PickingMode.Ignore };
-        _notice.style.position = Position.Absolute;
-        _notice.style.top = 90;
-        _notice.style.left = Length.Percent(50);
-        _notice.style.translate = new Translate(Length.Percent(-50), 0);
+        _notice.AddToClassList("sn-panel");
         _notice.style.flexDirection = FlexDirection.Row;
         _notice.style.alignItems = Align.Center;
-        _notice.style.paddingLeft = 14; _notice.style.paddingRight = 18;
-        _notice.style.paddingTop = 8; _notice.style.paddingBottom = 10;
-        _notice.style.backgroundColor = Cream;
-        Border(_notice, 4, Wood, new Color32(100, 85, 82, 255));
-        VisualElement icon = Icon(k.id, 44);
-        icon.style.marginRight = 10;
+        _notice.style.paddingTop = 10; _notice.style.paddingBottom = 10;
+        _notice.style.borderTopColor = vc_UITheme.GoldDark; _notice.style.borderBottomColor = vc_UITheme.GoldDark;
+        _notice.style.borderLeftColor = vc_UITheme.GoldDark; _notice.style.borderRightColor = vc_UITheme.GoldDark;
+        VisualElement icon = Icon(k.id, 52);
+        icon.style.marginRight = 14;
         _notice.Add(icon);
         var col = new VisualElement { pickingMode = PickingMode.Ignore };
-        var head = Text("NEW IN THE SHOP", 18, new Color32(168, 92, 30, 255));
+        var head = Text("New in shop", "caption", vc_UITheme.GoldDark);
+        head.AddToClassList("sn-bold");
         head.style.unityTextAlign = TextAnchor.MiddleLeft;
         col.Add(head);
-        var name = Text(k.name, 26, Ink);
+        var name = Text(k.name, "subtitle");
         name.style.unityTextAlign = TextAnchor.MiddleLeft;
         col.Add(name);
         _notice.Add(col);
-        _root.Add(_notice);
+        holder.Add(_notice);
+        _root.Add(holder);
         vc_Sfx.Play("step_done", 0.7f);
         StartCoroutine(NoticeRoutine(_notice));
     }
 
     private IEnumerator NoticeRoutine(VisualElement n)
     {
-        yield return PopIn(n, 0f);
-        Burst(n, Gold, 10);
+        vc_UIAnim.Show(n, vc_UIAnim.Enter.Drop);
+        yield return new WaitForSecondsRealtime(0.25f);
+        Burst(n, vc_UITheme.Gold, 10);
         yield return new WaitForSecondsRealtime(3f);
-        for (float t = 0f; t < 0.4f; t += Time.unscaledDeltaTime)
-        {
-            n.style.opacity = 1f - t / 0.4f;
-            yield return null;
-        }
+        bool gone = false;
+        vc_UIAnim.Hide(n, () => gone = true, vc_UIAnim.Exit.SlideUp);
+        float timeout = 1f;
+        while (!gone && timeout > 0f) { timeout -= Time.unscaledDeltaTime; yield return null; }
+        VisualElement holder = n.parent;
         n.RemoveFromHierarchy();
+        holder?.RemoveFromHierarchy();
         if (_notice == n) _notice = null;
     }
 
@@ -523,43 +590,52 @@ public class vc_LoopMoments : MonoBehaviour
         Rect r = _questPanel.worldBound;
         Vector2 p = _root.WorldToLocal(new Vector2(r.xMin, r.yMax));
         _pocket.style.left = p.x;
-        _pocket.style.top = p.y + 6f;
+        _pocket.style.top = p.y + 8f;
     }
 
     private void RefreshPocket()
     {
         if (_pocket == null) return;
-        _pocket.Clear();
         var owned = vc_LoopMeta.Current != null ? vc_LoopMeta.Current.owned_mementos : null;
         bool show = _pocketWanted && owned != null && owned.Count > 0 && !IsShowing;
-        _pocket.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
-        if (!show) return;
+        bool wasShown = _pocket.style.display == DisplayStyle.Flex;
+        if (!show)
+        {
+            if (wasShown) vc_UIAnim.Hide(_pocket, null, vc_UIAnim.Exit.Fade);
+            return;
+        }
+        _pocket.Clear();
         foreach (string id in owned)
         {
             vc_LoopMeta.Keepsake k = vc_LoopMeta.KeepsakeById(id);
             if (k == null) continue;
-            VisualElement icon = Icon(id, 26);
-            icon.style.marginRight = 4;
+            VisualElement icon = Icon(id, 40);
+            icon.style.marginLeft = 3; icon.style.marginRight = 3;
             icon.pickingMode = PickingMode.Position;
             icon.RegisterCallback<ClickEvent>(_ =>
             {
                 vc_Sfx.Play("click", 0.5f);
+                vc_UIAnim.Punch(icon, 0.2f, 0.3f);
                 vc_QuestHUD.Instance?.ShowFeedbackTimed($"{k.name}: {k.effect}", 3f);
             });
             _pocket.Add(icon);
         }
+        if (!wasShown) vc_UIAnim.Show(_pocket, vc_UIAnim.Enter.SlideDown);
+        else vc_UIAnim.StopAll(_pocket);
+        if (wasShown) { _pocket.style.opacity = StyleKeyword.Null; _pocket.style.translate = StyleKeyword.Null; _pocket.style.scale = StyleKeyword.Null; }
     }
     // ══ building blocks ════════════════════════════════════════════════════════════
 
     private void BeginStage(Color backdrop, bool stars)
     {
+        vc_UIAnim.StopAll(_stage);
         _stage.Clear();
         _twinkles.Clear();
         _stage.style.backgroundColor = backdrop;
-        _stage.style.opacity = 0f;
-        _stage.style.display = DisplayStyle.Flex;
         _stage.pickingMode = PickingMode.Position;
+        vc_UIAnim.StopAll(_pocket);
         _pocket.style.display = DisplayStyle.None;
+        vc_UIAnim.Show(_stage, vc_UIAnim.Enter.Fade, 0f, null, 0.35f);
         if (!stars) return;
         var rng = new System.Random(7);
         var sky = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -572,16 +648,27 @@ public class vc_LoopMoments : MonoBehaviour
             s.style.top = Length.Percent(rng.Next(0, 100));
             int size = rng.Next(0, 4) == 0 ? 6 : 3;
             s.style.width = size; s.style.height = size;
-            s.style.backgroundColor = rng.Next(0, 3) == 0 ? Violet : (Color)new Color32(220, 214, 255, 255);
+            s.style.backgroundColor = rng.Next(0, 3) == 0 ? vc_UITheme.Violet : StarDot;
             sky.Add(s);
             _twinkles.Add(s);
         }
         _stage.Add(sky);
     }
 
+    /// <summary>Fades the stage out (it stays in the tree; EndStage clears it).</summary>
+    private IEnumerator HideStage()
+    {
+        bool hidden = false;
+        vc_UIAnim.Hide(_stage, () => hidden = true, vc_UIAnim.Exit.Fade, 0f, false, 0.25f);
+        float timeout = 1f;
+        while (!hidden && timeout > 0f) { timeout -= Time.unscaledDeltaTime; yield return null; }
+    }
+
     private void EndStage()
     {
+        vc_UIAnim.StopAll(_stage);
         _stage.style.display = DisplayStyle.None;
+        _stage.style.opacity = StyleKeyword.Null;
         _stage.pickingMode = PickingMode.Ignore;
         _stage.Clear();
         _twinkles.Clear();
@@ -591,41 +678,48 @@ public class vc_LoopMoments : MonoBehaviour
     {
         string letter = (skill.riaSecLetter ?? "?").Trim().ToUpperInvariant();
         var card = new VisualElement();
+        card.AddToClassList("sn-card");
         card.style.width = width;
         card.style.alignItems = Align.Center;
+        card.style.paddingLeft = 0; card.style.paddingRight = 0; card.style.paddingTop = 0;
         card.style.paddingBottom = 12;
-        card.style.backgroundColor = Cream;
-        Border(card, 3, new Color32(150, 130, 120, 255), new Color32(100, 85, 82, 255));
+        card.style.overflow = Overflow.Visible;
 
-        var strip = Text($"{letter}  {vc_SkillManager.CategoryNameForSlot(vc_SkillManager.SlotIndexForLetter(letter))}".ToUpperInvariant(), 16, Color.white);
+        var strip = Text($"{letter}  {vc_SkillManager.CategoryNameForSlot(vc_SkillManager.SlotIndexForLetter(letter))}", "caption", vc_UITheme.CreamHi);
+        strip.AddToClassList("sn-bold");
+        strip.style.fontSize = 18;
         strip.style.alignSelf = Align.Stretch;
         strip.style.backgroundColor = KindColor(letter);
         strip.style.paddingTop = 4; strip.style.paddingBottom = 4;
+        strip.style.borderTopLeftRadius = 13; strip.style.borderTopRightRadius = 13;
         card.Add(strip);
 
         var sym = new VisualElement { pickingMode = PickingMode.Ignore };
         sym.style.width = width * 0.48f; sym.style.height = width * 0.48f;
         sym.style.marginTop = 10; sym.style.marginBottom = 6;
-        sym.style.backgroundImage = SunodGame.UI.vc_RiasecSymbols.Background(letter);
+        sym.style.backgroundImage = vc_RiasecSymbols.Background(letter);
         sym.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
         card.Add(sym);
 
-        var name = Text((skill.DisplayName ?? skill.skillName).ToUpperInvariant(), 20, Ink);
+        var name = Text(skill.DisplayName ?? skill.skillName, "caption", vc_UITheme.Ink);
+        name.AddToClassList("sn-semibold");
+        name.style.paddingLeft = 6; name.style.paddingRight = 6;
         card.Add(name);
 
         // Skill level: remembering a skill keeps it (SKILL_SYSTEM_DESIGN.md §6)
         int level = vc_SkillLevels.CarriedLevel(skill);
-        var lv = Text(level >= vc_SkillLevels.MaxLevel ? $"Lv{level} (max)" : $"Lv{level}", 15,
-            level >= vc_SkillLevels.MaxLevel ? (Color)new Color32(170, 120, 0, 255) : level == 2 ? (Color)new Color32(90, 100, 130, 255) : Ink);
-        lv.style.marginTop = 2;
+        var lv = new Label(level >= vc_SkillLevels.MaxLevel ? $"Lv{level} max" : $"Lv{level}") { pickingMode = PickingMode.Ignore };
+        lv.AddToClassList("sn-badge");
+        if (level >= vc_SkillLevels.MaxLevel) lv.AddToClassList("sn-badge--gold");
+        else if (level == 2) lv.AddToClassList("sn-badge--silver");
+        lv.style.marginTop = 4;
         card.Add(lv);
 
-        var mark = Text("REMEMBERED", 14, Color.white);
-        mark.name = "held-mark";
+        var mark = new Label("Remembered") { name = "held-mark", pickingMode = PickingMode.Ignore };
+        mark.AddToClassList("sn-badge");
         mark.style.position = Position.Absolute;
-        mark.style.top = -14;
-        mark.style.backgroundColor = DeepViolet;
-        mark.style.paddingLeft = 8; mark.style.paddingRight = 8; mark.style.paddingTop = 2; mark.style.paddingBottom = 2;
+        mark.style.top = -16;
+        mark.style.backgroundColor = HeldEdge;
         mark.style.display = DisplayStyle.None;
         card.Add(mark);
         foreach (VisualElement child in card.Children()) child.pickingMode = PickingMode.Ignore;
@@ -639,7 +733,7 @@ public class vc_LoopMoments : MonoBehaviour
         chip.Add(Icon(k.id, size));
         if (showName)
         {
-            var n = Text(k.name, 18, Cream);
+            var n = Text(k.name, "caption", vc_UITheme.CreamHi);
             n.style.marginTop = 4;
             chip.Add(n);
         }
@@ -660,12 +754,13 @@ public class vc_LoopMoments : MonoBehaviour
         return icon;
     }
 
-    private static Label Text(string text, int size, Color color)
+    /// <summary>Themed label: role = sn-* type class (display, title, subtitle, body, caption).</summary>
+    private static Label Text(string text, string role, Color? color = null)
     {
         var l = new Label(text) { pickingMode = PickingMode.Ignore };
-        l.style.fontSize = size;
-        l.style.color = color;
-        l.style.unityTextAlign = TextAnchor.MiddleCenter;
+        l.AddToClassList("sn-" + role);
+        l.AddToClassList("sn-center");
+        if (color.HasValue) l.style.color = color.Value;
         l.style.whiteSpace = WhiteSpace.Normal;
         l.style.maxWidth = Length.Percent(100);
         return l;
@@ -680,29 +775,12 @@ public class vc_LoopMoments : MonoBehaviour
         return r;
     }
 
-    private static Button WoodButton(string label)
+    private static Button MakeButton(string label, Action onClick, params string[] variants)
     {
-        var b = new Button { text = label, focusable = false };
-        b.style.fontSize = 26;
-        b.style.color = Ink;
-        b.style.minWidth = 240;
-        b.style.height = 64;
-        b.style.paddingLeft = 28; b.style.paddingRight = 28;
-        b.style.backgroundImage = StyleKeyword.None;
-        b.style.backgroundColor = (Color)new Color32(232, 207, 166, 255);
-        Border(b, 4, Wood, new Color32(100, 85, 82, 255));
-        b.style.borderBottomWidth = 8;
+        Button b = vc_UITheme.MakeButton(label, onClick, variants);
+        b.focusable = false;
+        if (Array.IndexOf(variants, "icon-sm") < 0) b.style.minWidth = 240;
         return b;
-    }
-
-    private static void Border(VisualElement e, float width, Color color, Color bottom)
-    {
-        e.style.borderTopWidth = width; e.style.borderLeftWidth = width; e.style.borderRightWidth = width;
-        e.style.borderBottomWidth = width;
-        e.style.borderTopColor = color; e.style.borderLeftColor = color; e.style.borderRightColor = color;
-        e.style.borderBottomColor = bottom;
-        e.style.borderTopLeftRadius = 0; e.style.borderTopRightRadius = 0;
-        e.style.borderBottomLeftRadius = 0; e.style.borderBottomRightRadius = 0;
     }
 
     private static void Fill(VisualElement e)
@@ -711,54 +789,26 @@ public class vc_LoopMoments : MonoBehaviour
         e.style.left = 0; e.style.right = 0; e.style.top = 0; e.style.bottom = 0;
     }
 
+    /// <summary>RIASEC kind colour (UI V2 tokens), muted ink for anything else.</summary>
     public static Color KindColor(string letter) => letter switch
     {
-        "R" => new Color32(214, 96, 70, 255),
-        "I" => new Color32(80, 140, 210, 255),
-        "A" => new Color32(176, 110, 210, 255),
-        "S" => new Color32(90, 170, 100, 255),
-        "E" => new Color32(226, 160, 60, 255),
-        "C" => new Color32(110, 120, 150, 255),
-        _ => new Color32(120, 104, 98, 255),
+        "R" or "I" or "A" or "S" or "E" or "C" => vc_UITheme.Riasec(letter),
+        _ => vc_UITheme.InkMuted,
     };
 
     // ── tiny tweens (unscaled time, so they run while the game is paused) ──
 
-    private IEnumerator FadeStage(float from, float to, float seconds)
+    private static IEnumerator FadeIn(VisualElement e)
     {
-        for (float t = 0f; t < seconds; t += Time.unscaledDeltaTime)
-        {
-            _stage.style.opacity = Mathf.Lerp(from, to, t / seconds);
-            yield return null;
-        }
-        _stage.style.opacity = to;
+        vc_UIAnim.Show(e, vc_UIAnim.Enter.Fade, 0f, null, 0.35f);
+        yield return new WaitForSecondsRealtime(0.35f);
     }
 
-    private static IEnumerator FadeIn(VisualElement e, float seconds)
-    {
-        e.style.opacity = 0f;
-        for (float t = 0f; t < seconds; t += Time.unscaledDeltaTime)
-        {
-            e.style.opacity = t / seconds;
-            yield return null;
-        }
-        e.style.opacity = 1f;
-    }
-
-    /// <summary>Pops in with a little overshoot: 0 -> 1.15 -> 1.</summary>
+    /// <summary>Pops in with a little overshoot (vc_UIAnim), waits until it lands.</summary>
     private static IEnumerator PopIn(VisualElement e, float delay)
     {
-        e.style.scale = new Scale(Vector3.zero);
-        if (delay > 0f) yield return new WaitForSecondsRealtime(delay);
-        const float dur = 0.28f;
-        for (float t = 0f; t < dur; t += Time.unscaledDeltaTime)
-        {
-            float k = t / dur;
-            float s = k < 0.7f ? Mathf.Lerp(0f, 1.15f, k / 0.7f) : Mathf.Lerp(1.15f, 1f, (k - 0.7f) / 0.3f);
-            e.style.scale = new Scale(new Vector3(s, s, 1f));
-            yield return null;
-        }
-        e.style.scale = new Scale(Vector3.one);
+        vc_UIAnim.Show(e, vc_UIAnim.Enter.Pop, delay);
+        yield return new WaitForSecondsRealtime(delay + 0.28f);
     }
 
     /// <summary>Gentle bob while shown (whole pixels).</summary>
@@ -770,18 +820,6 @@ public class vc_LoopMoments : MonoBehaviour
             e.style.translate = new Translate(0, y);
             yield return null;
         }
-    }
-
-    private void Shake(VisualElement e) => StartCoroutine(ShakeRoutine(e));
-
-    private static IEnumerator ShakeRoutine(VisualElement e)
-    {
-        for (int i = 0; i < 6; i++)
-        {
-            e.style.translate = new Translate(i % 2 == 0 ? 6 : -6, 0);
-            yield return new WaitForSecondsRealtime(0.04f);
-        }
-        e.style.translate = new Translate(0, 0);
     }
 
     /// <summary>Little square sparks flying out from an element's centre.</summary>

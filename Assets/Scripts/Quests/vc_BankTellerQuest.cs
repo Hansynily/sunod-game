@@ -10,6 +10,9 @@ using UnityEngine;
 ///   direct   C  workaround   directs the line to the right windows, then serves               4s
 ///   command  E  off-letter   gets everyone to fill out their slips first, then serves          8s
 ///   anything else: a hint, no effect
+///
+/// Prep: Command (pressed first) has everyone fill out their slips; Collect then takes them all in one go.
+/// Preference: Direct (Ms. Uy: "send people to the right windows"). Bonus only.
 /// </summary>
 [DisallowMultipleComponent]
 public class vc_BankTellerQuest : vc_FitQuestKit
@@ -53,6 +56,26 @@ public class vc_BankTellerQuest : vc_FitQuestKit
     private int _slips;
     private float _dotsClock, _shineClock;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ms. Uy",
+        presses = 4,
+        bestFitTag = "inspect",
+        bestFitSeconds = 2f,
+        prepTag = "command",
+        prepUnlocksTag = "collect",
+        prepLine = "\"Fill out your slips first, please!\"",
+        preferredTag = "direct",
+        preferenceLine = "Everyone at the right window. Thank you so much!",
+        fastLines = new[]
+        {
+            ("collect", "All deposits in, in one go!"),
+            ("direct", "Everyone at the right window. Every peso balanced."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     protected override Vector3 BarWorldPosition => (drawer != null ? drawer.transform.position : transform.position) + new Vector3(-0.5f, 1.6f, 0f);
 
     private void Awake()
@@ -77,7 +100,7 @@ public class vc_BankTellerQuest : vc_FitQuestKit
         if (stamp != null) stamp.sprite = stampUp;
         if (vault != null) vault.sprite = vaultDull;
         vc_QuestHUD.Instance?.ShowQuestInfo("Quest", "Bank Teller",
-            "The bank line is long. Handle a teller window for Ms. Uy.", new[] { "Serve the customers" });
+            "Ms. Uy's bank line is long. Handle a window for her, and send people to the right windows if you can.", new[] { "Serve the customers" });
     }
 
     // ── Idle life: impatient line, the vault glints ──────────────────────
@@ -107,14 +130,35 @@ public class vc_BankTellerQuest : vc_FitQuestKit
         if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("collect")) { CollectPress(); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime))); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime))); return; }
         Toast("Banking needs careful, orderly work.", 2.2f);
     }
 
     protected override void OnWorkCancelled()
     {
         for (int i = 0; i < customers.Length; i++) if (!_served[i]) customers[i].transform.position = _rest[i];
+    }
+
+    // ── Prep: Command has everyone fill out their slips first ────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Sfx("bell", 0.5f, 0f);
+        for (int i = 0; i < customers.Length; i++) if (!_served[i]) Bubble(shoutBubble, customers[i], 0.8f);
+        yield return new WaitForSeconds(0.25f);
+        for (int r = 0; r < 3; r++)
+        {
+            for (int i = 0; i < customers.Length; i++)
+                if (!_served[i]) Fx(scribbleFrames, Above(customers[i], -0.6f), 6f, 0f, 22);
+            Sfx("scribble", 0.35f);
+            yield return new WaitForSeconds(0.2f);
+        }
+        for (int i = 0; i < customers.Length; i++)
+            if (!_served[i] && depositSlip != null) Fx(new[] { depositSlip }, Above(customers[i], -0.3f), 4f, 0.3f, 24);
+        Sfx("coin", 0.4f);
+        yield return new WaitForSeconds(0.15f);
     }
 
     private IEnumerator InspectRoutine()
@@ -133,49 +177,76 @@ public class vc_BankTellerQuest : vc_FitQuestKit
 
     private void CollectPress()
     {
-        int i = NextWaiting();
-        if (i < 0) return;
+        int need = PathPresses(collectPresses);
         _slips++;
-        StartCoroutine(Serve(i, Spot(0), 0.9f));
-        if (_slips < collectPresses && NextWaiting() >= 0) { Toast($"Deposit slip taken in ({_slips}/{collectPresses})", 2f); return; }
-        Cleared("Every deposit slip handled. All done!");
+        int waiting = 0;
+        for (int w = 0; w < customers.Length; w++) if (!_served[w]) waiting++;
+        int first = NextWaiting();
+        if (_slips < need && waiting > 1 && first >= 0)
+        {
+            StartCoroutine(Serve(first, Spot(0), 0.9f));
+            Toast($"Deposit slip taken in ({_slips}/{need})", 2f);
+            return;
+        }
+        // last press: takes in everyone still waiting, one after another, then the line is clear
+        StartWork(CollectRestRoutine(CurrentInstant));
     }
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator CollectRestRoutine(bool oneGo)
     {
-        Toast("You direct the line to the open windows...", directTime);
+        Toast(oneGo ? "Every slip is already filled in. You take them all in one go!" : "You take in the rest of the slips...", 2f);
+        ShowBar(true);
+        float gap = oneGo ? 0.12f : 0.2f, serveSecs = 0.9f;
+        int count = 0;
+        for (int j = 0; j < customers.Length; j++) if (!_served[j]) count++;
+        float total = gap * count + serveSecs, clock = 0f;
+        for (int i = 0; i < customers.Length; i++)
+        {
+            if (_served[i]) continue;
+            StartCoroutine(Serve(i, Spot(0), serveSecs));
+            yield return Step(gap, clock / total, (clock + gap) / total);
+            clock += gap;
+        }
+        yield return Step(serveSecs, clock / total, 1f);
+        Cleared(oneGo ? "All the deposits are in, in one go!" : "Every deposit slip handled. All done!");
+    }
+
+    private IEnumerator DirectRoutine(float seconds)
+    {
+        Toast("You direct the line to the open windows...", Mathf.Max(1.5f, seconds * 0.6f));
         ShowBar(true);
         var c = new float[1];
         if (shoutBubble != null && customers.Length > 0) Bubble(shoutBubble, customers[0], 0.8f);
-        float per = (directTime - 0.2f) / Mathf.Max(1, customers.Length);
+        float per = (seconds - 0.2f) / Mathf.Max(1, customers.Length);
         for (int i = 0; i < customers.Length; i++)
         {
             if (!_served[i]) StartCoroutine(Serve(i, Spot(i % 2), per * 1.6f));
-            yield return Tick(per, c, directTime);
+            yield return Tick(per, c, seconds);
         }
-        yield return Tick(directTime - c[0], c, directTime);
+        yield return Tick(Mathf.Max(0.01f, seconds - c[0]), c, seconds);
         Cleared("Two windows, no waiting. Everyone's served!");
     }
 
-    private IEnumerator CommandRoutine()
+    private IEnumerator CommandRoutine(float seconds)
     {
-        Toast("Everyone fills out their slips first!", commandTime);
+        Toast("Everyone fills out their slips first!", Mathf.Max(1.5f, seconds * 0.6f));
         ShowBar(true);
         var c = new float[1];
         for (int i = 0; i < customers.Length; i++) Bubble(shoutBubble, customers[i], 0.8f);
         Sfx("bell", 0.5f, 0f);
-        while (c[0] < commandTime - 3f)
+        float scribbleTime = seconds * (5f / 8f), scribbleStep = Mathf.Max(0.15f, 0.45f * seconds / 8f);
+        while (c[0] < scribbleTime)
         {
             int i = Random.Range(0, customers.Length);
             if (!_served[i]) Fx(scribbleFrames, Above(customers[i], -0.6f), 6f, 0f, 22);
             Sfx("scribble", 0.3f);
-            yield return Tick(0.45f, c, commandTime);
+            yield return Tick(scribbleStep, c, seconds);
         }
-        float per = (commandTime - c[0]) / Mathf.Max(1, customers.Length);
+        float per = Mathf.Max(0.05f, seconds - c[0]) / Mathf.Max(1, customers.Length);
         for (int i = 0; i < customers.Length; i++)
         {
             if (!_served[i]) StartCoroutine(Serve(i, Spot(0), per * 0.9f));
-            yield return Tick(per, c, commandTime);
+            yield return Tick(per, c, seconds);
         }
         Cleared("Slips ready, service quick. All served!");
     }

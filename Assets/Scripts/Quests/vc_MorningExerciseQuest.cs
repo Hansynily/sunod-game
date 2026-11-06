@@ -38,6 +38,28 @@ public class vc_MorningExerciseQuest : vc_FitQuestBase
     [SerializeField] private float healTime = 5f;
     [SerializeField] private float commandTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Charm (prep) is a big friendly wave that loosens her up,
+    // then Guide flows through the whole routine together at once. Preference: Heal.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Tita Lorna",
+        presses = 5,
+        bestFitTag = "teach",
+        bestFitSeconds = 2f,
+        prepTag = "charm",
+        prepUnlocksTag = "guide",
+        prepLine = "You give Tita Lorna a big, friendly wave. She laughs and loosens up!",
+        preferredTag = "heal",
+        preferenceLine = "My back feels so much better! Salamat, anak!",
+        fastLines = new[]
+        {
+            ("guide", "We did the whole routine together, just like that!"),
+            ("heal", "My back feels brand new! How did you do that?"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3 _rest;
     private float _idleClock;
 
@@ -57,7 +79,7 @@ public class vc_MorningExerciseQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Morning Exercise",
-            "Tita Lorna keeps forgetting her stretches. Help her through a routine.",
+            "Tita Lorna keeps forgetting her stretches, and her back is stiff. Help her through a routine.",
             new[] { "Lead the exercise routine" });
     }
 
@@ -88,15 +110,31 @@ public class vc_MorningExerciseQuest : vc_FitQuestBase
     {
         if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("guide")) { StartWork(GuideRoutine()); return; }
-        if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
-        if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
+        if (d.HasTag("guide")) { StartWork(GuideRoutine(PathTime(guideTime))); return; }
+        if (d.HasTag("heal")) { StartWork(HealRoutine(PathTime(healTime))); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime))); return; }
         Toast("She needs someone to show her how.", 2.2f);
     }
 
     protected override void OnWorkCancelled()
     {
         if (lorna != null) lorna.transform.position = _rest;
+    }
+
+    // Prep (Charm): a big friendly wave; she laughs, a heart pops, she hops and loosens up.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        _idleClock = 3f;
+        Toast(Profile.prepLine, 1.6f);
+        SunodGame.Core.vc_Sfx.Play("chime", 0.5f, 0.05f);
+        if (shoutBubble != null) Fx(new[] { shoutBubble }, Top() + new Vector3(-0.9f, 0f, 0f), 1.4f, 0.1f, 24);
+        yield return new WaitForSeconds(0.35f);
+        if (heart != null) Fx(new[] { heart }, Top(), 1.5f, 0.3f, 24);
+        if (sparkFrames != null) Fx(sparkFrames, Top() + new Vector3(0.3f, -0.4f, 0f), 12f, 0.2f);
+        if (routine != null && routine.Length > 0) Pose(routine[0]);
+        yield return HappyHop();
+        Pose(poseStand);
+        yield return new WaitForSeconds(0.1f);
     }
 
     // ── Teach: show each stretch, she copies ─────────────────────────────
@@ -111,21 +149,22 @@ public class vc_MorningExerciseQuest : vc_FitQuestBase
 
     // ── Guide: side by side, slowly ──────────────────────────────────────
 
-    private IEnumerator GuideRoutine()
+    private IEnumerator GuideRoutine(float seconds)
     {
-        Toast("You do the routine side by side, slowly...", guideTime);
+        bool flow = Prepared || seconds <= teachTime + 0.01f;
+        Toast(flow ? "You flow through the whole routine together!" : "You do the routine side by side, slowly...", seconds);
         ShowBar(true);
-        yield return DoRoutine(0f, guideTime, guideTime, slow: true);
-        Done1("Side by side, you finished the routine!");
+        yield return DoRoutine(0f, seconds, seconds, slow: !flow);
+        Done1(flow ? "You flowed through the whole routine together!" : "Side by side, you finished the routine!");
     }
 
     // ── Heal: ease the stiff back, then exercise ─────────────────────────
 
-    private IEnumerator HealRoutine()
+    private IEnumerator HealRoutine(float healTime)
     {
         Toast("You ease her stiff back first...", healTime);
         ShowBar(true);
-        float ease = healTime - 2.2f, t = 0f;
+        float ease = healTime * 0.56f, t = 0f;
         while (t < ease)
         {
             if (healSpark != null && lorna != null)
@@ -134,8 +173,9 @@ public class vc_MorningExerciseQuest : vc_FitQuestBase
                 Fx(new[] { healSpark }, new Vector3(Random.Range(b.min.x, b.max.x), Random.Range(b.min.y, b.center.y), 0f), 2f, 0.6f, 22);
             }
             SunodGame.Core.vc_Sfx.Play("chime", 0.25f, 0.2f, 0.25f);
-            yield return BarStep(0.3f, t / healTime, (t + 0.3f) / healTime);
-            t += 0.3f;
+            float step = Mathf.Min(0.3f, ease - t);
+            yield return BarStep(step, t / healTime, (t + step) / healTime);
+            t += step;
         }
         if (heart != null) Fx(new[] { heart }, Top(), 1.5f, 0.3f, 24);
         yield return DoRoutine(t, healTime, healTime - t, slow: false);
@@ -144,7 +184,7 @@ public class vc_MorningExerciseQuest : vc_FitQuestBase
 
     // ── Command: a loud count, she follows the beat ──────────────────────
 
-    private IEnumerator CommandRoutine()
+    private IEnumerator CommandRoutine(float commandTime)
     {
         Toast("You call out a loud count!", commandTime);
         ShowBar(true);

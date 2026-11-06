@@ -60,6 +60,31 @@ public class vc_FairPosterQuest : vc_FitQuestBase
     private const float LetterY = 12f;
     private static readonly int[] StrokeY = { 8, 21, 35, 48 };
 
+    [SerializeField] private float planTime = 8f;
+
+    // Skill system v2 (QUEST_REDESIGN.md): Plan (prep) pencils a layout on the board, then Barrier
+    // cuts and fills every stencil at once. Preference: Craft (the kids' cut-outs). Plan pressed a
+    // second time is the slow off-category path: sketch a layout grid, then paint it in.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ms. Dela Cruz",
+        presses = 5,
+        bestFitTag = "paint",
+        bestFitSeconds = 1.5f,
+        prepTag = "plan",
+        prepUnlocksTag = "barrier",
+        prepLine = "A light pencil layout appears on the board...",
+        preferredTag = "craft",
+        preferenceLine = "The kids' shapes look perfect up there!",
+        fastLines = new[]
+        {
+            ("craft", "The kids' shapes look perfect up there!"),
+            ("barrier", "Those stencils are so clean! And so fast!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private readonly List<GameObject> _spawned = new List<GameObject>();
     private readonly List<Coroutine> _subs = new List<Coroutine>();
     private float _sparkClock;
@@ -78,7 +103,7 @@ public class vc_FairPosterQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Poster for the Fair",
-            "The fair is almost here and the poster board is bare. Make it eye-catching.",
+            "Ms. Dela Cruz needs a poster for the fair. The board is blank, and the kids cut out paper shapes to use.",
             new[] { "Make the fair poster" });
     }
 
@@ -99,8 +124,9 @@ public class vc_FairPosterQuest : vc_FitQuestBase
     {
         if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("craft")) { StartWork(CollageRoutine()); return; }
-        if (d.HasTag("barrier")) { StartWork(StencilRoutine()); return; }
+        if (d.HasTag("craft")) { StartWork(CollageRoutine(PathTime(craftTime))); return; }
+        if (d.HasTag("barrier")) { StartWork(StencilRoutine(PathTime(stencilTime))); return; }
+        if (d.HasTag("plan")) { StartWork(PlanSketchRoutine(PathTime(planTime))); return; }
 
         Toast("This needs an artist's touch.", 2.2f);
     }
@@ -125,8 +151,55 @@ public class vc_FairPosterQuest : vc_FitQuestBase
     {
         Toast("Painting bold strokes...", paintTime);
         ShowBar(true);
+        yield return PaintStrokes(paintTime, 0f, 1f);
+        Finish("The poster looks amazing!");
+    }
+
+    // Prep (Plan): light pencil grid lines appear over the board.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("brush", 0.4f, 0.1f);
+        yield return DrawGrid(0.8f);
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.2f);
+    }
+
+    private IEnumerator DrawGrid(float seconds)
+    {
+        var px = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
+        Color pencil = new Color(0.35f, 0.4f, 0.55f, 0.65f);
+        float[] xs = { 17f, 35f }, ys = { 19f, 38f };
+        int lines = xs.Length + ys.Length;
+        for (int i = 0; i < lines; i++)
+        {
+            bool vertical = i < xs.Length;
+            Vector3 c = vertical ? PX(xs[i], BoardH * 0.5f) : PX(BoardW * 0.5f, ys[i - xs.Length]);
+            GameObject go = MakeSprite("Pencil", px, 23);
+            go.transform.position = Snap(c);
+            go.transform.localScale = vertical ? new Vector3(0.05f, BoardH / Ppu - 0.2f, 1f) : new Vector3(BoardW / Ppu - 0.2f, 0.05f, 1f);
+            go.GetComponent<SpriteRenderer>().color = pencil;
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.25f, 0.15f);
+            yield return new WaitForSeconds(seconds / lines);
+        }
+    }
+
+    // Plan, pressed again (off-category, slow): sketch a layout grid, then paint it in.
+    private IEnumerator PlanSketchRoutine(float seconds)
+    {
+        Toast("Sketching a layout grid, then painting it in...", seconds * 0.6f);
+        ShowBar(true);
+        float sketch = seconds * 0.65f;
+        yield return DrawGrid(sketch);
+        SetBar(0.65f);
+        yield return PaintStrokes(seconds - sketch, 0.65f, 1f);
+        Finish("You planned the layout, then painted it in!");
+    }
+
+    private IEnumerator PaintStrokes(float seconds, float bar0, float bar1)
+    {
         GameObject brushGo = MakeSprite("Brush", brush, 22);
-        float per = paintTime / 4f;
+        float per = seconds / 4f;
 
         for (int s = 0; s < 4; s++)
         {
@@ -146,7 +219,7 @@ public class vc_FairPosterQuest : vc_FitQuestBase
                     dabClock = 0f;
                     Fx(new[] { dabs[Random.Range(0, dabs.Length)] }, PX(x, y), 5f, 0.1f, 21);
                 }
-                SetBar((s + k) / 4f);
+                SetBar(Mathf.Lerp(bar0, bar1, (s + k) / 4f));
                 yield return null;
             }
             if (paintStages != null && s < paintStages.Length) poster.sprite = paintStages[s];
@@ -155,17 +228,16 @@ public class vc_FairPosterQuest : vc_FitQuestBase
         for (int i = 0; i < 4; i++) Fx(sparkFrames, PX(8f + i * 12f, 10f + (i % 2) * 28f), 6f, 0.2f);
         SunodGame.Core.vc_Sfx.Play("chime", 0.7f);
         yield return new WaitForSeconds(0.15f);
-        Finish("The poster looks amazing!");
     }
 
     // ── Craft: collage pieces fly in from the scrap pile ─────────────────
 
-    private IEnumerator CollageRoutine()
+    private IEnumerator CollageRoutine(float craftTime)
     {
         Toast("Gluing a bold collage together...", craftTime);
         ShowBar(true);
         int n = PiecePx.Length;
-        float gap = (craftTime - 0.6f) / Mathf.Max(1, n - 1);
+        float gap = Mathf.Max(0.05f, (craftTime - 0.6f) / Mathf.Max(1, n - 1));
         Vector3 from = pile != null ? pile.position + new Vector3(0f, 0.4f, 0f) : PX(26f, 70f);
 
         for (int i = 0; i < n; i++)
@@ -204,14 +276,15 @@ public class vc_FairPosterQuest : vc_FitQuestBase
 
     // ── Barrier: cut letter stencils, then fill them in ──────────────────
 
-    private IEnumerator StencilRoutine()
+    private IEnumerator StencilRoutine(float stencilTime)
     {
         Toast("Cutting letter stencils...", stencilTime * 0.6f);
         ShowBar(true);
         if (stencilBase != null) poster.sprite = stencilBase;
 
         int n = 4;
-        float cut = 0.7f, fill = 0.45f;
+        float k0 = stencilTime / 4.9f;   // 4.9 s is the authored length at 0.7 / 0.45 per letter
+        float cut = 0.7f * k0, fill = 0.45f * k0;
         float total = n * (cut + fill) + 0.3f, elapsed = 0f;
         var go = new GameObject[n];
         Color[] fills = { new Color(0.9f, 0.31f, 0.27f), new Color(1f, 0.84f, 0.31f), new Color(0.36f, 0.55f, 0.92f), new Color(0.4f, 0.75f, 0.36f) };

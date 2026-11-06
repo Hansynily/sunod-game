@@ -96,6 +96,11 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         if (IsPrepPress(d)) StartCoroutine(PrepRoutine(d));
         else OnSkill(d);
 
+        // The last press with the right kind of skill never fails: a multi-press path ("x3")
+        // pushes through the rest of its presses at once instead of running out.
+        if (_pressesLeft <= 0 && !Done && !Working && !_prepping && IsRightKind())
+            for (int i = 0; i < 12 && Started && !Done && !Working; i++) OnSkill(d);
+
         if (_pressesLeft <= 0 && !Done && !Working && !_prepping) StartCoroutine(OutOfPresses());
     }
 
@@ -362,7 +367,8 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
 
     private void ResetSkillSystem()
     {
-        _pressesTotal = UsesSkillSystem ? vc_SkillLevels.PressesForStage(Stage) : 0;
+        int perQuest = SkillProfile != null ? SkillProfile.presses : 0;   // per-quest limit (QUEST_REDESIGN.md)
+        _pressesTotal = UsesSkillSystem ? (perQuest > 0 ? perQuest : vc_SkillLevels.PressesForStage(Stage)) : 0;
         _pressesLeft = _pressesTotal;
         _prepared = _prepping = false;
         _prepSkill = _workSkill = null;
@@ -406,6 +412,9 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
             return vc_SkillPath.SameCategory;
         return vc_SkillPath.OtherCategory;
     }
+
+    private bool IsRightKind() =>
+        CurrentInstant || CurrentPath == vc_SkillPath.BestFit || CurrentPath == vc_SkillPath.SameCategory;
 
     private bool IsPrepPress(vc_SkillData d)
     {
@@ -484,8 +493,17 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         if (preferred && !string.IsNullOrEmpty(p.preferenceLine)) line = string.IsNullOrEmpty(line) ? p.preferenceLine : line;
 
         if (!string.IsNullOrEmpty(line)) StartCoroutine(SayLater($"{npc}: \"{line}\"", 0.5f));
-        if (preferred) StartCoroutine(PreferenceHeart(npc));
+        if (preferred)
+        {
+            // stars are the one currency: done their way = +1 bonus star (once per quest per run)
+            string scene = vc_TownStage.Current != null ? vc_TownStage.Current.gameObject.scene.name : gameObject.scene.name;
+            bool paid = QuestRoom != null && vc_BonusStars.Grant("pref:" + QuestRoom.QuestId, PreferenceStars, scene);
+            if (paid) LastXpReport = (LastXpReport != null ? LastXpReport + "   " : "") + $"+{PreferenceStars} bonus star";
+            StartCoroutine(PreferenceHeart(npc));
+        }
     }
+
+    public const int PreferenceStars = 1;
 
     private IEnumerator SayLater(string text, float delay)
     {
@@ -493,7 +511,7 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         Toast(text, 3.2f);
     }
 
-    // NPC preferences give a bonus only (the bonus currency is still to be designed, TASKS §14).
+    // NPC preferences give a bonus only: +1 bonus star (stars are the one currency).
     private IEnumerator PreferenceHeart(string npc)
     {
         yield return new WaitForSeconds(0.25f);

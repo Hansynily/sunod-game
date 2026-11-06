@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using SunodGame.Core;
+using SunodGame.UI;
 
 [DisallowMultipleComponent]
 public class vc_QuestTimer : MonoBehaviour
@@ -145,14 +146,15 @@ public class vc_QuestTimer : MonoBehaviour
         rt.anchoredPosition = new Vector2((left + right) * 0.5f, y);
         rt.sizeDelta = new Vector2(width + border * 2f, h + border * 2f);
 
-        Image frame = MakeBarImage("Frame", rt, Vector2.zero, rt.sizeDelta, new Color32(70, 46, 34, 255));
-        MakeBarImage("Back", rt, Vector2.zero, new Vector2(width, h), new Color32(246, 232, 200, 255));
+        // UI V2 sn-progress look: brown outline, cream-lo track, theme-coloured fill
+        Image frame = MakeBarImage("Frame", rt, Vector2.zero, rt.sizeDelta, vc_UITheme.Brown);
+        MakeBarImage("Back", rt, Vector2.zero, new Vector2(width, h), vc_UITheme.CreamLo);
         _barFill = MakeBarImage("Fill", rt, Vector2.zero, new Vector2(width, h), Color.white);
         _barFill.type = Image.Type.Filled;
         _barFill.fillMethod = Image.FillMethod.Horizontal;
         _barFill.fillOrigin = (int)Image.OriginHorizontal.Left;
         for (int i = 1; i <= 4; i++)
-            MakeBarImage("Tick", rt, new Vector2(-width * 0.5f + width * i * 0.2f, 0f), new Vector2(border, h), new Color32(70, 46, 34, 200));
+            MakeBarImage("Tick", rt, new Vector2(-width * 0.5f + width * i * 0.2f, 0f), new Vector2(border, h), new Color(vc_UITheme.Brown.r, vc_UITheme.Brown.g, vc_UITheme.Brown.b, 0.6f));
         frame.raycastTarget = false;
         _barRoot.SetActive(false);
     }
@@ -172,13 +174,14 @@ public class vc_QuestTimer : MonoBehaviour
         return img;
     }
 
-    private static readonly Color32[] BarColors =
+    // UI V2 tokens: green while it's going well, gold as stars go out, red for the last one
+    private static readonly Color[] BarColors =
     {
-        new Color32(214, 64, 52, 255),   // 1 star left
-        new Color32(240, 128, 40, 255),  // 2
-        new Color32(240, 190, 50, 255),  // 3
-        new Color32(150, 200, 70, 255),  // 4
-        new Color32(80, 180, 90, 255),   // 5
+        vc_UITheme.Red,        // 1 star left
+        vc_UITheme.GoldDark,   // 2
+        vc_UITheme.Gold,       // 3
+        vc_UITheme.Green,      // 4
+        vc_UITheme.Green,      // 5
     };
 
     private void UpdateTimeBar()
@@ -191,7 +194,7 @@ public class vc_QuestTimer : MonoBehaviour
         _barFill.fillAmount = w > 0f ? Mathf.Round(ratio * w) / w : ratio;
         int stars = Mathf.Clamp(GetStarCountForTimeRemaining(), 1, 5);
         Color c = BarColors[stars - 1];
-        if (stars == 1 && isRunning && Mathf.Repeat(Time.time, 0.5f) < 0.25f) c = new Color32(255, 236, 210, 255);
+        if (stars == 1 && isRunning && Mathf.Repeat(Time.time, 0.5f) < 0.25f) c = vc_UITheme.CreamHi;
         _barFill.color = c;
     }
 
@@ -209,8 +212,8 @@ public class vc_QuestTimer : MonoBehaviour
             vc_UIPointer.PointAtWorldUI(_barRoot != null ? _barRoot.transform as RectTransform : null);
         vc_DialogPanel.Instance.ShowMessage(
             "Beat the clock!",
-            "The stars at the top are your timer. They start full, and one goes out every few seconds while you work.\n\n" +
-            "The bar under them drains too. The faster you finish, the more stars you keep. If the bar runs out, time's up and the quest ends.",
+            "The stars on top are your timer. One goes out every few seconds.\n\n" +
+            "Finish fast to keep more. Bar empty = quest over.",
             () =>
             {
                 _tipHold = false;

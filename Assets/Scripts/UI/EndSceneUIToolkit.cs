@@ -58,8 +58,11 @@ namespace SunodGame.UI
             root.Q<Label>("lbl-holland-code").text  = SafeText(GameSessionData.DisplayHollandCode);
             root.Q<Label>("lbl-top-traits").text    = GetTopTraits();
             // out of everyone in the 3 towns (16 each); not a target - nobody can help all 48
-            root.Q<Label>("lbl-quests").text        = $"{GameSessionData.rounds_cleared} of {Mathf.Max(48, GameSessionData.rounds_attempted)}";
-            root.Q<Label>("lbl-stars").text         = GameSessionData.total_stars.ToString();
+            int questsOutOf = Mathf.Max(48, GameSessionData.rounds_attempted);
+            Label quests = root.Q<Label>("lbl-quests");
+            Label stars  = root.Q<Label>("lbl-stars");
+            quests.text = $"{GameSessionData.rounds_cleared} of {questsOutOf}";
+            stars.text  = GameSessionData.total_stars.ToString();
 
             // Ended early ("See my results so far"): say the result is provisional.
             Label partial = root.Q<Label>("lbl-partial-note");
@@ -72,7 +75,7 @@ namespace SunodGame.UI
             // Website card: a link to the SUNOD server's site.
             Label siteLink = root.Q<Label>("lbl-survey-link");
             if (siteLink != null)
-                siteLink.text = "Visit SUNOD Website";
+                siteLink.text = "Visit website";
 
             _btnPlayAgain  = root.Q<Button>("btn-play-again");
             _btnMainMenu   = root.Q<Button>("btn-main-menu");
@@ -81,6 +84,40 @@ namespace SunodGame.UI
             _btnPlayAgain? .RegisterCallback<ClickEvent>(OnPlayAgainClicked);
             _btnMainMenu?  .RegisterCallback<ClickEvent>(OnMainMenuClicked);
             _btnSurveyLink?.RegisterCallback<ClickEvent>(OnSurveyLinkClicked);
+
+            PlayEntrance(root, quests, stars, questsOutOf);
+        }
+
+        /// <summary>
+        /// UI V2 reveal: result card pops in, the career chip punches, stats cascade, the
+        /// numbers count up, then the website card and the buttons slide in.
+        /// </summary>
+        private static void PlayEntrance(VisualElement root, Label quests, Label stars, int questsOutOf)
+        {
+            vc_UIAnim.PressAll(root);
+
+            VisualElement result = root.Q<VisualElement>("result-panel");
+            vc_UIAnim.Show(result, vc_UIAnim.Enter.Pop, 0.05f);
+
+            Label career = root.Q<Label>("lbl-career-name");
+            if (career != null)
+                vc_UIAnim.Show(career, vc_UIAnim.Enter.Pop, 0.3f, () => vc_UIAnim.Punch(career, 0.14f, 0.4f));
+
+            VisualElement stats = root.Q<VisualElement>("stats-section");
+            if (stats != null) vc_UIAnim.Stagger(stats.Children(), vc_UIAnim.Enter.SlideUp, 0.06f, 0.45f);
+
+            // start the numbers at 0 so nothing flashes at the final value during the delay
+            if (quests != null) quests.text = "0 of " + questsOutOf;
+            if (stars != null) stars.text = "0";
+            if (quests != null)
+                vc_UIAnim.CountUp(quests, 0, GameSessionData.rounds_cleared, "{0} of " + questsOutOf, 0.7f, 0.6f);
+            if (stars != null)
+                vc_UIAnim.CountUp(stars, 0, GameSessionData.total_stars, "{0}", 0.8f, 0.65f);
+
+            vc_UIAnim.Show(root.Q<VisualElement>("survey-card"), vc_UIAnim.Enter.SlideLeft, 0.35f);
+
+            VisualElement actions = root.Q<VisualElement>("action-row");
+            if (actions != null) vc_UIAnim.Stagger(actions.Children(), vc_UIAnim.Enter.SlideUp, 0.06f, 0.75f);
         }
 
         private void OnDisable()
@@ -141,7 +178,7 @@ namespace SunodGame.UI
                     top.Add(name);
             }
 
-            return top.Count > 0 ? string.Join(" ❖ ", top) : "---";
+            return top.Count > 0 ? string.Join(", ", top) : "---";
         }
 
         private static string SafeText(string value) =>

@@ -66,6 +66,26 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
     private bool _arrived;
     private readonly List<GameObject> _spawned = new List<GameObject>();
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Dr. Cruz",
+        presses = 3,
+        bestFitTag = "survey",
+        bestFitSeconds = 2f,
+        prepTag = "collect",
+        prepUnlocksTag = "plan",
+        prepLine = "You bottle a sample from each mushroom and label the jars...",
+        preferredTag = "plan",
+        preferenceLine = "A proper experiment, with jars and labels. Thank you!",
+        fastLines = new[]
+        {
+            ("unlock", "The roots! You cracked it already?"),
+            ("plan", "A clean experiment in minutes. Publishable!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     protected override Vector3 BarWorldPosition => _barPos;
 
     private Vector3 Cluster()
@@ -90,7 +110,7 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Glowing Mushrooms",
-            "The mushrooms glow in the dark. Find out why.",
+            "Dr. Cruz found glowing mushrooms and wants a proper experiment. Find out why they glow.",
             new[] { "Study the mushroom clusters" });
     }
 
@@ -166,10 +186,10 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
 
         if (BlockedByWork()) return;
 
-        if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
-        if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
+        if (d.HasTag("unlock")) { StartWork(SolveRoutine(PathTime(solveTime))); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime), CurrentInstant)); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime))); return; }
+        if (d.HasTag("inspect")) { StartWork(InspectRoutine(PathTime(inspectTime))); return; }
 
         Toast("This needs a scientist's eye.", 2.2f);
     }
@@ -177,6 +197,31 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
     protected override void OnWorkCancelled()
     {
         _boost = false;
+    }
+
+    // Prep: Collect bottles a sample from each mushroom into a labelled jar; Plan then runs the whole experiment at once.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        for (int i = 0; i < 3; i++)
+        {
+            if (mushrooms != null && i < mushrooms.Length && jars != null && i < jars.Length && jars[i] != null)
+            {
+                Vector3 m = mushrooms[i].position;
+                StartCoroutine(Fly(m + new Vector3(0f, 0.3f, 0f), jars[i].transform.position + new Vector3(0f, 0.1f, 0f), 0.3f));
+                SunodGame.Core.vc_Sfx.Play("plop", 0.5f, 0.1f);
+                Fx(sparkFrames, m + new Vector3(0.1f, 0.2f, 0f), 12f, 0.2f);
+            }
+            yield return new WaitForSeconds(0.28f);
+            if (jars != null && i < jars.Length && jars[i] != null)
+            {
+                jars[i].sprite = jarDim;
+                if (labels != null && i < labels.Length)
+                    Fx(new[] { labels[i] }, jars[i].transform.position + new Vector3(0f, 0.8f, 0f), 1.4f, 0.2f);
+                SunodGame.Core.vc_Sfx.Play("tally", 0.5f, 0.05f);
+            }
+        }
+        yield return new WaitForSeconds(0.15f);
     }
 
     // ── Survey ★ ─────────────────────────────────────────────────────────
@@ -224,9 +269,9 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
 
     // ── Solve ◆: reveal the roots ────────────────────────────────────────
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float seconds)
     {
-        Toast("Working out the secret of the glow...", solveTime);
+        Toast("Working out the secret of the glow...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         Vector3 c = Cluster();
         _boost = true;
@@ -237,11 +282,11 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
         }
         float t = 0f, shake = 0f;
         bool bulb = false;
-        while (t < solveTime)
+        while (t < seconds)
         {
             t += Time.deltaTime;
             shake += Time.deltaTime;
-            float k = t / solveTime;
+            float k = t / seconds;
             SetBar(k);
             if (roots != null)
             {
@@ -255,7 +300,7 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
                 SunodGame.Core.vc_Sfx.Play("rustle", 0.35f, 0.1f);
                 Fx(dustFrames, c + new Vector3(Random.Range(-0.8f, 0.8f), -0.2f, 0f), 10f, 0.25f);
             }
-            if (!bulb && t >= solveTime - 0.9f)
+            if (!bulb && t >= seconds - Mathf.Min(0.9f, seconds * 0.3f))
             {
                 bulb = true;
                 Fx(bulbFrames, c + new Vector3(0f, 1.9f, 0f), 2f, 0.3f, 25);
@@ -268,24 +313,25 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
 
     // ── Plan ◆: light vs dark jars ───────────────────────────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float seconds, bool oneGo)
     {
-        Toast("Setting up a light-versus-dark test...", planTime);
+        Toast(oneGo ? "The labelled jars are ready. The whole experiment runs in one go!" : "Setting up a light-versus-dark test...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         Vector3 c = Cluster();
         SpriteRenderer a = jars != null && jars.Length > 0 ? jars[0] : null;
         SpriteRenderer b = jars != null && jars.Length > 1 ? jars[1] : null;
         float t = 0f;
+        float fillT = seconds * 0.11f, coverT = seconds * 0.24f;
 
         // 1) fill two jars with spores
         for (int i = 0; i < 2; i++)
         {
             SpriteRenderer j = i == 0 ? a : b;
             if (j == null) continue;
-            StartCoroutine(Fly(c + new Vector3(0f, 0.4f, 0f), j.transform.position + new Vector3(0f, 0.1f, 0f), 0.6f));
+            StartCoroutine(Fly(c + new Vector3(0f, 0.4f, 0f), j.transform.position + new Vector3(0f, 0.1f, 0f), Mathf.Min(0.6f, fillT * 1.1f)));
             SunodGame.Core.vc_Sfx.Play("plop", 0.5f, 0.1f);
-            yield return BarStep(0.55f, t / planTime, (t + 0.55f) / planTime);
-            t += 0.55f;
+            yield return BarStep(fillT, t / seconds, (t + fillT) / seconds);
+            t += fillT;
             j.sprite = jarDim;
         }
 
@@ -303,25 +349,25 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
             lightBeam.transform.position = Snap(a.transform.position + new Vector3(0f, 1.0f, 0f));
         }
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
-        yield return BarStep(1.2f, t / planTime, (t + 1.2f) / planTime);
-        t += 1.2f;
+        yield return BarStep(coverT, t / seconds, (t + coverT) / seconds);
+        t += coverT;
 
         // 3) wait and watch: the lit jar starts to glow, the dark one doesn't
-        float rest = Mathf.Max(0.5f, planTime - t);
+        float rest = Mathf.Max(0.1f, seconds - t);
         if (a != null) { a.sprite = jarLit; SunodGame.Core.vc_Sfx.Play("grow", 0.5f); Fx(sparkFrames, a.transform.position + new Vector3(0f, 0.3f, 0f), 12f, 0.4f); }
-        yield return BarStep(rest * 0.5f, t / planTime, (t + rest * 0.5f) / planTime);
+        yield return BarStep(rest * 0.5f, t / seconds, (t + rest * 0.5f) / seconds);
         t += rest * 0.5f;
         if (a != null) Fx(checkFrames, a.transform.position + new Vector3(0f, 0.9f, 0f), 2f, 0.3f);
-        yield return BarStep(rest * 0.5f, t / planTime, 1f);
+        yield return BarStep(rest * 0.5f, t / seconds, 1f);
         _boost = true;
-        Finish("The lit jar glows, the dark one doesn't. Light feeds it!");
+        Finish(oneGo ? "A clean experiment in one go. The lit jar glows, the dark one doesn't!" : "The lit jar glows, the dark one doesn't. Light feeds it!");
     }
 
     // ── Collect ○: a sample from each mushroom ───────────────────────────
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float seconds)
     {
-        Toast("Taking a sample from each mushroom...", 3f);
+        Toast("Taking a sample from each mushroom...", Mathf.Max(1.5f, seconds * 0.4f));
         ShowBar(true);
         Vector3 c = Cluster();
         var pr = new GameObject("Probe");
@@ -330,22 +376,22 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
         ps.sprite = probe; ps.sortingLayerName = sortingLayer; ps.sortingOrder = 22;
         _spawned.Add(pr);
 
-        float per = (collectTime - 1.1f) / 3f, t = 0f;
+        float per = seconds * 0.8625f / 3f, t = 0f;
         for (int i = 0; i < 3; i++)
         {
             Vector3 m = mushrooms[i].position;
             pr.transform.position = Snap(m + new Vector3(0.45f, 0.35f, 0f));
             SunodGame.Core.vc_Sfx.Play("snip", 0.5f, 0.1f);
             Fx(sparkFrames, m + new Vector3(0.1f, 0.2f, 0f), 12f, 0.2f);
-            yield return BarStep(per * 0.35f, t / collectTime, (t + per * 0.35f) / collectTime);
+            yield return BarStep(per * 0.35f, t / seconds, (t + per * 0.35f) / seconds);
             t += per * 0.35f;
 
             if (jars != null && i < jars.Length)
             {
-                StartCoroutine(Fly(m + new Vector3(0f, 0.3f, 0f), jars[i].transform.position + new Vector3(0f, 0.1f, 0f), 0.7f));
+                StartCoroutine(Fly(m + new Vector3(0f, 0.3f, 0f), jars[i].transform.position + new Vector3(0f, 0.1f, 0f), Mathf.Min(0.7f, per * 0.45f)));
                 SunodGame.Core.vc_Sfx.Play("plop", 0.5f, 0.1f);
             }
-            yield return BarStep(per * 0.45f, t / collectTime, (t + per * 0.45f) / collectTime);
+            yield return BarStep(per * 0.45f, t / seconds, (t + per * 0.45f) / seconds);
             t += per * 0.45f;
 
             if (jars != null && i < jars.Length)
@@ -355,23 +401,23 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
                     Fx(new[] { labels[i] }, jars[i].transform.position + new Vector3(0f, 0.8f, 0f), 1.4f, 0.2f);
                 SunodGame.Core.vc_Sfx.Play("tally", 0.5f, 0.05f);
             }
-            yield return BarStep(per * 0.2f, t / collectTime, (t + per * 0.2f) / collectTime);
+            yield return BarStep(per * 0.2f, t / seconds, (t + per * 0.2f) / seconds);
             t += per * 0.2f;
         }
         Destroy(pr);
         for (int i = 0; jars != null && i < jars.Length; i++)
             Fx(checkFrames, jars[i].transform.position + new Vector3(0f, 0.9f, 0f), 2f, 0.3f);
         SunodGame.Core.vc_Sfx.Play("chime", 0.6f);
-        yield return BarStep(Mathf.Max(0.1f, collectTime - t), t / collectTime, 1f);
+        yield return BarStep(Mathf.Max(0.1f, seconds - t), t / seconds, 1f);
         _boost = true;
         Finish("Every sample is bottled and labeled!");
     }
 
     // ── Inspect ○: a close look at each mushroom ─────────────────────────
 
-    private IEnumerator InspectRoutine()
+    private IEnumerator InspectRoutine(float seconds)
     {
-        Toast("Looking at each mushroom up close...", inspectTime);
+        Toast("Looking at each mushroom up close...", Mathf.Max(1.5f, seconds * 0.5f));
         ShowBar(true);
         var lens = new GameObject("Lens");
         lens.transform.SetParent(transform, true);
@@ -380,14 +426,14 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
         ls.sortingLayerName = sortingLayer; ls.sortingOrder = 22;
         _spawned.Add(lens);
 
-        float per = (inspectTime - 0.9f) / 3f, t = 0f;
+        float per = seconds * (6.1f / 7f) / 3f, t = 0f;
         for (int i = 0; i < 3 && mushrooms != null && i < mushrooms.Length; i++)
         {
             Vector3 m = mushrooms[i].position;
             // the lens drifts over the cap, then down to the stem and roots
             lens.transform.position = Snap(m + new Vector3(0.35f, 0.55f, 0f));
             SunodGame.Core.vc_Sfx.Play("text_blip", 0.45f, 0.1f);
-            yield return BarStep(per * 0.5f, t / inspectTime, (t + per * 0.5f) / inspectTime);
+            yield return BarStep(per * 0.5f, t / seconds, (t + per * 0.5f) / seconds);
             t += per * 0.5f;
 
             lens.transform.position = Snap(m + new Vector3(0.35f, 0.05f, 0f));
@@ -395,14 +441,14 @@ public class vc_GlowMushroomQuest : vc_FitQuestBase
             if (noteIcons != null && i < noteIcons.Length)
                 Fx(new[] { noteIcons[i] }, m + new Vector3(0f, 0.95f, 0f), 1.5f, 0.4f);
             SunodGame.Core.vc_Sfx.Play("tally", 0.45f, 0.05f);
-            yield return BarStep(per * 0.5f, t / inspectTime, (t + per * 0.5f) / inspectTime);
+            yield return BarStep(per * 0.5f, t / seconds, (t + per * 0.5f) / seconds);
             t += per * 0.5f;
         }
         Destroy(lens);
         PopProp(notesProp);
         Fx(bulbFrames, Cluster() + new Vector3(0f, 1.9f, 0f), 2f, 0.3f, 25);
         SunodGame.Core.vc_Sfx.Play("idea", 0.6f);
-        yield return BarStep(Mathf.Max(0.1f, inspectTime - t), t / inspectTime, 1f);
+        yield return BarStep(Mathf.Max(0.1f, seconds - t), t / seconds, 1f);
         _boost = true;
         Finish("Up close, every glowing cap has the same tiny roots. That's where the light comes from!");
     }

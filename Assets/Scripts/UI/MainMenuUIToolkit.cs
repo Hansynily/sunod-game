@@ -79,6 +79,9 @@ namespace SunodGame.UI
 
         private const int TotalQuestSlots = 48;
 
+        // UI V2: idle float on the SUNOD logo
+        private IVisualElementScheduledItem _titleFloat;
+
         // Cached from the last GET so Continue can hand it straight to the target scene
         // without a second round trip.
         private RunStateResponse _cachedRunState;
@@ -139,7 +142,7 @@ namespace SunodGame.UI
             _btnSettingsClose = root.Q<Button>("btn-settings-close");
             _settingsSurveyRow     = root.Q<VisualElement>("settings-survey-row");
             _btnSettingsSurveyLink = root.Q<Button>("btn-settings-survey-link");
-            if (_btnSettingsSurveyLink != null) _btnSettingsSurveyLink.text = "Visit SUNOD Website";
+            if (_btnSettingsSurveyLink != null) _btnSettingsSurveyLink.text = "Visit site";
 
             _btnPlay?    .RegisterCallback<ClickEvent>(OnPlayClicked);
             _btnTutorial?.RegisterCallback<ClickEvent>(OnTutorialClicked);
@@ -178,9 +181,56 @@ namespace SunodGame.UI
             _privacyCheckRead?.SetValueWithoutNotify(false);
             _privacyCheckAgree?.SetValueWithoutNotify(false);
             RefreshPrivacyAgreeButton();
-            _privacyOverlay?.SetDisplay(needsConsent);
+            if (needsConsent) OpenModal(_privacyOverlay);
+            else _privacyOverlay?.SetDisplay(false);
             BindLoops(root);
             BindGameplay(root);
+
+            // UI V2: squish on every button (and the player card), gentle float on the logo
+            vc_UIAnim.PressAll(root);
+            vc_UIAnim.Press(_rightPanel, 0.95f);
+            StartTitleFloat(root);
+        }
+
+        // ── UI V2 motion helpers ─────────────────────────────────────────
+
+        private void StartTitleFloat(VisualElement root)
+        {
+            _titleFloat?.Pause();
+            _titleFloat = null;
+            Label title = root.Q<Label>(className: "brand-title");
+            if (title == null) return;
+            _titleFloat = title.schedule.Execute(() =>
+            {
+                float y = Mathf.Sin(Time.unscaledTime * 1.3f) * 6f;
+                title.style.translate = new Translate(0f, y);
+            }).Every(16);
+        }
+
+        /// <summary>Modal open (UI_V2 rule 7): scrim fades in, sheet pops.</summary>
+        private static void OpenModal(VisualElement scrim)
+        {
+            if (scrim == null) return;
+            vc_UIAnim.Show(scrim, vc_UIAnim.Enter.Fade);
+            vc_UIAnim.Show(scrim.Q<VisualElement>(className: "sn-sheet"), vc_UIAnim.Enter.Pop);
+        }
+
+        /// <summary>Modal close: sheet shrinks first, then the scrim fades. Ends display:none.</summary>
+        private static void CloseModal(VisualElement scrim)
+        {
+            if (scrim == null) return;
+            vc_UIAnim.Hide(scrim.Q<VisualElement>(className: "sn-sheet"));
+            // done also runs when Hide skips (already hidden), so the scrim always ends display:none
+            vc_UIAnim.Hide(scrim, () => scrim.style.display = DisplayStyle.None, vc_UIAnim.Exit.Fade, 0.08f);
+        }
+
+        /// <summary>One green action per view: Continue when a run is in progress (gold for Go Back), else New Game.</summary>
+        private void RefreshMenuEmphasis()
+        {
+            bool canContinue = _btnContinue != null && _btnContinue.enabledSelf;
+            _btnContinue?.EnableInClassList("sn-btn--gold", canContinue && _goBackMode);
+            _btnContinue?.EnableInClassList("sn-btn--primary", canContinue && !_goBackMode);
+            _btnPlay?.EnableInClassList("sn-btn--primary", !canContinue);
         }
 
         // â”€â”€ Privacy notice (once per account, per notice version) â”€â”€â”€â”€â”€â”€â”€
@@ -215,7 +265,7 @@ namespace SunodGame.UI
             if (!PrivacyBoxesTicked()) return;
             try { PlayerPrefs.SetInt(PrivacyKey(), 1); PlayerPrefs.Save(); } catch { }
             TelemetryManager.Instance?.PostMyPrivacyConsent(PrivacyVersion);
-            _privacyOverlay?.SetDisplay(false);
+            CloseModal(_privacyOverlay);
         }
 
         // Declining means no game: sign out and leave. Back to Login where the scene is in
@@ -258,6 +308,8 @@ namespace SunodGame.UI
             _sfxSlider?.UnregisterCallback<PointerCaptureOutEvent>(OnSfxSliderReleased);
             _musicSlider?.UnregisterValueChangedCallback(OnMusicSliderChanged);
             UnbindLoops();
+            _titleFloat?.Pause();
+            _titleFloat = null;
         }
 
         private void PopulatePlayerCard()
@@ -290,7 +342,7 @@ namespace SunodGame.UI
             if (hasLiveRun || HasLoopsToLose)
             {
                 RefreshNewRunWarning();
-                _newRunConfirmOverlay?.SetDisplay(true);
+                OpenModal(_newRunConfirmOverlay);
                 return;
             }
 
@@ -299,11 +351,11 @@ namespace SunodGame.UI
 
         private void OnNewRunConfirmClicked(ClickEvent _)
         {
-            _newRunConfirmOverlay?.SetDisplay(false);
+            CloseModal(_newRunConfirmOverlay);
             ProceedToNewRun();
         }
 
-        private void OnNewRunCancelClicked(ClickEvent _) => _newRunConfirmOverlay?.SetDisplay(false);
+        private void OnNewRunCancelClicked(ClickEvent _) => CloseModal(_newRunConfirmOverlay);
 
         private void ProceedToNewRun()
         {
@@ -370,7 +422,10 @@ namespace SunodGame.UI
             _musicSlider?.SetValueWithoutNotify(vc_PlayerOptions.MusicVolume);
             RefreshNameChoice();
             RefreshGameplayChoice();
-            _settingsOverlay?.SetDisplay(true);
+            OpenModal(_settingsOverlay);
+            if (_settingsOverlay != null)
+                vc_UIAnim.Stagger(_settingsOverlay.Query<VisualElement>(className: "settings-row").ToList(),
+                    vc_UIAnim.Enter.SlideUp, 0.04f, 0.1f);
         }
 
         private void OnSettingsSurveyLinkClicked(ClickEvent _)
@@ -379,7 +434,7 @@ namespace SunodGame.UI
             vc_SiteLink.Open();
         }
 
-        private void OnSettingsCloseClicked(ClickEvent _) => _settingsOverlay?.SetDisplay(false);
+        private void OnSettingsCloseClicked(ClickEvent _) => CloseModal(_settingsOverlay);
 
         private void OnSfxSliderChanged(ChangeEvent<float> evt) => vc_PlayerOptions.SfxVolume = evt.newValue;
 
@@ -411,6 +466,7 @@ namespace SunodGame.UI
         {
             vc_PlayerOptions.UseGirlAvatar = girl;   // always store, so the choice beats the sign-up default
             RefreshAvatarChoice();
+            vc_UIAnim.Punch(_characterPreview?.parent, 0.1f);
         }
 
         private void RefreshAvatarChoice()
@@ -433,10 +489,10 @@ namespace SunodGame.UI
                     ? session.Username
                     : "Adventurer";
             RefreshAvatarChoice();
-            _characterOverlay?.SetDisplay(true);
+            OpenModal(_characterOverlay);
         }
 
-        private void OnCharacterCloseClicked(ClickEvent _) => _characterOverlay?.SetDisplay(false);
+        private void OnCharacterCloseClicked(ClickEvent _) => CloseModal(_characterOverlay);
 
         // â”€â”€ Continue â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -485,6 +541,7 @@ namespace SunodGame.UI
         {
             if (_btnContinue == null) return;
             _btnContinue.SetEnabled(enabled);
+            RefreshMenuEmphasis();
         }
 
         private void OnContinueClicked(ClickEvent _)
@@ -563,7 +620,7 @@ namespace SunodGame.UI
         private void OnStatsClicked(ClickEvent _)
         {
             SetMenuVisible(false);
-            _statsOverlay?.SetDisplay(true);
+            OpenModal(_statsOverlay);
             _statsContent?.SetDisplay(false);
             _statsEmptyLabel?.SetDisplay(false);
             _historyList?.Clear();
@@ -611,7 +668,7 @@ namespace SunodGame.UI
 
                 var card = new VisualElement();
                 card.AddToClassList("history-card");
-                card.AddToClassList("sl-panel-cream");
+                card.AddToClassList("sn-card");
 
                 var index = new Label($"#{runs.Count - i}");
                 index.AddToClassList("history-index");
@@ -634,7 +691,7 @@ namespace SunodGame.UI
                 parts.Add($"{run.quests_attempted} quests ({run.quests_completed} passed)");
                 parts.Add($"{run.total_stars} stars");
                 if (run.play_seconds >= 60f) parts.Add($"{Mathf.RoundToInt(run.play_seconds / 60f)} min");
-                var sub = new Label(string.Join("  -  ", parts));
+                var sub = new Label(string.Join("  ·  ", parts));
                 sub.AddToClassList("history-sub");
                 body.Add(sub);
                 card.Add(body);
@@ -645,6 +702,7 @@ namespace SunodGame.UI
 
                 _historyList.Add(card);
             }
+            vc_UIAnim.Stagger(_historyList.Children(), vc_UIAnim.Enter.SlideUp, 0.05f, 0.1f);
         }
 
         private static string FormatRunDate(string iso)
@@ -661,13 +719,13 @@ namespace SunodGame.UI
         {
             if (progress == null || !progress.has_data)
             {
-                _statsEmptyLabel?.SetDisplay(true);
+                vc_UIAnim.Show(_statsEmptyLabel, vc_UIAnim.Enter.Fade);
                 _statsContent?.SetDisplay(false);
                 return;
             }
 
             _statsEmptyLabel?.SetDisplay(false);
-            _statsContent?.SetDisplay(true);
+            vc_UIAnim.Show(_statsContent, vc_UIAnim.Enter.SlideUp);
 
             bool runFinished = _cachedRunState != null && _cachedRunState.run_finished;
 
@@ -702,28 +760,54 @@ namespace SunodGame.UI
             if (_lblQuestsSplit  != null) _lblQuestsSplit.text  = $"{progress.quests_completed} / {Mathf.Max(0, progress.quests_attempted - progress.quests_completed)}";
             if (_lblStars        != null) _lblStars.text        = progress.total_stars.ToString();
             if (_lblSource       != null) _lblSource.text       = string.IsNullOrWhiteSpace(progress.prediction_source) ? "--" : progress.prediction_source;
+
+            AnimateProgressNumbers(played, progress.total_stars);
+        }
+
+        // UI V2: stat tiles pop in one after another, numbers count up, the code punches.
+        // CountUp ends on the same strings set above.
+        private void AnimateProgressNumbers(int played, int stars)
+        {
+            VisualElement grid = _statsContent?.Q<VisualElement>("stat-grid");
+            if (grid != null) vc_UIAnim.Stagger(grid.Children(), vc_UIAnim.Enter.Pop, 0.06f, 0.12f);
+
+            if (_lblQuests != null)
+            {
+                _lblQuests.text = $"0 of {TotalQuestSlots}";
+                vc_UIAnim.CountUp(_lblQuests, 0, played, "{0} of " + TotalQuestSlots, 0.7f, 0.25f);
+            }
+            if (_lblStars != null)
+            {
+                _lblStars.text = "0";
+                vc_UIAnim.CountUp(_lblStars, 0, stars, "{0}", 0.7f, 0.35f);
+            }
+            Label code = _lblHollandCode;
+            code?.schedule.Execute(() => vc_UIAnim.Punch(code, 0.2f)).StartingIn(420);
+            Label split = _lblQuestsSplit;
+            split?.schedule.Execute(() => vc_UIAnim.Punch(split, 0.12f)).StartingIn(480);
         }
 
         private void SetStatsError(string message)
         {
             if (_lblStatsError == null) return;
             _lblStatsError.text = message ?? string.Empty;
-            _lblStatsError.SetDisplay(!string.IsNullOrWhiteSpace(message));
+            bool show = !string.IsNullOrWhiteSpace(message);
+            if (show) vc_UIAnim.Show(_lblStatsError, vc_UIAnim.Enter.Fade);
+            else _lblStatsError.SetDisplay(false);
         }
 
         private void OnStatsCloseClicked(ClickEvent _)
         {
-            _statsOverlay?.SetDisplay(false);
+            CloseModal(_statsOverlay);
             SetMenuVisible(true);
         }
 
+        // Title, player card and logout fade out behind the progress sheet (and back in).
         private void SetMenuVisible(bool visible)
         {
-            _leftPanel?.SetDisplay(visible);
-            _rightPanel?.SetDisplay(visible);
-            // Logout is rendered last (on top of everything), so it must be hidden
-            // explicitly while the progress page is open or it floats over the page.
-            _btnLogout?.SetDisplay(visible);
+            vc_UIAnim.SetShown(_leftPanel, visible, vc_UIAnim.Enter.Fade, vc_UIAnim.Exit.Fade);
+            vc_UIAnim.SetShown(_rightPanel, visible, vc_UIAnim.Enter.Fade, vc_UIAnim.Exit.Fade);
+            vc_UIAnim.SetShown(_btnLogout, visible, vc_UIAnim.Enter.Fade, vc_UIAnim.Exit.Fade);
         }
     }
 }

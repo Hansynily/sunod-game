@@ -41,8 +41,30 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
     [SerializeField] private float buildTime = 5f;
     [SerializeField] private float troubleshootTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Solve (prep) probes the board and finds the loose part,
+    // then Push clicks every part home in one go. Preference: Push (keep it original).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Kuya Dan",
+        presses = 5,
+        bestFitTag = "repair",
+        bestFitSeconds = 2f,
+        prepTag = "unlock",
+        prepUnlocksTag = "push",
+        prepLine = "You probe the board and find the loose part...",
+        preferredTag = "push",
+        preferenceLine = "Nothing replaced, all original. Salamat, pre!",
+        fastLines = new[]
+        {
+            ("push", "Click, click, click and it plays! Still all original!"),
+            ("build", "You built a working radio that fast?!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _partRest;
-    private int _pushes;
+    private int _pushes, _pushPress;
     private float _staticClock;
     private GameObject _tool;
 
@@ -60,6 +82,7 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
     protected override void OnBegin()
     {
         _pushes = 0;
+        _pushPress = 0;
         _staticClock = 0.5f;
         if (_tool != null) Destroy(_tool);
         if (radio != null) radio.sprite = radioBroken;
@@ -71,7 +94,7 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Radio Repair",
-            "Put the school radio back together.",
+            "Kuya Dan's radio club radio stopped working. He wants it kept original if possible, so he'd love a hands-on fix.",
             new[] { "Put the school radio back together" });
     }
 
@@ -96,8 +119,8 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
         if (d.HasTag("repair")) { StartWork(RepairRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("push")) { PushPress(); return; }
-        if (d.HasTag("build")) { StartWork(BuildRoutine()); return; }
-        if (d.HasTag("unlock")) { StartWork(TroubleshootRoutine()); return; }
+        if (d.HasTag("build")) { StartWork(BuildRoutine(PathTime(buildTime), CurrentInstant)); return; }
+        if (d.HasTag("unlock")) { StartWork(TroubleshootRoutine(PathTime(troubleshootTime))); return; }
         Toast("Electronics need hands-on work.", 2.2f);
     }
 
@@ -158,20 +181,34 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
 
     // ── Push: shove a loose part back in, one per press ──────────────────
 
+    // 3 presses at Lv1, 2 at Lv2, 1 at Lv3 or after the Solve prep: each press pushes its share
+    // of the parts that are left; the last one runs through StartWork and finishes.
     private void PushPress()
     {
-        if (_pushes >= parts.Length && _pushes >= pushPresses) return;
-        int i = Mathf.Min(_pushes, parts.Length - 1);
-        _pushes++;
-        StartCoroutine(PushPart(i));
-        if (_pushes < pushPresses)
+        if (parts == null || parts.Length == 0) return;
+        int total = Mathf.Max(1, pushPresses);
+        if (_pushes >= total) return;
+        _pushPress++;
+        int need = Mathf.Clamp(PathPresses(total), 1, total);
+        int remaining = total - _pushes;
+        int pressesLeft = Mathf.Max(1, need - _pushPress + 1);
+        int count = _pushPress >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        int first = _pushes;
+        _pushes += count;
+
+        if (_pushes >= total)
         {
-            Toast($"You push a part back in ({_pushes}/{pushPresses})", 2f);
+            StartWork(PushFinishRoutine(first, count, count > 1));
+            return;
         }
-        else
-        {
-            StartCoroutine(FinishPush());
-        }
+        Toast($"You push a part back in ({_pushes}/{total})", 2f);
+        for (int k = 0; k < count; k++) StartCoroutine(PushPartLater(first + k, k * 0.2f));
+    }
+
+    private IEnumerator PushPartLater(int unit, float delay)
+    {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+        yield return PushPart(Mathf.Min(unit, parts.Length - 1));
     }
 
     private IEnumerator PushPart(int i)
@@ -201,26 +238,36 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
         if (!Done && radio != null && keep == radioBroken) radio.sprite = keep;
     }
 
-    private IEnumerator FinishPush()
+    private IEnumerator PushFinishRoutine(int first, int count, bool oneGo)
     {
-        yield return new WaitForSeconds(0.45f);
+        Toast(oneGo ? "Click, click, click! Every part goes home!" : "The last part clicks home!", 2f);
+        ShowBar(true);
+        for (int k = 0; k < count; k++)
+        {
+            StartCoroutine(PushPart(Mathf.Min(first + k, parts.Length - 1)));
+            SetBar((k + 1f) / count);
+            yield return new WaitForSeconds(count > 1 ? 0.2f : 0f);
+        }
+        yield return new WaitForSeconds(0.55f);
         SwapRadio(radioFixed);
-        Finish("You pushed the parts back in place. It works!");
+        HideParts(false);
+        Finish(oneGo ? "Every part clicked home in one go. It works!" : "You pushed the parts back in place. It works!");
     }
 
     // ── Build: rebuild from spare parts ──────────────────────────────────
 
-    private IEnumerator BuildRoutine()
+    private IEnumerator BuildRoutine(float seconds, bool oneGo)
     {
-        Toast("Rebuilding the radio from spare parts...", buildTime);
+        Toast(oneGo ? "You snap a working radio together in one go!" : "Rebuilding the radio from spare parts...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         int n = parts.Length;
-        float per = (buildTime - 0.8f) / Mathf.Max(1, n), t = 0f;
+        float tapT = seconds * 0.16f;
+        float per = (seconds - tapT) / Mathf.Max(1, n), t = 0f;
         for (int i = 0; i < n; i++)
         {
             StartCoroutine(PushPart(i));
             SunodGame.Core.vc_Sfx.Play("clack", 0.5f, 0.1f);
-            yield return BarStep(per, t / buildTime, (t + per) / buildTime);
+            yield return BarStep(per, t / seconds, (t + per) / seconds);
             t += per;
         }
         // patch it up with a few last taps
@@ -228,32 +275,33 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
         {
             SunodGame.Core.vc_Sfx.Play("hammer", 0.45f, 0.1f);
             Fx(sparkFrames, RadioMid + new Vector3(-0.5f + k * 0.5f, 0.3f, 0f), 12f, 0.1f);
-            yield return BarStep(0.8f / 3f, (t + k * 0.8f / 3f) / buildTime, (t + (k + 1) * 0.8f / 3f) / buildTime);
+            yield return BarStep(tapT / 3f, (t + k * tapT / 3f) / seconds, (t + (k + 1) * tapT / 3f) / seconds);
         }
-        SwapRadio(radioBuilt);
-        Finish("You rebuilt the radio from spare parts. It plays!");
+        SwapRadio(radioBuilt != null ? radioBuilt : radioFixed);
+        Finish(oneGo ? "A working radio, built in one go!" : "You rebuilt the radio from spare parts. It plays!");
     }
 
     // ── Troubleshoot: probe the circuit, then fix it by hand ─────────────
 
-    private IEnumerator TroubleshootRoutine()
+    private IEnumerator TroubleshootRoutine(float seconds)
     {
-        Toast("Testing the circuit with a probe...", troubleshootTime);
+        Toast("Testing the circuit with a probe...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         Vector3 m = RadioMid;
         Vector3[] pts = { m + new Vector3(-0.55f, 0.1f, 0f), m + new Vector3(0.25f, 0.2f, 0f), m + new Vector3(0.75f, -0.1f, 0f) };
-        float testT = troubleshootTime * 0.66f, per = testT / pts.Length, t = 0f;
+        float testT = seconds * 0.66f, per = testT / pts.Length, t = 0f;
+        float moveT = per * 0.4f;
 
         MakeTool(probe, pts[0] + new Vector3(0f, 0.5f, 0f));
         for (int i = 0; i < pts.Length; i++)
         {
             Vector3 from = _tool != null ? _tool.transform.position : pts[i], to = pts[i] + new Vector3(0f, 0.5f, 0f);
             float mv = 0f;
-            while (mv < 0.5f)
+            while (mv < moveT)
             {
                 mv += Time.deltaTime;
-                if (_tool != null) _tool.transform.position = Snap(Vector3.Lerp(from, to, mv / 0.5f));
-                SetBar((t + mv) / troubleshootTime);
+                if (_tool != null) _tool.transform.position = Snap(Vector3.Lerp(from, to, mv / moveT));
+                SetBar((t + mv) / seconds);
                 yield return null;
             }
             Fx(ringFrames, pts[i], 6f);
@@ -261,7 +309,7 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
             bool faulty = i == pts.Length - 1;
             Fx(faulty ? exclaimFrames : checkFrames, pts[i] + new Vector3(0f, 0.7f, 0f), 2f, 0.3f, 24);
             if (faulty) SunodGame.Core.vc_Sfx.Play("zap", 0.4f);
-            yield return BarStep(per - 0.5f, (t + 0.5f) / troubleshootTime, (t + per) / troubleshootTime);
+            yield return BarStep(per - moveT, (t + moveT) / seconds, (t + per) / seconds);
             t += per;
         }
         if (_tool != null) Destroy(_tool);
@@ -269,14 +317,39 @@ public class vc_RadioRepairQuest : vc_FitQuestBase
 
         Fx(bulbFrames, m + new Vector3(0f, 1.1f, 0f), 2f, 0.3f, 25);
         SunodGame.Core.vc_Sfx.Play("idea", 0.7f);
-        yield return BarStep(0.9f, t / troubleshootTime, (t + 0.9f) / troubleshootTime);
-        t += 0.9f;
+        float bulbT = seconds * 0.11f;
+        yield return BarStep(bulbT, t / seconds, (t + bulbT) / seconds);
+        t += bulbT;
 
-        float fix = troubleshootTime - t;
-        yield return Solder(fix, t, troubleshootTime);
+        float fix = Mathf.Max(0.3f, seconds - t);
+        yield return Solder(fix, t, seconds);
         SwapRadio(radioFixed);
         HideParts(true);
         Finish("Found the fault and fixed it by hand. It works!");
+    }
+
+    // ── Prep: Solve probes the board and finds the loose part ────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 m = RadioMid;
+        Vector3 loose = parts != null && parts.Length > 0 && parts[0] != null ? parts[0].position : m + new Vector3(-0.55f, 0.1f, 0f);
+        Vector3 a = m + new Vector3(0.8f, 0.55f, 0f), b = loose + new Vector3(0f, 0.45f, 0f);
+        MakeTool(probe, a);
+        float t = 0f;
+        while (t < 0.7f)
+        {
+            t += Time.deltaTime;
+            if (_tool != null) _tool.transform.position = Snap(Vector3.Lerp(a, b, Mathf.SmoothStep(0f, 1f, t / 0.7f)));
+            yield return null;
+        }
+        SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.05f);
+        Fx(ringFrames, loose, 6f);
+        Fx(exclaimFrames, loose + new Vector3(0f, 0.7f, 0f), 2f, 0.3f, 24);
+        yield return new WaitForSeconds(0.3f);
+        if (_tool != null) Destroy(_tool);
+        _tool = null;
     }
 
     // ── Results ──────────────────────────────────────────────────────────

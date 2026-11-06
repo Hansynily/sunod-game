@@ -1,17 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using SunodGame.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Town-mode overlay (Game_Scene_Town):
-///  - the life-stage progress banner: a rail per stage with one diamond per quest, lit in
-///    that quest's RIASEC colour when it's done, and milestone badges for Elementary,
-///    High School, College and the disaster at the end;
-///  - the end-of-day summary card ("Sleep" button);
-///  - the dream screen (between days and between stages), tap to advance.
-/// The tree is built in code from RunProgress.uss.
+/// Town-mode overlay (Game_Scene_Town), UI V2 (2026-11-07):
+///  - top-right: the day dial (stage progress ring + "Day N" chip; tap = life stages banner)
+///    and the zoom -/+ pair; the pause button (another document) sits right of the dial;
+///  - right column: Back to town / Sleep / Talk + Journal / energy pill;
+///  - the life-stage banner: one card per stage, a segment per quest lit in its RIASEC colour;
+///  - the end-of-day summary card ("Good night") and the dream screen;
+///  - quest timer, presses, stamps, toast, quest-done sheet, next-stage button.
+/// The tree is built in code on the sn-* theme components; RunProgress.uss lays it out.
+/// Motion goes through vc_UIAnim (unscaled time).
 /// </summary>
 [RequireComponent(typeof(UIDocument))]
 public class vc_RunProgressUI : MonoBehaviour
@@ -26,18 +29,19 @@ public class vc_RunProgressUI : MonoBehaviour
     private static readonly string[] StageShort = { "1", "2", "3" };
     private static readonly string[] StageNames = { "Elementary", "High School", "College" };
 
-    private VisualElement _root, _banner, _track;
+    private VisualElement _root, _container, _banner, _track;
     private Label _bannerDay;
 
     // one card per life stage
     private readonly List<VisualElement> _stageCards = new List<VisualElement>();
     private readonly List<Label> _stageBadges = new List<Label>();
+    private readonly List<HudIcon> _stageChecks = new List<HudIcon>();
     private readonly List<Label> _stageCounts = new List<Label>();
     private readonly List<VisualElement> _stageBars = new List<VisualElement>();
     private readonly List<List<VisualElement>> _pips = new List<List<VisualElement>>();
     private VisualElement _stormCard;
 
-    private VisualElement _summaryDim;
+    private VisualElement _summaryDim, _summaryCard;
     private Label _summaryTitle, _summaryBody;
     private Button _summaryBtn;
     private RiasecChart _summaryChart;
@@ -74,10 +78,12 @@ public class vc_RunProgressUI : MonoBehaviour
         _root.Clear();
         if (styleSheet != null) _root.styleSheets.Add(styleSheet);
         _root.pickingMode = PickingMode.Ignore;
+        _pulses.Clear();
 
         var container = new VisualElement { pickingMode = PickingMode.Ignore };
         container.AddToClassList("rp-root");
         _root.Add(container);
+        _container = container;
 
         BuildBanner(container);
         BuildRing(container);
@@ -93,28 +99,42 @@ public class vc_RunProgressUI : MonoBehaviour
         vc_TownFlow.ProgressChanged += Refresh;
     }
 
-    private void Start() => Refresh();
+    private void Start()
+    {
+        Refresh();
+        // HUD widgets slide in from their edge
+        SlideIn(_ring, vc_UIAnim.Enter.SlideDown, 0.05f);
+        SlideIn(_zoomRow, vc_UIAnim.Enter.SlideDown, 0.1f);
+        SlideIn(_side, vc_UIAnim.Enter.SlideLeft, 0.15f);
+    }
 
-    // ── banner: "Your life stages" ────────────────────────────────────────
+    // ── banner: "Life stages" ─────────────────────────────────────────────
     // Header (title + day chip), then one card per stage: number badge + name, a flush
     // segmented bar (one segment per quest, lit in that quest's RIASEC colour once done)
     // and a short status line. A small storm card at the end is the disaster.
 
     private void BuildBanner(VisualElement parent)
     {
+        var row = new VisualElement { pickingMode = PickingMode.Ignore };
+        row.AddToClassList("rp-center-row");
+        row.AddToClassList("rp-banner-row");
+        parent.Add(row);
+
         _banner = new VisualElement { pickingMode = PickingMode.Ignore };
+        _banner.AddToClassList("sn-panel");
         _banner.AddToClassList("rp-banner");
-        _banner.AddToClassList("sl-panel-cream");
-        _banner.AddToClassList("rp-hidden");      // opened by tapping the progress ring
-        parent.Add(_banner);
+        _banner.AddToClassList("rp-hidden");      // opened by tapping the day dial
+        row.Add(_banner);
 
         var header = new VisualElement { pickingMode = PickingMode.Ignore };
+        header.AddToClassList("sn-header");
         header.AddToClassList("rp-banner-header");
-        var title = new Label("Your life stages") { pickingMode = PickingMode.Ignore };
+        var title = new Label("Life stages") { pickingMode = PickingMode.Ignore };
+        title.AddToClassList("sn-subtitle");
         title.AddToClassList("rp-banner-title");
         _bannerDay = new Label("") { pickingMode = PickingMode.Ignore };
+        _bannerDay.AddToClassList("sn-chip");
         _bannerDay.AddToClassList("rp-banner-day");
-        _bannerDay.AddToClassList("sl-chip");
         header.Add(title);
         header.Add(_bannerDay);
         _banner.Add(header);
@@ -129,6 +149,7 @@ public class vc_RunProgressUI : MonoBehaviour
         _track.Clear();
         _stageCards.Clear();
         _stageBadges.Clear();
+        _stageChecks.Clear();
         _stageCounts.Clear();
         _stageBars.Clear();
         _pips.Clear();
@@ -143,12 +164,17 @@ public class vc_RunProgressUI : MonoBehaviour
             }
 
             var card = new VisualElement { pickingMode = PickingMode.Ignore };
+            card.AddToClassList("sn-card");
             card.AddToClassList("rp-stage");
 
             var top = new VisualElement { pickingMode = PickingMode.Ignore };
             top.AddToClassList("rp-stage-top");
             var badge = new Label(StageShort[s]) { pickingMode = PickingMode.Ignore };
             badge.AddToClassList("rp-stage-badge");
+            var check = new HudIcon(HudIcon.Glyph.Check);
+            check.AddToClassList("rp-glyph");
+            check.style.display = DisplayStyle.None;
+            badge.Add(check);
             var name = new Label(StageNames[s]) { pickingMode = PickingMode.Ignore };
             name.AddToClassList("rp-stage-name");
             top.Add(badge);
@@ -169,12 +195,14 @@ public class vc_RunProgressUI : MonoBehaviour
             card.Add(bar);
 
             var countLabel = new Label("") { pickingMode = PickingMode.Ignore };
+            countLabel.AddToClassList("sn-caption");
             countLabel.AddToClassList("rp-stage-count");
             card.Add(countLabel);
 
             _track.Add(card);
             _stageCards.Add(card);
             _stageBadges.Add(badge);
+            _stageChecks.Add(check);
             _stageCounts.Add(countLabel);
             _stageBars.Add(bar);
             _pips.Add(pips);
@@ -222,17 +250,18 @@ public class vc_RunProgressUI : MonoBehaviour
             _stageCards[s].EnableInClassList("rp-stage--current", isCurrent);
             _stageCards[s].EnableInClassList("rp-stage--done", isPast);
             _stageCards[s].EnableInClassList("rp-stage--future", !isCurrent && !isPast);
-            _stageBadges[s].text = isPast ? "v" : StageShort[s];
+            _stageBadges[s].text = isPast ? "" : StageShort[s];
+            _stageChecks[s].style.display = isPast ? DisplayStyle.Flex : DisplayStyle.None;
 
             _stageCounts[s].text = isPast ? $"All {count} done"
-                : isCurrent ? $"{done} of {count} done"
+                : isCurrent ? $"{done}/{count} done"
                 : $"{count} quests";
         }
 
         _stormCard?.EnableInClassList("rp-storm--near", current >= StageNames.Length - 1);
 
         vc_TownStage stage = vc_TownStage.Current;
-        _bannerDay.text = stage != null ? $"Day {stage.Day}  -  Quests done: {TotalDone(flow)} of {TotalQuests(flow)}" : "";
+        _bannerDay.text = stage != null ? $"Day {stage.Day}  -  {TotalDone(flow)}/{TotalQuests(flow)} quests" : "";
         _bannerDay.EnableInClassList("rp-hidden", stage == null);
         UpdateRing(flow, stage, current);
     }
@@ -262,35 +291,38 @@ public class vc_RunProgressUI : MonoBehaviour
     private void BuildSummary(VisualElement parent)
     {
         _summaryDim = new VisualElement();
+        _summaryDim.AddToClassList("sn-scrim");
         _summaryDim.AddToClassList("rp-dim");
         _summaryDim.AddToClassList("rp-hidden");
         parent.Add(_summaryDim);
 
-        var card = new VisualElement();
-        card.AddToClassList("rp-card");
-        card.AddToClassList("sl-panel-cream");
-        _summaryDim.Add(card);
+        _summaryCard = new VisualElement();
+        _summaryCard.AddToClassList("sn-panel");
+        _summaryCard.AddToClassList("sn-sheet");
+        _summaryCard.AddToClassList("rp-card");
+        _summaryDim.Add(_summaryCard);
 
         _summaryTitle = new Label();
+        _summaryTitle.AddToClassList("sn-title");
         _summaryTitle.AddToClassList("rp-card-title");
         _summaryBody = new Label();
+        _summaryBody.AddToClassList("sn-body");
+        _summaryBody.AddToClassList("sn-center");
         _summaryBody.AddToClassList("rp-card-body");
-        _summaryBtn = new Button();
+        _summaryBtn = MakePill("Good night", HudIcon.Glyph.Moon, "sleep", "night", null);
         _summaryBtn.AddToClassList("rp-card-btn");
-        _summaryBtn.AddToClassList("sl-button-wide");
-        var btnLabel = new Label("Good night");
-        btnLabel.AddToClassList("rp-card-btn-label");
-        _summaryBtn.Add(btnLabel);
         _summaryChart = new RiasecChart();
         _summaryChart.AddToClassList("rp-chart");
-        var chartCaption = new Label("Your interests so far");
+        var chartCaption = new Label("Your interests");
+        chartCaption.AddToClassList("sn-caption");
+        chartCaption.AddToClassList("sn-center");
         chartCaption.AddToClassList("rp-chart-caption");
 
-        card.Add(_summaryTitle);
-        card.Add(_summaryBody);
-        card.Add(chartCaption);
-        card.Add(_summaryChart);
-        card.Add(_summaryBtn);
+        _summaryCard.Add(_summaryTitle);
+        _summaryCard.Add(_summaryBody);
+        _summaryCard.Add(chartCaption);
+        _summaryCard.Add(_summaryChart);
+        _summaryCard.Add(_summaryBtn);
     }
 
     /// <summary>
@@ -304,12 +336,15 @@ public class vc_RunProgressUI : MonoBehaviour
         _summaryTitle.text = title;
         _summaryBody.text = body;
         _summaryChart.SetValues(LetterScores());
-        _summaryDim.RemoveFromClassList("rp-hidden");
-        PopIn(_summaryDim.Q(className: "rp-card"));
+        ShowEl(_summaryDim, vc_UIAnim.Enter.Fade);
+        vc_UIAnim.Show(_summaryCard, vc_UIAnim.Enter.Pop, 0.06f);
 
+        bool used = false;   // the card animates out, so guard against a second tap
         _summaryBtn.clickable = new Clickable(() =>
         {
-            _summaryDim.AddToClassList("rp-hidden");
+            if (used) return;
+            used = true;
+            HideEl(_summaryDim, vc_UIAnim.Exit.Fade);
             SunodGame.Core.vc_Sfx.Play("click", 0.6f);
 
             Action dream = () =>
@@ -341,7 +376,7 @@ public class vc_RunProgressUI : MonoBehaviour
         _dreamTitle.AddToClassList("rp-dream-title");
         _dreamText = new Label();
         _dreamText.AddToClassList("rp-dream-text");
-        _dreamHint = new Label("tap to continue");
+        _dreamHint = new Label("Tap to continue");
         _dreamHint.AddToClassList("rp-dream-hint");
         _dream.Add(_dreamTitle);
         _dream.Add(_dreamText);
@@ -386,7 +421,13 @@ public class vc_RunProgressUI : MonoBehaviour
             yield return new WaitForSecondsRealtime(1f / Mathf.Max(1f, charsPerSecond));
         }
         _dreamTyping = false;
+        ShowDreamHint();
+    }
+
+    private void ShowDreamHint()
+    {
         _dreamHint.visible = true;
+        vc_UIAnim.Show(_dreamHint, vc_UIAnim.Enter.Fade);
     }
 
     private void AdvanceDream()
@@ -397,7 +438,7 @@ public class vc_RunProgressUI : MonoBehaviour
             if (_typeRoutine != null) StopCoroutine(_typeRoutine);
             _dreamText.text = _dreamIndex < _dreamLines.Length ? _dreamLines[_dreamIndex] : "";
             _dreamTyping = false;
-            _dreamHint.visible = true;
+            ShowDreamHint();
             return;
         }
 
@@ -424,14 +465,14 @@ public class vc_RunProgressUI : MonoBehaviour
     }
 
     /// <summary>
-    /// The progress HUD (corner ring; the full banner opens when the ring is tapped) hides
+    /// The progress HUD (day dial; the full banner opens when the dial is tapped) hides
     /// during quests so it doesn't crowd the quest UI.
     /// </summary>
     public void SetBannerVisible(bool visible)
     {
         _hudVisible = visible;
-        _ring?.EnableInClassList("rp-hidden", !visible);
-        _banner?.EnableInClassList("rp-hidden", !(visible && _bannerOpen));
+        SetShownEl(_ring, visible, vc_UIAnim.Enter.SlideDown, vc_UIAnim.Exit.SlideUp);
+        SetShownEl(_banner, visible && _bannerOpen, vc_UIAnim.Enter.Drop, vc_UIAnim.Exit.SlideUp);
     }
 
     // ── "next stage" button (shown when nothing is left to do in the town) ──
@@ -443,31 +484,39 @@ public class vc_RunProgressUI : MonoBehaviour
     {
         if (_nextBtn == null)
         {
-            _nextBtn = new Button();
+            var row = new VisualElement { pickingMode = PickingMode.Ignore };
+            row.AddToClassList("rp-center-row");
+            row.AddToClassList("rp-next-row");
+            (_container ?? _root).Add(row);
+
+            _nextBtn = MakePill("", HudIcon.Glyph.Arrow, "next", "gold", null, true);
             _nextBtn.AddToClassList("rp-next-btn");
-            _nextBtn.AddToClassList("sl-button-wide");
-            _nextLabel = new Label();
-            _nextLabel.AddToClassList("rp-card-btn-label");
-            _nextBtn.Add(_nextLabel);
-            _root.Q(className: "rp-root")?.Add(_nextBtn);
+            _nextBtn.AddToClassList("rp-hidden");
+            _nextLabel = PillLabel(_nextBtn);
+            row.Add(_nextBtn);
         }
-        _nextLabel.text = label;
+        // the arrow is drawn now, so a trailing " >" in the caller's text is dropped
+        _nextLabel.text = (label ?? "").TrimEnd(' ', '>');
         _nextBtn.clickable = new Clickable(() => onClick?.Invoke());
-        _nextBtn.RemoveFromClassList("rp-hidden");
-        SetGlow(_nextBtn, true);
+        SetShownEl(_nextBtn, true, vc_UIAnim.Enter.Drop, vc_UIAnim.Exit.SlideUp);
+        SetGlow(_nextBtn, true, false);
     }
 
     public void HideNextStageButton()
     {
-        _nextBtn?.AddToClassList("rp-hidden");
+        if (_nextBtn == null) return;
         SetGlow(_nextBtn, false);
+        HideEl(_nextBtn, vc_UIAnim.Exit.SlideUp);
     }
 
-    // ── side controls: energy, Sleep, camera zoom ───────────────────────
+    // ── right column: Back to town, Sleep, Talk + Journal, energy; zoom in the top bar ──
 
-    private VisualElement _side;
+    private VisualElement _side, _zoomRow;
     private Label _energyLabel;
-    private VisualElement _energyChip;
+    private VisualElement _energyChip, _energyPips;
+    private readonly List<HudIcon> _energyIcons = new List<HudIcon>();
+    private int _energyShown = -1;
+    private const int MaxEnergyPips = 8;
     private Button _sleepBtn;
 
     private void BuildSideControls(VisualElement parent)
@@ -476,93 +525,208 @@ public class vc_RunProgressUI : MonoBehaviour
         _side.AddToClassList("rp-side");
         parent.Add(_side);
 
-        // chip = row of [bolt icon][label]; a Label with children stops sizing to its text
-        _energyChip = new VisualElement { pickingMode = PickingMode.Ignore };
-        _energyChip.AddToClassList("rp-energy");
-        _energyChip.AddToClassList("sl-chip");
-        _energyChip.AddToClassList("rp-hidden");
-        var bolt = new VisualElement { pickingMode = PickingMode.Ignore };
-        bolt.AddToClassList("rp-energy-icon");
-        _energyChip.Add(bolt);
-        _energyLabel = new Label("") { pickingMode = PickingMode.Ignore };
-        _energyLabel.AddToClassList("rp-energy-label");
-        _energyChip.Add(_energyLabel);
-        _side.Add(_energyChip);
-
-        _sleepBtn = MakeSideButton("Sleep", "rp-side-btn", () =>
+        _sleepBtn = MakePill("Sleep", HudIcon.Glyph.Moon, "sleep", "night", () =>
         {
             SunodGame.Core.vc_Sfx.Play("click", 0.6f);
             vc_TownStage.Current?.RequestSleep();
         });
+        _sleepBtn.AddToClassList("rp-side-btn");
         _sleepBtn.AddToClassList("rp-hidden");
         _side.Add(_sleepBtn);
 
-        var zoomRow = new VisualElement { pickingMode = PickingMode.Ignore };
-        zoomRow.AddToClassList("rp-zoom-row");
-        Button zoomOut = MakeSideButton("-", "rp-zoom-btn", null);
-        Button zoomIn = MakeSideButton("+", "rp-zoom-btn", null);
-        zoomRow.Add(zoomOut);
-        zoomRow.Add(zoomIn);
-        vc_CameraZoom.BindButtons(zoomOut, zoomIn);
-        _side.Add(zoomRow);
-    }
+        // energy pill: one bolt per point (filled = left); "bolt n/max" when there are lots
+        _energyChip = new VisualElement { pickingMode = PickingMode.Ignore };
+        _energyChip.AddToClassList("sn-chip");
+        _energyChip.AddToClassList("rp-energy");
+        _energyChip.AddToClassList("rp-hidden");
+        _energyPips = new VisualElement { pickingMode = PickingMode.Ignore };
+        _energyPips.style.flexDirection = FlexDirection.Row;
+        _energyPips.style.alignItems = Align.Center;
+        _energyChip.Add(_energyPips);
+        _energyLabel = new Label("") { pickingMode = PickingMode.Ignore };
+        _energyLabel.AddToClassList("rp-energy-label");
+        _energyLabel.style.display = DisplayStyle.None;
+        _energyChip.Add(_energyLabel);
+        _side.Add(_energyChip);
 
-    private static Button MakeSideButton(string text, string cls, Action onClick)
-    {
-        var btn = new Button();
-        btn.AddToClassList(cls);
-        btn.AddToClassList("sl-button-wide");
-        var label = new Label(text) { pickingMode = PickingMode.Ignore };
-        label.AddToClassList("rp-card-btn-label");
-        btn.Add(label);
-        if (onClick != null) btn.clickable = new Clickable(onClick);
-        return btn;
+        // zoom -/+ : top bar, left of the day dial (keeps the column short)
+        _zoomRow = new VisualElement { pickingMode = PickingMode.Ignore };
+        _zoomRow.AddToClassList("rp-zoom-row");
+        var zoomOut = new Button { text = "-" };
+        var zoomIn = new Button { text = "+" };
+        foreach (Button b in new[] { zoomOut, zoomIn })
+        {
+            b.AddToClassList("sn-btn");
+            b.AddToClassList("rp-zoom-btn");
+            vc_UIAnim.Press(b);
+            _zoomRow.Add(b);
+        }
+        vc_CameraZoom.BindButtons(zoomOut, zoomIn);
+        parent.Add(_zoomRow);
     }
 
     public void SetEnergy(int energy, int max)
     {
         if (_energyLabel == null) return;
-        _energyLabel.text = $"{energy}/{max}";
-        _energyChip?.RemoveFromClassList("rp-hidden");
+        max = Mathf.Max(0, max);
+        bool compact = max <= 0 || max > MaxEnergyPips;
+        int shown = compact ? 1 : max;
+
+        while (_energyIcons.Count < shown)
+        {
+            var holder = new VisualElement { pickingMode = PickingMode.Ignore };
+            holder.AddToClassList("rp-energy-pip");
+            holder.AddToClassList("rp-icon--energy");
+            var icon = new HudIcon(HudIcon.Glyph.Bolt);
+            icon.AddToClassList("rp-glyph");
+            holder.Add(icon);
+            _energyPips.Add(holder);
+            _energyIcons.Add(icon);
+        }
+        for (int i = 0; i < _energyIcons.Count; i++)
+        {
+            _energyIcons[i].parent.style.display = i < shown ? DisplayStyle.Flex : DisplayStyle.None;
+            _energyIcons[i].Empty = compact ? energy <= 0 : i >= energy;
+        }
+        _energyLabel.text = compact ? $"{energy}/{max}" : "";
+        _energyLabel.style.display = compact ? DisplayStyle.Flex : DisplayStyle.None;
+
+        if (_energyShown >= 0 && energy != _energyShown)
+        {
+            vc_UIAnim.Punch(_energyChip, 0.1f, 0.3f);
+            // the bolt that was just spent pops
+            if (!compact && energy < _energyShown && energy >= 0 && energy < shown)
+                vc_UIAnim.Punch(_energyIcons[energy].parent, 0.45f, 0.35f);
+        }
+        _energyShown = energy;
+        SetShownEl(_energyChip, true, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
     }
 
-    public void SetSleepVisible(bool visible) => _sleepBtn?.EnableInClassList("rp-hidden", !visible);
+    public void SetSleepVisible(bool visible) =>
+        SetShownEl(_sleepBtn, visible, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
+
+    // ── Journal button: the quest journal (accepted requests) ─────────────
+
+    private Button _journalBtn;
+    private Label _journalBadge;
+    private Action _journalAction;
+    private int _journalShown = -1;
+
+    /// <summary>count &lt; 0 hides it; otherwise a round book button with a count badge.</summary>
+    public void SetJournalButton(int count, Action onClick)
+    {
+        if (_side == null) return;
+        if (_journalBtn == null)
+        {
+            _journalBtn = new Button();
+            _journalBtn.AddToClassList("sn-btn");
+            _journalBtn.AddToClassList("rp-journal-btn");
+            _journalBtn.AddToClassList("rp-hidden");
+            _journalBtn.clickable = new Clickable(() =>
+            {
+                SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+                _journalAction?.Invoke();
+            });
+            _journalBtn.Add(MakeIcon(HudIcon.Glyph.Book, "journal"));
+            _journalBadge = new Label("") { pickingMode = PickingMode.Ignore };
+            _journalBadge.AddToClassList("sn-badge");
+            _journalBadge.AddToClassList("sn-badge--gold");
+            _journalBadge.AddToClassList("rp-journal-badge");
+            _journalBadge.style.display = DisplayStyle.None;
+            _journalBtn.Add(_journalBadge);
+            vc_UIAnim.Press(_journalBtn);
+            ActionRow().Add(_journalBtn);
+        }
+        _journalAction = onClick;
+        SetShownEl(_journalBtn, count >= 0, vc_UIAnim.Enter.Pop, vc_UIAnim.Exit.Shrink);
+        _journalBadge.text = count > 0 ? count.ToString() : "";
+        _journalBadge.style.display = count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+        if (count > 0 && _journalShown >= 0 && count > _journalShown) vc_UIAnim.Punch(_journalBadge, 0.3f, 0.3f);
+        if (count >= 0) _journalShown = count;
+    }
+
+    // Talk + Journal share one row under Sleep, so the column stays clear of the skill menu.
+    private VisualElement _actionRow;
+
+    private VisualElement ActionRow()
+    {
+        if (_actionRow != null) return _actionRow;
+        _actionRow = new VisualElement { pickingMode = PickingMode.Ignore };
+        _actionRow.AddToClassList("rp-action-row");
+        int at = _sleepBtn != null ? _side.IndexOf(_sleepBtn) + 1 : _side.childCount;
+        _side.Insert(Mathf.Clamp(at, 0, _side.childCount), _actionRow);
+        return _actionRow;
+    }
+
+    // ── Talk button: shows when someone you can talk to is close ───────────
+
+    private Button _talkBtn;
+    private Label _talkLabel;
+    private Action _talkAction;
+
+    /// <summary>label null hides it. "Talk!" (someone with a request) glows.</summary>
+    public void SetTalkButton(string label, Action onClick)
+    {
+        if (_side == null) return;
+        if (_talkBtn == null)
+        {
+            _talkBtn = MakePill("Talk", HudIcon.Glyph.Talk, "talk", null, () =>
+            {
+                SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+                _talkAction?.Invoke();
+            });
+            _talkBtn.AddToClassList("rp-side-btn");
+            _talkBtn.AddToClassList("rp-talk-btn");
+            _talkBtn.AddToClassList("rp-hidden");
+            _talkLabel = PillLabel(_talkBtn);
+            ActionRow().Insert(0, _talkBtn);
+        }
+        _talkAction = onClick;
+        bool show = !string.IsNullOrEmpty(label) && onClick != null;
+        SetShownEl(_talkBtn, show, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
+        if (!show) { SetGlow(_talkBtn, false); return; }
+        if (_talkLabel != null) _talkLabel.text = label.TrimEnd('!');
+        SetGlow(_talkBtn, label.EndsWith("!"), true);
+    }
 
     /// <summary>Sleep pulses when the day is used up (no energy, or nobody left asking).</summary>
-    public void SetSleepGlow(bool glow) => SetGlow(_sleepBtn, glow);
+    public void SetSleepGlow(bool glow) => SetGlow(_sleepBtn, glow, false);
 
-    // ── "do this now" glow: the button breathes between two states ─────────
-    private readonly System.Collections.Generic.List<VisualElement> _glowing = new System.Collections.Generic.List<VisualElement>();
-    private IVisualElementScheduledItem _glowTick;
-    private bool _glowPhase;
+    // ── "do this now": a gentle vc_UIAnim.Pulse (+ the gold sn-attn tint on cream pills) ──
+    private readonly Dictionary<VisualElement, vc_UIAnim.Handle> _pulses = new Dictionary<VisualElement, vc_UIAnim.Handle>();
 
-    private void SetGlow(VisualElement el, bool on)
+    private void SetGlow(VisualElement el, bool on, bool tint = true)
     {
         if (el == null) return;
-        if (on && !_glowing.Contains(el)) _glowing.Add(el);
-        if (!on) { _glowing.Remove(el); el.RemoveFromClassList("rp-glow"); el.RemoveFromClassList("rp-glow--hi"); }
-        else el.AddToClassList("rp-glow");
-        if (_glowTick == null && _glowing.Count > 0)
-            _glowTick = el.schedule.Execute(() =>
-            {
-                _glowPhase = !_glowPhase;
-                foreach (var g in _glowing) g.EnableInClassList("rp-glow--hi", _glowPhase);
-            }).Every(550);
+        bool has = _pulses.TryGetValue(el, out vc_UIAnim.Handle h);
+        if (on == has) return;
+        if (on)
+        {
+            _pulses[el] = vc_UIAnim.Pulse(el);
+            if (tint) el.AddToClassList("sn-attn");
+        }
+        else
+        {
+            vc_UIAnim.StopPulse(ref h, el);
+            _pulses.Remove(el);
+            el.RemoveFromClassList("sn-attn");
+        }
     }
 
-    /// <summary>Quest running: the energy chip steps aside (there is no way to back out of a quest).</summary>
-    public void EnterQuestMode() => _energyChip?.AddToClassList("rp-hidden");
+    /// <summary>Quest running: the energy pill steps aside (there is no way to back out of a quest).</summary>
+    public void EnterQuestMode() => SetShownEl(_energyChip, false, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
 
-    public void ExitQuestMode() => _energyChip?.RemoveFromClassList("rp-hidden");
+    public void ExitQuestMode() => SetShownEl(_energyChip, true, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
 
     public bool IsShowingOverlay =>
         (_dream != null && !_dream.ClassListContains("rp-hidden")) ||
         (_summaryDim != null && !_summaryDim.ClassListContains("rp-hidden"));
 
-    // ── progress ring (top-right corner; tap to open the full banner) ─────
+    // ── day dial (top-right; tap to open the life-stages banner) ──────────
 
     private ProgressRing _ring;
-    private Label _ringStage, _ringDay, _ringName;
+    private Label _ringStage, _ringDay;
+    private VisualElement _ringChipRow;
     private Button _partialBtn;
 
     private void BuildRing(VisualElement parent)
@@ -571,16 +735,17 @@ public class vc_RunProgressUI : MonoBehaviour
         _ring.AddToClassList("rp-ring");
         _ringStage = new Label("1") { pickingMode = PickingMode.Ignore };
         _ringStage.AddToClassList("rp-ring-stage");
-        _ringDay = new Label("") { pickingMode = PickingMode.Ignore };
-        _ringDay.AddToClassList("rp-ring-day");
         _ring.Add(_ringStage);
-        _ring.Add(_ringDay);
-        // life-stage name under the ring, so "1 / 2 / 3" is never the only hint
-        _ringName = new Label("") { pickingMode = PickingMode.Ignore };
-        _ringName.AddToClassList("rp-ring-name");
-        _ringName.AddToClassList("sl-chip");
-        _ring.Add(_ringName);
+        // "Day N" chip under the dial (part of the tap target)
+        _ringChipRow = new VisualElement { pickingMode = PickingMode.Ignore };
+        _ringChipRow.AddToClassList("rp-ring-chiprow");
+        _ringDay = new Label("") { pickingMode = PickingMode.Position };
+        _ringDay.AddToClassList("sn-chip");
+        _ringDay.AddToClassList("rp-ring-day");
+        _ringChipRow.Add(_ringDay);
+        _ring.Add(_ringChipRow);
         _ring.RegisterCallback<PointerUpEvent>(_ => ToggleBanner());
+        vc_UIAnim.Press(_ring);
         parent.Add(_ring);
 
         // Tapping the open banner closes it again.
@@ -592,7 +757,8 @@ public class vc_RunProgressUI : MonoBehaviour
         });
 
         // Leaning-career peek: inside the banner, shown once half the run's quests are answered.
-        _partialBtn = MakeSideButton("My leaning career", "rp-partial-btn", RequestPartialResults);
+        _partialBtn = MakePill("My path", HudIcon.Glyph.Star, "path", null, RequestPartialResults);
+        _partialBtn.AddToClassList("rp-partial-btn");
         _partialBtn.AddToClassList("rp-hidden");
         _banner.Add(_partialBtn);
     }
@@ -601,8 +767,8 @@ public class vc_RunProgressUI : MonoBehaviour
     {
         _bannerOpen = !_bannerOpen;
         SunodGame.Core.vc_Sfx.Play("click", 0.5f);
-        _banner.EnableInClassList("rp-hidden", !(_hudVisible && _bannerOpen));
-        if (_bannerOpen) PopIn(_banner);
+        SetShownEl(_banner, _hudVisible && _bannerOpen, vc_UIAnim.Enter.Drop, vc_UIAnim.Exit.SlideUp);
+        if (_bannerOpen && _hudVisible) vc_UIAnim.Stagger(_track.Children(), vc_UIAnim.Enter.SlideUp, 0.04f, 0.1f);
     }
 
     private void UpdateRing(vc_TownFlow flow, vc_TownStage stage, int current)
@@ -622,12 +788,14 @@ public class vc_RunProgressUI : MonoBehaviour
         _ring.Progress = built > 0 ? (float)resolved / built : 0f;
         _ring.StageIndex = Mathf.Max(0, current);
         _ringStage.text = current >= 0 ? StageShort[Mathf.Min(current, StageShort.Length - 1)] : "-";
-        _ringDay.text = stage != null ? $"Day {stage.Day}" : "";
-        if (_ringName != null)
+        string day = stage != null ? $"Day {stage.Day}" : "";
+        if (_ringDay.text != day)
         {
-            _ringName.text = current >= 0 ? StageNames[Mathf.Min(current, StageNames.Length - 1)] : "";
-            _ringName.EnableInClassList("rp-hidden", current < 0);
+            bool changed = !string.IsNullOrEmpty(_ringDay.text) && !string.IsNullOrEmpty(day);
+            _ringDay.text = day;
+            if (changed) vc_UIAnim.Punch(_ringDay, 0.2f, 0.35f);
         }
+        _ringChipRow.style.display = stage != null ? DisplayStyle.Flex : DisplayStyle.None;
 
         // Partial results once half of all built quests (all stages) have been answered.
         int total = 0, answered = 0;
@@ -650,18 +818,18 @@ public class vc_RunProgressUI : MonoBehaviour
     private bool _previewBusy;
 
     /// <summary>
-    /// "My leaning career": a peek at where the answers point so far. It never ends the run;
+    /// "My path": a peek at where the answers point so far. It never ends the run;
     /// the real result still comes at the end of College.
     /// </summary>
     private void RequestPartialResults()
     {
         if (vc_DialogPanel.Instance == null || _previewBusy) return;
         _bannerOpen = false;
-        _banner.AddToClassList("rp-hidden");
+        HideEl(_banner, vc_UIAnim.Exit.SlideUp);
         SunodGame.Core.vc_Sfx.Play("click", 0.6f);
 
         string leaning = LeaningText();
-        string basis = $"Based on {_partialAnswered} of {_partialTotal} quests so far.";
+        string basis = $"Based on {_partialAnswered} of {_partialTotal} quests.";
 
         vc_SessionTelemetry t = vc_SessionTelemetry.Instance;
         if (t == null)
@@ -687,16 +855,16 @@ public class vc_RunProgressUI : MonoBehaviour
         var body = new System.Text.StringBuilder();
         if (!string.IsNullOrWhiteSpace(career) && !career.StartsWith("Cluster"))
         {
-            body.Append($"You are leaning toward: {career}");
+            body.Append($"Leaning toward: {career}");
             if (!string.IsNullOrWhiteSpace(family)) body.Append($" ({family})");
             body.Append(".\n\n");
         }
         else if (!string.IsNullOrWhiteSpace(family))
         {
-            body.Append($"You are leaning toward the {family} path.\n\n");
+            body.Append($"Leaning toward the {family} path.\n\n");
         }
-        if (!string.IsNullOrEmpty(leaning)) body.Append($"Your strongest interests: {leaning}.\n\n");
-        if (body.Length == 0) body.Append("Nothing stands out yet - help a few more people first.\n\n");
+        if (!string.IsNullOrEmpty(leaning)) body.Append($"Top interests: {leaning}.\n\n");
+        if (body.Length == 0) body.Append("Nothing stands out yet. Help a few more people!\n\n");
         body.Append(basis);
         vc_DialogPanel.Instance?.ShowMessage("Your path so far", body.ToString(), null);
     }
@@ -708,11 +876,16 @@ public class vc_RunProgressUI : MonoBehaviour
 
     private void BuildToast(VisualElement parent)
     {
+        var row = new VisualElement { pickingMode = PickingMode.Ignore };
+        row.AddToClassList("rp-center-row");
+        row.AddToClassList("rp-toast-row");
+        parent.Add(row);
+
         _toast = new Label("") { pickingMode = PickingMode.Ignore };
+        _toast.AddToClassList("sn-chip");
         _toast.AddToClassList("rp-toast");
-        _toast.AddToClassList("sl-chip");
-        _toast.AddToClassList("rp-toast--hidden");
-        parent.Add(_toast);
+        _toast.AddToClassList("rp-hidden");
+        row.Add(_toast);
     }
 
     /// <summary>Short message at the top of the screen. duration &lt;= 0 keeps it until HideToast.</summary>
@@ -720,8 +893,10 @@ public class vc_RunProgressUI : MonoBehaviour
     {
         if (_toast == null) return;
         if (string.IsNullOrEmpty(text)) { HideToast(); return; }
+        bool changed = _toast.text != text;
         _toast.text = text;
-        _toast.RemoveFromClassList("rp-toast--hidden");
+        if (_toast.ClassListContains("rp-hidden")) ShowEl(_toast, vc_UIAnim.Enter.Drop);
+        else if (changed) vc_UIAnim.Punch(_toast, 0.05f, 0.25f);
         _toastHide?.Pause();
         _toastHide = duration > 0f ? _toast.schedule.Execute(HideToast).StartingIn((long)(duration * 1000f)) : null;
     }
@@ -730,28 +905,39 @@ public class vc_RunProgressUI : MonoBehaviour
     {
         _toastHide?.Pause();
         _toastHide = null;
-        _toast?.AddToClassList("rp-toast--hidden");
+        if (_toast != null && !_toast.ClassListContains("rp-hidden")) HideEl(_toast, vc_UIAnim.Exit.SlideUp);
     }
 
-    // ── quest done: banner + "Back to town" button (non-blocking) ─────────
+    // ── quest done: sheet + "Back to town" button (non-blocking) ──────────
 
-    private VisualElement _doneToast;
+    private VisualElement _doneToast, _doneScrim;
     private Label _doneTitle, _doneNote, _doneXp;
-    private readonly List<VisualElement> _doneStars = new List<VisualElement>();
+    private readonly List<HudIcon> _doneStars = new List<HudIcon>();
     private Button _backBtn;
     private Action _doneContinue;
     private IVisualElementScheduledItem _doneHide;
 
     private void BuildQuestDone(VisualElement parent)
     {
-        _doneToast = new VisualElement { pickingMode = PickingMode.Ignore };
-        _doneToast.AddToClassList("rp-done-toast");
-        _doneToast.AddToClassList("sl-panel-cream");
-        _doneToast.AddToClassList("rp-done-toast--hidden");
-        _doneToast.AddToClassList("rp-hidden");
-        parent.Add(_doneToast);
+        // a light scrim that never takes input: the player can keep looking around
+        _doneScrim = new VisualElement { pickingMode = PickingMode.Ignore };
+        _doneScrim.AddToClassList("rp-done-scrim");
+        _doneScrim.style.display = DisplayStyle.None;
+        parent.Add(_doneScrim);
 
-        _doneTitle = new Label("Quest complete!") { pickingMode = PickingMode.Ignore };
+        var row = new VisualElement { pickingMode = PickingMode.Ignore };
+        row.AddToClassList("rp-center-row");
+        row.AddToClassList("rp-done-row");
+        parent.Add(row);
+
+        _doneToast = new VisualElement { pickingMode = PickingMode.Ignore };
+        _doneToast.AddToClassList("sn-panel");
+        _doneToast.AddToClassList("rp-done-toast");
+        _doneToast.AddToClassList("rp-hidden");
+        row.Add(_doneToast);
+
+        _doneTitle = new Label("Quest done!") { pickingMode = PickingMode.Ignore };
+        _doneTitle.AddToClassList("sn-subtitle");
         _doneTitle.AddToClassList("rp-done-title");
         _doneToast.Add(_doneTitle);
 
@@ -759,7 +945,7 @@ public class vc_RunProgressUI : MonoBehaviour
         stars.AddToClassList("rp-done-stars");
         for (int i = 0; i < 5; i++)
         {
-            var s = new VisualElement { pickingMode = PickingMode.Ignore };
+            var s = new HudIcon(HudIcon.Glyph.Star);
             s.AddToClassList("rp-star");
             stars.Add(s);
             _doneStars.Add(s);
@@ -767,18 +953,17 @@ public class vc_RunProgressUI : MonoBehaviour
         _doneToast.Add(stars);
 
         _doneNote = new Label { pickingMode = PickingMode.Ignore };
+        _doneNote.AddToClassList("sn-caption");
         _doneNote.AddToClassList("rp-done-note");
         _doneToast.Add(_doneNote);
 
         // skill XP earned by this quest (vc_FitQuestBase.LastXpReport)
         _doneXp = new Label { pickingMode = PickingMode.Ignore };
-        _doneXp.AddToClassList("rp-done-note");
-        _doneXp.style.color = (Color)new Color32(120, 70, 200, 255);
-        _doneXp.style.unityFontStyleAndWeight = FontStyle.Bold;
+        _doneXp.AddToClassList("rp-done-xp");
         _doneToast.Add(_doneXp);
 
-        // Lives with the side controls, above Sleep.
-        _backBtn = MakeSideButton("Back to town", "rp-side-btn", () =>
+        // Lives at the top of the right column.
+        _backBtn = MakePill("Back to town", HudIcon.Glyph.House, "home", null, () =>
         {
             SunodGame.Core.vc_Sfx.Play("click", 0.6f);
             HideQuestDone();
@@ -786,57 +971,66 @@ public class vc_RunProgressUI : MonoBehaviour
             _doneContinue = null;
             cb?.Invoke();
         });
+        _backBtn.AddToClassList("rp-side-btn");
         _backBtn.AddToClassList("rp-hidden");
         _side.Insert(0, _backBtn);
     }
 
     /// <summary>
-    /// Town version of the quest-done popup. It doesn't block: a banner with the stars pops in
-    /// at the top and fades after a few seconds, and a glowing "Back to town" button stays
+    /// Town version of the quest-done popup. It doesn't block: a sheet with the stars pops in
+    /// at the top and leaves after a few seconds, and a pulsing "Back to town" button stays
     /// until the player taps it, so they can keep looking around the room first.
     /// </summary>
     public void ShowQuestDone(string questName, int stars, Action onContinue)
     {
         _doneContinue = onContinue;
         stars = Mathf.Clamp(stars, 0, 5);
-        _doneTitle.text = string.IsNullOrEmpty(questName) ? "Quest complete!" : $"{questName} - done!";
+        _doneTitle.text = string.IsNullOrEmpty(questName) ? "Quest done!" : $"{questName} done!";
         string praise = stars >= 5 ? "Perfect!" : stars >= 3 ? "Nice work!" : "You did it!";
-        _doneNote.text = $"{praise} Look around, then tap \"Back to town\".";
+        _doneNote.text = $"{praise} Look around, then head back.";
         string xp = vc_FitQuestBase.TakeXpReport();
         _doneXp.text = xp ?? "";
         _doneXp.style.display = string.IsNullOrEmpty(xp) ? DisplayStyle.None : DisplayStyle.Flex;
 
+        HideToast();
+        vc_UIAnim.Show(_doneScrim, vc_UIAnim.Enter.Fade);
+        ShowEl(_doneToast, vc_UIAnim.Enter.Pop);
+
+        // stars pop in one by one; the earned ones punch with a ding
         for (int i = 0; i < _doneStars.Count; i++)
         {
-            VisualElement s = _doneStars[i];
-            s.RemoveFromClassList("rp-star--full");
-            s.RemoveFromClassList("rp-star--shown");
-            if (i < stars) s.AddToClassList("rp-star--full");
-            int idx = i;
+            HudIcon s = _doneStars[i];
+            bool full = i < stars;
+            s.Empty = !full;
+            vc_UIAnim.Show(s, vc_UIAnim.Enter.Pop, 0.3f + 0.14f * i, null, 0.3f);
+            if (!full) continue;
             s.schedule.Execute(() =>
             {
-                s.AddToClassList("rp-star--shown");
-                if (idx < stars) SunodGame.Core.vc_Sfx.Play("step_done", 0.5f, 0.08f);
-            }).StartingIn(350 + 160 * i);
+                vc_UIAnim.Punch(s, 0.3f, 0.3f);
+                SunodGame.Core.vc_Sfx.Play("step_done", 0.5f, 0.08f);
+            }).StartingIn(600 + 140 * i);
         }
-        HideToast();
+        if (!string.IsNullOrEmpty(xp)) _doneXp.schedule.Execute(() => vc_UIAnim.Punch(_doneXp, 0.15f, 0.3f)).StartingIn(600 + 140 * stars);
 
-        _doneToast.RemoveFromClassList("rp-hidden");
-        _doneToast.schedule.Execute(() => _doneToast.RemoveFromClassList("rp-done-toast--hidden")).StartingIn(16);
         _doneHide?.Pause();
-        _doneHide = _doneToast.schedule.Execute(() => _doneToast.AddToClassList("rp-done-toast--hidden")).StartingIn(5000);
+        _doneHide = _doneToast.schedule.Execute(HideDoneSheet).StartingIn(5000);
 
-        _backBtn.RemoveFromClassList("rp-hidden");
-        SetGlow(_backBtn, true);
+        SetShownEl(_backBtn, true, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
+        SetGlow(_backBtn, true, true);
+    }
+
+    private void HideDoneSheet()
+    {
+        HideEl(_doneToast, vc_UIAnim.Exit.SlideUp);
+        vc_UIAnim.Hide(_doneScrim, null, vc_UIAnim.Exit.Fade);
     }
 
     private void HideQuestDone()
     {
         _doneHide?.Pause();
-        _doneToast.AddToClassList("rp-done-toast--hidden");
-        _doneToast.AddToClassList("rp-hidden");
-        _backBtn.AddToClassList("rp-hidden");
+        HideDoneSheet();
         SetGlow(_backBtn, false);
+        HideEl(_backBtn, vc_UIAnim.Exit.SlideRight);
         HideToast();
     }
 
@@ -844,28 +1038,33 @@ public class vc_RunProgressUI : MonoBehaviour
     // vc_QuestTimer drives it. Tick marks on the bar sit where each star goes out.
 
     private VisualElement _timer, _timerFill;
-    private readonly List<VisualElement> _timerStars = new List<VisualElement>();
+    private readonly List<HudIcon> _timerStars = new List<HudIcon>();
     private int _timerShown = -1;
 
     private static readonly Color[] TimerColors =
     {
-        new Color32(214, 64, 52, 255), new Color32(240, 128, 40, 255), new Color32(240, 190, 50, 255),
-        new Color32(150, 200, 70, 255), new Color32(80, 180, 90, 255),
+        vc_UITheme.Red, new Color32(236, 140, 46, 255), vc_UITheme.Gold,
+        new Color32(150, 190, 80, 255), vc_UITheme.Green,
     };
 
     private void BuildTimer(VisualElement parent)
     {
+        var timerRow = new VisualElement { pickingMode = PickingMode.Ignore };
+        timerRow.AddToClassList("rp-center-row");
+        timerRow.AddToClassList("rp-timer-row");
+        parent.Insert(parent.IndexOf(_summaryDim), timerRow);
+
         _timer = new VisualElement { pickingMode = PickingMode.Ignore };
+        _timer.AddToClassList("sn-panel");
         _timer.AddToClassList("rp-timer");
-        _timer.AddToClassList("sl-panel-cream");
         _timer.AddToClassList("rp-hidden");
-        parent.Insert(parent.IndexOf(_summaryDim), _timer);
+        timerRow.Add(_timer);
 
         var row = new VisualElement { pickingMode = PickingMode.Ignore };
         row.AddToClassList("rp-timer-stars");
         for (int i = 0; i < 5; i++)
         {
-            var s = new VisualElement { pickingMode = PickingMode.Ignore };
+            var s = new HudIcon(HudIcon.Glyph.Star);
             s.AddToClassList("rp-timer-star");
             row.Add(s);
             _timerStars.Add(s);
@@ -888,10 +1087,7 @@ public class vc_RunProgressUI : MonoBehaviour
 
         // skill system v2: presses left this quest (filled = left), under the bar
         _presses = new VisualElement { pickingMode = PickingMode.Ignore };
-        _presses.style.flexDirection = FlexDirection.Row;
-        _presses.style.justifyContent = Justify.Center;
-        _presses.style.alignItems = Align.Center;
-        _presses.style.marginTop = 6;
+        _presses.AddToClassList("rp-presses");
         _presses.style.display = DisplayStyle.None;
         _timer.Add(_presses);
     }
@@ -901,28 +1097,25 @@ public class vc_RunProgressUI : MonoBehaviour
     private VisualElement _presses;
     private readonly List<VisualElement> _pressDots = new List<VisualElement>();
     private int _pressesShown = -1;
-    private static readonly Color PressFull = new Color32(92, 60, 40, 255);
-    private static readonly Color PressEmpty = new Color32(214, 196, 160, 255);
+    private vc_UIAnim.Handle _pressPulse;
+    private VisualElement _pressPulseEl;
 
-    /// <summary>Presses left out of total (total 0 hides the row). The last one blinks red.</summary>
+    /// <summary>Presses left out of total (total 0 hides the row). The last one turns red and pulses.</summary>
     public void SetPresses(int left, int total)
     {
         if (_presses == null) return;
         _presses.style.display = total > 0 ? DisplayStyle.Flex : DisplayStyle.None;
-        if (total <= 0) { _pressesShown = -1; return; }
+        if (total <= 0)
+        {
+            _pressesShown = -1;
+            SetPressPulse(null);
+            return;
+        }
 
         while (_pressDots.Count < total)
         {
             var dot = new VisualElement { pickingMode = PickingMode.Ignore };
-            dot.style.width = 14; dot.style.height = 14;
-            dot.style.marginLeft = 3; dot.style.marginRight = 3;
-            dot.style.borderTopLeftRadius = 7; dot.style.borderTopRightRadius = 7;
-            dot.style.borderBottomLeftRadius = 7; dot.style.borderBottomRightRadius = 7;
-            Color edge = new Color32(70, 46, 34, 255);
-            dot.style.borderTopColor = edge; dot.style.borderBottomColor = edge;
-            dot.style.borderLeftColor = edge; dot.style.borderRightColor = edge;
-            dot.style.borderTopWidth = 2; dot.style.borderBottomWidth = 2;
-            dot.style.borderLeftWidth = 2; dot.style.borderRightWidth = 2;
+            dot.AddToClassList("rp-press-dot");
             _presses.Add(dot);
             _pressDots.Add(dot);
         }
@@ -931,17 +1124,22 @@ public class vc_RunProgressUI : MonoBehaviour
             VisualElement d = _pressDots[i];
             d.style.display = i < total ? DisplayStyle.Flex : DisplayStyle.None;
             bool full = i < left;
-            d.style.backgroundColor = full ? (left == 1 ? (Color)new Color32(214, 64, 52, 255) : PressFull) : PressEmpty;
-            d.style.scale = new Scale(Vector2.one);
+            d.EnableInClassList("rp-press-dot--full", full && left != 1);
+            d.EnableInClassList("rp-press-dot--last", full && left == 1);
         }
         // the dot that was just spent pops
         if (_pressesShown > left && left >= 0 && left < _pressDots.Count)
-        {
-            VisualElement spent = _pressDots[left];
-            spent.style.scale = new Scale(new Vector2(1.5f, 1.5f));
-            spent.schedule.Execute(() => spent.style.scale = new Scale(Vector2.one)).StartingIn(140);
-        }
+            vc_UIAnim.Punch(_pressDots[left], 0.5f, 0.3f);
         _pressesShown = left;
+        SetPressPulse(left == 1 && _pressDots.Count > 0 ? _pressDots[0] : null);
+    }
+
+    private void SetPressPulse(VisualElement want)
+    {
+        if (want == _pressPulseEl) return;
+        if (_pressPulseEl != null) vc_UIAnim.StopPulse(ref _pressPulse, _pressPulseEl);
+        _pressPulseEl = want;
+        if (want != null) _pressPulse = vc_UIAnim.Pulse(want, 0.25f, 0.6f);
     }
 
     // ── stamp: "Perfect fit!" / "Prepared!" / "Lv2!" over the room ──────────
@@ -950,44 +1148,37 @@ public class vc_RunProgressUI : MonoBehaviour
     public string LastStamp { get; private set; }
 
     /// <summary>
-    /// A big tilted word that pops over the room for a moment, under the quest-done banner.
-    /// yShift moves it down (+) or up (-) in steps of ~11% of the screen, so a level-up and a
-    /// "Perfect fit!" can show at once.
+    /// A big tilted word that drops onto the room for a moment, under the quest-done sheet.
+    /// yShift moves it down (+) or up (-) in steps of ~20% of the screen, so a level-up and a
+    /// "Perfect fit!" can show at once. The colour fills the stamp; text is ink or cream for contrast.
     /// </summary>
     public void ShowStamp(string text, Color color, float yShift = 0f)
     {
-        VisualElement root = _timer != null ? _timer.parent : null;
+        VisualElement root = _container;
         if (root == null || string.IsNullOrEmpty(text)) return;
         LastStamp = text;
 
+        var row = new VisualElement { pickingMode = PickingMode.Ignore };
+        row.AddToClassList("rp-center-row");
+        row.style.top = Length.Percent(Mathf.Clamp(50f + yShift * 20f, 8f, 80f));
+
         var stamp = new Label(text) { pickingMode = PickingMode.Ignore };
-        stamp.AddToClassList("sl-chip");
-        stamp.style.position = Position.Absolute;
-        stamp.style.left = Length.Percent(50);
-        stamp.style.top = Length.Percent(Mathf.Clamp(50f + yShift * 20f, 8f, 80f));
-        stamp.style.fontSize = 42;
-        stamp.style.unityFontStyleAndWeight = FontStyle.Bold;
-        stamp.style.paddingLeft = 18; stamp.style.paddingRight = 18;
-        stamp.style.paddingTop = 6; stamp.style.paddingBottom = 6;
-        stamp.style.borderTopWidth = 4; stamp.style.borderBottomWidth = 4;
-        stamp.style.borderLeftWidth = 4; stamp.style.borderRightWidth = 4;
-        stamp.style.backgroundColor = (Color)new Color32(255, 248, 228, 240);
-        stamp.style.translate = new Translate(Length.Percent(-50), 0);
-        stamp.style.color = color;
-        stamp.style.borderTopColor = color; stamp.style.borderBottomColor = color;
-        stamp.style.borderLeftColor = color; stamp.style.borderRightColor = color;
+        stamp.AddToClassList("rp-stamp");
+        color.a = 1f;
+        Color edge = Color.Lerp(color, vc_UITheme.BrownDark, 0.45f);
+        stamp.style.backgroundColor = color;
+        vc_UITheme.Border(stamp, 3f, edge);
+        stamp.style.borderBottomWidth = 7f;
+        float lum = 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
+        stamp.style.color = lum < 0.6f ? vc_UITheme.CreamHi : vc_UITheme.Ink;
         stamp.style.rotate = new Rotate(new Angle(-6f, AngleUnit.Degree));
-        root.Add(stamp);
+        row.Add(stamp);
+        root.Add(row);
         SunodGame.Core.vc_Sfx.Play("stamp", 0.55f, 0.08f);
 
-        // stamp-down: big, then snap to size, small wobble; gone after a moment
-        float[] scales = { 1.8f, 1.25f, 0.92f, 1.05f, 1f };
-        for (int i = 0; i < scales.Length; i++)
-        {
-            float s = scales[i];
-            stamp.schedule.Execute(() => stamp.style.scale = new Scale(new Vector2(s, s))).StartingIn(i * 45);
-        }
-        stamp.schedule.Execute(() => stamp.RemoveFromHierarchy()).StartingIn(1400);
+        vc_UIAnim.Show(stamp, vc_UIAnim.Enter.Drop, 0f, null, 0.3f);
+        stamp.schedule.Execute(() =>
+            vc_UIAnim.Hide(stamp, () => row.RemoveFromHierarchy(), vc_UIAnim.Exit.Shrink)).StartingIn(1300);
     }
 
     /// <summary>The timer element, e.g. for the tutorial pointer.</summary>
@@ -995,22 +1186,18 @@ public class vc_RunProgressUI : MonoBehaviour
 
     public void SetTimerVisible(bool visible)
     {
-        _timer?.EnableInClassList("rp-hidden", !visible);
+        SetShownEl(_timer, visible, vc_UIAnim.Enter.SlideDown, vc_UIAnim.Exit.SlideUp);
         if (visible) _timerShown = -1;
     }
 
-    /// <summary>Stars left (0..5); a star that just went out wobbles.</summary>
+    /// <summary>Stars left (0..5); a star that just went out punches.</summary>
     public void SetTimerStars(int stars, bool running)
     {
         if (_timer == null) return;
         for (int i = 0; i < _timerStars.Count; i++)
-            _timerStars[i].EnableInClassList("rp-timer-star--full", i < stars);
+            _timerStars[i].Empty = i >= stars;
         if (running && _timerShown > stars && stars >= 0 && stars < _timerStars.Count)
-        {
-            VisualElement lost = _timerStars[stars];
-            lost.AddToClassList("rp-timer-star--lost");
-            lost.schedule.Execute(() => lost.RemoveFromClassList("rp-timer-star--lost")).StartingIn(380);
-        }
+            vc_UIAnim.Punch(_timerStars[stars], 0.45f, 0.38f);
         _timerShown = stars;
     }
 
@@ -1020,7 +1207,7 @@ public class vc_RunProgressUI : MonoBehaviour
         if (_timerFill == null) return;
         _timerFill.style.width = Length.Percent(Mathf.Round(Mathf.Clamp01(ratio) * 100f));
         Color c = TimerColors[Mathf.Clamp(stars, 1, 5) - 1];
-        if (stars <= 1 && running && Mathf.Repeat(Time.time, 0.5f) < 0.25f) c = new Color32(255, 236, 210, 255);
+        if (stars <= 1 && running && Mathf.Repeat(Time.time, 0.5f) < 0.25f) c = vc_UITheme.CreamHi;
         _timerFill.style.backgroundColor = c;
     }
 
@@ -1055,7 +1242,7 @@ public class vc_RunProgressUI : MonoBehaviour
 
     /// <summary>
     /// Cutscene mode: letterbox bars slide in and every HUD piece (quest panel, skill buttons,
-    /// joystick, pause, progress ring, side buttons) hides. Off restores what was there.
+    /// joystick, pause, day dial, side buttons) hides. Off restores what was there.
     /// </summary>
     public void SetCinematic(bool on)
     {
@@ -1064,7 +1251,7 @@ public class vc_RunProgressUI : MonoBehaviour
         _letterTop?.EnableInClassList("rp-letterbox--on", on);
         _letterBottom?.EnableInClassList("rp-letterbox--on", on);
 
-        foreach (VisualElement el in new[] { _ring, _banner, _side, _toast, _nextBtn })
+        foreach (VisualElement el in new[] { _ring, _banner, _side, _zoomRow, _toast, _nextBtn })
             if (el != null) el.style.visibility = on ? Visibility.Hidden : Visibility.Visible;
 
         if (on)
@@ -1129,15 +1316,85 @@ public class vc_RunProgressUI : MonoBehaviour
 
     public void HideNight() => _night?.AddToClassList("rp-hidden");
 
-    // ── juice helpers ─────────────────────────────────────────────────────
+    // ── show / hide with motion ───────────────────────────────────────────
+    // The logical state stays the "rp-hidden" class (IsShowingOverlay etc. read it). While an
+    // element animates out it is kept on screen with an inline display:flex, which is cleared
+    // when the motion ends so the class decides again.
 
-    /// <summary>Little scale-up pop for a panel that just appeared.</summary>
-    private static void PopIn(VisualElement el)
+    private static void ShowEl(VisualElement el, vc_UIAnim.Enter kind = vc_UIAnim.Enter.Pop, float delay = 0f)
     {
         if (el == null) return;
-        el.AddToClassList("rp-pop-start");
-        el.schedule.Execute(() => el.RemoveFromClassList("rp-pop-start")).StartingIn(16);
+        el.RemoveFromClassList("rp-hidden");
+        StyleEnum<Visibility> vis = el.style.visibility;   // Show forces visible; keep cinematic hiding
+        vc_UIAnim.Show(el, kind, delay, () => el.style.display = StyleKeyword.Null);
+        el.style.visibility = vis;
     }
+
+    private static void HideEl(VisualElement el, vc_UIAnim.Exit kind = vc_UIAnim.Exit.Shrink)
+    {
+        if (el == null) return;
+        bool shown = !el.ClassListContains("rp-hidden") || el.style.display == DisplayStyle.Flex;
+        el.AddToClassList("rp-hidden");
+        if (!shown) return;
+        el.style.display = DisplayStyle.Flex;   // stay on screen while it animates out
+        vc_UIAnim.Hide(el, () => el.style.display = StyleKeyword.Null, kind);
+    }
+
+    private static void SetShownEl(VisualElement el, bool shown, vc_UIAnim.Enter enter, vc_UIAnim.Exit exit)
+    {
+        if (el == null) return;
+        bool hidden = el.ClassListContains("rp-hidden");
+        if (shown && hidden) ShowEl(el, enter);
+        else if (!shown && !hidden) HideEl(el, exit);
+    }
+
+    private static void SlideIn(VisualElement el, vc_UIAnim.Enter kind, float delay)
+    {
+        if (el == null || el.ClassListContains("rp-hidden")) return;
+        ShowEl(el, kind, delay);
+    }
+
+    // ── building blocks ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Icon slot for a button: a .sn-btn__icon holder (+ .rp-icon--key, the art hook) with a
+    /// drawn glyph inside. Art can replace the glyph from USS (see RunProgress.uss).
+    /// </summary>
+    public static VisualElement MakeIcon(HudIcon.Glyph glyph, string key)
+    {
+        var holder = new VisualElement { pickingMode = PickingMode.Ignore };
+        holder.AddToClassList("sn-btn__icon");
+        holder.AddToClassList("rp-icon");
+        if (!string.IsNullOrEmpty(key)) holder.AddToClassList("rp-icon--" + key);
+        var g = new HudIcon(glyph);
+        g.AddToClassList("rp-glyph");
+        holder.Add(g);
+        return holder;
+    }
+
+    /// <summary>Pill button: [icon][label] (or [label][icon]), sn-btn + optional variant, press juice.</summary>
+    private static Button MakePill(string text, HudIcon.Glyph glyph, string iconKey, string variant, Action onClick, bool iconAfter = false)
+    {
+        var btn = new Button();
+        btn.AddToClassList("sn-btn");
+        if (!string.IsNullOrEmpty(variant)) btn.AddToClassList("sn-btn--" + variant);
+        VisualElement icon = glyph != HudIcon.Glyph.None ? MakeIcon(glyph, iconKey) : null;
+        var label = new Label(text) { pickingMode = PickingMode.Ignore };
+        label.AddToClassList("sn-btn__label");
+        if (icon == null) label.AddToClassList("rp-label--solo");
+        if (icon != null && !iconAfter) btn.Add(icon);
+        btn.Add(label);
+        if (icon != null && iconAfter)
+        {
+            label.AddToClassList("rp-label--before");
+            btn.Add(icon);
+        }
+        if (onClick != null) btn.clickable = new Clickable(onClick);
+        vc_UIAnim.Press(btn);
+        return btn;
+    }
+
+    private static Label PillLabel(Button b) => b.Q<Label>(className: "sn-btn__label");
 
     // ── RIASEC scores (live chart + "leans toward" teaser) ────────────────
 
@@ -1186,11 +1443,6 @@ public class vc_RunProgressUI : MonoBehaviour
     /// <summary>Hexagon radar of the six RIASEC scores, drawn with Painter2D.</summary>
     public class RiasecChart : VisualElement
     {
-        private static readonly Color[] LetterColors =
-        {
-            new Color32(217, 58, 74, 255), new Color32(240, 138, 36, 255), new Color32(142, 79, 214, 255),
-            new Color32(47, 163, 90, 255), new Color32(47, 111, 214, 255), new Color32(34, 179, 196, 255),
-        };
         private float[] _values = { 3, 3, 3, 3, 3, 3 };
         private readonly Label[] _labels = new Label[6];
 
@@ -1202,7 +1454,7 @@ public class vc_RunProgressUI : MonoBehaviour
             {
                 _labels[i] = new Label(Letters[i]) { pickingMode = PickingMode.Ignore };
                 _labels[i].AddToClassList("rp-chart-label");
-                _labels[i].style.color = LetterColors[i];
+                _labels[i].style.color = vc_UITheme.Riasec(Letters[i]);
                 Add(_labels[i]);
             }
             RegisterCallback<GeometryChangedEvent>(_ => PlaceLabels());
@@ -1247,15 +1499,15 @@ public class vc_RunProgressUI : MonoBehaviour
                 p.BeginPath();
                 for (int i = 0; i < 6; i++) { if (i == 0) p.MoveTo(Point(i, rr)); else p.LineTo(Point(i, rr)); }
                 p.ClosePath();
-                if (ring == 5) { p.fillColor = new Color32(250, 236, 205, 255); p.Fill(); }
-                p.strokeColor = new Color32(180, 150, 115, 255);
+                if (ring == 5) { p.fillColor = vc_UITheme.CreamHi; p.Fill(); }
+                p.strokeColor = vc_UITheme.PaperLine;
                 p.lineWidth = ring == 3 ? 2f : 1f;
                 p.Stroke();
             }
             for (int i = 0; i < 6; i++)
             {
                 p.BeginPath(); p.MoveTo(Point(i, 0f)); p.LineTo(Point(i, R));
-                p.strokeColor = new Color32(180, 150, 115, 255); p.lineWidth = 1f; p.Stroke();
+                p.strokeColor = vc_UITheme.PaperLine; p.lineWidth = 1f; p.Stroke();
             }
 
             // the player's shape
@@ -1266,10 +1518,13 @@ public class vc_RunProgressUI : MonoBehaviour
                 if (i == 0) p.MoveTo(v); else p.LineTo(v);
             }
             p.ClosePath();
-            p.fillColor = new Color32(255, 180, 60, 120);
+            Color fill = vc_UITheme.Gold;
+            fill.a = 0.5f;
+            p.fillColor = fill;
             p.Fill();
-            p.strokeColor = new Color32(168, 92, 30, 255);
+            p.strokeColor = vc_UITheme.GoldDark;
             p.lineWidth = 3f;
+            p.lineJoin = LineJoin.Round;
             p.Stroke();
 
             for (int i = 0; i < 6; i++)
@@ -1277,19 +1532,19 @@ public class vc_RunProgressUI : MonoBehaviour
                 Vector2 v = Point(i, R * Mathf.Clamp(_values[i], 1f, 5f) / 5f);
                 p.BeginPath();
                 p.Arc(v, 5f, 0f, 360f);
-                p.fillColor = LetterColors[i];
+                p.fillColor = vc_UITheme.Riasec(Letters[i]);
                 p.Fill();
             }
         }
     }
 
-    /// <summary>Circular progress for the current stage, drawn with Painter2D.</summary>
+    /// <summary>
+    /// The day dial: a cream disc with the current stage's progress around the rim and a
+    /// little sun in the middle (the stage number sits on it). Drawn with Painter2D.
+    /// </summary>
     public class ProgressRing : VisualElement
     {
-        private static readonly Color[] StageColors =
-        {
-            new Color32(96, 180, 90, 255), new Color32(255, 180, 60, 255), new Color32(120, 150, 230, 255),
-        };
+        private static readonly Color[] StageColors = { vc_UITheme.Green, vc_UITheme.GoldDark, vc_UITheme.Blue };
         private float _progress;
         public int StageIndex { get; set; }
         public float Progress
@@ -1306,32 +1561,234 @@ public class vc_RunProgressUI : MonoBehaviour
         private void Draw(MeshGenerationContext ctx)
         {
             Rect rc = contentRect;
-            float r = Mathf.Min(rc.width, rc.height) * 0.5f - 7f;
-            if (r <= 4f) return;
+            float r = Mathf.Min(rc.width, rc.height) * 0.5f - 4f;
+            if (r <= 12f) return;
             Painter2D p = ctx.painter2D;
+            Vector2 c = rc.center;
 
+            // thicker bottom edge (same depth cue as sn-panel / sn-btn)
             p.BeginPath();
-            p.Arc(rc.center, r + 5f, 0f, 360f);
-            p.fillColor = new Color32(250, 236, 205, 255);
+            p.Arc(c + new Vector2(0f, 4f), r + 1.5f, 0f, 360f);
+            p.ClosePath();
+            p.fillColor = vc_UITheme.Brown;
             p.Fill();
-            p.strokeColor = new Color32(160, 118, 84, 255);
-            p.lineWidth = 2f;
-            p.Stroke();
 
-            p.lineWidth = 8f;
             p.BeginPath();
-            p.Arc(rc.center, r - 2f, 0f, 360f);
-            p.strokeColor = new Color32(214, 196, 168, 255);
+            p.Arc(c, r, 0f, 360f);
+            p.ClosePath();
+            p.fillColor = vc_UITheme.Cream;
+            p.Fill();
+            p.strokeColor = vc_UITheme.Brown;
+            p.lineWidth = 3f;
             p.Stroke();
 
+            // progress track + arc
+            float tr = r - 9f;
+            p.lineWidth = 7f;
+            p.BeginPath();
+            p.Arc(c, tr, 0f, 360f);
+            p.strokeColor = vc_UITheme.CreamLo;
+            p.Stroke();
             if (_progress > 0.001f)
             {
                 p.BeginPath();
-                p.Arc(rc.center, r - 2f, -90f, -90f + 360f * _progress);
+                p.Arc(c, tr, -90f, -90f + 360f * _progress);
                 p.strokeColor = StageColors[Mathf.Clamp(StageIndex, 0, StageColors.Length - 1)];
                 p.lineCap = LineCap.Round;
                 p.Stroke();
             }
+
+            // sun: rays + disc (the stage number label sits on top)
+            float sr = r * 0.36f;
+            p.lineCap = LineCap.Round;
+            p.lineWidth = 3.5f;
+            p.strokeColor = vc_UITheme.GoldDark;
+            for (int k = 0; k < 8; k++)
+            {
+                float a = Mathf.Deg2Rad * (k * 45f + 22.5f);
+                var dir = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                p.BeginPath();
+                p.MoveTo(c + dir * (sr + 4f));
+                p.LineTo(c + dir * Mathf.Min(sr + 10f, tr - 6f));
+                p.Stroke();
+            }
+            p.BeginPath();
+            p.Arc(c, sr, 0f, 360f);
+            p.ClosePath();
+            p.fillColor = vc_UITheme.Gold;
+            p.Fill();
+            p.strokeColor = vc_UITheme.GoldDark;
+            p.lineWidth = 2f;
+            p.Stroke();
+        }
+    }
+
+    /// <summary>
+    /// Small vector icons for the HUD (no icon art yet). Sized by its element; Empty draws the
+    /// "used up" version (energy bolt, star). Swap for art via the .rp-icon--key hook in USS.
+    /// </summary>
+    public class HudIcon : VisualElement
+    {
+        public enum Glyph { None, Moon, House, Talk, Book, Bolt, Star, Arrow, Check }
+
+        private static readonly Color BlueDark = new Color32(44, 88, 150, 255);
+        private Glyph _glyph;
+        private bool _empty;
+
+        public Glyph Kind
+        {
+            get => _glyph;
+            set { _glyph = value; MarkDirtyRepaint(); }
+        }
+
+        public bool Empty
+        {
+            get => _empty;
+            set { if (_empty == value) return; _empty = value; MarkDirtyRepaint(); }
+        }
+
+        public HudIcon(Glyph glyph)
+        {
+            _glyph = glyph;
+            pickingMode = PickingMode.Ignore;
+            generateVisualContent += Draw;
+        }
+
+        private void Draw(MeshGenerationContext ctx)
+        {
+            Rect rc = contentRect;
+            float s = Mathf.Min(rc.width, rc.height);
+            if (s < 4f) return;
+            Vector2 c = rc.center;
+            Painter2D p = ctx.painter2D;
+            p.lineJoin = LineJoin.Round;
+            p.lineCap = LineCap.Round;
+            Vector2 P(float x, float y) => c + new Vector2(x, y) * s;
+
+            switch (_glyph)
+            {
+                case Glyph.Moon:
+                {
+                    // crescent opening to the right: outer arc minus an offset inner circle
+                    float R = 0.40f * s, r = 0.34f * s, d = 0.26f * s;
+                    Vector2 o = c + new Vector2(-0.06f * s, 0f);
+                    float ix = (R * R - r * r + d * d) / (2f * d);
+                    float iy = Mathf.Sqrt(Mathf.Max(0f, R * R - ix * ix));
+                    float a0 = Mathf.Atan2(iy, ix) * Mathf.Rad2Deg;
+                    float t0 = Mathf.Atan2(-iy, ix - d) * Mathf.Rad2Deg; if (t0 < 0f) t0 += 360f;
+                    float t1 = Mathf.Atan2(iy, ix - d) * Mathf.Rad2Deg; if (t1 < 0f) t1 += 360f;
+                    p.BeginPath();
+                    p.Arc(o, R, a0, 360f - a0, ArcDirection.Clockwise);
+                    p.Arc(o + new Vector2(d, 0f), r, t0, t1, ArcDirection.CounterClockwise);
+                    p.ClosePath();
+                    FillStroke(p, vc_UITheme.Gold, vc_UITheme.GoldDark, 0.06f * s);
+                    break;
+                }
+                case Glyph.House:
+                    Poly(p, P(0f, -0.42f), P(0.46f, 0f), P(0.34f, 0f), P(0.34f, 0.40f),
+                            P(-0.34f, 0.40f), P(-0.34f, 0f), P(-0.46f, 0f));
+                    FillStroke(p, vc_UITheme.Brown, vc_UITheme.BrownDark, 0.05f * s);
+                    Poly(p, P(-0.10f, 0.40f), P(-0.10f, 0.12f), P(0.10f, 0.12f), P(0.10f, 0.40f));
+                    p.fillColor = vc_UITheme.Gold;
+                    p.Fill();
+                    break;
+                case Glyph.Talk:
+                    Poly(p, P(-0.22f, 0.16f), P(-0.32f, 0.44f), P(0.04f, 0.16f));
+                    p.fillColor = vc_UITheme.Blue;
+                    p.Fill();
+                    RoundRect(p, new Rect(c.x - 0.44f * s, c.y - 0.36f * s, 0.88f * s, 0.58f * s), 0.16f * s);
+                    FillStroke(p, vc_UITheme.Blue, BlueDark, 0.04f * s);
+                    for (int i = -1; i <= 1; i++) Dot(p, P(0.2f * i, -0.07f), 0.06f * s, vc_UITheme.CreamHi);
+                    break;
+                case Glyph.Book:
+                    Poly(p, P(-0.48f, -0.24f), P(0f, -0.16f), P(0.48f, -0.24f), P(0.48f, 0.40f), P(0f, 0.46f), P(-0.48f, 0.40f));
+                    p.fillColor = vc_UITheme.Brown;
+                    p.Fill();
+                    Poly(p, P(-0.42f, -0.32f), P(-0.03f, -0.24f), P(-0.03f, 0.38f), P(-0.42f, 0.30f));
+                    FillStroke(p, vc_UITheme.CreamHi, vc_UITheme.BrownDark, 0.045f * s);
+                    Poly(p, P(0.42f, -0.32f), P(0.03f, -0.24f), P(0.03f, 0.38f), P(0.42f, 0.30f));
+                    FillStroke(p, vc_UITheme.CreamHi, vc_UITheme.BrownDark, 0.045f * s);
+                    p.strokeColor = vc_UITheme.PaperLine;
+                    p.lineWidth = 0.04f * s;
+                    for (int i = 0; i < 2; i++)
+                    {
+                        float yy = -0.10f + 0.16f * i;
+                        p.BeginPath(); p.MoveTo(P(-0.34f, yy)); p.LineTo(P(-0.12f, yy + 0.04f)); p.Stroke();
+                        p.BeginPath(); p.MoveTo(P(0.34f, yy)); p.LineTo(P(0.12f, yy + 0.04f)); p.Stroke();
+                    }
+                    break;
+                case Glyph.Bolt:
+                    Poly(p, P(0.10f, -0.46f), P(-0.30f, 0.06f), P(-0.02f, 0.06f), P(-0.12f, 0.46f), P(0.30f, -0.08f), P(0.02f, -0.08f));
+                    if (_empty) FillStroke(p, vc_UITheme.CreamLo, vc_UITheme.PaperLine, 0.07f * s);
+                    else FillStroke(p, vc_UITheme.Gold, vc_UITheme.GoldDark, 0.07f * s);
+                    break;
+                case Glyph.Star:
+                {
+                    var pts = new Vector2[10];
+                    for (int i = 0; i < 10; i++)
+                    {
+                        float a = Mathf.Deg2Rad * (-90f + 36f * i);
+                        float rr = (i % 2 == 0 ? 0.46f : 0.20f) * s;
+                        pts[i] = c + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * rr + new Vector2(0f, 0.03f * s);
+                    }
+                    Poly(p, pts);
+                    if (_empty) FillStroke(p, vc_UITheme.CreamLo, vc_UITheme.PaperLine, 0.07f * s);
+                    else FillStroke(p, vc_UITheme.Gold, vc_UITheme.GoldDark, 0.07f * s);
+                    break;
+                }
+                case Glyph.Arrow:
+                    p.strokeColor = vc_UITheme.Ink;
+                    p.lineWidth = 0.13f * s;
+                    p.BeginPath();
+                    p.MoveTo(P(-0.32f, 0f)); p.LineTo(P(0.30f, 0f));
+                    p.MoveTo(P(0.06f, -0.24f)); p.LineTo(P(0.32f, 0f)); p.LineTo(P(0.06f, 0.24f));
+                    p.Stroke();
+                    break;
+                case Glyph.Check:
+                    p.strokeColor = vc_UITheme.CreamHi;
+                    p.lineWidth = 0.16f * s;
+                    p.BeginPath();
+                    p.MoveTo(P(-0.30f, 0.02f)); p.LineTo(P(-0.08f, 0.24f)); p.LineTo(P(0.32f, -0.24f));
+                    p.Stroke();
+                    break;
+            }
+        }
+
+        private static void Poly(Painter2D p, params Vector2[] pts)
+        {
+            p.BeginPath();
+            p.MoveTo(pts[0]);
+            for (int i = 1; i < pts.Length; i++) p.LineTo(pts[i]);
+            p.ClosePath();
+        }
+
+        private static void RoundRect(Painter2D p, Rect r, float rad)
+        {
+            p.BeginPath();
+            p.MoveTo(new Vector2(r.xMin + rad, r.yMin));
+            p.ArcTo(new Vector2(r.xMax, r.yMin), new Vector2(r.xMax, r.yMax), rad);
+            p.ArcTo(new Vector2(r.xMax, r.yMax), new Vector2(r.xMin, r.yMax), rad);
+            p.ArcTo(new Vector2(r.xMin, r.yMax), new Vector2(r.xMin, r.yMin), rad);
+            p.ArcTo(new Vector2(r.xMin, r.yMin), new Vector2(r.xMax, r.yMin), rad);
+            p.ClosePath();
+        }
+
+        private static void Dot(Painter2D p, Vector2 at, float r, Color col)
+        {
+            p.BeginPath();
+            p.Arc(at, r, 0f, 360f);
+            p.ClosePath();
+            p.fillColor = col;
+            p.Fill();
+        }
+
+        private static void FillStroke(Painter2D p, Color fill, Color edge, float width)
+        {
+            p.fillColor = fill;
+            p.Fill();
+            p.strokeColor = edge;
+            p.lineWidth = width;
+            p.Stroke();
         }
     }
 

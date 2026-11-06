@@ -46,6 +46,26 @@ public class vc_BioLabQuest : vc_FitQuestBase
     [SerializeField] private float solveTime = 5f;
     [SerializeField] private float inspectTime = 8f;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ana",
+        presses = 3,
+        bestFitTag = "survey",
+        bestFitSeconds = 2f,
+        prepTag = "inspect",
+        prepUnlocksTag = "unlock",
+        prepLine = "You read and tick off every label...",
+        preferredTag = "plan",
+        preferenceLine = "A written test plan! That'll go straight into my report. Thanks!",
+        fastLines = new[]
+        {
+            ("plan", "A full test plan already? Perfect for my report."),
+            ("unlock", "All matched? Great lab work!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Sprite _cabinetClosed;
     private Vector3[] _dishRest;
     private Vector3 _barPos;
@@ -75,7 +95,7 @@ public class vc_BioLabQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Biology Lab",
-            "Three samples need testing. Find out what each one is.",
+            "Ana needs the three lab samples tested. Find out what each one is, and a written test plan would be nice for her report.",
             new[] { "Test the samples" });
     }
 
@@ -108,9 +128,9 @@ public class vc_BioLabQuest : vc_FitQuestBase
         if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
-        if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
-        if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
+        if (d.HasTag("unlock")) { StartWork(SolveRoutine(PathTime(solveTime), CurrentInstant)); return; }
+        if (d.HasTag("inspect")) { StartWork(InspectRoutine(PathTime(inspectTime))); return; }
 
         Toast("Lab work needs careful study.", 2.2f);
     }
@@ -121,6 +141,27 @@ public class vc_BioLabQuest : vc_FitQuestBase
         if (_lens != null) Destroy(_lens);
         if (dishes != null && _dishRest != null)
             for (int i = 0; i < dishes.Length; i++) dishes[i].localPosition = _dishRest[i];
+    }
+
+    // Prep: Inspect reads every label and ticks it off; Solve then matches all the vials at once.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        _lens = MakeSprite("Magnifier", magnifier, 24);
+        int dishCount = dishes != null ? dishes.Length : 0;
+        int count = dishCount + (tubes != null ? tubes.Length : 0);
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 at = i < dishCount ? dishes[i].position : tubes[i - dishCount].transform.position;
+            if (_lens != null) _lens.transform.position = Snap(at + new Vector3(0.15f, 0.45f, 0f));
+            if (i < dishCount && labels != null && i < labels.Length)
+                Fx(new[] { labels[i] }, at + new Vector3(0f, 0.55f, 0f), 1.6f, 0.3f, 26);
+            Fx(checkFrames, at + new Vector3(0f, 0.9f, 0f), 3f, 0.2f, 26);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.1f);
+            yield return new WaitForSeconds(0.14f);
+        }
+        if (_lens != null) Destroy(_lens);
+        yield return new WaitForSeconds(0.15f);
     }
 
     // ── Survey: scanner sweep ────────────────────────────────────────────
@@ -164,21 +205,21 @@ public class vc_BioLabQuest : vc_FitQuestBase
 
     // ── Plan: write the plan on the clipboard, then run it ───────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float seconds)
     {
-        Toast("Writing out a test plan...", planTime);
+        Toast("Writing out a test plan...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         Vector3 rp = report != null ? report.transform.position : transform.position;
         if (report != null) { report.SetActive(true); StartCoroutine(PopScale(report.transform)); }
         SunodGame.Core.vc_Sfx.Play("page_next", 0.7f);
 
         float t = 0f;
-        float planPhase = planTime * 0.5f;
+        float planPhase = seconds * 0.5f;
         int ticks = 0;
         while (t < planPhase)
         {
             t += Time.deltaTime;
-            SetBar(t / planTime);
+            SetBar(t / seconds);
             if (ticks < 3 && t >= (ticks + 1) * planPhase / 3.2f)
             {
                 Fx(checkFrames, rp + new Vector3(0.05f, 0.5f - ticks * 0.28f, 0f), 3f, 0.05f, 26);
@@ -188,32 +229,32 @@ public class vc_BioLabQuest : vc_FitQuestBase
             yield return null;
         }
 
-        Toast("Running the plan...", planTime * 0.5f);
+        Toast("Running the plan...", Mathf.Max(1f, seconds * 0.5f));
         int n = tubes.Length;
-        float per = (planTime - planPhase) / n;
+        float per = (seconds - planPhase) / n;
         for (int i = 0; i < n; i++)
         {
             ColourTube(i);
             float s = 0f;
-            while (s < per) { s += Time.deltaTime; t += Time.deltaTime; SetBar(t / planTime); yield return null; }
+            while (s < per) { s += Time.deltaTime; t += Time.deltaTime; SetBar(t / seconds); yield return null; }
         }
         Finish("Your test plan sorted out all three samples!");
     }
 
     // ── Solve: open the cabinet, match vials to tubes ────────────────────
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float seconds, bool oneGo)
     {
-        Toast("Looking for the matching reagents...", solveTime);
+        Toast(oneGo ? "Every label is read: matching all the vials at once..." : "Looking for the matching reagents...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
-        float t = 0f;
-        while (t < 0.6f) { t += Time.deltaTime; SetBar(t / solveTime); yield return null; }
+        float t = 0f, intro = seconds * 0.12f;
+        while (t < intro) { t += Time.deltaTime; SetBar(t / seconds); yield return null; }
 
         if (cabinet != null && cabinetOpen != null) cabinet.sprite = cabinetOpen;
         SunodGame.Core.vc_Sfx.Play("door_open", 0.6f);
         Fx(sparkFrames, cabinet != null ? cabinet.transform.position + new Vector3(0f, 0.5f, 0f) : transform.position, 10f, 0.3f);
 
-        float per = (solveTime - 1.6f) / tubes.Length;
+        float per = seconds * 0.68f / tubes.Length;
         for (int i = 0; i < tubes.Length; i++)
         {
             Vector3 from = (cabinet != null ? cabinet.transform.position : transform.position) + new Vector3(0.1f, 0.3f, 0f);
@@ -225,7 +266,7 @@ public class vc_BioLabQuest : vc_FitQuestBase
                 s += Time.deltaTime; t += Time.deltaTime;
                 float k = Mathf.Clamp01(s / per);
                 if (vial != null) vial.transform.position = Snap(Vector3.Lerp(from, to, k) + new Vector3(0f, Mathf.Sin(k * Mathf.PI) * 0.9f, 0f));
-                SetBar(t / solveTime);
+                SetBar(t / seconds);
                 yield return null;
             }
             if (vial != null) Destroy(vial);
@@ -235,20 +276,20 @@ public class vc_BioLabQuest : vc_FitQuestBase
 
         Fx(bulbFrames, microscope != null ? microscope.position + new Vector3(0.9f, 1.3f, 0f) : transform.position, 2f, 0.3f, 26);
         SunodGame.Core.vc_Sfx.Play("idea", 0.7f);
-        float rest = solveTime - t;
-        while (rest > 0f) { rest -= Time.deltaTime; t += Time.deltaTime; SetBar(t / solveTime); yield return null; }
-        Finish("You opened the cabinet and matched the results!");
+        float rest = seconds - t;
+        while (rest > 0f) { rest -= Time.deltaTime; t += Time.deltaTime; SetBar(t / seconds); yield return null; }
+        Finish(oneGo ? "Every vial matched in one go!" : "You opened the cabinet and matched the results!");
     }
 
     // ── Inspect: read every label, then sort by hand ─────────────────────
 
-    private IEnumerator InspectRoutine()
+    private IEnumerator InspectRoutine(float seconds)
     {
-        Toast("Reading every label carefully...", inspectTime);
+        Toast("Reading every label carefully...", Mathf.Max(1.5f, seconds * 0.6f));
         ShowBar(true);
         _lens = MakeSprite("Magnifier", magnifier, 24);
         int steps = dishes.Length + tubes.Length;
-        float labelTime = inspectTime * 0.75f, per = labelTime / steps, t = 0f;
+        float labelTime = seconds * 0.75f, per = labelTime / steps, t = 0f;
 
         for (int i = 0; i < steps; i++)
         {
@@ -259,20 +300,20 @@ public class vc_BioLabQuest : vc_FitQuestBase
                 Fx(new[] { labels[i] }, at + new Vector3(0f, 0.55f, 0f), 1.6f, 0.3f, 26);
             SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.1f);
             float s = 0f;
-            while (s < per) { s += Time.deltaTime; t += Time.deltaTime; SetBar(t / inspectTime); yield return null; }
+            while (s < per) { s += Time.deltaTime; t += Time.deltaTime; SetBar(t / seconds); yield return null; }
         }
         if (_lens != null) Destroy(_lens);
 
         // sort by hand: each dish hops, each tube gets its colour
-        Toast("Sorting the samples...", inspectTime - labelTime);
-        float sortPer = (inspectTime - labelTime) / Mathf.Max(1, tubes.Length);
+        Toast("Sorting the samples...", Mathf.Max(1f, seconds - labelTime));
+        float sortPer = (seconds - labelTime) / Mathf.Max(1, tubes.Length);
         for (int i = 0; i < tubes.Length; i++)
         {
             if (i < dishes.Length) StartCoroutine(Hop(dishes[i]));
             SunodGame.Core.vc_Sfx.Play("shuffle", 0.5f, 0.1f);
             ColourTube(i);
             float s = 0f;
-            while (s < sortPer) { s += Time.deltaTime; t += Time.deltaTime; SetBar(t / inspectTime); yield return null; }
+            while (s < sortPer) { s += Time.deltaTime; t += Time.deltaTime; SetBar(t / seconds); yield return null; }
         }
         Finish("Every label read and every sample sorted.");
     }

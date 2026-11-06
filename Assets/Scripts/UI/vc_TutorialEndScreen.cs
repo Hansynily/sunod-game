@@ -35,14 +35,14 @@ public static class vc_TutorialEndScreen
         Profile p = Lookup(riasecLetter);
         string name = string.IsNullOrEmpty(skillName) ? "that skill" : skillName;
 
+        // Kept short (UI V2): the path, why, and that it's not a real result.
         string body =
-            $"Possible path: {p.Careers}.\n\n" +
-            $"You picked {name}, from the {p.Trait} kind. People who enjoy {p.Trait} work might like jobs like these. " +
-            "This is only one possibility, not your result.\n\n" +
-            "Play the full game to see which paths could fit you best.";
+            $"Maybe: {p.Careers}.\n\n" +
+            $"You picked {name} ({p.Trait}). Just one idea, not your result.\n\n" +
+            "Play the full game to find your fit.";
 
         if (vc_DialogPanel.Instance != null)
-            vc_DialogPanel.Instance.ShowMessage("A Possible Path", body, () => ShowLoops(onDone));
+            vc_DialogPanel.Instance.ShowMessage("A possible path", body, () => ShowLoops(onDone));
         else
             onDone?.Invoke();
     }
@@ -51,8 +51,8 @@ public static class vc_TutorialEndScreen
     private static void ShowLoops(Action onDone)
     {
         const string body =
-            "Every playthrough is one loop. Each loop ends with a disaster.\n\n" +
-            "Go Back to play again. Keep the skills you remember and the keepsakes you buy.";
+            "Each playthrough is a loop. Each loop ends in a disaster.\n\n" +
+            "Go Back to play again. You keep remembered skills and keepsakes.";
 
         if (vc_DialogPanel.Instance != null)
             vc_DialogPanel.Instance.ShowMessage("Loops", body, onDone);

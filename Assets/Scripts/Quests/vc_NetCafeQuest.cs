@@ -48,8 +48,29 @@ public class vc_NetCafeQuest : vc_FitQuestKit
     [SerializeField] private float directTime = 5f;
     [SerializeField] private float solveTime = 8f;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Jay",
+        presses = 4,
+        bestFitTag = "inspect",
+        bestFitSeconds = 2f,
+        prepTag = "unlock",
+        prepUnlocksTag = "collect",
+        prepLine = "You debug the billing program... the error turns to OK.",
+        preferredTag = "direct",
+        preferenceLine = "Each bill to the right customer. Salamat, ha!",
+        fastLines = new[]
+        {
+            ("collect", "Every slip in one go!"),
+            ("direct", "Everyone got the right bill. No mistakes today!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private int[] _minutes;
     private bool[] _billed;
+    private bool[] _slipped;
     private int _slips;
     private float _clock, _tapClock;
 
@@ -59,6 +80,7 @@ public class vc_NetCafeQuest : vc_FitQuestKit
     {
         _minutes = new int[pcs.Length];
         _billed = new bool[pcs.Length];
+        _slipped = new bool[pcs.Length];
     }
 
     protected override void OnBegin()
@@ -68,6 +90,7 @@ public class vc_NetCafeQuest : vc_FitQuestKit
         for (int i = 0; i < pcs.Length; i++)
         {
             _billed[i] = false;
+            _slipped[i] = false;
             _minutes[i] = i < startMinutes.Length ? startMinutes[i] : 10;
             pcs[i].sprite = pcGame;
             customers[i].sprite = customerWait[i];
@@ -75,7 +98,7 @@ public class vc_NetCafeQuest : vc_FitQuestKit
         }
         if (printer != null) printer.sprite = printerIdle;
         vc_QuestHUD.Instance?.ShowQuestInfo("Quest", "Net Cafe Billing",
-            "Help Jay make the customer bills at the net cafe.", new[] { "Bill every customer" });
+            "Help Jay make the customer bills at the net cafe. He'd love to see each bill handed to the right customer.", new[] { "Bill every customer" });
     }
 
     // ── Idle life: the PC timers keep counting, gamers tap away ──────────
@@ -105,14 +128,33 @@ public class vc_NetCafeQuest : vc_FitQuestKit
         if (d.HasTag("inspect")) { StartWork(InspectRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("collect")) { CollectPress(); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime), CurrentInstant)); return; }
+        if (d.HasTag("unlock")) { StartWork(SolveRoutine(PathTime(solveTime))); return; }
         Toast("Billing needs careful, orderly work.", 2.2f);
     }
 
     protected override void OnWorkCancelled()
     {
-        for (int i = 0; i < pcs.Length; i++) if (!_billed[i]) pcs[i].sprite = pcGame;
+        for (int i = 0; i < pcs.Length; i++) if (!_billed[i]) { pcs[i].sprite = Prepared ? pcOk : pcGame; _slipped[i] = false; }
+    }
+
+    // Prep (Solve): the billing program's error turns to "OK"; Collect then gathers every slip at once.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (questionBubble != null && printer != null) Bubble(questionBubble, printer, 0.5f);
+        for (int j = 0; j < 2; j++)
+        {
+            for (int i = 0; i < pcs.Length; i++) if (!_billed[i]) pcs[i].sprite = pcError;
+            Sfx("buzz", 0.3f);
+            yield return new WaitForSeconds(0.25f);
+            for (int i = 0; i < pcs.Length; i++) if (!_billed[i]) pcs[i].sprite = pcGame;
+            yield return new WaitForSeconds(0.1f);
+        }
+        for (int i = 0; i < pcs.Length; i++) if (!_billed[i]) pcs[i].sprite = pcOk;
+        if (ideaBubble != null && printer != null) Bubble(ideaBubble, printer, 0.6f);
+        Sfx("idea", 0.6f, 0f);
+        yield return new WaitForSeconds(0.3f);
     }
 
     private IEnumerator InspectRoutine()
@@ -134,12 +176,50 @@ public class vc_NetCafeQuest : vc_FitQuestKit
 
     private void CollectPress()
     {
-        int i = NextUnbilled();
-        if (i < 0) return;
+        int need = Mathf.Max(1, PathPresses(collectPresses));
         _slips++;
-        StartCoroutine(SlipThenBill(i));
-        if (_slips < collectPresses && NextUnbilled() >= 0) { Toast($"Time slip collected ({_slips}/{collectPresses})", 2f); return; }
-        Finish("All the slips collected, all bills paid!");
+        if (_slips < need && NextUnslipped() >= 0)
+        {
+            // each early press collects its share of the slips
+            int left = 0;
+            for (int k = 0; k < pcs.Length; k++) if (!_billed[k] && !_slipped[k]) left++;
+            int share = Mathf.CeilToInt(left / (float)(need - _slips + 1));
+            for (int s = 0; s < share; s++)
+            {
+                int i = NextUnslipped();
+                if (i < 0) break;
+                _slipped[i] = true;
+                StartCoroutine(SlipThenBill(i));
+            }
+            Toast($"Time slips collected ({_slips}/{need})", 2f);
+            return;
+        }
+        StartWork(CollectRestRoutine(need == 1 && CurrentInstant));
+    }
+
+    // The last press: gather every remaining slip (staggered), wait for the printing, then finish.
+    private IEnumerator CollectRestRoutine(bool oneGo)
+    {
+        Toast(oneGo ? "Every slip in one go!" : "You gather the last time slips...", 1.6f);
+        ShowBar(true);
+        var c = new float[1];
+        float total = oneGo ? 1.2f : 2f;
+        float gap = oneGo ? 0.12f : 0.3f;
+        for (int i = 0; i < pcs.Length; i++)
+        {
+            if (_billed[i] || _slipped[i]) continue;
+            _slipped[i] = true;
+            StartCoroutine(SlipThenBill(i));
+            yield return Tick(gap, c, total);
+        }
+        float guard = 0f;
+        while (NextUnbilled() >= 0 && guard < 3f)
+        {
+            guard += Time.deltaTime;
+            yield return null;
+        }
+        yield return new WaitForSeconds(0.6f);
+        Finish(oneGo ? "Every slip collected in one go. All bills paid!" : "All the slips collected, all bills paid!");
     }
 
     private IEnumerator SlipThenBill(int i)
@@ -148,52 +228,56 @@ public class vc_NetCafeQuest : vc_FitQuestKit
         Bill(i);
     }
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float seconds, bool oneGo)
     {
-        Toast("You sort the bills per customer...", directTime);
+        Toast(oneGo ? "Sorting and handing out in one go!" : "You sort the bills per customer...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
         Vector3 desk = printer != null ? printer.bounds.center + new Vector3(-1.2f, -0.4f, 0f) : transform.position;
+        float sortPer = seconds * 0.48f / Mathf.Max(1, pcs.Length);
         for (int i = 0; i < pcs.Length; i++)
         {
             var r = Spawn(receipt, desk + new Vector3(i * 0.45f, 0f, 0f), 14, "SortedBill");
             StartCoroutine(PopIn(r.transform));
             Sfx("shuffle", 0.4f);
-            yield return Tick(0.8f, c, directTime);
+            yield return Tick(sortPer, c, seconds);
         }
-        float per = (directTime - c[0]) / Mathf.Max(1, pcs.Length);
+        float per = Mathf.Max(0.05f, (seconds - c[0]) / Mathf.Max(1, pcs.Length));
         for (int i = 0; i < pcs.Length; i++)
         {
             if (!_billed[i]) Bill(i);
-            yield return Tick(per, c, directTime);
+            yield return Tick(per, c, seconds);
         }
-        Finish("Sorted and handed out. Neat billing!");
+        yield return new WaitForSeconds(0.5f);
+        Finish(oneGo ? "Sorted and handed out in one go. Neat billing!" : "Sorted and handed out. Neat billing!");
     }
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float seconds)
     {
-        Toast("The billing program glitches... you debug it.", solveTime);
+        Toast("The billing program glitches... you debug it.", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
-        if (questionBubble != null && printer != null) Bubble(questionBubble, printer, 1.2f);
+        if (questionBubble != null && printer != null) Bubble(questionBubble, printer, Mathf.Min(1.2f, seconds * 0.15f));
         bool on = true;
-        while (c[0] < solveTime - 3f)
+        float blink = Mathf.Max(0.12f, seconds * 0.0625f);
+        while (c[0] < seconds * 0.625f)
         {
             for (int i = 0; i < pcs.Length; i++) if (!_billed[i]) pcs[i].sprite = on ? pcError : pcGame;
             if (on) Sfx("buzz", 0.3f);
             on = !on;
-            yield return Tick(0.5f, c, solveTime);
+            yield return Tick(blink, c, seconds);
         }
         if (ideaBubble != null && printer != null) Bubble(ideaBubble, printer, 1f);
         for (int i = 0; i < pcs.Length; i++) if (!_billed[i]) pcs[i].sprite = pcOk;
         Sfx("idea", 0.6f, 0f);
-        yield return Tick(0.9f, c, solveTime);
-        float per = (solveTime - c[0]) / Mathf.Max(1, pcs.Length);
+        yield return Tick(seconds * 0.11f, c, seconds);
+        float per = Mathf.Max(0.05f, (seconds - c[0]) / Mathf.Max(1, pcs.Length));
         for (int i = 0; i < pcs.Length; i++)
         {
             if (!_billed[i]) Bill(i);
-            yield return Tick(per, c, solveTime);
+            yield return Tick(per, c, seconds);
         }
+        yield return new WaitForSeconds(0.5f);
         Finish("Bug fixed, bills printed. Nice debugging!");
     }
 
@@ -241,6 +325,12 @@ public class vc_NetCafeQuest : vc_FitQuestKit
         if (b >= timerDigits.Length) return;
         timerDigits[a].sprite = digits[_minutes[i] / 10];
         timerDigits[b].sprite = digits[_minutes[i] % 10];
+    }
+
+    private int NextUnslipped()
+    {
+        for (int i = 0; i < pcs.Length; i++) if (!_billed[i] && !_slipped[i]) return i;
+        return -1;
     }
 
     private int NextUnbilled()

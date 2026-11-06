@@ -54,6 +54,31 @@ public class vc_ThriftShopQuest : vc_FitQuestBase
     [SerializeField] private float mapTime = 5f;
     [SerializeField] private float paintTime = 8f;
     [SerializeField] private float collectTime = 8f;
+    [SerializeField] private float callTime = 4f;
+
+    // Skill system v2 (QUEST_REDESIGN.md): Paint (prep) puts up a styled window display, then Map
+    // rearranges the racks around it at once. Preference: Persuade (the vintage jacket).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ate Joan",
+        presses = 4,
+        bestFitTag = "command",
+        bestFitSeconds = 2f,
+        prepTag = "paint",
+        prepUnlocksTag = "map",
+        prepLine = "A styled window display goes up in the front...",
+        preferredTag = "persuade",
+        preferenceLine = "You sold the vintage jacket! Salamat, ha!",
+        fastLines = new[]
+        {
+            ("persuade", "The vintage jacket is sold already!"),
+            ("charm", "Everyone's buying, they love you!"),
+            ("map", "The racks look so much better!"),
+            ("summon", "The shop's packed! How?!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
 
     private Vector3[] _rackRest, _shopperRest;
     private bool[] _sold;
@@ -80,7 +105,7 @@ public class vc_ThriftShopQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Thrift Shop",
-            "Run a shift at the thrift shop while Ate Joan is out.",
+            "Ate Joan: run a shift at the thrift shop for her. Someone keeps eyeing that vintage jacket, so a good sales pitch would make her day.",
             new[] { "Manage the shop" });
     }
 
@@ -120,11 +145,12 @@ public class vc_ThriftShopQuest : vc_FitQuestBase
     {
         if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine()); return; }
-        if (d.HasTag("charm")) { StartWork(CharmRoutine()); return; }
-        if (d.HasTag("map")) { StartWork(MapRoutine()); return; }
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
+        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine(PathTime(persuadeTime))); return; }
+        if (d.HasTag("charm")) { StartWork(CharmRoutine(PathTime(charmTime))); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime), CurrentInstant)); return; }
+        if (d.HasTag("summon")) { StartWork(CallRoutine(PathTime(callTime))); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime))); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime))); return; }
         Toast("The shop needs a manager.", 2.2f);
     }
 
@@ -144,20 +170,22 @@ public class vc_ThriftShopQuest : vc_FitQuestBase
         Finish("Racks sorted, sales rung up. Great shift!");
     }
 
-    private IEnumerator PersuadeRoutine()
+    private IEnumerator PersuadeRoutine(float persuadeTime)
     {
+        float lead = 1.3f * persuadeTime / 3f;
         Toast("You pitch the vintage jacket...", persuadeTime);
         ShowBar(true);
         if (pitchBubble != null) Fx(new[] { pitchBubble }, Top(0) + new Vector3(-0.6f, 0f, 0f), 1f, 0.1f, 24);
         if (jacket != null) Fx(new[] { jacket }, Top(0) + new Vector3(0.1f, -0.3f, 0f), 0.8f, 0.2f, 25);
         SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f, 0.1f);
-        yield return BarStep(1.3f, 0f, 1.3f / persuadeTime);
-        yield return SellAll(1.3f, persuadeTime);
+        yield return BarStep(lead, 0f, lead / persuadeTime);
+        yield return SellAll(lead, persuadeTime);
         Finish("Sold the vintage jacket - and more!");
     }
 
-    private IEnumerator CharmRoutine()
+    private IEnumerator CharmRoutine(float charmTime)
     {
+        float lead = 1.2f * charmTime / 3f;
         Toast("You greet the shoppers with a big smile...", charmTime);
         ShowBar(true);
         for (int i = 0; i < shoppers.Length; i++)
@@ -166,16 +194,16 @@ public class vc_ThriftShopQuest : vc_FitQuestBase
             StartCoroutine(Hop(i));
         }
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
-        yield return BarStep(1.2f, 0f, 1.2f / charmTime);
-        yield return SellAll(1.2f, charmTime);
+        yield return BarStep(lead, 0f, lead / charmTime);
+        yield return SellAll(lead, charmTime);
         Finish("The shoppers loved you. Everyone bought something!");
     }
 
-    private IEnumerator MapRoutine()
+    private IEnumerator MapRoutine(float mapTime, bool oneGo)
     {
-        Toast("You rearrange the racks for better flow...", mapTime);
+        Toast(oneGo ? "The racks rearrange around the new window display!" : "You rearrange the racks for better flow...", mapTime);
         ShowBar(true);
-        float slide = 2.6f, t = 0f;
+        float slide = 2.6f * mapTime / 5f, t = 0f;
         while (t < slide)
         {
             t += Time.deltaTime;
@@ -188,45 +216,93 @@ public class vc_ThriftShopQuest : vc_FitQuestBase
         }
         NeatenRacks();
         yield return SellAll(slide, mapTime);
-        Finish("The new layout works. Shoppers flow right to the till!");
+        Finish(oneGo ? "The racks fell into place around the display in one go!" : "The new layout works. Shoppers flow right to the till!");
     }
 
-    private IEnumerator PaintRoutine()
+    // ── Call: "Sale today!" at the door, shoppers stream in ──────────────
+
+    private IEnumerator CallRoutine(float callTime)
     {
+        Toast("You call out at the door: \"Sale today!\"", Mathf.Min(2.5f, callTime));
+        ShowBar(true);
+        Vector3 doorPos = (till != null ? till.transform.position : transform.position) + new Vector3(-1.8f, -0.8f, 0f);
+        if (pitchBubble != null) Fx(new[] { pitchBubble }, doorPos + new Vector3(0f, 1.6f, 0f), 1f, 0.15f, 25);
+        SunodGame.Core.vc_Sfx.Play("bell", 0.6f);
+        SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f, 0.1f);
+        for (int i = 0; i < shoppers.Length; i++)
+        {
+            if (!_sold[i] && heartBubble != null) Fx(new[] { heartBubble }, Top(i), 1.2f, 0.25f, 24);
+            StartCoroutine(Hop(i));
+        }
+        // a passer-by drawn in from the street walks in with the crowd
+        float comeSecs = callTime * 0.4f;
+        Vector3 from = doorPos + new Vector3(-4.5f, 0f, 0f);
+        SpawnHelper(from, 10);
+        yield return HelperWalk(from, doorPos, comeSecs, tt => SetBar(tt / callTime));
+        yield return SellAll(comeSecs, callTime);
+        Finish("\"Sale today!\" The shoppers streamed in and bought up a storm!");
+    }
+
+    // ── Prep (Paint): a styled window display goes up ────────────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 m = mannequin != null ? mannequin.bounds.center : transform.position;
+        for (int i = 0; i < 4; i++)
+        {
+            Fx(splatFrames, m + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.4f, 0.4f), 0f), 10f, 0f, 22);
+            SunodGame.Core.vc_Sfx.Play("brush", 0.4f, 0.1f);
+            yield return new WaitForSeconds(0.2f);
+        }
+        if (mannequin != null) mannequin.sprite = mannequinStyled;
+        Fx(sparkFrames, m + new Vector3(0.3f, 0.5f, 0f), 12f, 0.2f);
+        SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
+        for (int i = 0; i < shoppers.Length; i++)
+            if (!_sold[i] && heartBubble != null) Fx(new[] { heartBubble }, Top(i), 1.2f, 0.2f, 24);
+        yield return new WaitForSeconds(0.2f);
+    }
+
+    private IEnumerator PaintRoutine(float paintTime)
+    {
+        float sc = paintTime / 8f;
+        float step = Mathf.Max(0.15f, 0.5f * sc), after = 1f * sc;
         Toast("You style a window display...", paintTime);
         ShowBar(true);
-        float style = 4.5f, t = 0f;
+        float style = 4.5f * sc, t = 0f;
         Vector3 m = mannequin != null ? mannequin.bounds.center : transform.position;
         while (t < style)
         {
             Fx(splatFrames, m + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.4f, 0.4f), 0f), 10f, 0f, 22);
             SunodGame.Core.vc_Sfx.Play("brush", 0.4f, 0.1f);
-            yield return BarStep(0.5f, t / paintTime, (t + 0.5f) / paintTime);
-            t += 0.5f;
+            yield return BarStep(step, t / paintTime, (t + step) / paintTime);
+            t += step;
         }
         if (mannequin != null) mannequin.sprite = mannequinStyled;
         Fx(sparkFrames, m + new Vector3(0.3f, 0.5f, 0f), 12f, 0.2f);
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
         for (int i = 0; i < shoppers.Length; i++) if (dotsBubble != null && heartBubble != null) Fx(new[] { heartBubble }, Top(i), 1.5f, 0.2f, 24);
-        yield return BarStep(1f, t / paintTime, (t + 1f) / paintTime);
-        t += 1f;
+        yield return BarStep(after, t / paintTime, (t + after) / paintTime);
+        t += after;
         yield return SellAll(t, paintTime);
         Finish("The window display drew them in!");
     }
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float collectTime)
     {
+        float sc = collectTime / 8f;
+        float step = Mathf.Max(0.15f, 0.5f * sc);
         Toast("You fold and restock everything first...", collectTime);
         ShowBar(true);
-        float fold = 5f, t = 0f;
+        float fold = 5f * sc, t = 0f;
         while (t < fold)
         {
             int r = t < fold * 0.5f ? 0 : Mathf.Min(1, racks.Length - 1);
             if (racks.Length > 0) Fx(dustFrames, racks[r].transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0.2f, 0f), 10f, 0.15f);
             SunodGame.Core.vc_Sfx.Play("shuffle", 0.4f, 0.1f);
-            yield return BarStep(0.5f, t / collectTime, (t + 0.5f) / collectTime);
-            t += 0.5f;
-            if (Mathf.Abs(t - fold * 0.5f) < 0.26f && racks.Length > 0) { racks[0].sprite = rackNeat; Fx(sparkFrames, racks[0].bounds.center, 12f, 0.15f); }
+            yield return BarStep(step, t / collectTime, (t + step) / collectTime);
+            t += step;
+            if (Mathf.Abs(t - fold * 0.5f) < step * 0.52f && racks.Length > 0) { racks[0].sprite = rackNeat; Fx(sparkFrames, racks[0].bounds.center, 12f, 0.15f); }
         }
         NeatenRacks();
         yield return SellAll(t, collectTime);

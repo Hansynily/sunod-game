@@ -1,6 +1,17 @@
 /* =================================================================
-   SUNOD - Life-stage progress bar, end-of-day summary, dream overlay
-   (vc_RunProgressUI builds the tree in code; Sprout Lands look from SunodTheme)
+   SUNOD - town/run HUD (vc_RunProgressUI) + quest board (vc_QuestBoard)
+   UI V2 (2026-11-07): built on the sn-* components from SunodTheme.tss.
+   This file only lays things out and adds the few HUD-specific bits;
+   colours come from the theme tokens. Motion is vc_UIAnim (C#).
+
+   Panel units: PanelSettings is 1280x720, match height, so the screen is
+   always 720 units tall. Top-right layout (right edge in, top down):
+     pause (GameHUD/pause menu)  96 round, top 24, right 24   (assumed)
+     day dial (.rp-ring)          96 round, top 24, right 136  + "Day N" chip under it
+     zoom -/+ (.rp-zoom-row)      2 x 84 round, top 30, right 248
+     right column (.rp-side)      top 152, right 24, max width ~300, ends by y ~404
+   The radial skill menu owns the bottom-right ~293x293 (440 at 1080p),
+   the joystick the bottom-left ~240x240; nothing here goes there.
    ================================================================= */
 
 .rp-root {
@@ -8,471 +19,484 @@
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
-/* ---------- life-stage banner (opened from the corner ring) ---------- */
-.rp-banner {
+.rp-hidden { display: none; }
+
+/* full-width row that centres its child: used instead of left:50% + translate,
+   so vc_UIAnim (which animates translate) never knocks things off-centre */
+.rp-center-row {
     position: absolute;
-    top: 12px;
-    left: 50%;
-    translate: -50% 0;
+    left: 0; right: 0;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ---------- button bits shared by every pill ---------- */
+.sn-btn__label {
+    font-size: 28px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    -unity-text-align: middle-left;
+    color: var(--sn-ink);
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+}
+.sn-btn .sn-btn__label { margin-left: 10px; }
+.sn-btn .rp-label--solo { margin-left: 0; }
+.sn-btn .rp-label--before { margin-left: 0; margin-right: 10px; }
+.sn-btn--night .sn-btn__label,
+.sn-btn--primary .sn-btn__label,
+.sn-btn--danger .sn-btn__label { color: var(--sn-cream-hi); }
+.sn-btn--gold .sn-btn__label { color: var(--sn-ink); }
+
+/* icon slot: .sn-btn__icon holds a drawn glyph (.rp-glyph). To drop in art later, give
+   .rp-icon--<key> a background-image and hide its glyph, e.g.
+   .rp-icon--sleep { background-image: url("/Assets/Art/UI/Icons/sleep.png"); }
+   .rp-icon--sleep .rp-glyph { display: none; }
+   keys: home, sleep, talk, journal, next, energy */
+.rp-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+.rp-glyph {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+}
+
+/* ---------- day dial (top-right, left of pause; tap = life stages) ---------- */
+.rp-ring {
+    position: absolute;
+    top: 24px;
+    right: 136px;
+    width: 96px;
+    height: 96px;
+    align-items: center;
+    justify-content: center;
+}
+.rp-ring-stage {
+    font-size: 28px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}
+.rp-ring-chiprow {
+    position: absolute;
+    left: -24px; right: -24px;
+    bottom: -22px;
+    align-items: center;
+}
+.sn-chip.rp-ring-day {
+    min-height: 40px;
+    padding: 2px 14px 2px 14px;
+    font-size: 22px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+/* ---------- zoom -/+ (top bar, left of the dial) ---------- */
+.rp-zoom-row {
+    position: absolute;
+    top: 30px;
+    right: 248px;
+    flex-direction: row;
+}
+.sn-btn.rp-zoom-btn {
+    width: 84px;
+    height: 84px;
+    min-width: 84px;
+    min-height: 84px;
+    padding: 0;
+    margin: 0 0 0 12px;
+    border-radius: 999px;
+    font-size: 40px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+}
+
+/* ---------- right column: Back to town / Sleep / Talk + Journal / energy ---------- */
+.rp-side {
+    position: absolute;
+    top: 152px;
+    right: 24px;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.sn-btn.rp-side-btn {
+    min-width: 232px;
+    height: 84px;
+    margin: 0 0 16px 0;
+    padding: 0 28px 0 22px;
+    justify-content: flex-start;
+}
+.rp-action-row {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.sn-btn.rp-talk-btn {
+    min-width: 176px;
+    margin: 0 16px 0 0;
+}
+.sn-btn.rp-journal-btn {
+    width: 84px;
+    height: 84px;
+    min-width: 84px;
+    min-height: 84px;
+    margin: 0;
+    padding: 0;
+    border-radius: 999px;
+}
+.rp-journal-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    min-width: 32px;
+    height: 32px;
+    font-size: 20px;
+    border-radius: 999px;
+}
+
+/* energy pill: a row of bolts (or "bolt n/max" when there are too many) */
+.sn-chip.rp-energy {
+    min-height: 52px;
+    padding: 4px 14px 4px 12px;
+}
+.rp-energy-pip {
+    width: 30px;
+    height: 34px;
+    margin: 0 2px 0 2px;
+    flex-shrink: 0;
+}
+.rp-energy-label {
+    font-size: 24px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    margin: 0 0 0 6px;
+    padding: 0;
+}
+
+/* ---------- life-stage banner (opened from the dial) ---------- */
+.rp-banner-row { top: 16px; }
+.sn-panel.rp-banner {
     width: 900px;
-    max-width: 70%;
-    padding: 18px 26px 22px 26px;
+    max-width: 72%;
+    padding: 16px 24px 22px 24px;
     flex-direction: column;
     align-items: stretch;
 }
-
-.rp-banner-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-}
-.rp-banner-title {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
-}
-.rp-banner-day {
+.rp-banner-title { -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf"); }
+.sn-header.rp-banner-header { justify-content: space-between; }
+.sn-chip.rp-banner-day {
     font-size: 22px;
-    color: rgb(60, 54, 66);
-    padding: 6px 14px 9px 14px;
+    min-height: 44px;
+    white-space: nowrap;
 }
 
-/* row of stage cards: [1 Elementary] > [2 High School] > [3 College] [!] */
 .rp-stages {
     flex-direction: row;
     align-items: stretch;
 }
 .rp-stage-arrow {
     font-size: 28px;
-    color: rgb(170, 140, 105);
+    color: var(--sn-paper-line);
     -unity-text-align: middle-center;
-    width: 26px;
+    width: 24px;
     flex-shrink: 0;
 }
-
-.rp-stage {
+.sn-card.rp-stage {
     flex-grow: 1;
     flex-basis: 0;
     padding: 10px 12px 12px 12px;
-    border-width: 3px;
-    border-color: rgb(196, 162, 120);
-    background-color: rgb(244, 228, 196);
-    transition-property: opacity, scale;
-    transition-duration: 0.3s;
 }
-.rp-stage--current {
-    border-color: rgb(214, 132, 40);
-    background-color: rgb(255, 238, 200);
+.sn-card.rp-stage--current {
+    border-color: var(--sn-gold-dark);
+    background-color: rgb(255, 242, 206);
 }
-.rp-stage--future {
-    opacity: 0.6;
-}
+.rp-stage--future { opacity: 0.6; }
 
 .rp-stage-top {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 .rp-stage-badge {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     margin-right: 10px;
     flex-shrink: 0;
     font-size: 22px;
-    color: rgb(255, 248, 230);
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-cream-hi);
     -unity-text-align: middle-center;
-    background-color: rgb(150, 124, 100);
+    background-color: var(--sn-ink-muted);
+    border-radius: 999px;
     border-width: 2px;
-    border-color: rgb(60, 54, 66);
+    border-color: var(--sn-brown-dark);
 }
-.rp-stage--current .rp-stage-badge { background-color: rgb(230, 150, 50); }
-.rp-stage--done .rp-stage-badge { background-color: rgb(96, 170, 84); }
+.rp-stage--current .rp-stage-badge { background-color: var(--sn-gold-dark); }
+.rp-stage--done .rp-stage-badge { background-color: var(--sn-green); border-color: var(--sn-green-dark); }
+.rp-stage-badge .rp-glyph { left: 6px; top: 6px; right: 6px; bottom: 6px; }
 .rp-stage-name {
     font-size: 22px;
-    color: rgb(60, 54, 66);
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
     white-space: nowrap;
     flex-shrink: 1;
 }
 
-/* segmented bar: one flush segment per quest */
+/* segmented bar: one segment per quest, lit in that quest's RIASEC colour */
 .rp-stage-bar {
     flex-direction: row;
-    height: 16px;
+    height: 18px;
     padding: 2px;
-    background-color: rgb(60, 54, 66);
+    background-color: var(--sn-cream-lo);
+    border-width: 2px;
+    border-color: var(--sn-brown);
+    border-radius: 999px;
+    overflow: hidden;
     margin-bottom: 8px;
 }
 .rp-seg {
     flex-grow: 1;
     margin: 0 1px;
-    background-color: rgb(120, 98, 82);
+    border-radius: 3px;
+    background-color: var(--sn-paper-line);
 }
-.rp-stage--done .rp-seg { background-color: rgb(150, 190, 120); }
-.rp-seg--R { background-color: rgb(217, 58, 74); }
-.rp-seg--I { background-color: rgb(240, 138, 36); }
-.rp-seg--A { background-color: rgb(142, 79, 214); }
-.rp-seg--S { background-color: rgb(47, 163, 90); }
-.rp-seg--E { background-color: rgb(47, 111, 214); }
-.rp-seg--C { background-color: rgb(34, 179, 196); }
-
-.rp-stage-count {
-    font-size: 22px;
-    color: rgb(110, 84, 58);
-}
+.rp-stage--done .rp-seg { background-color: var(--sn-green-hi); }
+.rp-seg--R { background-color: var(--sn-R); }
+.rp-seg--I { background-color: var(--sn-I); }
+.rp-seg--A { background-color: var(--sn-A); }
+.rp-seg--S { background-color: var(--sn-S); }
+.rp-seg--E { background-color: var(--sn-E); }
+.rp-seg--C { background-color: var(--sn-C); }
+.rp-stage-count { font-size: 21px; }
 
 /* the disaster at the end of the road */
 .rp-storm {
-    width: 46px;
+    width: 48px;
     margin-left: 10px;
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    background-color: rgb(70, 60, 110);
-    border-width: 3px;
-    border-color: rgb(30, 24, 50);
+    background-color: var(--sn-night);
+    border-width: 2px;
+    border-bottom-width: 4px;
+    border-color: rgb(56, 58, 120);
+    border-radius: 16px;
 }
 .rp-storm--near {
-    background-color: rgb(170, 50, 60);
+    background-color: var(--sn-red);
+    border-color: var(--sn-red-dark);
 }
 .rp-storm-label {
-    font-size: 28px;
-    color: rgb(255, 248, 230);
-    -unity-text-align: middle-center;
-}
-
-/* life-stage name chip under the corner ring */
-.rp-ring-name {
-    position: absolute;
-    top: 100px;
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    white-space: nowrap;
-    padding: 4px 10px 6px 10px;
-}
-
-/* ---------- day summary card ---------- */
-.rp-dim {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(10, 8, 20, 0.55);
-    align-items: center;
-    justify-content: center;
-}
-
-.rp-card {
-    width: 560px;
-    padding: 28px 34px 26px 34px;
-    align-items: center;
-}
-
-.rp-card-title {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
-    margin-bottom: 14px;
-    -unity-text-align: middle-center;
-}
-
-.rp-card-body {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    white-space: normal;
-    -unity-text-align: middle-center;
-    margin-bottom: 20px;
-}
-
-.rp-card-btn {
-    min-width: 200px;
-    height: 52px;
-    padding: 0 22px;
-}
-.rp-card-btn-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-}
-
-/* ---------- dream overlay ---------- */
-.rp-dream {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgb(6, 6, 16);
-    -unity-background-scale-mode: scale-and-crop;
-    -unity-background-image-tint-color: rgb(120, 110, 170);
-    opacity: 0;
-    transition-property: opacity;
-    transition-duration: 0.8s;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 70px;
-}
-.rp-dream--shown { opacity: 1; }
-
-.rp-dream-title {
-    position: absolute;
-    top: 60px;
-    left: 0; right: 0;
-    font-size: 28px;
-    color: rgb(200, 190, 255);
-    -unity-text-align: middle-center;
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(10, 8, 20);
-}
-
-.rp-dream-text {
-    width: 70%;
     font-size: 30px;
-    color: rgb(240, 236, 255);
-    white-space: normal;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-cream-hi);
     -unity-text-align: middle-center;
-    -unity-font-definition: url("/Assets/Art/Fonts/DotGothic16/DotGothic16-Regular.ttf");
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(10, 8, 20);
-    margin-bottom: 18px;
 }
 
-.rp-dream-hint {
-    font-size: 22px;
-    color: rgb(170, 160, 210);
-}
-
-.rp-hidden { display: none; }
-
-/* ---------- "next stage" button (nothing left to do in this town) ---------- */
-.rp-next-btn {
-    position: absolute;
-    top: 150px;
-    left: 50%;
-    translate: -50% 0;
-    height: 56px;
-    min-width: 300px;
-    padding: 0 28px;
-}
-
-/* lightning bolt inside the energy chip */
-.rp-energy-icon {
-    width: 21px;
-    height: 27px;
-    margin-right: 8px;
-    flex-shrink: 0;
-    background-image: url("/Assets/Art/UI/Panels/icon_energy.png");
-    -unity-background-scale-mode: scale-to-fit;
-}
-
-/* ---------- side controls: energy, Sleep, zoom, quest "Not for me" ---------- */
-.rp-side {
-    position: absolute;
-    top: 130px;
-    right: 24px;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.rp-energy {
-    flex-direction: row;
-    align-items: center;
-    padding: 8px 18px 12px 14px;
-    margin-bottom: 10px;
-}
-.rp-energy-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-left;
-    margin: 0;
-    padding: 0;
-}
-
-.rp-side-btn {
-    min-width: 170px;
-    height: 52px;
-    padding: 0 18px;
-    margin-bottom: 10px;
-}
-
-.rp-zoom-row {
-    flex-direction: row;
-}
-
-.rp-zoom-btn {
-    width: 56px;
-    height: 52px;
-    margin-left: 8px;
-}
-/* at the zoom limit: greyed out so it's clear why nothing happens */
-.rp-zoom-btn:disabled {
-    opacity: 0.45;
-}
-
-/* ---------- progress ring (top-right, left of the pause button) ---------- */
-.rp-ring {
-    position: absolute;
-    top: 20px;
-    right: 140px;
-    width: 108px;
-    height: 108px;
-    align-items: center;
-    justify-content: center;
-    transition-property: scale;
-    transition-duration: 0.12s;
-}
-.rp-ring:active { scale: 0.94 0.94; }
-.rp-ring-stage {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    margin-top: 6px;
-}
-.rp-ring-day {
-    font-size: 18px;
-    color: rgb(130, 98, 70);
-    -unity-text-align: middle-center;
-    margin-top: -4px;
-}
-
-.rp-partial-btn {
+.sn-btn.rp-partial-btn {
     align-self: center;
-    min-width: 300px;
-    height: 52px;
-    margin-top: 12px;
-    padding: 0 20px;
+    margin: 16px 0 0 0;
 }
 
-/* ---------- toast (all feedback messages) ---------- */
-.rp-toast {
-    position: absolute;
-    top: 118px;
-    left: 50%;
-    translate: -50% 0;
-    max-width: 640px;
-    padding: 14px 30px 20px 30px;
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    white-space: normal;
-    -unity-text-align: middle-center;
-    opacity: 1;
-    transition-property: opacity, translate;
-    transition-duration: 0.18s;
-    transition-timing-function: ease-out;
+/* ---------- day summary ---------- */
+.sn-panel.rp-card {
+    width: 560px;
+    padding: 22px 32px 22px 32px;
+    align-items: center;
 }
-.rp-toast--hidden {
-    opacity: 0;
-    translate: -50% -14px;
+.rp-card-title { margin-bottom: 8px; }
+.rp-card-body {
+    max-width: 480px;
+    margin-bottom: 12px;
 }
-
-/* ---------- live RIASEC chart (day summary) ---------- */
-.rp-chart-caption {
-    font-size: 22px;
-    color: rgb(130, 98, 70);
-    -unity-text-align: middle-center;
-    margin-bottom: 2px;
-}
+.rp-chart-caption { margin-bottom: 0; }
 .rp-chart {
-    width: 230px;
-    height: 210px;
-    margin-bottom: 16px;
+    width: 210px;
+    height: 190px;
+    margin-bottom: 8px;
 }
 .rp-chart-label {
     position: absolute;
     width: 20px;
     font-size: 22px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
     -unity-text-align: middle-center;
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(42, 40, 52);
+}
+.sn-btn.rp-card-btn {
+    min-width: 260px;
+    margin: 4px 0 0 0;
 }
 
-/* ---------- quest-done panel ---------- */
-.rp-done-card {
-    width: 520px;
-    padding-top: 30px;
+/* ---------- dream overlay (a night scene, so it stays dark) ---------- */
+.rp-dream {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgb(14, 12, 28);
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(120, 110, 170);
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.8s;
+    transition-timing-function: ease-in-out-cubic;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 64px;
 }
-.rp-done-ribbon {
-    align-self: center;
-    margin-bottom: 10px;
+.rp-dream--shown { opacity: 1; }
+.rp-dream-title {
+    position: absolute;
+    top: 56px;
+    left: 0; right: 0;
+    font-size: 30px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-gold);
+    -unity-text-align: middle-center;
+}
+.rp-dream-text {
+    width: 70%;
+    max-width: 900px;
+    font-size: 30px;
+    color: var(--sn-cream-hi);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin-bottom: 16px;
+}
+.rp-dream-hint {
+    font-size: 21px;
+    color: var(--sn-paper-line);
+}
+
+/* ---------- "next stage" button (top centre, gold, pulses) ---------- */
+.rp-next-row { top: 152px; }
+.sn-btn.rp-next-btn {
+    min-width: 300px;
+    margin: 0;
+}
+
+/* ---------- toast (all feedback messages) ---------- */
+.rp-toast-row { top: 144px; }
+.sn-chip.rp-toast {
+    max-width: 640px;
+    min-height: 56px;
+    padding: 10px 28px 12px 28px;
+    font-size: 24px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+/* ---------- quest done: a sheet at the top, the player can keep exploring ---------- */
+.rp-done-scrim {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(46, 30, 20, 0.28);
+}
+.rp-done-row { top: 104px; }
+.sn-panel.rp-done-toast {
+    padding: 14px 32px 16px 32px;
+    align-items: center;
+    min-width: 360px;
 }
 .rp-done-title {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
-    -unity-text-outline-width: 0;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    -unity-text-align: middle-center;
     white-space: nowrap;
-    -unity-text-align: middle-center;
-}
-.rp-done-name {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
 }
 .rp-done-stars {
     flex-direction: row;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 .rp-star {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     margin: 0 4px;
-    background-image: url("/Assets/Art/UI/Panels/star_empty.png");
-    -unity-background-scale-mode: scale-to-fit;
-    scale: 0 0;
-    opacity: 0;
-    transition-property: scale, opacity;
-    transition-duration: 0.28s;
-    transition-timing-function: ease-out-back;
-}
-.rp-star--full {
-    background-image: url("/Assets/Art/UI/Panels/star_full.png");
-}
-.rp-star--shown {
-    scale: 1 1;
-    opacity: 1;
 }
 .rp-done-note {
-    font-size: 22px;
-    color: rgb(168, 92, 30);
     -unity-text-align: middle-center;
-    margin-bottom: 18px;
+    max-width: 400px;
+}
+.rp-done-xp {
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-green-dark);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    max-width: 400px;
+    margin-top: 2px;
 }
 
-/* ---------- juice: panels pop in, buttons squash on press ---------- */
-.rp-card, .rp-banner {
-    transition-property: scale, opacity;
-    transition-duration: 0.22s;
-    transition-timing-function: ease-out-back;
+/* ---------- quest timer (stars + draining bar + presses), top centre ---------- */
+.rp-timer-row { top: 24px; }
+.sn-panel.rp-timer {
+    padding: 8px 18px 10px 18px;
+    border-radius: 18px;
+    align-items: center;
 }
-.rp-pop-start {
-    scale: 0.85 0.85;
-    opacity: 0;
+.rp-timer-stars {
+    flex-direction: row;
+    margin-bottom: 6px;
 }
-.rp-card-btn, .rp-side-btn, .rp-zoom-btn, .rp-next-btn, .rp-partial-btn {
-    transition-property: scale, translate;
-    transition-duration: 0.08s;
+.rp-timer-star {
+    width: 32px;
+    height: 32px;
+    margin: 0 3px;
 }
-.rp-card-btn:active, .rp-side-btn:active, .rp-zoom-btn:active, .rp-next-btn:active, .rp-partial-btn:active {
-    scale: 0.95 0.95;
-    translate: 0 2px;
+.rp-timer-bar {
+    width: 210px;
+    height: 16px;
+    background-color: var(--sn-cream-lo);
+    border-width: 2px;
+    border-color: var(--sn-brown);
+    border-radius: 999px;
+    overflow: hidden;
 }
-/* the next-stage button is centred with translate -50%; keep that while pressed, otherwise the
-   button jumps half its width sideways, the release lands outside it and the click is lost */
-.rp-next-btn:active, .rp-next-btn.sl-button-wide:active {
-    translate: -50% 2px;
+.rp-timer-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 100%;
+    background-color: var(--sn-green);
 }
-.rp-zoom-btn .rp-card-btn-label {
-    font-size: 28px;
+.rp-timer-tick {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background-color: rgba(94, 64, 44, 0.6);
 }
 
-/* ---------- "do this now" glow (Sleep when the day is used up, next-stage button) ---------- */
-.rp-glow {
-    transition-property: scale, -unity-background-image-tint-color;
-    transition-duration: 0.5s;
-    transition-timing-function: ease-in-out;
+/* presses left this quest (skill system v2) */
+.rp-presses {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 6px;
 }
-.rp-glow--hi {
-    scale: 1.06 1.06;
-    -unity-background-image-tint-color: rgb(255, 236, 160);
+.rp-press-dot {
+    width: 16px;
+    height: 16px;
+    margin: 0 3px;
+    border-radius: 999px;
+    border-width: 2px;
+    border-color: var(--sn-brown-dark);
+    background-color: var(--sn-cream-lo);
 }
-.rp-glow--hi .rp-card-btn-label {
-    color: rgb(120, 60, 10);
+.rp-press-dot--full { background-color: var(--sn-brown); }
+.rp-press-dot--last { background-color: var(--sn-red); border-color: var(--sn-red-dark); }
+
+/* ---------- stamp: "Perfect fit!" / "Accepted!" over the room (colour set in code) ---------- */
+.rp-stamp {
+    font-size: 40px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+    padding: 6px 24px 8px 24px;
+    border-radius: 18px;
 }
 
 /* ---------- going to bed: letterbox bars, fade, night backdrop ---------- */
@@ -480,10 +504,10 @@
     position: absolute;
     left: 0; right: 0;
     height: 84px;
-    background-color: rgb(8, 6, 14);
+    background-color: rgb(20, 14, 12);
     transition-property: translate;
     transition-duration: 0.5s;
-    transition-timing-function: ease-in-out;
+    transition-timing-function: ease-in-out-cubic;
 }
 .rp-letterbox--top { top: 0; translate: 0 -100%; }
 .rp-letterbox--bottom { bottom: 0; translate: 0 100%; }
@@ -492,7 +516,7 @@
 .rp-night {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgb(6, 6, 16);
+    background-color: rgb(14, 12, 28);
     -unity-background-scale-mode: scale-and-crop;
     -unity-background-image-tint-color: rgb(120, 110, 170);
 }
@@ -500,96 +524,56 @@
 .rp-fade {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgb(4, 4, 10);
+    background-color: rgb(12, 8, 8);
     opacity: 0;
 }
 
-/* ---------- quest done: small banner at the top, the player can keep exploring ---------- */
-.rp-done-toast {
-    position: absolute;
-    top: 96px;
-    left: 50%;
-    translate: -50% 0;
-    padding: 12px 34px 18px 34px;
-    align-items: center;
-    opacity: 1;
-    transition-property: opacity, translate, scale;
-    transition-duration: 0.25s;
-    transition-timing-function: ease-out-back;
+/* =================================================================
+   Quest board + journal (vc_QuestBoard draws into this HUD's root)
+   ================================================================= */
+.sn-panel.qb-panel {
+    width: 84%;
+    max-width: 1100px;
+    height: 86%;
+    padding: 14px 22px 16px 22px;
 }
-.rp-done-toast--hidden {
-    opacity: 0;
-    translate: -50% -20px;
-}
-.rp-done-toast .rp-done-title {
-    font-size: 24px;
-    margin-bottom: 4px;
-}
-.rp-done-toast .rp-done-stars {
-    margin-bottom: 2px;
-}
-.rp-done-toast .rp-star {
-    width: 40px;
-    height: 40px;
-    margin: 0 3px;
-}
-.rp-done-toast .rp-done-note {
-    font-size: 18px;
-    margin-bottom: 0;
-}
-
-/* ---------- quest timer (stars + draining bar), top centre ---------- */
-.rp-timer {
-    position: absolute;
-    top: 14px;
-    left: 50%;
-    translate: -50% 0;
-    padding: 8px 16px 12px 16px;
-    align-items: center;
-}
-.rp-timer-stars {
+.qb-head {
     flex-direction: row;
-    margin-bottom: 6px;
+    align-items: center;
+    margin-bottom: 8px;
 }
-.rp-timer-star {
-    width: 36px;
-    height: 36px;
-    margin: 0 3px;
-    background-image: url("/Assets/Art/UI/Panels/star_empty.png");
-    -unity-background-scale-mode: scale-to-fit;
-    transition-property: scale, rotate;
-    transition-duration: 0.18s;
-    transition-timing-function: ease-out-back;
+.qb-head-spacer { width: 72px; flex-shrink: 0; }
+.qb-title { flex-grow: 1; }
+.sn-btn.qb-close { margin: 0; }
+.qb-tabs {
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 8px;
 }
-.rp-timer-star--full {
-    background-image: url("/Assets/Art/UI/Panels/star_full.png");
+.sn-btn.qb-tab { min-width: 176px; margin: 0 8px 0 8px; }
+.sn-btn.qb-tab--on {
+    background-color: var(--sn-green-hi);
+    border-color: var(--sn-green-dark);
 }
-.rp-timer-star--lost {
-    scale: 1.45 1.45;
-    rotate: 14deg;
+.qb-list { flex-grow: 1; }
+.sn-card.qb-card {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
 }
-.rp-timer-bar {
-    width: 210px;
-    height: 14px;
-    background-color: rgb(246, 232, 200);
-    border-width: 2px;
-    border-color: rgb(70, 46, 34);
+.qb-card-text { flex-grow: 1; flex-shrink: 1; }
+.qb-name { -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf"); }
+.qb-ask { color: var(--sn-ink); }
+.sn-badge.qb-rec {
+    align-self: flex-start;
+    margin-top: 6px;
+    padding: 2px 10px 2px 10px;
+    font-size: 19px;
 }
-.rp-timer-fill {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 100%;
-    background-color: rgb(80, 180, 90);
+.sn-btn.qb-act {
+    min-width: 160px;
+    flex-shrink: 0;
+    margin: 0 0 0 16px;
 }
-.rp-timer-tick {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 2px;
-    margin-left: -1px;
-    background-color: rgba(70, 46, 34, 0.8);
-}
-
-.rp-done-toast .rp-done-note {
-    white-space: normal;
-    max-width: 330px;
-}
+.qb-note { margin: 8px 0 8px 0; }
+.qb-footer { margin-top: 8px; }

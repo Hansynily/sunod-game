@@ -44,17 +44,30 @@ namespace SunodGame.UI
             _sky = null;
         }
 
+        // UI V2 (2026-11-07): the intro runs on vc_UIAnim. The logo drops in, the menu tiles
+        // cascade up, the player card slides in from the right edge, corner buttons pop.
+        // intro-hidden (opacity 0) is dropped the moment each tween takes over.
         private void PlayIntro(VisualElement root)
         {
             var items = root.Query<VisualElement>(className: "intro-item").ToList();
+            float start = introStartDelayMs / 1000f;
+            float step = Mathf.Clamp(introStaggerMs / 1000f, 0.03f, 0.12f);
+            float seconds = Mathf.Clamp(introDurationMs / 1000f, 0.28f, 0.45f);
             for (int i = 0; i < items.Count; i++)
             {
-                var item = items[i];
-                long showAt = (long)(introStartDelayMs + i * introStaggerMs);
-                item.schedule.Execute(() => item.RemoveFromClassList("intro-hidden")).StartingIn(showAt);
-                // Drop the transition afterwards so button press feedback stays instant.
-                item.schedule.Execute(() => item.RemoveFromClassList("intro-item")).StartingIn(showAt + (long)introDurationMs);
+                VisualElement item = items[i];
+                item.RemoveFromClassList("intro-item");
+                item.RemoveFromClassList("intro-hidden");
+                vc_UIAnim.Show(item, IntroKind(item), start + i * step, null, seconds);
             }
+        }
+
+        private static vc_UIAnim.Enter IntroKind(VisualElement item)
+        {
+            if (item.ClassListContains("brand-area")) return vc_UIAnim.Enter.Drop;
+            if (item.ClassListContains("menu-btn")) return vc_UIAnim.Enter.SlideUp;
+            if (item.ClassListContains("right-panel")) return vc_UIAnim.Enter.SlideLeft;
+            return vc_UIAnim.Enter.Pop;
         }
 
         private class StardewSkyElement : VisualElement

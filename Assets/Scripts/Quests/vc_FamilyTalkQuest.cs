@@ -47,6 +47,28 @@ public class vc_FamilyTalkQuest : vc_FitQuestKit
     [SerializeField] private float persuadeTime = 8f;
     [SerializeField] private float planTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Plan (prep) pins a fair chore chart up, then Guide brings
+    // everyone to the table at once. Preference: Teach (taking turns). Bonus only.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Aling Cora",
+        presses = 4,
+        bestFitTag = "heal",
+        bestFitSeconds = 2f,
+        prepTag = "plan",
+        prepUnlocksTag = "guide",
+        prepLine = "You pin a fair chore chart up where everyone can see...",
+        preferredTag = "teach",
+        preferenceLine = "Taking turns... that's exactly what they needed. Salamat, anak.",
+        fastLines = new[]
+        {
+            ("teach", "They're taking turns already. Salamat."),
+            ("guide", "Everyone's at the table together. It's been so long."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _rest;
     private bool[] _seated;
     private int _turns;
@@ -68,7 +90,7 @@ public class vc_FamilyTalkQuest : vc_FitQuestKit
         if (photo != null) photo.sprite = photoDull;
         _turns = 0; _bubbleClock = 0.6f;
         vc_QuestHUD.Instance?.ShowQuestInfo("Quest", "Family Talk",
-            "Aling Cora's family had an argument. Help them work it out.", new[] { "Help the family make up" });
+            "Aling Cora's family is having a hard day. She thinks they need to learn to take turns, so teaching them to would mean a lot to her.", new[] { "Help the family make up" });
     }
 
     // ── Idle life: grumpy bubbles, turned shoulders ──────────────────────
@@ -92,9 +114,9 @@ public class vc_FamilyTalkQuest : vc_FitQuestKit
         if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("teach")) { TeachPress(); return; }
-        if (d.HasTag("guide")) { StartWork(GuideRoutine()); return; }
-        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("guide")) { StartWork(GuideRoutine(PathTime(guideTime), CurrentInstant)); return; }
+        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine(PathTime(persuadeTime))); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
         Toast("This family needs a caring helper.", 2.2f);
     }
 
@@ -121,70 +143,129 @@ public class vc_FamilyTalkQuest : vc_FitQuestKit
         Together("Calm voices, warm hearts. They sit together again.");
     }
 
+    // Teach (x3 press): 3 presses at Lv1, 2 at Lv2, 1 at Lv3 / prepped. Each press has its share of
+    // the people still standing take a turn; the last press runs through StartWork and seats the rest.
     private void TeachPress()
     {
-        int i = NextStanding();
-        if (i < 0) return;
+        int need = Mathf.Max(1, PathPresses(teachPresses));
         _turns++;
-        Bubble(dotsBubble, family[i], 0.8f);
-        Later(0.6f, () => Bubble(smileBubble, family[i], 1f));
+        int remaining = StandingCount();
+        int pressesLeft = Mathf.Max(1, need - _turns + 1);
+        int count = _turns >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        count = Mathf.Min(count, remaining);
+
+        var picked = new System.Collections.Generic.List<int>();
+        for (int i = 0; i < family.Length && picked.Count < count; i++) if (!_seated[i]) picked.Add(i);
+
+        bool last = _turns >= need || remaining - picked.Count <= 0;
+        if (last)
+        {
+            StartWork(TeachFinishRoutine(picked.ToArray(), CurrentInstant));
+            return;
+        }
+
+        Toast($"One person talks, the others listen ({_turns}/{need})", 2f);
         Sfx("text_blip", 0.6f);
-        StartCoroutine(SitOne(i, 0.8f));
-        if (_turns < teachPresses && NextStanding() >= 0) { Toast($"One person talks, the others listen ({_turns}/{teachPresses})", 2f); return; }
-        Together("Everyone got a turn to talk. They made up.");
+        for (int k = 0; k < picked.Count; k++) StartCoroutine(TeachTurn(picked[k], k * 0.3f, 0.8f));
     }
 
-    private IEnumerator GuideRoutine()
+    private IEnumerator TeachTurn(int who, float delay, float walkSeconds)
     {
-        Toast("You gently bring each one to the table...", guideTime);
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+        Bubble(dotsBubble, family[who], 0.8f);
+        Later(0.6f, () => Bubble(smileBubble, family[who], 1f));
+        StartCoroutine(SitOne(who, walkSeconds));
+    }
+
+    private IEnumerator TeachFinishRoutine(int[] people, bool oneGo)
+    {
+        Toast(oneGo ? "You teach them to take turns, all in one go!" : (people.Length > 1 ? "You teach everyone left to take turns..." : "The last one takes a turn to talk..."), 2f);
+        ShowBar(true);
+        Sfx("text_blip", 0.6f);
+        int n = Mathf.Max(1, people.Length);
+        for (int k = 0; k < people.Length; k++)
+        {
+            StartCoroutine(TeachTurn(people[k], 0f, 0.8f));
+            SetBar((k + 1f) / n);
+            yield return new WaitForSeconds(people.Length > 1 ? 0.3f : 0f);
+        }
+        yield return new WaitForSeconds(1.0f);
+        Together(oneGo ? "They took turns to talk, all at once. They made up." : "Everyone got a turn to talk. They made up.");
+    }
+
+    private IEnumerator GuideRoutine(float seconds, bool oneGo)
+    {
+        Toast(oneGo ? "You bring everyone to the table in one go!" : "You gently bring each one to the table...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
-        float per = (guideTime - 0.2f) / family.Length;
+        float lead = Mathf.Min(0.2f, seconds * 0.1f);
+        float per = (seconds - lead) / Mathf.Max(1, family.Length);
         for (int i = 0; i < family.Length; i++)
         {
-            if (_seated[i]) { yield return Tick(per, c, guideTime); continue; }
-            Bubble(heartBubble, family[i], per);
+            if (_seated[i]) { yield return Tick(per, c, seconds); continue; }
+            Bubble(heartBubble, family[i], Mathf.Max(0.3f, per));
             StartCoroutine(SitOne(i, per * 0.8f));
-            yield return Tick(per, c, guideTime);
+            yield return Tick(per, c, seconds);
         }
-        yield return Tick(guideTime - c[0], c, guideTime);
-        Together("One by one, they came back to the table.");
+        yield return Tick(Mathf.Max(0f, seconds - c[0]), c, seconds);
+        Together(oneGo ? "Everyone came to the table at once." : "One by one, they came back to the table.");
     }
 
-    private IEnumerator PersuadeRoutine()
+    private IEnumerator PersuadeRoutine(float seconds)
     {
-        Toast("You get both sides to just listen...", persuadeTime);
+        Toast("You get both sides to just listen...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
         int side = 0;
-        while (c[0] < persuadeTime - 2.4f)
+        float tail = Mathf.Min(2.4f, seconds * 0.3f);
+        while (c[0] < seconds - tail)
         {
             int i = side++ % family.Length;
             Bubble(pitchBubble, family[i], 0.9f);
-            Later(0.5f, () => Bubble(c[0] > persuadeTime * 0.4f ? smileBubble : angryBubble, family[i], 0.8f));
+            Later(0.5f, () => Bubble(c[0] > seconds * 0.4f ? smileBubble : angryBubble, family[i], 0.8f));
             Sfx("text_blip", 0.5f);
-            yield return Tick(0.9f, c, persuadeTime);
+            yield return Tick(0.9f, c, seconds);
         }
-        yield return SitAll(persuadeTime - c[0] - 0.1f, c, persuadeTime);
+        yield return SitAll(Mathf.Max(0.2f, seconds - c[0] - 0.1f), c, seconds);
         Together("They listened to each other. Peace at last.");
     }
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float seconds)
     {
-        Toast("You draw up a fair chore plan...", planTime);
+        Toast("You draw up a fair chore plan...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
         Vector3 at = table != null ? Above(table, -0.2f) : transform.position;
         Spawn(planSheet, at, 12, "ChorePlan");
-        while (c[0] < planTime - 2.4f)
+        float tail = Mathf.Min(2.4f, seconds * 0.3f);
+        while (c[0] < seconds - tail)
         {
             Fx(scribbleFrames, at + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(0f, 0.5f), 0f), 6f, 0f, 22);
             Sfx("scribble", 0.35f);
-            yield return Tick(0.4f, c, planTime);
+            yield return Tick(0.4f, c, seconds);
         }
         Bubble(checkMark, table, 1f);
-        yield return SitAll(planTime - c[0] - 0.1f, c, planTime);
+        yield return SitAll(Mathf.Max(0.2f, seconds - c[0] - 0.1f), c, seconds);
         Together("A fair plan for everyone. No more arguing!");
+    }
+
+    // ── Prep: Plan pins a fair chore chart where everyone can see it ─────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 at = table != null ? Above(table, -0.2f) : transform.position;
+        if (planSheet != null) Spawn(planSheet, at, 12, "ChorePlan");
+        for (int s = 0; s < 3; s++)
+        {
+            Fx(scribbleFrames, at + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(0f, 0.5f), 0f), 6f, 0f, 22);
+            Sfx("scribble", 0.35f);
+            yield return new WaitForSeconds(0.25f);
+        }
+        Bubble(checkMark, table, 1f);
+        Sfx("step_done", 0.45f, 0.05f);
+        for (int i = 0; i < family.Length; i++) if (!_seated[i]) Bubble(dotsBubble, family[i], 0.8f);
+        yield return new WaitForSeconds(0.3f);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────
@@ -216,10 +297,11 @@ public class vc_FamilyTalkQuest : vc_FitQuestKit
         Fx(new[] { healSpark }, new Vector3(b.center.x, b.center.y, 0f), 2f, 0.5f, 22);
     }
 
-    private int NextStanding()
+    private int StandingCount()
     {
-        for (int i = 0; i < family.Length; i++) if (!_seated[i]) return i;
-        return -1;
+        int n = 0;
+        for (int i = 0; i < family.Length; i++) if (!_seated[i]) n++;
+        return n;
     }
 
     private Vector3 Seat(int i) => seats != null && i < seats.Length && seats[i] != null ? seats[i].position : _rest[i];

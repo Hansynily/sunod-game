@@ -68,9 +68,10 @@ namespace SunodGame.UI
         private void SetGoBackMode(bool on)
         {
             _goBackMode = on;
-            if (_lblContinue != null) _lblContinue.text = on ? "Go Back" : "Continue";
+            if (_lblContinue != null) _lblContinue.text = on ? "Go back" : "Continue";
             _iconContinue?.EnableInClassList("icon-goback", on);
             _iconContinue?.EnableInClassList("icon-continue", !on);
+            RefreshMenuEmphasis();
         }
 
         private bool HasLoopsToLose =>
@@ -80,8 +81,8 @@ namespace SunodGame.UI
         {
             if (_lblNewRunBody == null) return;
             _lblNewRunBody.text = HasLoopsToLose
-                ? "Everything will be erased: your run, remembered skills, keepsakes and stars."
-                : "Your saved progress will be erased. Continue?";
+                ? "Erases everything: run, remembered skills, keepsakes and stars."
+                : "Your saved run will be erased.";
         }
 
         // ── Going back ────────────────────────────────────────────────────────
@@ -182,7 +183,7 @@ namespace SunodGame.UI
 
             _loopsSection.Add(Heading(meta.current_finished
                 ? $"Your loops ({meta.loops_completed} lived)"
-                : $"Loop {meta.current_loop}  -  {vc_LoopMeta.ThreatName(meta.threat)}"));
+                : $"Loop {meta.current_loop}  ·  {vc_LoopMeta.ThreatName(meta.threat)}"));
 
             if (meta.kept_skills.Count > 0)
                 _loopsSection.Add(Tags("Remembering: ", meta.kept_skills.Select(s => FindSkill(s)?.DisplayName ?? s)));
@@ -198,7 +199,7 @@ namespace SunodGame.UI
                 LoopHistoryItem h = meta.history[i];
                 var card = new VisualElement();
                 card.AddToClassList("history-card");
-                card.AddToClassList("sl-panel-cream");
+                card.AddToClassList("sn-card");
                 var index = new Label($"L{h.loop}");
                 index.AddToClassList("history-index");
                 card.Add(index);
@@ -207,7 +208,7 @@ namespace SunodGame.UI
                 var career = new Label(string.IsNullOrWhiteSpace(h.career) ? "No career result" : h.career);
                 career.AddToClassList("history-career");
                 body.Add(career);
-                var sub = new Label($"{vc_LoopMeta.ThreatName(h.threat)}  -  {h.passed} passed, {h.failed} failed");
+                var sub = new Label($"{vc_LoopMeta.ThreatName(h.threat)}  ·  {h.passed} passed, {h.failed} failed");
                 sub.AddToClassList("history-sub");
                 body.Add(sub);
                 card.Add(body);
@@ -220,6 +221,8 @@ namespace SunodGame.UI
             var divider = new VisualElement();
             divider.AddToClassList("divider");
             _loopsSection.Add(divider);
+
+            vc_UIAnim.Stagger(_loopsSection.Children(), vc_UIAnim.Enter.SlideUp, 0.04f, 0.1f);
         }
 
         private static Label Heading(string text)

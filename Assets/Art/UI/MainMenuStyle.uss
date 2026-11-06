@@ -1,3 +1,11 @@
+/* =====================================================================
+   Main menu - UI V2 (2026-11-07). Tokens + sn-* components come from
+   SunodTheme.tss (spec: Assets/Art/UI/UI_V2.md). This file is layout plus the
+   menu-specific pieces (tiles, player card, progress sheet, settings rows).
+   Panel space is 1280x720 (match height), landscape phones.
+   Icons: white glyphs in Art/MenuReference/icons, tinted per button variant.
+   ===================================================================== */
+
 /* ============================
    Root - animated sky is drawn behind everything by vc_MainMenuBackground
    ============================ */
@@ -5,7 +13,7 @@
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     flex-direction: column;
-    background-color: rgb(47, 111, 176);
+    background-color: rgb(143, 199, 232);
     overflow: hidden;
 }
 
@@ -25,128 +33,51 @@
 }
 
 /* ============================
-   Square pixel buttons (Sprout Lands palette, drawn in USS, no sprite)
+   Intro: vc_MainMenuBackground plays each intro-item in with vc_UIAnim.
+   Until then they are invisible (no layout change, so nothing jumps).
    ============================ */
-.wood-btn,
-.primary-btn {
-    background-image: none;
-    background-color: rgb(232, 207, 166);
-    border-radius: 0;
-    border-left-width: 4px;
-    border-top-width: 4px;
-    border-right-width: 4px;
-    border-bottom-width: 8px;
-    border-left-color: rgb(170, 121, 89);
-    border-top-color: rgb(170, 121, 89);
-    border-right-color: rgb(170, 121, 89);
-    border-bottom-color: rgb(100, 85, 82);
-    margin: 0;
-}
-.primary-btn {
-    background-color: rgb(192, 212, 112);
-}
-.wood-btn:hover, .wood-btn:focus, .wood-btn:hover:enabled { background-color: rgb(232, 207, 166); }
-.primary-btn:hover, .primary-btn:focus, .primary-btn:hover:enabled { background-color: rgb(192, 212, 112); }
-.wood-btn:active {
-    background-color: rgb(196, 154, 108);
-    border-bottom-width: 4px;
-    translate: 0 4px;
-}
-.primary-btn:active {
-    background-color: rgb(160, 184, 90);
-    border-bottom-width: 4px;
-    translate: 0 4px;
-}
-.wood-btn:disabled, .primary-btn:disabled {
-    background-color: rgb(180, 168, 160);
-    border-left-color: rgb(140, 115, 105);
-    border-top-color: rgb(140, 115, 105);
-    border-right-color: rgb(140, 115, 105);
-    border-bottom-color: rgb(100, 85, 82);
-    opacity: 1;
+.intro-hidden {
+    opacity: 0;
 }
 
 /* ============================
-   Corner buttons (settings bottom-left, logout bottom-right)
-   ============================ */
-.corner-btn {
-    position: absolute;
-    bottom: 32px;
-    width: 104px;
-    min-width: 104px;
-    max-width: 104px;
-    height: 104px;
-    min-height: 104px;
-    max-height: 104px;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-.btn-settings {
-    left: 32px;
-}
-.btn-logout {
-    right: 32px;
-    width: 104px;
-    flex-direction: column;
-}
-.corner-icon {
-    width: 48px;
-    height: 48px;
-    -unity-background-scale-mode: scale-to-fit;
-    -unity-background-image-tint-color: rgb(60, 54, 66);
-}
-.btn-logout .corner-icon {
-    width: 40px;
-    height: 40px;
-}
-.btn-logout-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    margin-top: 2px;
-}
-
-.icon-settings { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_gear"); }
-.icon-logout { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_cross"); }
-
-/* ============================
-   Brand Area (top-center title banner)
+   Logo (top-centre). Same look as the login screen. MainMenuUIToolkit floats it.
    ============================ */
 .left-panel {
     width: 100%;
-    height: auto;
     flex-direction: column;
     align-items: center;
-    padding-top: 72px;
+    padding-top: 40px;
 }
 .brand-area {
     align-items: center;
 }
 .brand-banner {
-    padding: 12px 40px;
+    padding: 0 40px 0 40px;
     align-items: center;
     justify-content: center;
 }
-/* game-logo title: big gold letters, thick ink outline, hard drop shadow - no box */
 .brand-title {
     font-size: 112px;
-    -unity-font-style: bold;
-    color: rgb(255, 214, 102);
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: rgb(244, 196, 80);
     -unity-text-outline-width: 4px;
-    -unity-text-outline-color: rgb(58, 40, 30);
-    text-shadow: 6px 6px 0 rgb(58, 40, 30);
+    -unity-text-outline-color: rgb(94, 64, 44);
+    text-shadow: 0 8px 0 rgb(94, 64, 44);
     -unity-text-align: middle-center;
     letter-spacing: 14px;
+    padding: 0;
+    margin: 0;
 }
 
 /* ============================
-   Menu Panel - big row of buttons standing on the hills
+   Menu tiles - a row of big rounded buttons standing on the hills.
+   Base look = sn-btn (cream); New Game / Continue swap sn-btn--primary in code,
+   Go Back uses sn-btn--gold.
    ============================ */
 .menu-panel {
     position: absolute;
-    bottom: 26%;
+    bottom: 22%;
     left: 0;
     right: 0;
     flex-direction: row;
@@ -154,63 +85,138 @@
     align-items: flex-end;
 }
 
-.menu-btn {
+.menu-panel .menu-btn {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 272px;
-    height: 132px;
-    margin-left: 14px;
-    margin-right: 14px;
-    padding: 10px 12px;
+    width: 224px;
+    min-width: 224px;
+    height: 164px;
+    margin: 0 10px 0 10px;
+    padding: 14px 12px 12px 12px;
+    border-radius: 32px;
+    border-bottom-width: 9px;
+}
+.menu-panel .menu-btn:active:enabled {
+    border-bottom-width: 4px;
+}
+
+/* round icon well inside each tile (like the reference skill bubbles) */
+.btn-icon-well {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 8px;
+    border-radius: 999px;
+    background-color: var(--sn-cream-lo);
+    border-color: var(--sn-paper-line);
+    border-width: 2px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 .btn-icon {
-    width: 52px;
-    height: 52px;
-    margin-bottom: 6px;
+    width: 44px;
+    height: 44px;
     -unity-background-scale-mode: scale-to-fit;
-    -unity-background-image-tint-color: rgb(60, 54, 66);
+    -unity-background-image-tint-color: var(--sn-ink);
 }
 .btn-label {
     font-size: 28px;
-    color: rgb(60, 54, 66);
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
     -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
 }
-.primary-btn .btn-icon { -unity-background-image-tint-color: rgb(40, 80, 30); }
-.primary-btn .btn-label { color: rgb(40, 80, 30); }
 
-.menu-btn:disabled .btn-icon { -unity-background-image-tint-color: rgb(150, 130, 120); }
-.menu-btn:disabled .btn-label { color: rgb(150, 130, 120); }
+/* green (primary) tile */
+.sn-btn--primary .btn-icon-well {
+    background-color: var(--sn-green-dark);
+    border-color: rgb(120, 186, 126);
+}
+.sn-btn--primary .btn-icon { -unity-background-image-tint-color: var(--sn-cream-hi); }
+.sn-btn--primary .btn-label { color: var(--sn-cream-hi); }
 
-.icon-continue { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png#icon_play_arrow"); }
-.icon-newgame { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_star"); }
-.icon-tutorial { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_question"); }
-.icon-stats { background-image: url("/Assets/Art/Packs/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/All Icons.png#icon_trophy"); }
+/* gold (Go Back) tile */
+.sn-btn--gold .btn-icon-well {
+    background-color: rgb(255, 228, 150);
+    border-color: var(--sn-gold-dark);
+}
+.sn-btn--gold .btn-icon { -unity-background-image-tint-color: var(--sn-ink); }
+.sn-btn--gold .btn-label { color: var(--sn-ink); }
+
+.icon-continue { background-image: url("/Assets/Art/MenuReference/icons/icon_continue.png"); }
+.icon-newgame  { background-image: url("/Assets/Art/MenuReference/icons/icon_new_game.png"); }
+.icon-tutorial { background-image: url("/Assets/Art/MenuReference/icons/icon_tutorial.png"); }
+.icon-stats    { background-image: url("/Assets/Art/MenuReference/icons/icon_progress.png"); }
+.icon-goback   { background-image: url("/Assets/Art/UI/Loop/icon_goback.png"); }
 
 /* ============================
-   Right panel - player avatar + greeting, top-right
+   Corner buttons (settings bottom-left, logout bottom-right)
+   ============================ */
+.root-container .corner-btn {
+    position: absolute;
+    bottom: 32px;
+    margin: 0;
+}
+.btn-settings {
+    left: 32px;
+}
+.root-container .btn-logout {
+    right: 32px;
+    padding: 6px 28px 6px 22px;
+}
+.corner-icon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: var(--sn-ink);
+}
+.btn-logout .corner-icon {
+    width: 36px;
+    height: 36px;
+}
+.btn-logout-label {
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    margin: 0 0 0 10px;
+    padding: 0;
+}
+
+.icon-settings { background-image: url("/Assets/Art/MenuReference/icons/icon_settings.png"); }
+.icon-logout   { background-image: url("/Assets/Art/MenuReference/icons/icon_logout.png"); }
+
+/* ============================
+   Player card (top-right): round avatar, "Edit" tag, greeting chip.
+   The whole right-panel is the tap target (vc_UIAnim.Press in code).
    ============================ */
 .right-panel {
     position: absolute;
-    top: 32px;
+    top: 28px;
     right: 32px;
-    width: 200px;
     flex-direction: column;
     align-items: center;
 }
+.player-card-wrap {
+    width: 132px;
+    height: 132px;
+}
 .player-card {
-    width: 168px;
-    height: 168px;
+    width: 132px;
+    height: 132px;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 18px;
-    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
-    -unity-slice-left: 10;
-    -unity-slice-top: 10;
-    -unity-slice-right: 10;
-    -unity-slice-bottom: 10;
-    -unity-slice-scale: 1px;
+    padding: 14px;
+    background-color: var(--sn-cream);
+    background-image: none;
+    border-color: var(--sn-brown);
+    border-width: 3px;
+    border-bottom-width: 7px;
+    border-radius: 999px;
 }
 .player-card-image {
     width: 100%;
@@ -222,46 +228,434 @@
 .player-card-image--girl {
     background-image: url("/Assets/Art/UI/Menu/avatar_girl.png");
 }
-/* the card is a button now: press feedback + a small "Edit" tag in its corner */
-.right-panel {
-    transition-property: scale;
-    transition-duration: 0.08s;
-}
-.right-panel:active {
-    scale: 0.96 0.96;
-}
 .player-card-edit {
     position: absolute;
-    right: 4px;
-    bottom: 4px;
+    right: -6px;
+    bottom: 2px;
+    font-size: 19px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    padding: 2px 10px 4px 10px;
+    background-color: var(--sn-gold);
+    background-image: none;
+    border-color: var(--sn-gold-dark);
+    border-width: 2px;
+    border-bottom-width: 4px;
+    border-radius: 999px;
+}
+.username-label {
     font-size: 22px;
-    color: rgb(60, 54, 66);
-    padding: 3px 9px 5px 9px;
-    background-image: url("/Assets/Art/UI/Panels/chip.png");
-    -unity-slice-left: 5;
-    -unity-slice-top: 5;
-    -unity-slice-right: 5;
-    -unity-slice-bottom: 5;
-    -unity-slice-scale: 1px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    margin-top: 10px;
+    padding: 6px 18px 8px 18px;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-color: var(--sn-cream);
+    background-image: none;
+    border-color: var(--sn-brown);
+    border-width: 3px;
+    border-bottom-width: 5px;
+    border-radius: 999px;
 }
 
 /* ============================
-   Character panel (opened from the player card)
+   Shared sheet pieces (all overlays are sn-scrim + sn-panel sn-sheet)
    ============================ */
-.settings-box.character-box {
+.overlay-root,
+.progress-page {
+    display: none;
+    padding: 24px;
+}
+
+.panel-header {
+    justify-content: center;
+    min-height: 72px;
+    flex-shrink: 0;
+}
+.header-text {
+    flex-grow: 1;
+    margin: 0 72px 0 72px;
+}
+/* round close "×" (top-right of every sheet header) */
+.panel-header .btn-close {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    margin: 0;
+    font-size: 36px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
+}
+
+.overlay-root .confirm-box {
+    width: 70%;
+    max-width: 600px;
+    padding: 24px 28px 20px 28px;
+    align-items: center;
+}
+.confirm-title {
+    margin-bottom: 12px;
+}
+.confirm-body {
+    font-size: 26px;
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    max-width: 520px;
+    margin-bottom: 20px;
+}
+/* dialog buttons: secondary/cancel left, main action right */
+.confirm-button-row {
+    flex-direction: row;
+    justify-content: center;
+    align-self: stretch;
+}
+
+.confirm-button-row .action-btn {
+    min-width: 200px;
+    margin: 0 8px 0 8px;
+}
+.action-btn-label {
+    font-size: 28px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}
+.sn-btn--primary .action-btn-label,
+.sn-btn--danger .action-btn-label { color: var(--sn-cream-hi); }
+.sn-btn--ghost .action-btn-label { color: var(--sn-ink-muted); }
+
+/* ============================
+   My Progress sheet
+   ============================ */
+.progress-page .progress-page-inner {
+    width: 86%;
+    max-width: 1000px;
+    max-height: 100%;
+    padding: 16px 28px 20px 28px;
+    align-items: stretch;
+}
+/* everything under the header scrolls (current run + all past playthroughs) */
+.progress-scroll {
+    flex-shrink: 1;
+    flex-grow: 1;
+}
+.progress-scroll #unity-content-container {
+    padding-right: 16px;
+}
+.history-heading {
+    font-size: 24px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink-muted);
+    margin: 8px 0 8px 4px;
+}
+.stats-content {
+    display: flex;
+}
+.empty-state-label {
+    font-size: 24px;
+    color: var(--sn-ink-muted);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 16px 8px 16px 8px;
+}
+
+/* status notes: a coloured pill + words, never colour alone */
+.run-complete-note,
+.provisional-note {
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    -unity-text-align: middle-center;
+    white-space: normal;
+    align-self: center;
+    padding: 6px 18px 8px 18px;
+    margin: 0 0 12px 0;
+    border-width: 2px;
+    border-bottom-width: 4px;
+    border-radius: 999px;
+}
+.run-complete-note {
+    color: var(--sn-green-dark);
+    background-color: var(--sn-green-hi);
+    border-color: var(--sn-green);
+}
+.provisional-note {
+    color: var(--sn-ink);
+    background-color: rgb(255, 236, 178);
+    border-color: var(--sn-gold-dark);
+}
+
+/* career hero card */
+.stats-content .career-section {
+    align-items: center;
+    padding: 14px 20px 16px 20px;
+    margin-bottom: 12px;
+}
+.recommended-label {
+    font-size: 21px;
+    color: var(--sn-ink-muted);
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+.career-name {
+    font-size: 36px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 4px;
+}
+.riasec-note {
+    font-size: 21px;
+    color: var(--sn-ink-muted);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* four stat tiles in a row */
+.stat-grid {
+    flex-direction: row;
+    margin: 0 -6px 0 -6px;
+}
+.stat-grid .stat-tile {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 0;
+    margin: 0 6px 0 6px;
+    padding: 12px 8px 12px 8px;
+    align-items: center;
+    justify-content: center;
+}
+.stat-grid .stat-tile--gold {
+    border-color: var(--sn-gold-dark);
+    background-color: rgb(255, 244, 212);
+}
+.stat-value {
+    font-size: 40px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+.stat-code {
+    color: var(--sn-green-dark);
+    letter-spacing: 4px;
+}
+.stat-gold {
+    color: var(--sn-gold-dark);
+}
+.stat-label {
+    font-size: 21px;
+    color: var(--sn-ink-muted);
+    -unity-text-align: middle-center;
+    margin-top: 2px;
+}
+.stat-source-row {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+.stat-source-label {
+    font-size: 21px;
+    color: var(--sn-ink-muted);
+    margin-right: 8px;
+}
+.stat-source-value {
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+}
+
+.divider {
+    height: 2px;
+    flex-shrink: 0;
+    background-color: var(--sn-paper-line);
+    margin: 16px 0 8px 0;
+}
+
+/* past playthroughs (built in code: history-card sn-card) */
+.history-list {
+    flex-direction: column;
+}
+.progress-scroll .history-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 16px 12px 12px;
+    margin-bottom: 8px;
+}
+.history-index {
+    width: 56px;
+    height: 56px;
+    margin-right: 14px;
+    flex-shrink: 0;
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-cream-hi);
+    -unity-text-align: middle-center;
+    background-color: var(--sn-brown);
+    background-image: none;
+    border-color: var(--sn-brown-dark);
+    border-width: 2px;
+    border-bottom-width: 4px;
+    border-radius: 999px;
+}
+.history-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+.history-career {
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    white-space: normal;
+}
+.history-sub {
+    font-size: 21px;
+    color: var(--sn-ink-muted);
+    white-space: normal;
+    margin-top: 2px;
+}
+.history-code {
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-green-dark);
+    letter-spacing: 3px;
+    margin-left: 12px;
+    padding: 4px 14px 6px 14px;
+    flex-shrink: 0;
+    background-color: var(--sn-green-hi);
+    border-color: var(--sn-green);
+    border-width: 2px;
+    border-radius: 999px;
+}
+
+.error-note {
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-red);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-top: 8px;
+}
+
+/* ── Loops (MainMenuUIToolkit.Loops): the loops on My Progress ── */
+.loops-section {
+    flex-direction: column;
+}
+.loop-tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.loop-tag-lead {
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink-muted);
+    margin: 0 8px 8px 4px;
+}
+/* violet = "remembered / carried over" (vc_UITheme.Violet) */
+.loop-tag {
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: rgb(76, 50, 140);
+    background-color: rgb(232, 224, 255);
+    border-color: rgb(150, 110, 255);
+    border-width: 2px;
+    border-bottom-width: 4px;
+    border-radius: 999px;
+    padding: 4px 14px 6px 14px;
+    margin: 0 8px 8px 0;
+}
+
+/* ============================
+   Settings / character / privacy sheets
+   ============================ */
+.overlay-root .settings-box {
+    width: 80%;
+    max-width: 860px;
+    max-height: 100%;
+    padding: 16px 32px 20px 32px;
+    align-items: stretch;
+}
+.settings-title {
+    margin-bottom: 12px;
+}
+
+/* one row = label on the left, control on the right */
+.settings-row {
+    flex-direction: row;
+    align-items: center;
+    min-height: 84px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+.settings-label {
+    width: 200px;
+    flex-shrink: 0;
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    margin: 0;
+}
+.settings-slider {
+    flex-grow: 1;
+    min-height: 64px;
+    margin: 0 12px 0 12px;
+}
+.settings-slider #unity-drag-container {
+    min-height: 64px;
+}
+
+/* two-option choice (English / Filipino, Old / New, Boy / Girl). The chosen one gets a
+   light-green fill, green outline and bold label (state never shown by colour alone). */
+.settings-choice-row {
+    flex-direction: row;
+    flex-grow: 1;
+}
+.root-container .settings-choice-btn {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 6px 0 6px;
+    font-size: 26px;
+    -unity-text-align: middle-center;
+}
+.root-container .settings-choice-btn--on,
+.root-container .settings-choice-btn--on:hover:enabled,
+.root-container .settings-choice-btn--on:focus {
+    background-color: var(--sn-green-hi);
+    border-color: var(--sn-green-dark);
+    color: var(--sn-green-dark);
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+}
+.settings-survey-link {
+    flex-grow: 1;
+}
+
+/* character sheet */
+.overlay-root .settings-box.character-box {
+    max-width: 600px;
     align-items: center;
 }
 .character-stage {
-    width: 220px;
-    height: 220px;
-    padding: 20px;
+    width: 184px;
+    height: 184px;
+    padding: 22px;
     margin-bottom: 12px;
-    background-image: url("/Assets/Art/UI/Panels/panel_wood.png");
-    -unity-slice-left: 10;
-    -unity-slice-top: 10;
-    -unity-slice-right: 10;
-    -unity-slice-bottom: 10;
-    -unity-slice-scale: 1px;
+    background-color: var(--sn-cream-hi);
+    border-color: var(--sn-brown);
+    border-width: 3px;
+    border-bottom-width: 7px;
+    border-radius: 999px;
+    overflow: hidden;
 }
 .character-preview {
     flex-grow: 1;
@@ -272,19 +666,18 @@
     background-image: url("/Assets/Art/UI/Menu/avatar_girl.png");
 }
 .character-name {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
+    font-size: 30px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
     -unity-text-align: middle-center;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 .character-choice-row {
     flex-direction: row;
     align-self: stretch;
-    width: 100%;
-    margin-bottom: 22px;
+    margin-bottom: 16px;
 }
 .settings-choice-btn.character-choice-btn {
-    height: 84px;
     flex-direction: row;
     align-items: center;
     justify-content: center;
@@ -298,495 +691,50 @@
 .character-choice-icon--boy { background-image: url("/Assets/Art/UI/Menu/avatar_boy.png"); }
 .character-choice-icon--girl { background-image: url("/Assets/Art/UI/Menu/avatar_girl.png"); }
 .character-choice-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
 }
 .settings-choice-btn--on .character-choice-label {
-    color: rgb(40, 80, 30);
-}
-.username-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    margin-top: 10px;
-    padding: 10px 16px;
-    min-width: 168px;
-    background-image: url("/Assets/Art/UI/Panels/chip.png");
-    -unity-slice-left: 5;
-    -unity-slice-top: 5;
-    -unity-slice-right: 5;
-    -unity-slice-bottom: 5;
-    -unity-slice-scale: 1px;
+    color: var(--sn-green-dark);
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
 }
 
-/* ============================
-   Intro: elements fly up from the bottom (vc_MainMenuBackground removes intro-hidden, staggered)
-   ============================ */
-.intro-item {
-    transition-property: translate, opacity;
-    transition-duration: 0.6s, 0.45s;
-    transition-timing-function: ease-out-back, ease-out;
+/* privacy notice (first visit per account) */
+.overlay-root .privacy-box {
+    max-width: 820px;
+    width: 84%;
 }
-.intro-hidden {
-    translate: 0 1200px;
-    opacity: 0;
-}
-
-/* ============================
-   Progress page (full-screen "My Progress")
-   ============================ */
-.progress-page {
-    display: none;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    align-items: center;
-    justify-content: center;
-    background-image: url("/Assets/Art/UI/Menu/menu_sky_bg.png");
-    -unity-background-scale-mode: scale-and-crop;
-}
-.progress-page-inner {
-    width: 80%;
-    max-width: 700px;
-    max-height: 88%;
-    padding: 0 48px 36px 48px;
-    align-items: stretch;
-}
-/* everything between the header and Back scrolls (current run + all past playthroughs) */
-.progress-scroll {
+.privacy-box .privacy-scroll {
+    max-height: 300px;
     flex-shrink: 1;
-    flex-grow: 1;
-}
-.progress-scroll #unity-content-container {
-    padding-right: 10px;
-}
-.history-heading {
-    font-size: 22px;
-    color: rgb(245, 210, 130);
-    margin-top: 6px;
-    margin-bottom: 10px;
-}
-.history-list {
-    flex-direction: column;
-}
-/* one past playthrough */
-.history-card {
-    flex-direction: row;
-    align-items: center;
-    padding: 14px 18px 18px 18px;
     margin-bottom: 12px;
-}
-.history-index {
-    width: 52px;
-    height: 52px;
-    margin-right: 16px;
-    flex-shrink: 0;
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    background-image: url("/Assets/Art/UI/Panels/chip.png");
-    -unity-slice-left: 5;
-    -unity-slice-top: 5;
-    -unity-slice-right: 5;
-    -unity-slice-bottom: 5;
-    -unity-slice-scale: 1px;
-}
-.history-body {
-    flex-grow: 1;
-    flex-shrink: 1;
-}
-.history-career {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    white-space: normal;
-}
-.history-sub {
-    font-size: 22px;
-    color: rgb(110, 84, 58);
-    white-space: normal;
-    margin-top: 4px;
-}
-.history-code {
-    font-size: 28px;
-    color: rgb(168, 92, 30);
-    margin-left: 12px;
-    flex-shrink: 0;
-}
-
-.progress-page-actions {
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 24px;
-}
-.run-complete-note {
-    font-size: 22px;
-    color: rgb(120, 210, 130);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    background-color: rgba(20, 52, 26, 0.6);
-    border-color: rgb(201, 151, 59);
-    border-width: 1px;
-    border-radius: 8px;
-    padding: 8px 14px;
-    margin-top: 10px;
-    margin-bottom: 6px;
-}
-
-/* ============================
-   Overlay shell (shared by confirm boxes)
-   ============================ */
-.overlay-root {
-    display: none;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(4, 8, 20, 0.6);
-}
-
-.empty-state-label {
-    font-size: 22px;
-    color: rgb(245, 240, 230);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin: 20px 10px;
-}
-
-.stats-content {
-    display: flex;
-}
-
-.provisional-note {
-    font-size: 22px;
-    color: rgb(80, 60, 20);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    background-color: rgba(230, 200, 130, 0.6);
-    border-color: rgb(201, 151, 59);
-    border-width: 1px;
-    border-radius: 8px;
-    padding: 8px 14px;
-    margin-top: 10px;
-    margin-bottom: 14px;
-}
-
-.error-note {
-    font-size: 22px;
-    color: rgb(160, 40, 30);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin-top: 10px;
-}
-
-/* ============================
-   Confirm box
-   ============================ */
-.confirm-box {
-    width: 70%;
-    max-width: 520px;
-    padding: 32px;
-    align-items: center;
-}
-.confirm-title {
-    font-size: 28px;
-    color: rgb(245, 240, 230);
-    -unity-text-align: middle-center;
-    margin-bottom: 14px;
-}
-.confirm-body {
-    font-size: 22px;
-    color: rgb(225, 218, 205);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin-bottom: 24px;
-}
-.confirm-button-row {
-    flex-direction: row;
-    justify-content: center;
-}
-.btn-reset-confirm .btn-label,
-.btn-reset-confirm .action-btn-label {
-    color: rgb(120, 30, 20);
-}
-
-/* ============================
-   Shared action-button look
-   ============================ */
-.action-btn {
-    align-items: center;
-    justify-content: center;
-    height: 64px;
-    min-width: 180px;
-    padding: 0 28px;
-    margin-left: 10px;
-    margin-right: 10px;
-}
-.action-btn-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-}
-
-/* Header badge + career/stat rows */
-.panel-header {
-    align-items: center;
-    margin-top: -22px;
-    margin-left: 80px;
-    margin-right: 80px;
-    padding: 12px 24px;
-    margin-bottom: 20px;
-}
-.header-text {
-    font-size: 22px;
-    color: rgb(90, 62, 38);
-    -unity-text-align: middle-center;
-}
-.career-section {
-    align-items: center;
-    margin-bottom: 10px;
-}
-.recommended-label {
-    font-size: 22px;
-    color: rgb(225, 218, 205);
-    -unity-text-align: middle-center;
-    margin-bottom: 6px;
-}
-.career-name {
-    font-size: 28px;
-    color: rgb(245, 210, 130);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin-bottom: 6px;
-}
-.riasec-note {
-    font-size: 22px;
-    color: rgb(210, 202, 190);
-    -unity-text-align: middle-center;
-}
-.divider {
-    height: 2px;
-    background-color: rgb(201, 151, 59);
-    opacity: 0.4;
-    margin-top: 14px;
-    margin-bottom: 14px;
-}
-.stats-section {
-    padding: 0 4px;
-}
-.stat-row {
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 12px;
-    min-height: 32px;
-}
-.stat-label {
-    font-size: 22px;
-    color: rgb(210, 202, 190);
-    width: 170px;
-}
-.stat-value {
-    flex-grow: 1;
-    font-size: 22px;
-    color: rgb(245, 240, 230);
-}
-.stat-gold {
-    color: rgb(245, 200, 60);
-}
-
-/* ============================
-   Settings overlay (cream wood panel, dark-brown text)
-   ============================ */
-.settings-box {
-    width: 80%;
-    max-width: 900px;
-    max-height: 96%;
-    padding: 20px 44px;
-    align-items: stretch;
-}
-.settings-title {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    margin-bottom: 8px;
-}
-.settings-row {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 8px;
-}
-.settings-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    margin-bottom: 8px;
-}
-
-/* Slider: dark-brown track, gold pixel knob (no rounded Unity chrome) */
-.settings-slider {
-    margin: 6px 4px 0 4px;
-}
-.settings-slider #unity-drag-container {
-    min-height: 30px;
-}
-.settings-slider #unity-tracker {
-    height: 12px;
-    margin-top: -6px;
-    border-radius: 0;
-    background-color: rgb(60, 54, 66);
-    border-width: 2px;
-    border-color: rgb(42, 40, 52);
-}
-.settings-slider #unity-dragger {
-    width: 26px;
-    height: 30px;
-    margin-top: -15px;
-    border-radius: 0;
-    background-color: rgb(255, 214, 120);
-    border-width: 3px;
-    border-color: rgb(60, 54, 66);
-}
-.settings-slider:hover #unity-dragger,
-.settings-slider:focus #unity-dragger {
-    background-color: rgb(255, 228, 160);
-}
-
-/* Two-button language choice: the active one turns green like the primary button */
-.settings-choice-row {
-    flex-direction: row;
-}
-.settings-choice-btn {
-    flex-grow: 1;
-    flex-basis: 0;
-    height: 56px;
-    margin-left: 4px;
-    margin-right: 4px;
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-}
-.settings-choice-btn--on,
-.settings-choice-btn--on:hover,
-.settings-choice-btn--on:focus {
-    background-color: rgb(192, 212, 112);
-    color: rgb(40, 80, 30);
-}
-
-/* Survey row: white QR square in a dark pixel frame + link button */
-.settings-survey-body {
-    flex-direction: row;
-    align-items: center;
-}
-.settings-survey-qr-frame {
-    width: 148px;
-    height: 148px;
-    flex-shrink: 0;
-    padding: 6px;
-    margin-right: 16px;
-    background-color: rgb(255, 255, 255);
-    border-width: 4px;
-    border-color: rgb(60, 54, 66);
-    border-radius: 0;
-}
-.settings-survey-qr {
-    flex-grow: 1;
-    background-image: url("/Assets/Art/UI/Menu/survey_qr.png");
-    -unity-background-scale-mode: scale-to-fit;
-}
-.settings-survey-text {
-    flex-grow: 1;
-    flex-shrink: 1;
-    justify-content: center;
-}
-.settings-survey-note {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    white-space: normal;
-    margin-bottom: 8px;
-}
-.settings-survey-link {
-    flex-grow: 0;
-    font-size: 22px;
-    margin-left: 0;
-    margin-right: 0;
-}
-
-/* Settings close button: bigger label, real button size */
-#btn-settings-close {
-    min-width: 220px;
-    height: 60px;
-}
-#btn-settings-close Label {
-    font-size: 22px;
-}
-
-/* ---------- privacy notice (first visit per account) ---------- */
-.privacy-box {
-    max-width: 720px;
-    width: 80%;
-    max-height: 86%;
-}
-.privacy-scroll {
-    max-height: 420px;
-    margin-bottom: 18px;
+    padding: 10px 8px 10px 16px;
 }
 .privacy-text {
     font-size: 22px;
-    color: rgb(60, 54, 66);
+    color: var(--sn-ink);
     white-space: normal;
+    max-width: 700px;
     -unity-text-align: upper-left;
 }
 .privacy-check {
-    margin: 0 0 10px 0;
+    margin: 0 0 4px 0;
     align-items: center;
+    min-height: 64px;
 }
 .privacy-check .unity-toggle__input {
     flex-shrink: 0;
-}
-.privacy-check .unity-toggle__checkmark {
-    width: 28px;
-    height: 28px;
-    background-color: rgb(250, 240, 220);
-    border-width: 2px;
-    border-color: rgb(60, 54, 66);
-    border-radius: 3px;
-}
-/* Ticked = green box, so the state reads even if the theme has no checkmark image. */
-.privacy-check:checked .unity-toggle__checkmark {
-    background-color: rgb(95, 159, 82);
-    -unity-background-image-tint-color: rgb(255, 255, 255);
+    align-items: center;
 }
 .privacy-check .unity-toggle__text,
 .privacy-check .unity-label {
     font-size: 22px;
-    color: rgb(60, 54, 66);
+    color: var(--sn-ink);
     white-space: normal;
     flex-shrink: 1;
-    margin-left: 10px;
+    margin-left: 12px;
 }
-.privacy-btn {
-    margin: 8px 10px 0 10px;
-}
-.privacy-btn:disabled {
-    opacity: 0.45;
-}
-
-/* ── Loops (MainMenuUIToolkit.Loops): Go Back icon + the loops on My Progress ── */
-
-.icon-goback { background-image: url("/Assets/Art/UI/Loop/icon_goback.png"); }
-
-.loop-tags {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 10px;
-}
-.loop-tag-lead {
-    font-size: 22px;
-    color: rgb(225, 218, 205);
-    margin: 0 8px 8px 0;
-}
-.loop-tag {
-    font-size: 22px;
-    color: rgb(60, 40, 110);
-    background-color: rgb(220, 206, 255);
-    padding: 6px 12px;
-    margin: 0 8px 8px 0;
+.confirm-button-row .privacy-btn {
+    margin: 8px 8px 0 8px;
 }

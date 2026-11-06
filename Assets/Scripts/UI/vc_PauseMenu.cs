@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using SunodGame.UI;
 
 /// <summary>
 /// UI Toolkit replacement for the legacy uGUI vc_PauseMenuController.
@@ -15,6 +16,9 @@ using UnityEngine.UIElements;
 /// The "quit to menu" confirmation is shown through vc_DialogPanel
 /// (same pattern as vc_EndRunUI); a local inline confirm panel is kept as a
 /// fallback for when no DialogPanel exists in the scene.
+/// UI V2: scrim fades, the sheet pops in and shrinks out (vc_UIAnim, unscaled time so it
+/// plays while Time.timeScale = 0). Closing restores the game state at once; the sheet then
+/// animates out on its own.
 /// </summary>
 [DisallowMultipleComponent]
 public class vc_PauseMenu : MonoBehaviour
@@ -27,6 +31,10 @@ public class vc_PauseMenu : MonoBehaviour
     // ── Queried elements ──────────────────────────────────────────────────
     private Button        _hudBtn;
     private VisualElement _pauseOverlay;
+    private VisualElement _pauseBox;
+    private VisualElement _settings;
+    private VisualElement _zoomRow;
+    private Button        _btnClose;
     private VisualElement _mainBtns;
     private VisualElement _confirmPanel;
     private Label         _confirmBody;
@@ -66,6 +74,10 @@ public class vc_PauseMenu : MonoBehaviour
 
         _hudBtn       = root.Q<Button>("pause-hud-btn");
         _pauseOverlay = root.Q<VisualElement>("pause-overlay");
+        _pauseBox     = root.Q<VisualElement>("pause-box");
+        _settings     = root.Q<VisualElement>("pause-settings");
+        _zoomRow      = root.Q<VisualElement>("pause-zoom-row");
+        _btnClose     = root.Q<Button>("pause-close-btn");
         _mainBtns     = root.Q<VisualElement>("pause-main-btns");
         _confirmPanel = root.Q<VisualElement>("pause-confirm");
         _confirmBody  = root.Q<Label>("confirm-body");
@@ -108,6 +120,7 @@ public class vc_PauseMenu : MonoBehaviour
 
         _hudBtn?.RegisterCallback<ClickEvent>(_ => OpenPauseMenu());
         _btnResume?.RegisterCallback<ClickEvent>(_ => ClosePauseMenu());
+        _btnClose?.RegisterCallback<ClickEvent>(_ => ClosePauseMenu());
         _btnExit?.RegisterCallback<ClickEvent>(_ => RequestExitToMenu());
         _btnExitYes?.RegisterCallback<ClickEvent>(_ => HandleExitConfirmed());
         _btnExitNo?.RegisterCallback<ClickEvent>(_ => ShowMainButtons());
@@ -117,9 +130,12 @@ public class vc_PauseMenu : MonoBehaviour
         _confirmPanel?.SetDisplay(false);
         _mainBtns?.SetDisplay(true);
 
-        // Only show the HUD pause button in gameplay/tutorial scenes
+        // Only show the HUD pause button in gameplay/tutorial scenes (slides in from the right edge)
         bool supported = IsSupportedScene(SceneManager.GetActiveScene());
-        _hudBtn?.SetDisplay(supported && !hidePauseButton);
+        if (supported && !hidePauseButton) vc_UIAnim.Show(_hudBtn, vc_UIAnim.Enter.SlideLeft, 0.15f);
+        else _hudBtn?.SetDisplay(false);
+
+        vc_UIAnim.PressAll(root);
     }
 
     private void Update()
@@ -156,7 +172,9 @@ public class vc_PauseMenu : MonoBehaviour
         RefreshZoomSlider();
         RefreshNameButtons();
         ShowMainButtons();
-        _pauseOverlay?.SetDisplay(true);
+        vc_UIAnim.Show(_pauseOverlay, vc_UIAnim.Enter.Fade);
+        vc_UIAnim.Show(_pauseBox, vc_UIAnim.Enter.Pop, 0.04f);
+        if (_settings != null) vc_UIAnim.Stagger(_settings.Children(), vc_UIAnim.Enter.SlideUp, 0.04f, 0.12f);
 
         // Outside a quest the background is fully locked. During a town quest only input stops:
         // the room and its timer keep going.
@@ -170,8 +188,10 @@ public class vc_PauseMenu : MonoBehaviour
     public void ClosePauseMenu()
     {
         _pauseOpen = false;
-        _pauseOverlay?.SetDisplay(false);
-        _confirmPanel?.SetDisplay(false);
+        // Game state comes back immediately; the sheet animates out on unscaled time and the
+        // scrim follows, so input is only held for the 0.18 s exit.
+        AnimHide(_pauseBox, null, vc_UIAnim.Exit.Shrink);
+        AnimHide(_pauseOverlay, () => _confirmPanel?.SetDisplay(false), vc_UIAnim.Exit.Fade);
 
         Time.timeScale = 1f;
         _player?.MoveAction.Enable();
@@ -187,9 +207,9 @@ public class vc_PauseMenu : MonoBehaviour
         vc_TownStage stage = vc_TownStage.Current;
         string text = null;
         if (inQuest)
-            text = $"Quitting now fails this quest.";
+            text = "Quitting now fails this quest.";
         else if (stage != null)
-            text = $"Progress saved. You'll continue on Day {stage.Day}.";
+            text = $"Saved. You'll continue on Day {stage.Day}.";
         _notice.text = text ?? string.Empty;
         _notice.SetDisplay(text != null);
         _notice.EnableInClassList("pause-notice--warn", inQuest);
@@ -217,6 +237,7 @@ public class vc_PauseMenu : MonoBehaviour
         bool show = zoom != null && zoom.LevelCount > 1;
         _zoomSlider?.SetDisplay(show);
         _zoomLabel?.SetDisplay(show);
+        _zoomRow?.SetDisplay(show);
         if (!show || _zoomSlider == null) return;
         _zoomSlider.lowValue  = 0;
         _zoomSlider.highValue = zoom.LevelCount - 1;
@@ -250,11 +271,11 @@ public class vc_PauseMenu : MonoBehaviour
         }
 
         dialog.ShowChoice(
-            title:        "Quit to Menu",
+            title:        "Quit?",
             body:         GetDefaultExitConfirmBody(),
             icon:         null,
-            confirmLabel: "Yes",
-            cancelLabel:  "No",
+            confirmLabel: "Quit",
+            cancelLabel:  "Stay",
             onConfirm:    HandleExitConfirmed,
             // Cancel returns to the still-open pause menu - re-freeze input
             // because DialogPanel.Hide() re-enables it on close.
@@ -312,8 +333,10 @@ public class vc_PauseMenu : MonoBehaviour
 
     private void ShowMainButtons()
     {
-        _mainBtns?.SetDisplay(true);
+        bool wasHidden = _mainBtns != null && _mainBtns.style.display == DisplayStyle.None;
         _confirmPanel?.SetDisplay(false);
+        if (wasHidden) vc_UIAnim.Show(_mainBtns, vc_UIAnim.Enter.Fade);
+        else _mainBtns?.SetDisplay(true);
     }
 
     private void ShowExitConfirm()
@@ -322,7 +345,34 @@ public class vc_PauseMenu : MonoBehaviour
             _confirmBody.text = GetDefaultExitConfirmBody();
 
         _mainBtns?.SetDisplay(false);
-        _confirmPanel?.SetDisplay(true);
+        vc_UIAnim.Show(_confirmPanel, vc_UIAnim.Enter.SlideUp);
+    }
+
+    /// <summary>
+    /// vc_UIAnim.Hide, but also safe when the element was shown this same frame (its resolved
+    /// display is still None, so Hide would skip it and leave the entrance running).
+    /// </summary>
+    private static void AnimHide(VisualElement ve, System.Action done, vc_UIAnim.Exit kind)
+    {
+        if (ve == null) { done?.Invoke(); return; }
+        if (ve.resolvedStyle.display == DisplayStyle.None)
+        {
+            HideNow(ve);
+            done?.Invoke();
+            return;
+        }
+        vc_UIAnim.Hide(ve, done, kind);
+    }
+
+    /// <summary>Instant hide: cancels any running tween and clears its leftovers.</summary>
+    private static void HideNow(VisualElement ve)
+    {
+        if (ve == null) return;
+        vc_UIAnim.StopAll(ve);
+        ve.style.display = DisplayStyle.None;
+        ve.style.opacity = StyleKeyword.Null;
+        ve.style.scale = StyleKeyword.Null;
+        ve.style.translate = StyleKeyword.Null;
     }
 
     // ── State restoration ─────────────────────────────────────────────────
@@ -330,7 +380,9 @@ public class vc_PauseMenu : MonoBehaviour
     private void ForceRestoreGameState()
     {
         _pauseOpen = false;
-        _pauseOverlay?.SetDisplay(false);
+        HideNow(_pauseOverlay);
+        HideNow(_pauseBox);
+        _pauseBox?.SetDisplay(true);   // the box lives inside the overlay; only the overlay toggles
         _confirmPanel?.SetDisplay(false);
         Time.timeScale = 1f;
         _player?.MoveAction.Enable();
@@ -359,11 +411,11 @@ public class vc_PauseMenu : MonoBehaviour
 
     private string GetDefaultExitConfirmBody()
     {
-        if (IsTutorialScene()) return "Return to the main menu?";
+        if (IsTutorialScene()) return "Back to the menu?";
         vc_TownStage stage = vc_TownStage.Current;
-        if (stage == null) return "Quit to the main menu?\nThis run will be lost.";
+        if (stage == null) return "Quit to the menu?\nThis run will be lost.";
         return stage.InQuest
-            ? $"Quit to the main menu?\nThis quest will count as failed."
-            : $"Quit to the main menu?";
+            ? "Quit to the menu?\nThis quest counts as failed."
+            : "Quit to the menu?";
     }
 }

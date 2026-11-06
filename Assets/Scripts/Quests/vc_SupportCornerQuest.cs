@@ -41,6 +41,26 @@ public class vc_SupportCornerQuest : vc_FitQuestKit
     [SerializeField] private float teachTime = 5f;
     [SerializeField] private float callTime = 10f;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Kuya Joel",
+        presses = 3,
+        bestFitTag = "heal",
+        bestFitSeconds = 2f,
+        prepTag = "charm",
+        prepUnlocksTag = "teach",
+        prepLine = "You greet them with a warm, easy hello...",
+        preferredTag = "guide",
+        preferenceLine = "Walking with them, that's what I hoped for. Thank you.",
+        fastLines = new[]
+        {
+            ("guide", "You walked them there already. Thank you for being there."),
+            ("teach", "They feel ready now. That means a lot."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3 _friendRest;
     private float _cloudClock;
 
@@ -55,14 +75,14 @@ public class vc_SupportCornerQuest : vc_FitQuestKit
         SetDoor(false);
         _cloudClock = 0.8f;
         vc_QuestHUD.Instance?.ShowQuestInfo("Quest", "Finding Support",
-            "Kuya Joel's friend is having a hard time. Help them reach out.", new[] { "Help them find support" });
+            "Kuya Joel's friend is having a hard time. Help them reach out, gently. Joel hopes someone will simply walk with them.", new[] { "Help them find support" });
     }
 
     // ── Idle life: a little worry cloud over the friend ──────────────────
 
     private void Update()
     {
-        if (!Started || Done || Working || friend == null) return;
+        if (!Started || Done || Working || Prepared || friend == null) return;
         _cloudClock -= Time.deltaTime;
         if (_cloudClock > 0f) return;
         _cloudClock = Random.Range(2.2f, 3f);
@@ -75,15 +95,28 @@ public class vc_SupportCornerQuest : vc_FitQuestKit
     {
         if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("guide")) { StartWork(GuideRoutine()); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(CallRoutine()); return; }
+        if (d.HasTag("guide")) { StartWork(GuideRoutine(PathTime(guideTime))); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime), CurrentInstant)); return; }
+        if (d.HasTag("summon")) { StartWork(CallRoutine(PathTime(callTime))); return; }
         Toast("Your friend needs someone who cares.", 2.2f);
     }
 
     protected override void OnWorkCancelled()
     {
         if (friend != null) { friend.gameObject.SetActive(true); friend.transform.position = _friendRest; if (friend.sprite == friendStand) friend.sprite = friendUp; }
+    }
+
+    // Prep (Charm): a warm, easy hello; they look up. Teach then explains the group and they nod at once.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Sfx("chime", 0.4f, 0f);
+        Bubble(dotsBubble, friend, 0.5f);
+        yield return new WaitForSeconds(0.5f);
+        if (friend != null) friend.sprite = friendUp;
+        Bubble(smileBubble, friend, 0.8f);
+        Sparkles();
+        yield return new WaitForSeconds(0.5f);
     }
 
     private IEnumerator HealRoutine()
@@ -104,75 +137,76 @@ public class vc_SupportCornerQuest : vc_FitQuestKit
         Finish("They feel heard. They'll visit the support group.");
     }
 
-    private IEnumerator GuideRoutine()
+    private IEnumerator GuideRoutine(float seconds)
     {
-        Toast("You walk with them to the support center...", guideTime);
+        Toast("You walk with them to the support center...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
         Brighten();
-        yield return Tick(0.6f, c, guideTime);
+        yield return Tick(seconds * 0.15f, c, seconds);
         SetDoor(true);
         Sfx("door_open", 0.5f, 0f);
         Vector3 door = supportDoor != null ? new Vector3(supportDoor.bounds.center.x, supportDoor.bounds.min.y + 0.1f, 0f) : _friendRest + Vector3.right * 2f;
         if (friendStand != null) friend.sprite = friendStand;
-        float walk = guideTime - c[0] - 0.4f, t = 0f;
+        float walk = Mathf.Max(0.3f, seconds - c[0] - seconds * 0.1f), t = 0f;
         while (t < walk)
         {
             t += Time.deltaTime;
             float k = t / walk;
             friend.transform.position = Snap(Vector3.Lerp(_friendRest, door, k) + new Vector3(0f, Mathf.Abs(Mathf.Sin(t * 10f)) / 22f, 0f));
-            SetBar((c[0] + t) / guideTime);
+            SetBar((c[0] + t) / seconds);
             yield return null;
         }
         c[0] += walk;
         Bubble(heart, friend, 1.2f);
         friend.gameObject.SetActive(false);
-        yield return Tick(guideTime - c[0], c, guideTime);
+        yield return Tick(Mathf.Max(0.1f, seconds - c[0]), c, seconds);
         Finish("You walked them right to the door. That took courage.");
     }
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float seconds, bool oneGo)
     {
-        Toast("You share what the support group is like...", teachTime);
+        Toast(oneGo ? "You explain what the group is like, and they nod..." : "You share what the support group is like...", Mathf.Max(1.5f, seconds));
         ShowBar(true);
         var c = new float[1];
         if (noticeBoard != null) Fx(sparkFrames, Above(noticeBoard, 0f), 12f, 0.15f);
         Sprite[] beats = { dotsBubble, dotsBubble, smileBubble, ideaBubble };
-        float per = (teachTime - 0.8f) / beats.Length;
+        float per = seconds * 0.84f / beats.Length;
         foreach (var s in beats)
         {
             Bubble(s, friend, per);
             Sfx("text_blip", 0.5f);
-            yield return Tick(per, c, teachTime);
+            yield return Tick(per, c, seconds);
         }
         Brighten();
         SetDoor(true);
-        yield return Tick(teachTime - c[0], c, teachTime);
-        Finish("Now they know what to expect. They feel ready.");
+        yield return Tick(Mathf.Max(0.1f, seconds - c[0]), c, seconds);
+        Finish(oneGo ? "They nodded right away. They feel ready." : "Now they know what to expect. They feel ready.");
     }
 
-    private IEnumerator CallRoutine()
+    private IEnumerator CallRoutine(float seconds)
     {
-        Toast("You call the campus counselor...", 3f);
+        Toast("You call the campus counselor...", Mathf.Max(1.5f, seconds * 0.3f));
         ShowBar(true);
         var c = new float[1];
-        yield return Tick(1.5f, c, callTime);
+        yield return Tick(seconds * 0.15f, c, seconds);
         SetDoor(true);
         Sfx("door_open", 0.5f, 0f);
         Vector3 from = supportDoor != null ? new Vector3(supportDoor.bounds.center.x, supportDoor.bounds.min.y, 0f) : _friendRest + Vector3.right * 3f;
         Vector3 to = _friendRest + new Vector3(0.9f, 0f, 0f);
         SpawnHelper(from, 7);
-        float t0 = c[0];
-        yield return HelperWalk(from, to, 3.5f, t => SetBar((t0 + t) / callTime));
-        c[0] += 3.5f;
-        Toast("The counselor sits with them and talks...", callTime - c[0]);
-        while (c[0] < callTime - 1.2f)
+        float t0 = c[0], walkTime = seconds * 0.35f;
+        yield return HelperWalk(from, to, walkTime, t => SetBar((t0 + t) / seconds));
+        c[0] += walkTime;
+        Toast("The counselor sits with them and talks...", Mathf.Max(1f, seconds - c[0]));
+        float beat = Mathf.Max(0.3f, seconds * 0.09f);
+        while (c[0] < seconds * 0.88f)
         {
-            Bubble(dotsBubble, friend, 0.9f);
-            yield return Tick(0.9f, c, callTime);
+            Bubble(dotsBubble, friend, beat);
+            yield return Tick(beat, c, seconds);
         }
         Brighten();
-        yield return Tick(callTime - c[0], c, callTime);
+        yield return Tick(Mathf.Max(0.1f, seconds - c[0]), c, seconds);
         Finish("The counselor is helping now. Thanks for calling.");
     }
 

@@ -40,8 +40,30 @@ public class vc_ClassSongQuest : vc_FitQuestBase
     [SerializeField] private int blockPresses = 3;
     [SerializeField] private float teachTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Survey (prep) asks the kids for favourite tunes, then
+    // Paint writes the whole sing-along at once. Preference: Paint.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Bea",
+        presses = 6,
+        bestFitTag = "craft",
+        bestFitSeconds = 2f,
+        prepTag = "survey",
+        prepUnlocksTag = "paint",
+        prepLine = "You ask around... little music notes pop over the kids.",
+        preferredTag = "paint",
+        preferenceLine = "Everyone's singing along already!",
+        fastLines = new[]
+        {
+            ("paint", "Everyone's singing already!"),
+            ("barrier", "You stacked the whole tune in one go?!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _kidRest;
-    private int _blocks;
+    private int _blocks, _blockPress;
     private float _idleClock, _dotsClock;
     private readonly System.Collections.Generic.List<GameObject> _spawned = new System.Collections.Generic.List<GameObject>();
 
@@ -60,6 +82,7 @@ public class vc_ClassSongQuest : vc_FitQuestBase
         foreach (GameObject g in _spawned) if (g != null) Destroy(g);
         _spawned.Clear();
         _blocks = 0;
+        _blockPress = 0;
         _idleClock = 1f; _dotsClock = 1.5f;
         SetPiano(0);
         SetBoard(0);
@@ -68,7 +91,7 @@ public class vc_ClassSongQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Class Song",
-            "The class program needs a song. Help Bea write one.",
+            "Bea needs a song for the class program, one everyone can sing along to. Help her write it.",
             new[] { "Write the class song" });
     }
 
@@ -98,10 +121,25 @@ public class vc_ClassSongQuest : vc_FitQuestBase
     {
         if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime))); return; }
         if (d.HasTag("barrier")) { BlockPress(); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime))); return; }
         Toast("A song needs a creative spark.", 2.2f);
+    }
+
+    // Prep (Survey): ask around; a music note pops over each kid (their favourite tunes).
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        _idleClock = 3f;
+        Toast(Profile.prepLine, 1.4f);
+        for (int i = 0; i < kids.Length; i++)
+        {
+            StartCoroutine(Hop(i, 2));
+            if (noteSprites != null && noteSprites.Length > 0) Fx(new[] { noteSprites[i % noteSprites.Length] }, Top(i), 1.4f, 0.4f, 24);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f, 0.1f);
+            yield return new WaitForSeconds(Mathf.Min(0.2f, 0.9f / Mathf.Max(1, kids.Length)));
+        }
+        yield return new WaitForSeconds(0.2f);
     }
 
     // ── Craft: melody and words pieced together ──────────────────────────
@@ -128,11 +166,12 @@ public class vc_ClassSongQuest : vc_FitQuestBase
 
     // ── Paint: lyrics big and bright, then everyone sings ────────────────
 
-    private IEnumerator PaintRoutine()
+    private IEnumerator PaintRoutine(float paintTime)
     {
-        Toast("You paint the lyrics big and bright...", paintTime);
+        bool oneGo = Prepared || paintTime <= craftTime + 0.01f;
+        Toast(oneGo ? "You write the whole sing-along in one go!" : "You paint the lyrics big and bright...", paintTime);
         ShowBar(true);
-        float paintPart = paintTime - 1.4f, t = 0f;
+        float paintPart = paintTime * 0.65f, t = 0f;
         int strokes = 6;
         float per = paintPart / strokes;
         Vector3 c = BoardCenter();
@@ -153,7 +192,36 @@ public class vc_ClassSongQuest : vc_FitQuestBase
 
     // ── Barrier: build the tune from stacked note blocks ─────────────────
 
+    // 3 presses at Lv1 (a block each), 2 at Lv2, 1 at Lv3 or prepped.
     private void BlockPress()
+    {
+        _blockPress++;
+        int total = Mathf.Max(1, blockPresses);
+        int need = Mathf.Clamp(PathPresses(total), 1, total);
+        int remaining = total - _blocks;
+        int pressesLeft = Mathf.Max(1, need - _blockPress + 1);
+        int count = _blockPress >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        for (int k = 0; k < count; k++) AddBlock(k * 0.12f);
+        if (_blocks < total)
+        {
+            Toast($"You stack a note block ({_blocks}/{total})", 2f);
+            return;
+        }
+        StartWork(BlocksFinishRoutine(count > 1));
+    }
+
+    private IEnumerator BlocksFinishRoutine(bool oneGo)
+    {
+        Toast(oneGo ? "You stack the whole tune in one go!" : "The last block clicks in...", 1.6f);
+        ShowBar(true);
+        yield return BarStep(0.6f, 0f, 1f);
+        SetBoard(2);
+        Fx(sparkFrames, BoardCenter(), 12f, 0.15f);
+        StartCoroutine(Sing(2f));
+        Finish("Block by block, the tune is built. Sing!");
+    }
+
+    private void AddBlock(float delay)
     {
         _blocks++;
         if (noteBlocks != null && noteBlocks.Length > 0 && piano != null)
@@ -168,23 +236,13 @@ public class vc_ClassSongQuest : vc_FitQuestBase
             _spawned.Add(go);
             StartCoroutine(Drop(go.transform));
         }
-        PlayNote(_blocks * 2);
+        PlayNote(_blocks * 2, delay);
         SetBoard(_blocks >= 2 ? 1 : 0);
-
-        if (_blocks < blockPresses)
-        {
-            Toast($"You stack a note block ({_blocks}/{blockPresses})", 2f);
-            return;
-        }
-        SetBoard(2);
-        Fx(sparkFrames, BoardCenter(), 12f, 0.15f);
-        StartCoroutine(Sing(2f));
-        Finish("Block by block, the tune is built. Sing!");
     }
 
     // ── Teach: the tune line by line ─────────────────────────────────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float teachTime)
     {
         Toast("You teach the kids the tune, line by line...", teachTime);
         ShowBar(true);

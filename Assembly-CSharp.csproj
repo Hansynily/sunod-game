@@ -124,6 +124,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_PortGeneratorQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_WorkshopGrinderQuest.cs" />
     <Compile Include="Assets\Scripts\vc_TrackSkill.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownLighting.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ClubActivityQuest.cs" />
     <Compile Include="Assets\Scripts\Town\vc_NpcDialogue.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RiverCrossingQuest.cs" />
@@ -187,6 +188,7 @@
     <Compile Include="Assets\Scripts\vc_RunCompleteZone.cs" />
     <Compile Include="Assets\Scripts\vc_BrokenPumpQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_PaydayQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownEventData.cs" />
     <Compile Include="Assets\Scripts\Demo\Systems\HUD\HudSystem.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSlot.cs" />
     <Compile Include="Assets\Scripts\vc_BlockedPathQuest.cs" />
@@ -215,10 +217,12 @@
     <Compile Include="Assets\Scripts\Quests\vc_CampusPaperQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_SafeArea.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.RoundFlow.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_QuestBoard.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_PipeFixMinigame.cs" />
     <Compile Include="Assets\Scripts\vc_CatAISystem.cs" />
     <Compile Include="Assets\Scripts\UI\vc_EndRunUI.cs" />
     <Compile Include="Assets\Scripts\vc_MissingKeyQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_BonusStars.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_LostFriendFitQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_MedicalAttentionQuest.cs" />
     <Compile Include="Assets\Scripts\vc_XraySkill.cs" />
@@ -277,12 +281,14 @@
     <Compile Include="Assets\Scripts\vc_CheckboxItem.cs" />
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillCollectible.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_SnackStallQuest.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_SeaWaves.cs" />
     <Compile Include="Assets\Scripts\UI\vc_TutorialEndScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_CreakyFloorQuest.cs" />
     <Compile Include="Assets\Scripts\Core\SessionState.cs" />
     <Compile Include="Assets\Scripts\vc_CollectSkill.cs" />
     <Compile Include="Assets\Scripts\vc_TutorialFlowController.cs" />
     <Compile Include="Assets\Scripts\Core\vc_GameplayMode.cs" />
+    <Compile Include="Assets\Scripts\Town\vc_TownEvents.cs" />
     <Compile Include="Assets\Scripts\vc_FloatingMarker.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\TrackSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_FitQuestBase.cs" />
@@ -308,6 +314,7 @@
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\Art\UI\EndRunButton.uxml" />
+    <None Include="Assets\Art\Town\Shaders\SpriteCastShadow.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\Art\UI\MainMenuStyle.uss" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />

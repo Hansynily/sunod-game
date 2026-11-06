@@ -54,7 +54,29 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
     [SerializeField] private float helperWalkTime = 6f;
     [SerializeField] private float helperFixTime = 4f;
 
-    private int _pushes;
+    // Skill system v2 (QUEST_REDESIGN.md): Survey (prep) traces the shallow line, then Push rolls
+    // all the boulders in one heave. Preference: Repair (Mang Ben's father's bridge).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mang Ben",
+        presses = 6,
+        bestFitTag = "build",
+        bestFitSeconds = 2f,
+        prepTag = "survey",
+        prepUnlocksTag = "push",
+        prepLine = "A sparkle traces the shallow line across the water...",
+        preferredTag = "repair",
+        preferenceLine = "Papa's bridge, back in one piece. Salamat, anak!",
+        fastLines = new[]
+        {
+            ("push", "Three boulders in one push?! You're stronger than you look!"),
+            ("repair", "Papa's bridge, good as new... and so quick!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
+    private int _pushes, _pushPress;
     private bool _finishing;
     private Vector3 _bridgeRest;
     private readonly Vector3[] _boulderRest = new Vector3[8];
@@ -75,6 +97,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
     protected override void OnBegin()
     {
         _pushes = 0;
+        _pushPress = 0;
         _finishing = false;
         _rippleClock = 0f;
         ClearPrints();
@@ -100,7 +123,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "River Crossing",
-            "The river is too deep to wade. Make a way across.",
+            "Mang Ben's old bridge is broken and the river is too deep to wade. Make a way across.",
             new[] { "Get across the river" });
     }
 
@@ -152,10 +175,10 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
         if (BlockedByWork()) return;
 
         if (d.HasTag("push")) { PushBoulder(); return; }
-        if (d.HasTag("repair")) { StartWork(BridgeRepairRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
-        if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(HelperRoutine()); return; }
+        if (d.HasTag("repair")) { StartWork(BridgeRepairRoutine(PathTime(repairTime))); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
+        if (d.HasTag("craft")) { StartWork(CraftRoutine(PathTime(craftTime))); return; }
+        if (d.HasTag("summon")) { StartWork(HelperRoutine(PathTime(helperWalkTime + helperFixTime))); return; }
 
         Toast("You need to make a way across.", 2.2f);
     }
@@ -164,6 +187,36 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
     {
         if (bridge != null) bridge.transform.localPosition = _bridgeRest;
         ClearPrints();
+    }
+
+    // Prep (Survey): a sparkle runs along the shallow line, then the boulder spots glow.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("scan", 0.6f, 0.05f);
+        Vector3 a = transform.position + new Vector3(0.9f, -0.85f, 0f), b = transform.position + new Vector3(3.9f, -0.85f, 0f);
+        const float dur = 0.8f;
+        float t = 0f, next = 0f;
+        while (t < dur)
+        {
+            t += Time.deltaTime;
+            if (t >= next)
+            {
+                next += 0.08f;
+                Vector3 p = Vector3.Lerp(a, b, t / dur) + new Vector3(0f, Mathf.Sin(t * 14f) * 0.08f, 0f);
+                Fx(sparkFrames, p, 14f, 0.12f, 30);
+            }
+            yield return null;
+        }
+        if (boulderSlots != null)
+            foreach (Transform s in boulderSlots)
+                if (s != null)
+                {
+                    Fx(sparkFrames, s.position + new Vector3(0f, 0.15f, 0f), 12f, 0.25f, 31);
+                    Fx(rippleFrames, s.position + new Vector3(0f, -0.2f, 0f), 5f);
+                }
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.25f);
     }
 
     // â”€â”€ Build: slabs laid left to right â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -207,22 +260,51 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
 
     // â”€â”€ Push: one boulder rolled into the river per press â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+    // 3 presses at Lv1 (a boulder each), 2 at Lv2, 1 at Lv3 or after the Survey prep: every
+    // press rolls its share of the boulders that are left.
     private void PushBoulder()
     {
         if (boulders == null || _pushes >= boulders.Length) return;
-        int i = _pushes++;
-        bool last = _pushes >= boulders.Length;
-        if (last) _finishing = true;
+        _pushPress++;
+        int total = boulders.Length;
+        int need = Mathf.Clamp(PathPresses(total), 1, total);
+        int remaining = total - _pushes;
+        int pressesLeft = Mathf.Max(1, need - _pushPress + 1);
+        int count = _pushPress >= need ? remaining : Mathf.CeilToInt(remaining / (float)pressesLeft);
+        int first = _pushes;
+        _pushes += count;
+        bool last = _pushes >= total;
 
-        Toast(last ? "The last boulder splashes in!" : $"You shove a boulder into the river ({_pushes}/{boulders.Length})", 2f);
-        StartCoroutine(RollBoulder(i, last));
+        if (last)
+        {
+            _finishing = true;
+            StartWork(PushFinishRoutine(first, count, count > 1));
+            return;
+        }
+        Toast($"You shove a boulder into the river ({_pushes}/{total})", 2f);
+        for (int k = 0; k < count; k++) StartCoroutine(RollBoulder(first + k, k * 0.2f));
     }
 
-    private IEnumerator RollBoulder(int i, bool last)
+    private IEnumerator PushFinishRoutine(int first, int count, bool oneHeave)
     {
+        Toast(oneHeave ? "One big heave! Every boulder rolls in!" : "The last boulder splashes in!", 2f);
+        ShowBar(true);
+        for (int k = 0; k < count; k++)
+        {
+            StartCoroutine(RollBoulder(first + k, 0f));
+            SetBar((k + 1f) / count);
+            yield return new WaitForSeconds(count > 1 ? 0.22f : 0f);
+        }
+        yield return new WaitForSeconds(0.95f);
+        Finish("The boulders make a path across the river!");
+    }
+
+    private IEnumerator RollBoulder(int i, float delay)
+    {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
         Transform b = boulders[i];
         Transform slot = boulderSlots != null && i < boulderSlots.Length ? boulderSlots[i] : null;
-        if (b == null || slot == null) { if (last) Finish("The boulders make a path across!"); yield break; }
+        if (b == null || slot == null) yield break;
 
         var col = b.GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
@@ -245,21 +327,15 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
         Fx(splashFrames, to + new Vector3(0f, 0.1f, 0f), 10f, 0.25f);
         Fx(rippleFrames, to + new Vector3(0f, -0.2f, 0f), 5f);
         StartCoroutine(Shake(b, b.localPosition, 0.2f, 1));
-
-        if (last)
-        {
-            yield return new WaitForSeconds(0.35f);
-            Finish("The boulders make a path across the river!");
-        }
     }
 
     // â”€â”€ Repair: mend the old plank bridge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    private IEnumerator BridgeRepairRoutine()
+    private IEnumerator BridgeRepairRoutine(float seconds)
     {
-        Toast("Mending the old plank bridge...", repairTime);
+        Toast("Mending the old plank bridge...", seconds);
         ShowBar(true);
-        yield return HammerBridge(repairTime, 0f, 1f);
+        yield return HammerBridge(seconds, 0f, 1f);
         MendBridge();
         Finish("You mended the old plank bridge!");
     }
@@ -299,7 +375,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
 
     // â”€â”€ Plan: footprints reveal a shallow ford â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float planTime)
     {
         Toast("Working out a safe way across...", planTime);
         ShowBar(true);
@@ -336,7 +412,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
 
     // Craft: weave rope, then lash new planks on one at a time
 
-    private IEnumerator CraftRoutine()
+    private IEnumerator CraftRoutine(float craftTime)
     {
         Toast("You weave rope and lash new planks on...", craftTime);
         ShowBar(true);
@@ -345,7 +421,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
         float t = 0f;
 
         // twist the rope on the bank: sparkles spin while it's woven
-        float weave = 1.6f, tick = 0f;
+        float weave = craftTime * 0.23f, tick = 0f;
         while (t < weave)
         {
             t += Time.deltaTime; tick += Time.deltaTime;
@@ -361,7 +437,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
 
         // each plank flies from the bank onto the bridge and gets tied down
         const int planks = 5;
-        float per = (craftTime - weave - 0.3f) / planks;
+        float per = Mathf.Max(0.1f, (craftTime - weave - 0.3f) / planks);
         Sprite plank = bridgeFixed;
         for (int i = 0; i < planks; i++)
         {
@@ -426,7 +502,7 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
 
     // â”€â”€ Call: helper walks over and lays new planks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    private IEnumerator HelperRoutine()
+    private IEnumerator HelperRoutine(float total)
     {
         Toast("You call Mang Ben's helper...", 3f);
         ShowBar(true);
@@ -435,12 +511,13 @@ public class vc_RiverCrossingQuest : vc_FitQuestBase
         Vector3 to = new Vector3(c.x - 1.9f, c.y - 0.35f, 0f);
         Vector3 from = to + new Vector3(-6f, 0f, 0f);
         SpawnHelper(from, 9);
-        float total = helperWalkTime + helperFixTime;
+        float walkTime = total * helperWalkTime / (helperWalkTime + helperFixTime);
+        float fixTime = total - walkTime;
 
-        yield return HelperWalk(from, to, helperWalkTime, t => SetBar(t / total));
+        yield return HelperWalk(from, to, walkTime, t => SetBar(t / total));
 
-        Toast("The helper lays the new planks...", helperFixTime);
-        yield return HammerBridge(helperFixTime, helperWalkTime / total, 1f);
+        Toast("The helper lays the new planks...", fixTime);
+        yield return HammerBridge(fixTime, walkTime / total, 1f);
         MendBridge();
         Finish("Mang Ben's helper laid new planks. Thanks!");
     }

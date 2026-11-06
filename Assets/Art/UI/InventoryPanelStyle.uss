@@ -1,107 +1,55 @@
 /* =================================================================
-   SUNOD — Skill Equip Screen (cozy / compact)
-   Square Sprout Lands palette drawn in USS + SkillSlotUIKit cards.
-   Outline #645552 · rim #AA7959 · highlight #F3E5C2 · fill #E8CFA6
-   shadow #C49A6C · track #8C7369 · accent #C0D470
+   SUNOD - Skill equip screen (UI V2, 2026-11-07)
+   Sheet / cards / buttons from SunodTheme.tss (sn-scrim, sn-panel, sn-card,
+   sn-btn). Kind colours (RIASEC) on rings + strips are set in code from
+   vc_UITheme.Riasec; Lv badges are theme sn-badge (silver Lv2, gold Lv3).
+   Motion: InventoryPanelUIToolkit.cs (vc_UIAnim).
    ================================================================= */
 
-/* ---------- BACKDROP ---------- */
+/* ---------- SCRIM + SHEET ---------- */
 .overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(30, 20, 12, 0.7);
-    align-items: center;
-    justify-content: center;
+    display: none;
 }
-
-/* ---------- OUTER FRAME ---------- */
 .panel-root {
     width: 90%;
     max-width: 1040px;
     height: 96%;
     max-height: 900px;
-    background-color: rgb(232, 207, 166);
-    border-radius: 0;
-    border-left-width: 4px;
-    border-top-width: 4px;
-    border-right-width: 4px;
-    border-bottom-width: 8px;
-    border-left-color: rgb(170, 121, 89);
-    border-top-color: rgb(170, 121, 89);
-    border-right-color: rgb(170, 121, 89);
-    border-bottom-color: rgb(100, 85, 82);
     padding: 0;
 }
-
 .panel-inner {
     flex-grow: 1;
     flex-direction: column;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    padding: 14px 18px 16px 18px;
+    padding: 10px 20px 16px 20px;
 }
 
-/* ---------- TOP BAR ---------- */
+/* ---------- TOP BAR: title centred, round × top-right ---------- */
 .topbar {
     flex-direction: row;
     align-items: center;
-    height: 56px;
+    min-height: 72px;
     flex-shrink: 0;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    padding: 0;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
-
-.btn-back,
-.btn-cheat {
-    background-image: none;
-    background-color: rgb(243, 229, 194);
-    border-radius: 0;
-    border-left-width: 3px;
-    border-top-width: 3px;
-    border-right-width: 3px;
-    border-bottom-width: 6px;
-    border-left-color: rgb(170, 121, 89);
-    border-top-color: rgb(170, 121, 89);
-    border-right-color: rgb(170, 121, 89);
-    border-bottom-color: rgb(100, 85, 82);
-    padding: 6px 18px;
-    min-width: 96px;
-    height: 48px;
-    margin: 0;
-    justify-content: center;
-}
-.btn-back:hover, .btn-back:focus, .btn-back:hover:enabled,
-.btn-cheat:hover, .btn-cheat:focus, .btn-cheat:hover:enabled {
-    background-color: rgb(243, 229, 194);
-}
-.btn-back:active, .btn-cheat:active {
-    background-color: rgb(196, 154, 108);
-    border-bottom-width: 3px;
-    translate: 0 3px;
-}
-.btn-back-label,
-.btn-cheat-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-}
-
 .title-block {
     flex-grow: 1;
     align-items: center;
     justify-content: center;
 }
 .panel-title {
-    font-size: 28px;
-    color: rgb(60, 54, 66);
-    -unity-text-align: middle-center;
-    letter-spacing: 3px;
+    margin: 0;
 }
-.panel-sub {
-    font-size: 22px;
-    color: rgb(140, 115, 105);
+.btn-back {
+    margin: 0;
+    font-size: 34px;
+}
+.btn-cheat {
+    margin: 0;
+    min-width: 72px;
+}
+.btn-cheat-label {
+    font-size: 21px;
+    color: var(--sn-ink-muted);
     -unity-text-align: middle-center;
 }
 
@@ -111,22 +59,22 @@
     flex-shrink: 0;
 }
 
-/* ---------- EQUIPPED STRIP (all 6 in one row) ---------- */
+/* ---------- EQUIPPED: 6 round kind slots in one row ---------- */
 .equipped-section {
-    background-color: rgb(243, 229, 194);
-    border-radius: 0;
-    border-width: 3px;
-    border-color: rgb(196, 154, 108);
-    padding: 8px 10px 10px 10px;
+    padding: 6px 12px 10px 12px;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     flex-shrink: 0;
 }
+.equipped-title,
+.pane-header {
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink-muted);
+    letter-spacing: 1px;
+}
 .equipped-title {
-    font-size: 22px;
-    color: rgb(140, 115, 105);
     -unity-text-align: middle-center;
-    letter-spacing: 3px;
     margin-bottom: 4px;
 }
 
@@ -134,130 +82,130 @@
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
+    align-self: stretch;
 }
 .slots-row {
+    flex-grow: 1;
+    flex-basis: 0;
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
-    margin: 0;
 }
-
 .slot-wrapper {
+    flex-grow: 1;
+    flex-basis: 0;
+    max-width: 156px;
     align-items: center;
     flex-direction: column;
-    width: 150px;
-    margin-left: 6px;
-    margin-right: 6px;
+    margin: 0 4px 0 4px;
 }
 
-/* category name, small tag above the card */
+/* kind name above the slot */
 .slot-number {
-    font-size: 18px; letter-spacing: 0;
-    color: rgb(100, 85, 82);
+    font-size: 19px;
+    color: var(--sn-ink-muted);
     -unity-text-align: middle-center;
     margin-bottom: 4px;
-    width: 150px;
-    padding: 0;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
+    align-self: stretch;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .slot-diamond-container {
-    width: 104px;
-    height: 104px;
+    width: 96px;
+    height: 96px;
     align-items: center;
     justify-content: center;
 }
 
+/* round slot: cream disc, kind-coloured ring (ring colour set in code) */
 .slot-frame {
-    rotate: 0deg;
-    width: 104px;
-    height: 104px;
+    width: 92px;
+    height: 92px;
     padding: 0;
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card.png");
-    -unity-slice-left: 6;
-    -unity-slice-top: 6;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 9;
-    -unity-slice-scale: 1px;
-    border-width: 0;
-    border-radius: 0;
+    margin: 0;
+    background-image: none;
+    background-color: var(--sn-cream-lo);
+    border-color: var(--sn-brown);
+    border-width: 4px;
+    border-bottom-width: 7px;
+    border-radius: 999px;
     align-items: center;
     justify-content: center;
+    transition-property: background-color, translate;
+    transition-duration: 0.15s;
 }
-.slot-frame:hover {
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card.png");
+.slot-frame:hover, .slot-frame:focus, .slot-frame:hover:enabled {
+    background-color: var(--sn-cream-lo);
 }
 .slot-frame:active {
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card_pressed.png");
+    background-color: var(--sn-paper-line);
+    translate: 0 3px;
 }
-.slot-frame.ready {
-    background-color: rgba(0,0,0,0);
-    -unity-background-image-tint-color: rgb(210, 235, 150);
+/* the slot the picked skill goes in: soft green fill (code also pulses it) */
+.slot-frame.ready,
+.slot-frame.ready:hover,
+.slot-frame.ready:focus {
+    background-color: var(--sn-green-hi);
 }
 
 .slot-inner {
-    rotate: 0deg;
     position: absolute;
-    top: 14px; left: 14px; right: 14px; bottom: 14px;
+    top: 0; left: 0; right: 0; bottom: 0;
     align-items: center;
     justify-content: center;
-    background-image: url("/Assets/Art/UI/Panels/icon_ring.png");
-    -unity-background-scale-mode: scale-to-fit;
 }
 .slot-frame-icon {
     position: absolute;
-    top: 12px; left: 12px; right: 12px; bottom: 12px;
+    top: 14px; left: 14px; right: 14px; bottom: 14px;
     -unity-background-scale-mode: scale-to-fit;
 }
 .slot-empty-label {
-    font-size: 32px;
-    color: rgb(140, 115, 105);
+    font-size: 36px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink-muted);
     -unity-text-align: middle-center;
+}
+/* Lv badge on the slot (built in code) */
+.slot-lv {
+    position: absolute;
+    right: -6px;
+    bottom: -4px;
+    min-width: 44px;
+    height: 28px;
 }
 
 .slot-name-label {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
     -unity-text-align: middle-center;
     margin-top: 4px;
+    align-self: stretch;
     white-space: nowrap;
     overflow: hidden;
-    width: 124px;
+    text-overflow: ellipsis;
 }
 
-/* ---------- GATHERED SKILLS ---------- */
+/* ---------- GATHERED GRID ---------- */
 .body {
     flex-grow: 1;
     flex-direction: column;
-    min-height: 90px;
-    margin-bottom: 10px;
+    min-height: 120px;
+    margin-bottom: 12px;
 }
-
 .pane-header {
-    font-size: 22px;
-    color: rgb(140, 115, 105);
-    background-color: rgba(0,0,0,0);
     -unity-text-align: middle-left;
-    padding: 0 4px 6px 4px;
-    letter-spacing: 3px;
-    border-width: 0;
+    padding: 0 6px 4px 6px;
     flex-shrink: 0;
 }
-
 .cards-scroll {
     flex-grow: 1;
+    background-color: var(--sn-cream-lo);
+    border-radius: 16px;
     padding: 4px;
-    background-color: rgb(214, 186, 145);
-    border-width: 3px;
-    border-color: rgb(196, 154, 108);
 }
-
 .cards-scroll #unity-content-container,
 .cards-scroll .unity-scroll-view__content-container {
     flex-wrap: wrap;
@@ -266,101 +214,115 @@
     align-content: flex-start;
 }
 
+/* skill card: cream tile, kind strip on top, ringed icon disc, name */
 .skill-row {
-    width: 132px;
-    height: 132px;
-    margin: 5px;
+    width: 144px;
+    height: 150px;
+    margin: 6px;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card.png");
-    -unity-slice-left: 6;
-    -unity-slice-top: 6;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 9;
-    -unity-slice-scale: 1px;
-    border-width: 0;
-    border-radius: 0;
-    padding: 12px 8px 8px 8px;
-}
-.skill-row:hover {
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card.png");
+    background-color: var(--sn-cream-hi);
+    background-image: none;
+    border-color: var(--sn-paper-line);
+    border-width: 2px;
+    border-bottom-width: 5px;
+    border-radius: 16px;
+    padding: 18px 8px 6px 8px;
+    transition-property: background-color, border-color, translate;
+    transition-duration: 0.15s;
 }
 .skill-row.selected {
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/card_selected.png");
-    -unity-background-image-tint-color: rgb(210, 235, 150);
-    border-width: 0;
+    background-color: rgb(236, 246, 226);
+    border-color: var(--sn-green);
+    border-bottom-color: var(--sn-green-dark);
+    translate: 0 -4px;
+}
+/* kind strip (colour set in code) */
+.row-strip {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 10px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
 }
 
 .row-icon-frame {
     width: 72px;
     height: 72px;
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/icon_ring.png");
-    -unity-background-scale-mode: scale-to-fit;
-    border-width: 0;
-    margin-bottom: 4px;
+    background-color: var(--sn-cream);
+    border-color: var(--sn-brown);
+    border-width: 3px;
+    border-bottom-width: 5px;
+    border-radius: 999px;
+    margin-bottom: 6px;
 }
 .row-icon {
     position: absolute;
-    top: 12px; left: 12px; right: 12px; bottom: 12px;
+    top: 11px; left: 11px; right: 11px; bottom: 11px;
     -unity-background-scale-mode: scale-to-fit;
 }
 
 .row-textblock {
+    align-self: stretch;
     align-items: center;
     flex-direction: column;
     justify-content: center;
 }
 .row-name {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
+    font-size: 21px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
     -unity-text-align: middle-center;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 124px;
 }
 .row-meta {
     display: none;
 }
 
-/* RIASEC corner badge */
+/* kind letter disc, top-left (letter = the non-colour signal) */
 .row-tag {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 8px;
-    right: 8px;
-    border-radius: 0;
+    top: 14px;
+    left: 8px;
+    border-radius: 999px;
     border-width: 2px;
-    border-color: rgb(100, 85, 82);
+    border-color: var(--sn-cream-hi);
 }
 .row-tag-letter {
-    font-size: 22px;
-    color: white;
+    font-size: 18px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-cream-hi);
     -unity-text-align: middle-center;
+    padding: 0;
+}
+/* Lv badge, top-right */
+.row-lv {
+    position: absolute;
+    top: 14px;
+    right: 6px;
+    height: 26px;
 }
 
-/* RIASEC colours (T3) */
-.riasec-r { background-color: rgb(217, 58, 74); }
-.riasec-i { background-color: rgb(240, 138, 36); }
-.riasec-a { background-color: rgb(142, 79, 214); }
-.riasec-s { background-color: rgb(47, 163, 90); }
-.riasec-e { background-color: rgb(47, 111, 214); }
-.riasec-c { background-color: rgb(34, 179, 196); }
+/* RIASEC colours */
+.riasec-r { background-color: var(--sn-R); }
+.riasec-i { background-color: var(--sn-I); }
+.riasec-a { background-color: var(--sn-A); }
+.riasec-s { background-color: var(--sn-S); }
+.riasec-e { background-color: var(--sn-E); }
+.riasec-c { background-color: var(--sn-C); }
 
-/* ---------- DETAIL PANE ---------- */
+/* ---------- DETAIL STRIP ---------- */
 .detail-pane {
-    background-color: rgb(243, 229, 194);
-    border-radius: 0;
-    border-width: 3px;
-    border-color: rgb(196, 154, 108);
-    padding: 10px 14px;
-    height: 130px;
+    height: 136px;
+    padding: 10px 16px 10px 16px;
     flex-shrink: 0;
     flex-direction: column;
 }
@@ -372,127 +334,111 @@
     flex-direction: column;
 }
 .detail-empty-title {
-    font-size: 22px;
-    color: rgb(140, 115, 105);
-    letter-spacing: 2px;
-    margin-bottom: 4px;
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-SemiBold.ttf");
+    color: var(--sn-ink);
+    margin-bottom: 2px;
 }
 .detail-empty-sub {
-    font-size: 22px;
-    color: rgb(160, 135, 120);
+    font-size: 21px;
+    color: var(--sn-ink-muted);
 }
 
 .detail-filled {
     flex-grow: 1;
-    flex-direction: column;
+    flex-direction: row;
 }
 .detail-header {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 6px;
+    width: 44%;
+    flex-shrink: 0;
+    margin-right: 16px;
 }
 .detail-icon-frame {
-    width: 56px;
-    height: 56px;
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/icon_ring.png");
-    -unity-background-scale-mode: scale-to-fit;
-    border-width: 0;
-    margin-right: 12px;
+    width: 88px;
+    height: 88px;
+    background-color: var(--sn-cream);
+    border-color: var(--sn-brown);
+    border-width: 4px;
+    border-bottom-width: 7px;
+    border-radius: 999px;
+    margin-right: 14px;
     flex-shrink: 0;
 }
 .detail-icon {
     position: absolute;
-    top: 9px; left: 9px; right: 9px; bottom: 9px;
+    top: 14px; left: 14px; right: 14px; bottom: 14px;
     -unity-background-scale-mode: scale-to-fit;
 }
 .detail-titlebox {
     flex-grow: 1;
+    flex-shrink: 1;
     flex-direction: column;
     justify-content: center;
 }
 .detail-name {
-    font-size: 22px;
-    color: rgb(60, 54, 66);
-    letter-spacing: 1px;
+    font-size: 28px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-ink);
     white-space: normal;
     margin-bottom: 4px;
 }
 .detail-meta {
     flex-direction: row;
     align-items: center;
+    flex-wrap: wrap;
 }
+/* kind chip (colour from riasec-* class) */
 .detail-tag {
     flex-direction: row;
     align-items: center;
-    padding: 2px 8px;
+    padding: 0 12px 0 10px;
     margin-right: 8px;
-    border-radius: 0;
+    min-height: 32px;
+    border-radius: 999px;
+}
+.detail-tag-letter,
+.detail-tag-name {
+    font-size: 19px;
+    -unity-font-definition: url("/Assets/Art/Fonts/PixelifySans/PixelifySans-Bold.ttf");
+    color: var(--sn-cream-hi);
+    padding: 0;
 }
 .detail-tag-letter {
-    font-size: 22px;
-    color: white;
-    margin-right: 4px;
+    margin-right: 6px;
 }
-.detail-tag-name {
-    font-size: 22px;
-    color: white;
+.detail-hint {
+    font-size: 19px;
+    color: var(--sn-green-dark);
 }
-.detail-level {
-    font-size: 22px;
-    color: rgb(100, 85, 82);
-    background-color: rgba(0,0,0,0);
-    background-image: url("/Assets/Art/UI/Panels/badge.png");
-    -unity-slice-: 4;
-    -unity-slice-: 4;
-    -unity-slice-: 4;
-    -unity-slice-: 4;
-    -unity-slice-scale: 1px;
-    border-width: 0;
-    padding: 3px 12px;
-}
-.detail-divider {
-    height: 2px;
-    background-color: rgb(196, 154, 108);
-    margin-bottom: 6px;
-}
+
 .detail-body-row {
     flex-direction: row;
     flex-grow: 1;
+    flex-shrink: 1;
+    border-left-width: 2px;
+    border-color: var(--sn-paper-line);
+    padding-left: 16px;
 }
 .detail-desc-block {
     flex-grow: 1;
     flex-basis: 0;
     flex-direction: column;
-    margin-right: 12px;
+    justify-content: center;
 }
 .detail-action-block {
-    flex-grow: 1;
-    flex-basis: 0;
-    flex-direction: column;
+    display: none;
 }
 .detail-section-label {
-    font-size: 22px;
-    color: rgb(140, 115, 105);
-    letter-spacing: 2px;
-    margin-bottom: 2px;
+    font-size: 19px;
+    color: var(--sn-ink-muted);
 }
 .detail-desc,
 .detail-action {
     font-size: 22px;
-    color: rgb(60, 54, 66);
+    color: var(--sn-ink);
     white-space: normal;
     overflow: hidden;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
     padding: 0;
-    flex-grow: 1;
-}
-.detail-hint {
-    font-size: 22px;
-    color: rgb(90, 120, 40);
-    -unity-text-align: middle-center;
-    letter-spacing: 1px;
-    border-width: 0;
-    padding-top: 4px;
 }

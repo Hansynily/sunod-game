@@ -54,6 +54,29 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
     [SerializeField] private float grandsonWalkTime = 5.6f;
     [SerializeField] private float guideSpeed = 2.6f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Build (prep) puts a handrail up along the wall, then Teach
+    // shows her how to use it and she walks over at once. Preference: Heal (her knees).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Lola Ising",
+        presses = 4,
+        bestFitTag = "guide",
+        bestFitSeconds = 2f,
+        prepTag = "build",
+        prepUnlocksTag = "teach",
+        prepLine = "A handrail goes up along the wall...",
+        preferredTag = "heal",
+        preferenceLine = "Ay, my knees feel so light. Salamat, hijo!",
+        fastLines = new[]
+        {
+            ("heal", "My knees don't hurt at all! You have magic hands."),
+            ("teach", "I can do it myself now! Thank you, anak."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
+    private bool _railUp;
     private SpriteRenderer _lsr;
     private Vector3 _start;
     private Vector3 _chairRest;
@@ -83,7 +106,7 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
         StopRoutes();
         foreach (GameObject g in _spawned) if (g != null) Destroy(g);
         _spawned.Clear();
-        _guiding = false; _seated = false;
+        _guiding = false; _seated = false; _railUp = false;
         _animT = 0f; _heartClock = 0f; _idleClock = 0f;
         if (lola != null) lola.position = _start;
         if (_lsr != null) { _lsr.sprite = lolaWalk != null && lolaWalk.Length > 0 ? lolaWalk[0] : _lsr.sprite; }
@@ -93,7 +116,7 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Walk Lola Home",
-            "Lola Ising just got home from the market. Her legs are tired.",
+            "Lola Ising: her knees ache and her rocking chair is across the room. Get her there. She says her knees hurt the most.",
             new[] { "Get Lola to her chair" });
     }
 
@@ -196,10 +219,10 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
         if (_guiding) { Toast("Lola is walking with you.", 1.5f); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
-        if (d.HasTag("build")) { StartWork(RailRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(GrandsonRoutine()); return; }
+        if (d.HasTag("heal")) { StartWork(HealRoutine(PathTime(healTreatTime + routeWalkTime))); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachDemoTime + routeWalkTime), CurrentInstant)); return; }
+        if (d.HasTag("build")) { StartWork(RailRoutine(PathTime(railTime + routeWalkTime))); return; }
+        if (d.HasTag("summon")) { StartWork(GrandsonRoutine(PathTime(grandsonWalkTime + 1f + routeWalkTime))); return; }
 
         Toast("Lola needs a kind helper.", 2.2f);
     }
@@ -218,13 +241,15 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
 
     // ── Heal ─────────────────────────────────────────────────────────────
 
-    private IEnumerator HealRoutine()
+    private IEnumerator HealRoutine(float seconds)
     {
-        Toast("Soothing Lola's sore knees...", 2.5f);
+        float sc = seconds / (healTreatTime + routeWalkTime);
+        float treatSecs = healTreatTime * sc, walkSecs = routeWalkTime * sc;
+        Toast("Soothing Lola's sore knees...", Mathf.Min(2.5f, seconds));
         ShowBar(true);
         MoveBar(lola.position + new Vector3(-0.5f, 1.6f, 0f));
-        float total = healTreatTime + routeWalkTime, t = 0f, spark = 0f;
-        while (t < healTreatTime)
+        float total = treatSecs + walkSecs, t = 0f, spark = 0f;
+        while (t < treatSecs)
         {
             t += Time.deltaTime;
             spark += Time.deltaTime;
@@ -238,21 +263,23 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
             yield return null;
         }
         Fx(heartFrames, lola.position + new Vector3(0f, 0.95f, 0f), 5f, 0.4f);
-        Toast("Her knees feel better. Off she goes!", routeWalkTime);
-        yield return WalkRoute(routeWalkTime, null, k => SetBar((healTreatTime + k * routeWalkTime) / total), 0f);
+        Toast("Her knees feel better. Off she goes!", walkSecs);
+        yield return WalkRoute(walkSecs, null, k => SetBar((treatSecs + k * walkSecs) / total), 0f);
         yield return SitAndFinish("Her knees feel better. She walks to her chair smiling!");
     }
 
     // ── Teach ────────────────────────────────────────────────────────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float seconds, bool oneGo)
     {
-        Toast("Showing Lola an easier way to stand...", 2.5f);
+        float sc = seconds / (teachDemoTime + routeWalkTime);
+        float demoSecs = teachDemoTime * sc, walkSecs = routeWalkTime * sc;
+        Toast(oneGo ? "You show her how to use the new handrail..." : "Showing Lola an easier way to stand...", Mathf.Min(2.5f, seconds));
         ShowBar(true);
         MoveBar(lola.position + new Vector3(-0.5f, 1.6f, 0f));
-        float total = teachDemoTime + routeWalkTime, t = 0f;
+        float total = demoSecs + walkSecs, t = 0f;
         Sprite[] steps = { bubbleQuestion, bubblePitch, bubbleSmile };
-        float per = teachDemoTime / steps.Length;
+        float per = demoSecs / steps.Length;
         for (int s = 0; s < steps.Length; s++)
         {
             Fx(new[] { steps[s] }, lola.position + new Vector3(0.1f, 1.0f, 0f), 1.3f, 0.25f);
@@ -269,23 +296,25 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
             yield return Wait(per * 0.3f, t, total);
             t += per * 0.3f;
         }
-        Toast("She's got it. Off she goes!", routeWalkTime);
-        yield return WalkRoute(routeWalkTime, null, k => SetBar((teachDemoTime + k * routeWalkTime) / total), 0f);
-        yield return SitAndFinish("You showed her an easier way to stand and walk. She made it!");
+        Toast(oneGo ? "She grips the rail and goes at once!" : "She's got it. Off she goes!", walkSecs);
+        yield return WalkRoute(walkSecs, null, k => SetBar((demoSecs + k * walkSecs) / total), 0f);
+        yield return SitAndFinish(oneGo ? "She used the handrail and walked over in one go!" : "You showed her an easier way to stand and walk. She made it!");
     }
 
     // ── Build: handrail along the way ────────────────────────────────────
 
-    private IEnumerator RailRoutine()
+    private IEnumerator RailRoutine(float seconds)
     {
-        Toast("Putting up a handrail...", railTime);
+        float sc = seconds / (railTime + routeWalkTime);
+        float railSecs = _railUp ? 0f : railTime * sc, walkSecs = routeWalkTime * sc;
+        Toast(_railUp ? "The handrail is already up..." : "Putting up a handrail...", Mathf.Max(1f, railSecs));
         ShowBar(true);
         MoveBar(lola.position + new Vector3(-0.5f, 1.6f, 0f));
-        float total = railTime + routeWalkTime;
+        float total = Mathf.Max(0.1f, railSecs + walkSecs);
         Vector3 leg = LegEnd();
         float x0 = _start.x + 0.9f, x1 = leg.x - 0.5f, y = _start.y - 0.6f;
-        float per = railTime / Mathf.Max(1, railPieces), t = 0f;
-        for (int i = 0; i < railPieces; i++)
+        float per = railSecs / Mathf.Max(1, railPieces), t = 0f;
+        for (int i = 0; i < railPieces && !_railUp; i++)
         {
             float x = Mathf.Lerp(x0, x1, railPieces > 1 ? i / (railPieces - 1f) : 0f);
             var go = new GameObject("Rail");
@@ -303,8 +332,9 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
             t += per;
             SetBar(t / total);
         }
-        Toast("Lola holds the rail and walks over...", routeWalkTime);
-        yield return WalkRoute(routeWalkTime, null, k => SetBar((railTime + k * routeWalkTime) / total), 0f);
+        _railUp = true;
+        Toast("Lola holds the rail and walks over...", walkSecs);
+        yield return WalkRoute(walkSecs, null, k => SetBar((railSecs + k * walkSecs) / total), 0f);
         yield return SitAndFinish("You built a handrail and Lola used it all the way!");
     }
 
@@ -319,31 +349,60 @@ public class vc_LolaWalkQuest : vc_FitQuestBase
         Fx(dustFrames, b + new Vector3(0f, -0.1f, 0f), 12f, 0.1f);
     }
 
+    // ── Prep (Build): the handrail goes up along the wall; Teach then uses it at once ──
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        Vector3 leg = LegEnd();
+        float x0 = _start.x + 0.9f, x1 = leg.x - 0.5f, y = _start.y - 0.6f;
+        float gap = 0.8f / Mathf.Max(1, railPieces);
+        for (int i = 0; i < railPieces; i++)
+        {
+            float x = Mathf.Lerp(x0, x1, railPieces > 1 ? i / (railPieces - 1f) : 0f);
+            var go = new GameObject("Rail");
+            go.transform.SetParent(transform, true);
+            go.transform.position = Snap(new Vector3(x, y, 0f));
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = railPiece; sr.sortingLayerName = sortingLayer; sr.sortingOrder = 11;
+            _spawned.Add(go);
+            Fx(hammerFrames, go.transform.position + new Vector3(0.2f, 0.6f, 0f), 8f);
+            StartCoroutine(RailPop(go.transform));
+            SunodGame.Core.vc_Sfx.Play("hammer", 0.45f, 0.08f);
+            yield return new WaitForSeconds(gap);
+        }
+        _railUp = true;
+        Fx(sparkFrames, new Vector3((x0 + x1) * 0.5f, y + 0.3f, 0f), 12f, 0.2f);
+        yield return new WaitForSeconds(0.2f);
+    }
+
     // ── Call: grandson walks over and escorts her ────────────────────────
 
-    private IEnumerator GrandsonRoutine()
+    private IEnumerator GrandsonRoutine(float seconds)
     {
-        Toast("You call Lola's grandson...", 3f);
+        float sc = seconds / (grandsonWalkTime + 1f + routeWalkTime);
+        float comeSecs = grandsonWalkTime * sc, pauseSecs = 1f * sc, escortSecs = routeWalkTime * sc;
+        Toast("You call Lola's grandson...", Mathf.Min(3f, seconds));
         ShowBar(true);
         MoveBar(lola.position + new Vector3(-0.5f, 1.6f, 0f));
-        float total = grandsonWalkTime + 1f + routeWalkTime + 0.2f, t = 0f;
+        float total = comeSecs + pauseSecs + escortSecs + 0.2f, t = 0f;
 
         Vector3 to = lola.position + new Vector3(-0.8f, -0.05f, 0f);
         Vector3 from = to + new Vector3(-6.5f, 0f, 0f);
         SpawnHelper(from, 10);
-        yield return HelperWalk(from, to, grandsonWalkTime, tt => SetBar(tt / total));
-        t = grandsonWalkTime;
+        yield return HelperWalk(from, to, comeSecs, tt => SetBar(tt / total));
+        t = comeSecs;
 
         Fx(heartFrames, lola.position + new Vector3(0f, 0.95f, 0f), 5f, 0.4f);
         SunodGame.Core.vc_Sfx.Play("chime", 0.5f);
         Toast("\"Lola! Let me help you.\"", 1.2f);
-        yield return Wait(1f, t, total);
-        t += 1f;
+        yield return Wait(pauseSecs, t, total);
+        t += pauseSecs;
 
-        Toast("Her grandson walks her to her chair...", routeWalkTime);
+        Toast("Her grandson walks her to her chair...", escortSecs);
         Transform helperTr = HelperTransform();
         Vector3 offset = new Vector3(-0.8f, -0.05f, 0f);
-        yield return WalkRoute(routeWalkTime, p => { if (helperTr != null) helperTr.position = Snap(p + offset); }, k => SetBar((t + k * routeWalkTime) / total), 0f);
+        yield return WalkRoute(escortSecs, p => { if (helperTr != null) helperTr.position = Snap(p + offset); }, k => SetBar((t + k * escortSecs) / total), 0f);
         yield return SitAndFinish("Her grandson helped her home. Thanks for calling him!");
     }
 

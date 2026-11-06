@@ -15,6 +15,8 @@ using UnityEngine;
 ///   guide    S  off-letter   walk the guest to the room yourself                       8s
 ///   anything else: a hint, no effect
 ///
+/// Prep: Direct (pressed first) snaps the booking cards into order; Map then lights the route at once.
+/// Preference: Charm (Mr. Lee: "maybe a smile would help"). Bonus only.
 /// While a slow fix is running the best fit (command) takes over from wherever the guest is.
 /// </summary>
 [DisallowMultipleComponent]
@@ -62,6 +64,28 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
     private float _elapsed, _total = 1f;   // one monotonic bar for the whole fix
     private readonly List<GameObject> _spawned = new List<GameObject>();
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mr. Lee",
+        presses = 3,
+        bestFitTag = "command",
+        bestFitSeconds = 2f,
+        prepTag = "direct",
+        prepUnlocksTag = "map",
+        prepLine = "You snap the booking cards into order...",
+        preferredTag = "charm",
+        preferenceLine = "A smile fixes everything. Thank you!",
+        fastLines = new[]
+        {
+            ("persuade", "Smoothest check-in ever!"),
+            ("charm", "Even that guest is smiling now!"),
+            ("summon", "The bellhop came running!"),
+            ("map", "Straight to the room, no fuss!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     protected override Vector3 BarWorldPosition => (desk != null ? desk.position : transform.position) + new Vector3(-0.5f, 2.1f, 0f);
 
     private void Awake()
@@ -98,7 +122,7 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Hotel Check-In",
-            "A cranky guest is waiting at the lobby. Get them checked in and up to their room.",
+            "Mr. Lee's lobby is full and one guest is very cranky. Get them checked in and up to their room. A smile might help.",
             new[] { "Check in the guest" });
     }
 
@@ -136,12 +160,12 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
         if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine()); return; }
-        if (d.HasTag("charm")) { StartWork(CharmRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(CallRoutine()); return; }
-        if (d.HasTag("map")) { StartWork(MapRoutine()); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("guide")) { StartWork(GuideRoutine()); return; }
+        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine(PathTime(persuadeTime))); return; }
+        if (d.HasTag("charm")) { StartWork(CharmRoutine(PathTime(charmTime))); return; }
+        if (d.HasTag("summon")) { StartWork(CallRoutine(PathTime(callTime))); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime), CurrentInstant)); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime))); return; }
+        if (d.HasTag("guide")) { StartWork(GuideRoutine(PathTime(guideTime))); return; }
 
         Toast("Running a hotel needs a leader.", 2.2f);
     }
@@ -149,6 +173,45 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
     protected override void OnWorkCancelled()
     {
         CleanSpawned();
+    }
+
+    // ── Prep: Direct snaps the booking cards into order ──────────────────
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (desk == null || papers == null || papers.Length == 0)
+        {
+            yield return new WaitForSeconds(1f);
+            yield break;
+        }
+        Vector3 dk = desk.position;
+        int cards = Mathf.Max(3, papers.Length * 2);
+        var sheets = new Transform[cards];
+        var a = new Vector3[cards];
+        var b = new Vector3[cards];
+        for (int i = 0; i < cards; i++)
+        {
+            GameObject p = Spawn("Booking", papers[i % papers.Length], 8);
+            a[i] = Snap(dk + new Vector3(Random.Range(-0.9f, 0.9f), Random.Range(0.35f, 1.0f), 0f));
+            b[i] = Snap(dk + new Vector3(-0.75f + i * (1.5f / (cards - 1)), 0.75f, 0f));
+            p.transform.position = a[i];
+            sheets[i] = p.transform;
+        }
+        SunodGame.Core.vc_Sfx.Play("shuffle", 0.4f, 0.2f);
+        float t = 0f;
+        while (t < 0.75f)
+        {
+            t += Time.deltaTime;
+            float e = Mathf.SmoothStep(0f, 1f, t / 0.75f);
+            for (int i = 0; i < cards; i++)
+                if (sheets[i] != null) sheets[i].position = Snap(Vector3.Lerp(a[i], b[i], e));
+            yield return null;
+        }
+        for (int i = 0; i < cards; i++) if (sheets[i] != null) sheets[i].position = b[i];
+        SunodGame.Core.vc_Sfx.Play("clack", 0.4f, 0.1f);
+        Fx(checkFrames, dk + new Vector3(0f, 1.4f, 0f), 3f, 0.3f, 27);
+        yield return new WaitForSeconds(0.25f);
     }
 
     private void Timeline(float total)
@@ -192,49 +255,51 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
 
     // ── Persuade: talk them through the check-in ─────────────────────────
 
-    private IEnumerator PersuadeRoutine()
+    private IEnumerator PersuadeRoutine(float seconds)
     {
-        Toast("You talk the guest through check-in...", persuadeTime);
-        Timeline(persuadeTime);
+        float sc = seconds / 3f;
+        Toast("You talk the guest through check-in...", seconds);
+        Timeline(seconds);
         Vector3 g = guest.transform.position;
         Fx(new[] { bubbleDots }, g + new Vector3(0f, 1.1f, 0f), 2f, 0.1f, 26);
         SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f);
-        yield return Wait(0.5f);
+        yield return Wait(0.5f * sc);
         Fx(new[] { bubbleSmile }, g + new Vector3(0f, 1.1f, 0f), 2f, 0.1f, 26);
 
-        yield return WalkGuest(_deskFrac, 0.8f, 0f);
+        yield return WalkGuest(_deskFrac, 0.8f * sc, 0f);
         Ding();
-        yield return CardToGuest(0.5f);
-        yield return WalkGuest(1f, persuadeTime - 1.8f, 0f);
+        yield return CardToGuest(0.5f * sc);
+        yield return WalkGuest(1f, seconds - 1.8f * sc, 0f);
         yield return EnterRoom();
         Finish("You talked the guest through a smooth check-in!");
     }
 
     // ── Charm: the cranky guest smiles ───────────────────────────────────
 
-    private IEnumerator CharmRoutine()
+    private IEnumerator CharmRoutine(float seconds)
     {
-        Toast("You flash your best smile...", charmTime);
-        Timeline(charmTime);
+        float sc = seconds / 3f;
+        Toast("You flash your best smile...", seconds);
+        Timeline(seconds);
         Vector3 g = guest.transform.position;
         Fx(new[] { bubbleAngry }, g + new Vector3(0f, 1.1f, 0f), 3f, 0f, 26);
-        yield return Wait(0.35f);
+        yield return Wait(0.35f * sc);
         Fx(sparkFrames, g + new Vector3(0f, 0.9f, 0f), 10f, 0.2f, 27);
         Fx(new[] { bubbleSmile }, g + new Vector3(0f, 1.1f, 0f), 1.5f, 0.2f, 26);
         SunodGame.Core.vc_Sfx.Play("idea", 0.5f);
-        yield return Wait(0.5f);
+        yield return Wait(0.5f * sc);
 
-        yield return WalkGuest(1f, charmTime - 0.85f, 0f, () => { Ding(); Fx(sparkFrames, guest.transform.position + new Vector3(0f, 0.9f, 0f), 10f, 0.2f, 27); });
+        yield return WalkGuest(1f, seconds - 0.85f * sc, 0f, () => { Ding(); Fx(sparkFrames, guest.transform.position + new Vector3(0f, 0.9f, 0f), 10f, 0.2f, 27); });
         yield return EnterRoom();
         Finish("The cranky guest smiled and went up on their own!");
     }
 
     // ── Call: bellhop and luggage cart roll in ───────────────────────────
 
-    private IEnumerator CallRoutine()
+    private IEnumerator CallRoutine(float seconds)
     {
-        Toast("You call the bellhop...", 2.5f);
-        Timeline(callTime);
+        Toast("You call the bellhop...", Mathf.Max(1.5f, seconds * 0.6f));
+        Timeline(seconds);
         Ding();
 
         Vector3 g = guest.transform.position;
@@ -242,7 +307,7 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
         SpawnHelper(from, 7);
         GameObject cart = Spawn("Cart", cartSprite, 6);
         cart.transform.localScale = cartScale;
-        float walk = callTime * 0.38f, callLast = 0f;
+        float walk = seconds * 0.38f, callLast = 0f;
         yield return HelperWalk(from, g + new Vector3(-0.9f, 0f, 0f), walk, t =>
         {
             Tick(t - callLast); callLast = t;
@@ -254,9 +319,9 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
         bag.transform.position = Snap(g + new Vector3(0.5f, -0.5f, 0f));
         SunodGame.Core.vc_Sfx.Play("clack", 0.6f);
         Fx(sparkFrames, g + new Vector3(0.5f, 0f, 0f), 10f, 0.2f, 27);
-        yield return Wait(callTime * 0.12f);
+        yield return Wait(seconds * 0.12f);
 
-        float secs = Mathf.Max(0.6f, callTime * 0.5f * (1f - _frac));
+        float secs = Mathf.Max(0.3f, seconds * 0.5f * (1f - _frac));
         yield return WalkGuest(1f, secs, 0.04f, null, bag);
         yield return EnterRoom();
         Finish("The bellhop carried the bags up. The guest is settled in!");
@@ -264,12 +329,12 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
 
     // ── Map: route dots, then the guest follows them ─────────────────────
 
-    private IEnumerator MapRoutine()
+    private IEnumerator MapRoutine(float seconds, bool oneGo)
     {
-        Toast("Planning the route to the room...", mapTime);
-        Timeline(mapTime);
+        Toast(oneGo ? "The whole route lights up at once!" : "Planning the route to the room...", Mathf.Max(1.2f, seconds));
+        Timeline(seconds);
         int dots = 14;
-        float lay = mapTime * 0.45f, per = lay / dots;
+        float lay = seconds * 0.45f, per = lay / dots;
         var list = new List<GameObject>();
         for (int i = 0; i < dots; i++)
         {
@@ -284,7 +349,7 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
         Fx(checkFrames, room.position + new Vector3(0f, 1f, 0f), 3f, 0.3f, 27);
         SunodGame.Core.vc_Sfx.Play("step_done", 0.5f);
 
-        float walk = mapTime - lay;
+        float walk = seconds - lay;
         float f0 = _frac, w = 0f;
         while (w < walk)
         {
@@ -295,15 +360,16 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
             yield return null;
         }
         yield return EnterRoom();
-        Finish("You planned the route. The guest is settled in!");
+        Finish(oneGo ? "The route lit up and the guest went straight in, in one go!" : "You planned the route. The guest is settled in!");
     }
 
     // ── Direct: tidy the bookings, then check in ─────────────────────────
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float seconds)
     {
-        Toast("Sorting out the messy bookings...", directTime);
-        Timeline(directTime);
+        float sc = seconds / 8f;
+        Toast("Sorting out the messy bookings...", Mathf.Max(1.5f, seconds * 0.6f));
+        Timeline(seconds);
         Vector3 d = desk.position;
         int n = Mathf.Max(3, papers != null ? papers.Length * 2 : 6);
         var sheets = new List<Transform>();
@@ -315,7 +381,7 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
             SunodGame.Core.vc_Sfx.Play("shuffle", 0.25f, 0.2f);
         }
 
-        float tidy = directTime * 0.6f, per = tidy / n;
+        float tidy = seconds * 0.6f, per = tidy / n;
         for (int i = 0; i < n; i++)
         {
             Vector3 from = sheets[i].position;
@@ -332,24 +398,24 @@ public class vc_HotelCheckInQuest : vc_FitQuestBase
             SunodGame.Core.vc_Sfx.Play("clack", 0.35f, 0.1f);
         }
         Fx(checkFrames, d + new Vector3(0f, 1.4f, 0f), 3f, 0.3f, 27);
-        Toast("Bookings sorted. Checking the guest in...", directTime - tidy);
+        Toast("Bookings sorted. Checking the guest in...", Mathf.Max(1.2f, seconds - tidy));
 
-        float walkTime = directTime - tidy;
+        float walkTime = seconds - tidy;
         yield return WalkGuest(_deskFrac, walkTime * 0.4f, 0f);
         Ding();
-        yield return CardToGuest(0.4f);
-        yield return WalkGuest(1f, walkTime * 0.6f - 0.4f, 0f);
+        yield return CardToGuest(0.4f * sc);
+        yield return WalkGuest(1f, walkTime * 0.6f - 0.4f * sc, 0f);
         yield return EnterRoom();
         Finish("You sorted the bookings and checked the guest in.");
     }
 
     // ── Guide: walk the guest to the room yourself ───────────────────────
 
-    private IEnumerator GuideRoutine()
+    private IEnumerator GuideRoutine(float seconds)
     {
-        Toast("You walk the guest to their room...", guideTime);
-        Timeline(guideTime);
-        float chunk = guideTime / 4f;
+        Toast("You walk the guest to their room...", Mathf.Max(1.5f, seconds * 0.6f));
+        Timeline(seconds);
+        float chunk = seconds / 4f;
         for (int i = 0; i < 4; i++)
         {
             Fx(new[] { i == 3 ? bubbleSmile : bubbleDots }, guest.transform.position + new Vector3(0f, 1.1f, 0f), 1.6f, 0.15f, 26);

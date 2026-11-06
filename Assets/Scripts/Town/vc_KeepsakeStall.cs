@@ -33,7 +33,10 @@ public class vc_KeepsakeStall : MonoBehaviour
             "college" => new Vector2(4.3f, 1.4f),
             _ => (Vector2?)null,
         };
-        if (picked.HasValue) want = near + (Vector3)picked.Value;
+        // planned towns (2026-11-07): the builder leaves a clear "stall" spot near home, off the streets
+        Transform planned = stage.transform.Find("Spots")?.Find("stall");
+        if (planned != null) want = planned.position;
+        else if (picked.HasValue) want = near + (Vector3)picked.Value;
         else if (grid != null)
         {
             Vector2[] offsets =

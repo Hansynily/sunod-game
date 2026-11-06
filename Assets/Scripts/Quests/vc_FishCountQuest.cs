@@ -46,6 +46,28 @@ public class vc_FishCountQuest : vc_FitQuestBase
     [SerializeField] private float collectCountTime = 1.1f;
     [SerializeField] private float collectReleaseTime = 1.5f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Map (prep) sketches the pond on Nico's notebook, then Plan
+    // drops the counting grid in one go. Preference: Plan.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Nico",
+        presses = 5,
+        bestFitTag = "survey",
+        bestFitSeconds = 1.5f,
+        prepTag = "map",
+        prepUnlocksTag = "plan",
+        prepLine = "You sketch the pond's shape on Nico's notebook...",
+        preferredTag = "plan",
+        preferenceLine = "Row by row, just like I wanted! Thanks!",
+        fastLines = new[]
+        {
+            ("plan", "The grid's done already? We counted every row!"),
+            ("unlock", "You knew how they swim? That's so cool!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private class FishState
     {
         public Transform tr;
@@ -105,7 +127,7 @@ public class vc_FishCountQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Fish Count",
-            "Find out how many fish live in this pond.",
+            "Nico wants to know how many fish live in this pond. Count them together, row by row.",
             new[] { "Count the fish" });
     }
 
@@ -158,9 +180,9 @@ public class vc_FishCountQuest : vc_FitQuestBase
 
         if (BlockedByWork()) return;
 
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
-        if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
+        if (d.HasTag("unlock")) { StartWork(SolveRoutine(PathTime(solveTime))); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectCatchTime + collectCountTime + collectReleaseTime))); return; }
 
         Toast("Counting fish needs a sharp eye.", 2.2f);
     }
@@ -172,6 +194,34 @@ public class vc_FishCountQuest : vc_FitQuestBase
         foreach (GameObject g in _spawned) if (g != null) Destroy(g);
         _spawned.Clear();
         if (net != null) { net.gameObject.SetActive(false); net.transform.position = _netRest; }
+    }
+
+    // Prep (Map): the pond's outline is sketched on the notebook and on the water.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("page_next", 0.6f);
+        ShowNotes();
+        Vector3 c = PondCenter;
+        var col = new Color(1f, 0.95f, 0.6f, 0.6f);
+        Transform[] edge =
+        {
+            MakeQuad("Sketch", col, new Vector2(4.7f, 0.07f), 6), MakeQuad("Sketch", col, new Vector2(4.7f, 0.07f), 6),
+            MakeQuad("Sketch", col, new Vector2(0.07f, 3.8f), 6), MakeQuad("Sketch", col, new Vector2(0.07f, 3.8f), 6),
+        };
+        edge[0].position = Snap(c + new Vector3(0f, 1.9f, 0f));
+        edge[1].position = Snap(c + new Vector3(0f, -1.9f, 0f));
+        edge[2].position = Snap(c + new Vector3(-2.35f, 0f, 0f));
+        edge[3].position = Snap(c + new Vector3(2.35f, 0f, 0f));
+        foreach (Transform e in edge)
+        {
+            Vector3 full = e.localScale, small = new Vector3(full.x * 0.1f, full.y * 0.1f, 1f);
+            for (int i = 1; i <= 4; i++) { e.localScale = Vector3.Lerp(small, full, i / 4f); yield return new WaitForSeconds(0.05f); }
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.35f, 0.1f);
+        }
+        Fx(checkFrames, c + new Vector3(0f, 2.1f, 0f), 2f, 0.2f, 24);
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.2f);
     }
 
     // ── Survey: a scan line sweeps the pond, tally numbers pop ───────────
@@ -219,7 +269,7 @@ public class vc_FishCountQuest : vc_FitQuestBase
 
     // ── Plan: a counting grid, row by row ────────────────────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float planTime)
     {
         Toast("Laying a counting grid over the pond...", planTime);
         ShowBar(true);
@@ -233,8 +283,9 @@ public class vc_FishCountQuest : vc_FitQuestBase
             MakeQuad("GridV", lineColor, new Vector2(0.0625f, 3.75f), 6).position = Snap(c + new Vector3(-2.3f + 1.15f * i, 0f, 0f));
 
         float t = 0f;
-        yield return BarStep(0.6f, 0f, 0.6f / planTime);
-        t = 0.6f;
+        float k = planTime / 4f;
+        yield return BarStep(0.6f * k, 0f, 0.6f * k / planTime);
+        t = 0.6f * k;
 
         // assign each fish to a band once, so the rows always add up to the real total
         var counts = new int[3];
@@ -250,8 +301,8 @@ public class vc_FishCountQuest : vc_FitQuestBase
             hi.position = Snap(c + new Vector3(0f, 1.25f - 1.25f * b, 0f));
             StartCoroutine(PopNumber(counts[b], c + new Vector3(2.55f, 1.25f - 1.25f * b, 0f), 1f, 1.0f));
             SunodGame.Core.vc_Sfx.Play("tally", 0.6f, 0.05f);
-            yield return BarStep(1.0f, t / planTime, (t + 1.0f) / planTime);
-            t += 1.0f;
+            yield return BarStep(1.0f * k, t / planTime, (t + 1.0f * k) / planTime);
+            t += 1.0f * k;
         }
 
         StartCoroutine(PopNumber(_fish.Count, c + new Vector3(0f, 2.15f, 0f), 1.6f, 1.2f));
@@ -264,12 +315,12 @@ public class vc_FishCountQuest : vc_FitQuestBase
 
     // ── Solve: work out how they school, count them in formation ─────────
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float solveTime)
     {
         Toast("Working out how the fish move together...", solveTime);
         ShowBar(true);
         Vector3 c = PondCenter + new Vector3(0f, 0.2f, 0f);
-        float gather = 2.2f, school = 1.6f, release = solveTime - gather - school;
+        float gather = solveTime * 0.44f, school = solveTime * 0.32f, release = solveTime - gather - school;
         float t = 0f;
         int tallied = 0;
         bool bulb = false;
@@ -309,13 +360,15 @@ public class vc_FishCountQuest : vc_FitQuestBase
 
     // ── Collect: net each fish into the bucket, count, release ───────────
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float total)
     {
-        Toast("Netting the fish into a bucket...", collectCatchTime);
+        float scale = total / (collectCatchTime + collectCountTime + collectReleaseTime);
+        float catchT = collectCatchTime * scale, countT = collectCountTime * scale, releaseT = collectReleaseTime * scale;
+        Toast("Netting the fish into a bucket...", catchT);
         ShowBar(true);
-        float total = collectCatchTime + collectCountTime + collectReleaseTime, t = 0f;
+        float t = 0f;
         int n = _fish.Count;
-        float per = collectCatchTime / Mathf.Max(1, n);
+        float per = catchT / Mathf.Max(1, n);
         Vector3 home = (bucket != null ? bucket.position : transform.position) + new Vector3(0.1f, 0.55f, 0f);
         net.gameObject.SetActive(true);
         net.transform.position = Snap(home);
@@ -342,11 +395,11 @@ public class vc_FishCountQuest : vc_FitQuestBase
         Fx(checkFrames, home + new Vector3(0.9f, 1.0f, 0f), 2f, 0.2f, 24);
         SunodGame.Core.vc_Sfx.Play("page_next", 0.7f);
         ShowNotes();
-        yield return BarStep(collectCountTime, t / total, (t + collectCountTime) / total);
-        t += collectCountTime;
+        yield return BarStep(countT, t / total, (t + countT) / total);
+        t += countT;
         net.gameObject.SetActive(false);
 
-        float relPer = collectReleaseTime / Mathf.Max(1, n);
+        float relPer = releaseT / Mathf.Max(1, n);
         for (int i = 0; i < n; i++)
         {
             FishState f = _fish[i];

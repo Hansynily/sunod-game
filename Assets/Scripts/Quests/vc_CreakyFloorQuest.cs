@@ -56,6 +56,28 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
         public float cooldown;
     }
 
+    // Skill system v2 (QUEST_REDESIGN.md): Inspect (prep) taps the floor and lights up the loose
+    // boards, then Repair nails them all in one pass. Preference: Push (the quiet way).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Lolo Ador",
+        presses = 6,
+        bestFitTag = "build",
+        bestFitSeconds = 2f,
+        prepTag = "inspect",
+        prepUnlocksTag = "repair",
+        prepLine = "You tap the floor... the loose boards light up.",
+        preferredTag = "push",
+        preferenceLine = "Shh... so quiet. Salamat, apo!",
+        fastLines = new[]
+        {
+            ("repair", "All of them, in one go? And I barely heard it!"),
+            ("push", "Shh... you moved that cabinet like a feather!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private readonly List<Board> _boards = new List<Board>();
     private Vector3 _cabinetRest;
     private bool _cabinetPushed;
@@ -91,6 +113,7 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
         foreach (Board b in _boards)
         {
             b.sr.sprite = b.initial;
+            b.sr.color = Color.white;
             b.sr.transform.localPosition = b.restLocal;
             b.loose = b.initial == looseSprite;
             b.cooldown = 0f;
@@ -102,7 +125,7 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Creaky Floorboards",
-            "The floorboards are cracked and creaking. Make the floor solid again.",
+            "Lolo Ador's floorboards creak with every step. Make the floor solid again, and keep it quiet.",
             new[] { "Repair the floorboards" });
     }
 
@@ -175,17 +198,17 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
         }
         if (d.HasTag("push"))
         {
-            StartWork(PushRoutine());
+            StartWork(PushRoutine(PathTime(pushTime)));
             return;
         }
         if (d.HasTag("inspect"))
         {
-            StartWork(InspectRoutine());
+            StartWork(InspectRoutine(PathTime(inspectScanTime + inspectFixTime)));
             return;
         }
         if (d.HasTag("summon"))
         {
-            StartWork(CarpenterRoutine());
+            StartWork(CarpenterRoutine(PathTime(carpenterWalkTime + carpenterFixTime)));
             return;
         }
 
@@ -200,24 +223,60 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
 
     // ── Repair: nail a pair of loose boards per press ────────────────────
 
+    // 3 presses at Lv1, 2 at Lv2, 1 at Lv3 or after the Inspect prep (then it's one quick pass).
     private void RepairPress()
     {
         _repairPress++;
-        var loose = _boards.FindAll(b => b.loose);
-        int share = Mathf.Max(1, Mathf.CeilToInt(loose.Count / (float)repairPresses));
-        if (_repairPress >= repairPresses) share = loose.Count; // last press takes whatever is left
+        int need = Mathf.Max(1, PathPresses(repairPresses));
+        if (_repairPress >= need)
+        {
+            StartWork(RepairSweepRoutine(need == 1));
+            return;
+        }
 
+        var loose = _boards.FindAll(b => b.loose);
+        int share = Mathf.Max(1, Mathf.CeilToInt(loose.Count / (float)(need - _repairPress + 1)));
         for (int i = 0; i < share && i < loose.Count; i++)
             StartCoroutine(Nail(loose[i], i * 0.18f));
+        Toast($"You hammer in the loose boards ({_repairPress}/{need})", 2f);
+    }
 
-        if (_repairPress < repairPresses)
+    private IEnumerator RepairSweepRoutine(bool oneGo)
+    {
+        Toast(oneGo ? "One pass along the floor, nailing every loose board!" : "You hammer in the last of the loose boards...", 2f);
+        ShowBar(true);
+        var loose = _boards.FindAll(b => b.loose);
+        float gap = oneGo ? 0.1f : 0.16f;
+        for (int i = 0; i < loose.Count; i++)
         {
-            Toast($"You hammer in the loose boards ({_repairPress}/{repairPresses})", 2f);
+            StartCoroutine(Nail(loose[i], 0f));
+            SetBar((i + 1f) / loose.Count);
+            yield return new WaitForSeconds(gap);
         }
-        else
+        yield return new WaitForSeconds(0.3f);
+        Finish(oneGo ? "Every loose board nailed in one pass. Solid!" : "Every loose board is nailed down. Solid!");
+    }
+
+    // Prep (Inspect): tap along the floor; the loose boards ring, glow gold and say "!".
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("scan", 0.5f, 0.05f);
+        foreach (Board b in _boards)
         {
-            Finish("Every loose board is nailed down. Solid!");
+            Vector3 at = b.sr.transform.position;
+            Fx(ringFrames, at + new Vector3(0f, 0.05f, 0f), 10f);
+            if (b.loose)
+            {
+                b.sr.color = new Color(1f, 0.88f, 0.45f);
+                Fx(exclaimFrames, at + new Vector3(0f, 0.55f, 0f), 2.5f, 0.1f);
+                StartCoroutine(Bounce(b, 1, 0.12f));
+                SunodGame.Core.vc_Sfx.Play("creak", 0.3f, 0.1f);
+            }
+            else SunodGame.Core.vc_Sfx.Play("clack", 0.25f, 0.08f);
+            yield return new WaitForSeconds(0.07f);
         }
+        yield return new WaitForSeconds(0.2f);
     }
 
     /// <summary>Hammer swings over a board, a spark flies, the board is nailed flat.</summary>
@@ -230,6 +289,7 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
         SunodGame.Core.vc_Sfx.Play("hammer", 0.7f, 0.08f);
         Fx(sparkFrames, at + new Vector3(0f, 0.05f, 0f), 12f, 0.1f);
         b.loose = false;
+        b.sr.color = Color.white;
         if (nailedSprite != null) b.sr.sprite = nailedSprite;
         yield return Bounce(b, -1, 0.12f);
     }
@@ -246,6 +306,7 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
         {
             Board b = _boards[i];
             b.loose = false;
+            b.sr.color = Color.white;
             if (freshSprite != null) b.sr.sprite = freshSprite;
             StartCoroutine(Bounce(b, 1, 0.12f));
             Fx(dustFrames, b.sr.transform.position + new Vector3(0f, -0.12f, 0f), 12f, 0.1f);
@@ -259,7 +320,7 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
 
     // ── Push: slide the cabinet off the warped boards ────────────────────
 
-    private IEnumerator PushRoutine()
+    private IEnumerator PushRoutine(float pushTime)
     {
         Toast("You heave the heavy cabinet aside...", pushTime);
         ShowBar(true);
@@ -291,6 +352,7 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
             if (b.loose)
             {
                 b.loose = false;
+                b.sr.color = Color.white;
                 if (flatSprite != null) b.sr.sprite = flatSprite;
                 StartCoroutine(Bounce(b, -1, 0.12f));
                 Fx(dustFrames, b.sr.transform.position + new Vector3(0f, -0.1f, 0f), 12f, 0.12f);
@@ -303,13 +365,15 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
 
     // ── Inspect: tap every board, then fix the loose ones by hand ────────
 
-    private IEnumerator InspectRoutine()
+    private IEnumerator InspectRoutine(float total)
     {
-        Toast("Tapping each board to find loose ones...", inspectScanTime);
+        float scale = total / (inspectScanTime + inspectFixTime);
+        float scanT = inspectScanTime * scale, fixT = inspectFixTime * scale;
+        Toast("Tapping each board to find loose ones...", scanT);
         ShowBar(true);
-        float total = inspectScanTime + inspectFixTime, elapsed = 0f;
+        float elapsed = 0f;
         int n = _boards.Count;
-        float per = inspectScanTime / Mathf.Max(1, n);
+        float per = scanT / Mathf.Max(1, n);
 
         for (int i = 0; i < n; i++)
         {
@@ -330,9 +394,9 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
             elapsed += per;
         }
 
-        Toast("Found them. Fixing by hand...", inspectFixTime);
+        Toast("Found them. Fixing by hand...", fixT);
         var loose = _boards.FindAll(b => b.loose);
-        float fixPer = inspectFixTime / Mathf.Max(1, loose.Count);
+        float fixPer = fixT / Mathf.Max(1, loose.Count);
         foreach (Board b in loose)
         {
             StartCoroutine(Nail(b, 0f));
@@ -344,7 +408,7 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
 
     // ── Call: the carpenter walks over and fixes the floor ───────────────
 
-    private IEnumerator CarpenterRoutine()
+    private IEnumerator CarpenterRoutine(float total)
     {
         Toast("You call Lolo's carpenter friend...", 3f);
         ShowBar(true);
@@ -352,14 +416,15 @@ public class vc_CreakyFloorQuest : vc_FitQuestBase
         Vector3 to = _patchCenter + new Vector3(-1.7f, -0.9f, 0f);
         Vector3 from = to + new Vector3(-6f, 0f, 0f);
         SpawnHelper(from, 6);
-        float total = carpenterWalkTime + carpenterFixTime;
+        float walkTime = total * carpenterWalkTime / (carpenterWalkTime + carpenterFixTime);
+        float fixTime = total - walkTime;
 
-        yield return HelperWalk(from, to, carpenterWalkTime, t => SetBar(t / total));
+        yield return HelperWalk(from, to, walkTime, t => SetBar(t / total));
 
-        Toast("The carpenter gets to work...", carpenterFixTime);
+        Toast("The carpenter gets to work...", fixTime);
         var loose = _boards.FindAll(b => b.loose);
-        float per = carpenterFixTime / Mathf.Max(1, loose.Count);
-        float done = carpenterWalkTime;
+        float per = fixTime / Mathf.Max(1, loose.Count);
+        float done = walkTime;
         foreach (Board b in loose)
         {
             StartCoroutine(Nail(b, 0f));

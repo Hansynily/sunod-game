@@ -50,6 +50,26 @@ public class vc_CareerFairQuest : vc_FitQuestBase
     [SerializeField] private float followDistance = 1.0f;
     [SerializeField] private float arriveRange = 2.6f;
 
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ms. Rivera",
+        presses = 3,
+        bestFitTag = "guide",
+        bestFitSeconds = 2f,
+        prepTag = "survey",
+        prepUnlocksTag = "teach",
+        prepLine = "You find out what the student loves...",
+        preferredTag = "teach",
+        preferenceLine = "You explained it instead of just walking them over. Thank you!",
+        fastLines = new[]
+        {
+            ("teach", "They know exactly what they want now!"),
+            ("heal", "They look so relieved. You're good at this."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3 _start;
     private float _elapsed, _total = 1f;
     private float _idleClock;
@@ -78,7 +98,7 @@ public class vc_CareerFairQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Career Fair",
-            "A student is lost at the career fair. Help them find the right booth.",
+            "Ms. Rivera needs help at the booth: a student is lost at the career fair. Explain things to them, don't just walk them over.",
             new[] { "Guide the student" });
     }
 
@@ -156,9 +176,9 @@ public class vc_CareerFairQuest : vc_FitQuestBase
         if (_following) { Toast("They're already following you.", 1.5f); return; }
         if (BlockedByWork()) return;
 
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
-        if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
-        if (d.HasTag("map")) { StartWork(MapRoutine()); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime), CurrentInstant)); return; }
+        if (d.HasTag("heal")) { StartWork(HealRoutine(PathTime(healTime))); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime))); return; }
 
         Toast("They need someone to guide them.", 2.2f);
     }
@@ -176,6 +196,23 @@ public class vc_CareerFairQuest : vc_FitQuestBase
     protected override void OnWorkCancelled()
     {
         CleanSpawned();
+    }
+
+    // Prep: Survey pops little icons of what the student loves over their head; Teach then explains the perfect career at once.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        int count = careerIcons != null ? Mathf.Min(3, careerIcons.Length) : 0;
+        Vector3 at = student != null ? student.transform.position : transform.position;
+        for (int i = 0; i < count; i++)
+        {
+            Fx(new[] { careerIcons[i] }, at + new Vector3((i - 1) * 0.55f, 1.3f + (i % 2) * 0.2f, 0f), 1.5f, 0.3f, 26);
+            Fx(ringFrames, at + new Vector3((i - 1) * 0.55f, 1.1f, 0f), 6f, 0f, 25);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.1f);
+            yield return new WaitForSeconds(0.25f);
+        }
+        Fx(bulbFrames, at + new Vector3(0f, 1.9f, 0f), 2f, 0.3f, 26);
+        yield return new WaitForSeconds(0.3f);
     }
 
     private void CleanSpawned()
@@ -204,16 +241,16 @@ public class vc_CareerFairQuest : vc_FitQuestBase
 
     // ── Teach: explain the careers, then they know where to go ───────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float seconds, bool oneGo)
     {
-        Toast("You explain the careers one by one...", teachTime);
-        Timeline(teachTime);
+        Toast(oneGo ? "You explain the perfect career at once..." : "You explain the careers one by one...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         Fx(new[] { bubbleQuestion }, student.transform.position + new Vector3(0f, 1.2f, 0f), 1.5f, 0.1f, 26);
-        yield return PopIcons(teachTime * 0.45f);
+        yield return PopIcons(seconds * 0.45f);
         Fx(bulbFrames, student.transform.position + new Vector3(0f, 1.3f, 0f), 2f, 0.3f, 26);
         SunodGame.Core.vc_Sfx.Play("idea", 0.7f);
-        yield return WalkToBooth(teachTime * 0.55f);
-        yield return Arrive("You explained the health careers. They know where to go now!");
+        yield return WalkToBooth(seconds * 0.55f);
+        yield return Arrive(oneGo ? "You explained the perfect career in one go. They know where to go now!" : "You explained the health careers. They know where to go now!");
     }
 
     private IEnumerator PopIcons(float seconds)
@@ -231,10 +268,10 @@ public class vc_CareerFairQuest : vc_FitQuestBase
 
     // ── Heal: calm the worries away ──────────────────────────────────────
 
-    private IEnumerator HealRoutine()
+    private IEnumerator HealRoutine(float seconds)
     {
-        Toast("You calm the student's worries...", healTime);
-        Timeline(healTime);
+        Toast("You calm the student's worries...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         var clouds = new List<GameObject>();
         Vector3 s = student.transform.position;
         for (int i = 0; i < 3; i++)
@@ -245,7 +282,7 @@ public class vc_CareerFairQuest : vc_FitQuestBase
         }
         SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f);
 
-        float phase = healTime * 0.55f, per = phase / clouds.Count;
+        float phase = seconds * 0.55f, per = phase / clouds.Count;
         for (int i = 0; i < clouds.Count; i++)
         {
             yield return Wait(per * 0.6f);
@@ -256,25 +293,25 @@ public class vc_CareerFairQuest : vc_FitQuestBase
             yield return Wait(per * 0.4f);
         }
         Fx(new[] { bubbleSmile }, s + new Vector3(0f, 1.2f, 0f), 1.5f, 0.15f, 26);
-        yield return WalkToBooth(healTime * 0.45f);
+        yield return WalkToBooth(seconds * 0.45f);
         yield return Arrive("You calmed their worries. They know where to go now!");
     }
 
     // ── Map: draw the career path on a board ─────────────────────────────
 
-    private IEnumerator MapRoutine()
+    private IEnumerator MapRoutine(float seconds)
     {
-        Toast("Mapping out their career path...", mapTime);
-        Timeline(mapTime);
+        Toast("Mapping out their career path...", Mathf.Max(1.5f, seconds));
+        Timeline(seconds);
         Vector3 at = student.transform.position + new Vector3(1.9f, 1.5f, 0f);
         GameObject board = Spawn("Board", boardSprite, 25);
         board.transform.position = Snap(at);
         StartCoroutine(PopScale(board.transform));
         SunodGame.Core.vc_Sfx.Play("page_next", 0.7f);
-        yield return Wait(mapTime * 0.08f);
+        yield return Wait(seconds * 0.08f);
 
         int n = Mathf.Min(3, careerIcons.Length);
-        float draw = mapTime * 0.5f, per = draw / (n * 2);
+        float draw = seconds * 0.5f, per = draw / (n * 2);
         for (int i = 0; i < n; i++)
         {
             Vector3 slot = at + new Vector3((i - 1) * 0.5f * (36f / 22f) * 0.62f, 0.05f, 0f);
@@ -293,8 +330,8 @@ public class vc_CareerFairQuest : vc_FitQuestBase
         Fx(checkFrames, at + new Vector3(0.6f, 0.6f, 0f), 3f, 0.3f, 27);
         Fx(bulbFrames, student.transform.position + new Vector3(0f, 1.3f, 0f), 2f, 0.3f, 26);
         SunodGame.Core.vc_Sfx.Play("idea", 0.7f);
-        yield return Wait(mapTime * 0.1f);
-        yield return WalkToBooth(mapTime * 0.32f);
+        yield return Wait(seconds * 0.1f);
+        yield return WalkToBooth(seconds * 0.32f);
         yield return Arrive("You mapped out their path. They know where to go now!");
     }
 

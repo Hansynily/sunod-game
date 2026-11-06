@@ -1,123 +1,139 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Style src="MainMenuStyle.uss"/>
+    <!--
+        UI V2 (2026-11-07). sn-* components come from SunodTheme.tss (Assets/Art/UI/UI_V2.md).
+        Overlays are sn-scrim + sn-sheet; MainMenuUIToolkit opens/closes them through vc_UIAnim.
+        intro-item elements are played in by vc_MainMenuBackground (vc_UIAnim, staggered).
+    -->
     <ui:VisualElement name="root" class="root-container">
 
         <!-- Animated sky (vc_MainMenuBackground inserts itself behind this) + foreground hills -->
         <ui:VisualElement name="menu-hills" class="menu-hills" picking-mode="Ignore"/>
 
-        <!-- Top center: SUNOD title banner -->
+        <!-- Top center: SUNOD logo -->
         <ui:VisualElement name="left-panel" class="left-panel" picking-mode="Ignore">
-            <ui:VisualElement class="brand-area intro-item intro-hidden">
-                <ui:VisualElement class="brand-banner">
-                    <ui:Label text="SUNOD" class="brand-title"/>
+            <ui:VisualElement class="brand-area intro-item intro-hidden" picking-mode="Ignore">
+                <ui:VisualElement class="brand-banner" picking-mode="Ignore">
+                    <ui:Label text="SUNOD" class="brand-title" picking-mode="Ignore"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Center row of big framed buttons (icon + label), standing on the hills -->
+        <!-- Row of big tiles (round icon well + label), standing on the hills.
+             MainMenuUIToolkit moves the green "primary" look to Continue when a run is in progress,
+             and gold for Go Back. -->
         <ui:VisualElement class="menu-panel" picking-mode="Ignore">
 
             <!-- Continue a run in progress. After a finished run it becomes "Go Back" (next loop). -->
-            <ui:Button name="btn-continue" class="menu-btn wood-btn btn-continue intro-item intro-hidden">
-                <ui:VisualElement name="icon-continue" class="btn-icon icon-continue" picking-mode="Ignore"/>
+            <ui:Button name="btn-continue" class="menu-btn sn-btn btn-continue intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon-well" picking-mode="Ignore">
+                    <ui:VisualElement name="icon-continue" class="btn-icon icon-continue" picking-mode="Ignore"/>
+                </ui:VisualElement>
                 <ui:Label name="lbl-continue" text="Continue" class="btn-label" picking-mode="Ignore"/>
             </ui:Button>
 
-            <ui:Button name="btn-play" class="menu-btn primary-btn btn-play intro-item intro-hidden">
-                <ui:VisualElement class="btn-icon icon-newgame" picking-mode="Ignore"/>
-                <ui:Label text="New Game" class="btn-label" picking-mode="Ignore"/>
+            <ui:Button name="btn-play" class="menu-btn sn-btn sn-btn--primary btn-play intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon-well" picking-mode="Ignore">
+                    <ui:VisualElement class="btn-icon icon-newgame" picking-mode="Ignore"/>
+                </ui:VisualElement>
+                <ui:Label text="New game" class="btn-label" picking-mode="Ignore"/>
             </ui:Button>
 
-            <ui:Button name="btn-tutorial" class="menu-btn wood-btn btn-tutorial intro-item intro-hidden">
-                <ui:VisualElement class="btn-icon icon-tutorial" picking-mode="Ignore"/>
+            <ui:Button name="btn-tutorial" class="menu-btn sn-btn btn-tutorial intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon-well" picking-mode="Ignore">
+                    <ui:VisualElement class="btn-icon icon-tutorial" picking-mode="Ignore"/>
+                </ui:VisualElement>
                 <ui:Label text="Tutorial" class="btn-label" picking-mode="Ignore"/>
             </ui:Button>
 
-            <ui:Button name="btn-stats" class="menu-btn wood-btn btn-stats intro-item intro-hidden">
-                <ui:VisualElement class="btn-icon icon-stats" picking-mode="Ignore"/>
-                <ui:Label text="My Progress" class="btn-label" picking-mode="Ignore"/>
+            <ui:Button name="btn-stats" class="menu-btn sn-btn btn-stats intro-item intro-hidden">
+                <ui:VisualElement class="btn-icon-well" picking-mode="Ignore">
+                    <ui:VisualElement class="btn-icon icon-stats" picking-mode="Ignore"/>
+                </ui:VisualElement>
+                <ui:Label text="My progress" class="btn-label" picking-mode="Ignore"/>
             </ui:Button>
 
         </ui:VisualElement>
 
-        <!-- Bottom-left corner: settings -->
-        <ui:Button name="btn-settings" class="corner-btn wood-btn btn-settings intro-item intro-hidden">
+        <!-- Bottom-left corner: settings (round icon button) -->
+        <ui:Button name="btn-settings" class="corner-btn sn-btn sn-btn--icon btn-settings intro-item intro-hidden">
             <ui:VisualElement class="corner-icon icon-settings" picking-mode="Ignore"/>
         </ui:Button>
 
         <!-- Top-right: player avatar + greeting. Tap it to open the character panel. -->
         <ui:VisualElement name="right-panel" class="right-panel intro-item intro-hidden">
-            <ui:VisualElement name="player-card" class="player-card" picking-mode="Ignore">
-                <ui:VisualElement name="player-card-image" class="player-card-image" picking-mode="Ignore"/>
+            <ui:VisualElement class="player-card-wrap" picking-mode="Ignore">
+                <ui:VisualElement name="player-card" class="player-card" picking-mode="Ignore">
+                    <ui:VisualElement name="player-card-image" class="player-card-image" picking-mode="Ignore"/>
+                </ui:VisualElement>
                 <ui:Label text="Edit" class="player-card-edit" picking-mode="Ignore"/>
             </ui:VisualElement>
             <ui:Label name="lbl-username" class="username-label" picking-mode="Ignore"/>
         </ui:VisualElement>
 
-        <!-- Bottom-right corner: logout. MUST render on top to receive clicks. -->
-        <ui:Button name="btn-logout" class="corner-btn wood-btn btn-logout intro-item intro-hidden">
+        <!-- Bottom-right corner: logout (pill, icon + label) -->
+        <ui:Button name="btn-logout" class="corner-btn sn-btn btn-logout intro-item intro-hidden">
             <ui:VisualElement class="corner-icon icon-logout" picking-mode="Ignore"/>
-            <ui:Label text="Logout" class="btn-logout-label" picking-mode="Ignore"/>
+            <ui:Label text="Log out" class="btn-logout-label" picking-mode="Ignore"/>
         </ui:Button>
 
         <!--
-             "My Progress" full page. Hidden by default, opened by btn-stats.
+             "My Progress" sheet. Hidden by default, opened by btn-stats.
              Shows the caller's latest server run, scoped to their player id.
-             Reset Run lives here as a destructive action at the bottom.
         -->
-        <ui:VisualElement name="stats-overlay" class="progress-page">
-            <ui:VisualElement class="progress-page-inner sl-panel-dark">
+        <ui:VisualElement name="stats-overlay" class="progress-page sn-scrim">
+            <ui:VisualElement class="progress-page-inner sn-panel sn-sheet">
 
-                <ui:VisualElement class="panel-header sl-panel-wood">
-                    <ui:Label text="Your Progress" class="header-text sl-text-outline"/>
+                <ui:VisualElement class="panel-header sn-header">
+                    <ui:Label text="My progress" class="header-text sn-title"/>
+                    <ui:Button name="btn-stats-close" text="×" class="btn-close sn-btn sn-btn--icon-sm"/>
                 </ui:VisualElement>
 
                 <ui:ScrollView name="progress-scroll" class="progress-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden">
 
                 <ui:Label text="This run" class="history-heading"/>
-                <ui:Label name="lbl-stats-empty" text="No run in progress. Start a New Game to see your career forming." class="empty-state-label"/>
+                <ui:Label name="lbl-stats-empty" text="No run yet. Start a new game!" class="empty-state-label"/>
 
                 <ui:VisualElement name="stats-content" class="stats-content">
 
                     <ui:Label name="lbl-run-complete" text="" class="run-complete-note"/>
                     <ui:Label name="lbl-provisional-note" text="" class="provisional-note"/>
 
-                    <ui:VisualElement class="career-section">
-                        <ui:Label text="Career So Far" class="recommended-label"/>
+                    <ui:VisualElement class="career-section sn-card">
+                        <ui:Label text="Career so far" class="recommended-label"/>
                         <ui:Label name="lbl-career-name" text="..." class="career-name"/>
                         <ui:Label name="lbl-cluster-label" text="" class="riasec-note"/>
                     </ui:VisualElement>
 
-                    <ui:VisualElement class="divider"/>
-
-                    <ui:VisualElement class="stats-section">
-                        <ui:VisualElement class="stat-row">
-                            <ui:Label text="Holland Code:" class="stat-label"/>
-                            <ui:Label name="lbl-holland-code" text="---" class="stat-value stat-gold"/>
+                    <ui:VisualElement name="stat-grid" class="stats-section stat-grid">
+                        <ui:VisualElement class="stat-tile sn-card">
+                            <ui:Label name="lbl-holland-code" text="---" class="stat-value stat-code"/>
+                            <ui:Label text="Holland code" class="stat-label"/>
                         </ui:VisualElement>
-                        <ui:VisualElement class="stat-row">
-                            <ui:Label text="Quests Done:" class="stat-label"/>
-                            <ui:Label name="lbl-quests" text="-- of 48" class="stat-value stat-gold"/>
+                        <ui:VisualElement class="stat-tile sn-card">
+                            <ui:Label name="lbl-quests" text="-- of 48" class="stat-value"/>
+                            <ui:Label text="Quests" class="stat-label"/>
                         </ui:VisualElement>
-                        <ui:VisualElement class="stat-row">
-                            <ui:Label text="Passed / Failed:" class="stat-label"/>
+                        <ui:VisualElement class="stat-tile sn-card">
                             <ui:Label name="lbl-quests-split" text="-- / --" class="stat-value"/>
+                            <ui:Label text="Passed / failed" class="stat-label"/>
                         </ui:VisualElement>
-                        <ui:VisualElement class="stat-row">
-                            <ui:Label text="Stars Earned:" class="stat-label"/>
+                        <ui:VisualElement class="stat-tile stat-tile--gold sn-card">
                             <ui:Label name="lbl-stars" text="--" class="stat-value stat-gold"/>
+                            <ui:Label text="Stars" class="stat-label"/>
                         </ui:VisualElement>
-                        <ui:VisualElement class="stat-row">
-                            <ui:Label text="Result Source:" class="stat-label"/>
-                            <ui:Label name="lbl-source" text="--" class="stat-value"/>
-                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="stat-source-row">
+                        <ui:Label text="Source" class="stat-source-label"/>
+                        <ui:Label name="lbl-source" text="--" class="stat-source-value"/>
                     </ui:VisualElement>
 
                 </ui:VisualElement>
 
                 <ui:VisualElement class="divider"/>
-                <ui:VisualElement name="loops-section"/>
-                <ui:Label text="Past playthroughs" class="history-heading"/>
+                <ui:VisualElement name="loops-section" class="loops-section"/>
+                <ui:Label text="Past runs" class="history-heading"/>
                 <ui:Label name="lbl-history-empty" text="Finish a run to see it here." class="empty-state-label"/>
                 <ui:VisualElement name="history-list" class="history-list"/>
 
@@ -125,26 +141,20 @@
 
                 <ui:Label name="lbl-stats-error" text="" class="error-note"/>
 
-                <ui:VisualElement class="progress-page-actions">
-                    <ui:Button name="btn-stats-close" class="action-btn btn-main-menu sl-button-wide">
-                        <ui:Label text="Back" class="action-btn-label sl-text-outline"/>
-                    </ui:Button>
-                </ui:VisualElement>
-
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- New-run confirm overlay. Opened by New Game when there's anything to lose. -->
-        <ui:VisualElement name="newrun-confirm-overlay" class="overlay-root">
-            <ui:VisualElement class="confirm-box sl-panel-dark">
-                <ui:Label text="Start a New Game?" class="confirm-title sl-text-outline"/>
-                <ui:Label name="lbl-newrun-body" text="Your saved progress will be erased. Continue?" class="confirm-body"/>
+        <!-- New-run confirm. Opened by New Game when there's anything to lose. -->
+        <ui:VisualElement name="newrun-confirm-overlay" class="overlay-root sn-scrim">
+            <ui:VisualElement class="confirm-box sn-panel sn-sheet">
+                <ui:Label text="New game?" class="confirm-title sn-title"/>
+                <ui:Label name="lbl-newrun-body" text="Your saved run will be erased." class="confirm-body"/>
                 <ui:VisualElement class="confirm-button-row">
-                    <ui:Button name="btn-newrun-confirm" class="action-btn btn-reset-confirm sl-button-wide">
-                        <ui:Label text="New Game" class="action-btn-label sl-text-outline"/>
+                    <ui:Button name="btn-newrun-cancel" class="action-btn sn-btn sn-btn--ghost">
+                        <ui:Label text="Cancel" class="action-btn-label"/>
                     </ui:Button>
-                    <ui:Button name="btn-newrun-cancel" class="action-btn btn-main-menu sl-button-wide">
-                        <ui:Label text="Cancel" class="action-btn-label sl-text-outline"/>
+                    <ui:Button name="btn-newrun-confirm" class="action-btn sn-btn sn-btn--danger btn-reset-confirm">
+                        <ui:Label text="Start over" class="action-btn-label"/>
                     </ui:Button>
                 </ui:VisualElement>
             </ui:VisualElement>
@@ -152,58 +162,61 @@
 
         <!-- Privacy notice: shown once per account (per notice version) when that player reaches the menu.
              Both boxes must be ticked to play. Decline signs the player out (no game without consent). -->
-        <ui:VisualElement name="privacy-overlay" class="overlay-root">
-            <ui:VisualElement class="confirm-box settings-box privacy-box sl-panel-wood">
-                <ui:Label text="Your privacy" class="settings-title"/>
-                <ui:ScrollView class="privacy-scroll">
+        <ui:VisualElement name="privacy-overlay" class="overlay-root sn-scrim">
+            <ui:VisualElement class="confirm-box settings-box privacy-box sn-panel sn-sheet">
+                <ui:Label text="Your privacy" class="settings-title sn-title"/>
+                <ui:ScrollView class="privacy-scroll sn-card">
                     <ui:Label class="privacy-text" text="SUNOD is part of a thesis study on career exploration. Here is what we collect and why.&#10;&#10;What we collect: the name, username, email, birthdate and gender you gave when you signed up, and how you play: which quests you take, turn down or finish, how long they take, the stars you earn and the skills you use. We also record how long you play (each time you open the game and in total), which parts of the game you spend time in, and the kind of device and game version you use.&#10;&#10;Why: to suggest career paths that match your interests (RIASEC), and to study how well the game measures them. Results are only used for this research.&#10;&#10;Who can see it: only the SUNOD research team. We never sell it or share it with anyone else. Reports in the study never show your name.&#10;&#10;Your choice: you can stop playing at any time. To have your account and data deleted, ask the SUNOD team. If you do not agree, tap Decline. You will be signed out and the game will not start."/>
                 </ui:ScrollView>
                 <ui:Toggle name="privacy-check-read" class="privacy-check" text="I have read what SUNOD collects and why."/>
                 <ui:Toggle name="privacy-check-agree" class="privacy-check" text="I agree to let the SUNOD team use my play data for this study."/>
                 <ui:VisualElement class="confirm-button-row">
-                    <ui:Button name="btn-privacy-decline" class="action-btn btn-main-menu sl-button-wide privacy-btn">
-                        <ui:Label text="Decline" class="action-btn-label sl-text-outline"/>
+                    <ui:Button name="btn-privacy-decline" class="action-btn sn-btn sn-btn--ghost privacy-btn">
+                        <ui:Label text="Decline" class="action-btn-label"/>
                     </ui:Button>
-                    <ui:Button name="btn-privacy-agree" class="action-btn btn-main-menu sl-button-wide privacy-btn">
-                        <ui:Label text="I agree" class="action-btn-label sl-text-outline"/>
+                    <ui:Button name="btn-privacy-agree" class="action-btn sn-btn sn-btn--primary privacy-btn">
+                        <ui:Label text="I agree" class="action-btn-label"/>
                     </ui:Button>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Character overlay. Opened by tapping the player card (top-right). -->
-        <ui:VisualElement name="character-overlay" class="overlay-root">
-            <ui:VisualElement class="confirm-box settings-box character-box sl-panel-wood">
-                <ui:Label text="Your Character" class="settings-title"/>
+        <!-- Character sheet. Opened by tapping the player card (top-right). -->
+        <ui:VisualElement name="character-overlay" class="overlay-root sn-scrim">
+            <ui:VisualElement class="confirm-box settings-box character-box sn-panel sn-sheet">
+                <ui:Label text="Your character" class="settings-title sn-title"/>
                 <ui:VisualElement class="character-stage">
                     <ui:VisualElement name="character-preview" class="character-preview" picking-mode="Ignore"/>
                 </ui:VisualElement>
                 <ui:Label name="lbl-character-name" text="" class="character-name"/>
                 <ui:VisualElement class="character-choice-row">
-                    <ui:Button name="btn-avatar-boy" class="wood-btn settings-choice-btn character-choice-btn">
+                    <ui:Button name="btn-avatar-boy" class="sn-btn settings-choice-btn character-choice-btn">
                         <ui:VisualElement class="character-choice-icon character-choice-icon--boy" picking-mode="Ignore"/>
                         <ui:Label text="Boy" class="character-choice-label" picking-mode="Ignore"/>
                     </ui:Button>
-                    <ui:Button name="btn-avatar-girl" class="wood-btn settings-choice-btn character-choice-btn">
+                    <ui:Button name="btn-avatar-girl" class="sn-btn settings-choice-btn character-choice-btn">
                         <ui:VisualElement class="character-choice-icon character-choice-icon--girl" picking-mode="Ignore"/>
                         <ui:Label text="Girl" class="character-choice-label" picking-mode="Ignore"/>
                     </ui:Button>
                 </ui:VisualElement>
                 <ui:VisualElement class="confirm-button-row">
-                    <ui:Button name="btn-character-close" class="action-btn btn-main-menu sl-button-wide">
-                        <ui:Label text="Done" class="action-btn-label sl-text-outline"/>
+                    <ui:Button name="btn-character-close" class="action-btn sn-btn sn-btn--primary">
+                        <ui:Label text="Done" class="action-btn-label"/>
                     </ui:Button>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- Settings overlay. Opened by btn-settings (bottom-left gear). -->
-        <ui:VisualElement name="settings-overlay" class="overlay-root">
-            <ui:VisualElement class="confirm-box settings-box sl-panel-wood">
-                <ui:Label text="Settings" class="settings-title"/>
+        <!-- Settings sheet. Opened by btn-settings (bottom-left gear). -->
+        <ui:VisualElement name="settings-overlay" class="overlay-root sn-scrim">
+            <ui:VisualElement class="confirm-box settings-box sn-panel sn-sheet">
+                <ui:VisualElement class="panel-header sn-header">
+                    <ui:Label text="Settings" class="header-text sn-title"/>
+                    <ui:Button name="btn-settings-close" text="×" class="btn-close sn-btn sn-btn--icon-sm"/>
+                </ui:VisualElement>
 
                 <ui:VisualElement class="settings-row">
-                    <ui:Label text="Sound effects" class="settings-label"/>
+                    <ui:Label text="Sound" class="settings-label"/>
                     <ui:Slider name="settings-sfx-slider" class="settings-slider" low-value="0" high-value="1" value="1"/>
                 </ui:VisualElement>
 
@@ -215,8 +228,8 @@
                 <ui:VisualElement class="settings-row">
                     <ui:Label text="Skill names" class="settings-label"/>
                     <ui:VisualElement class="settings-choice-row">
-                        <ui:Button name="btn-names-english" text="English" class="wood-btn settings-choice-btn"/>
-                        <ui:Button name="btn-names-filipino" text="Filipino" class="wood-btn settings-choice-btn"/>
+                        <ui:Button name="btn-names-english" text="English" class="sn-btn settings-choice-btn"/>
+                        <ui:Button name="btn-names-filipino" text="Filipino" class="sn-btn settings-choice-btn"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
 
@@ -224,20 +237,16 @@
                 <ui:VisualElement name="settings-gameplay-row" class="settings-row">
                     <ui:Label text="Gameplay" class="settings-label"/>
                     <ui:VisualElement class="settings-choice-row">
-                        <ui:Button name="btn-gameplay-old" text="Old" class="wood-btn settings-choice-btn"/>
-                        <ui:Button name="btn-gameplay-new" text="New" class="wood-btn settings-choice-btn"/>
+                        <ui:Button name="btn-gameplay-old" text="Old" class="sn-btn settings-choice-btn"/>
+                        <ui:Button name="btn-gameplay-new" text="New" class="sn-btn settings-choice-btn"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
 
                 <ui:VisualElement name="settings-survey-row" class="settings-row">
                     <ui:Label text="Website" class="settings-label"/>
-                    <ui:Button name="btn-settings-survey-link" text="Visit SUNOD Website" class="wood-btn settings-choice-btn settings-survey-link"/>
-                </ui:VisualElement>
-
-                <ui:VisualElement class="confirm-button-row">
-                    <ui:Button name="btn-settings-close" class="action-btn btn-main-menu sl-button-wide">
-                        <ui:Label text="Close" class="action-btn-label sl-text-outline"/>
-                    </ui:Button>
+                    <ui:VisualElement class="settings-choice-row">
+                        <ui:Button name="btn-settings-survey-link" text="Visit site" class="sn-btn settings-choice-btn settings-survey-link"/>
+                    </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

@@ -90,21 +90,27 @@ public class vc_CameraZoom : MonoBehaviour
 
         var row = new UnityEngine.UIElements.VisualElement { pickingMode = UnityEngine.UIElements.PickingMode.Ignore };
         row.style.position = UnityEngine.UIElements.Position.Absolute;
-        row.style.top = 150; row.style.right = 24;
+        row.style.top = 140; row.style.right = 16;
         row.style.flexDirection = UnityEngine.UIElements.FlexDirection.Row;
+        // UI V2: round cream icon buttons (sn-btn--icon-sm, bumped to the 84 px touch minimum)
         var minus = new UnityEngine.UIElements.Button { text = "-" };
         var plus = new UnityEngine.UIElements.Button { text = "+" };
         foreach (var b in new[] { minus, plus })
         {
-            b.AddToClassList("sl-button");
-            b.style.width = 56; b.style.height = 52; b.style.marginLeft = 8;
-            b.style.fontSize = 28;
-            b.style.color = (Color)new Color32(60, 54, 66, 255);
+            b.AddToClassList("sn-btn");
+            b.AddToClassList("sn-btn--icon-sm");
+            b.AddToClassList("sn-bold");
+            b.style.width = 84; b.style.height = 84;
+            b.style.minWidth = 84; b.style.minHeight = 84;
+            b.style.marginLeft = 8; b.style.marginRight = 8;
+            b.style.fontSize = 40;
+            SunodGame.UI.vc_UIAnim.Press(b);
         }
         BindButtons(minus, plus);
         row.Add(minus);
         row.Add(plus);
         root.Insert(1, row);            // under the pause overlay so the paused menu covers it
+        SunodGame.UI.vc_UIAnim.Show(row, SunodGame.UI.vc_UIAnim.Enter.SlideLeft, 0.2f);
     }
 
     /// <summary>

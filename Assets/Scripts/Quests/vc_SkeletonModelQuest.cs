@@ -44,6 +44,28 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
     [SerializeField] private float healTime = 8f;
     [SerializeField] private float buildTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Heal (prep) names the bones from first-aid know-how,
+    // then Solve assembles it in order at once. Preference: Plan (laid out by body region).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Ms. Garcia",
+        presses = 4,
+        bestFitTag = "survey",
+        bestFitSeconds = 2f,
+        prepTag = "heal",
+        prepUnlocksTag = "unlock",
+        prepLine = "You point at your own elbow, knee and ribs, naming each bone...",
+        preferredTag = "plan",
+        preferenceLine = "Laid out by body region, just so! The class can follow that.",
+        fastLines = new[]
+        {
+            ("unlock", "Skull to toes in seconds! You know your bones."),
+            ("plan", "Laid out by region already! The class can follow that."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private int _stage;
     private Vector3 _skeletonRest;
     private float _idleClock;
@@ -68,7 +90,7 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Skeleton Model",
-            "Help Ms. Garcia put the skeleton model together for biology.",
+            "Help Ms. Garcia put the skeleton model together for biology. She wants the bones laid out by body region so the class can follow.",
             new[] { "Assemble the skeleton" });
     }
 
@@ -90,17 +112,34 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
     {
         if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("unlock")) { StartWork(SolveRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
-        if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
-        if (d.HasTag("heal")) { StartWork(HealRoutine()); return; }
-        if (d.HasTag("build")) { StartWork(BuildRoutine()); return; }
+        if (d.HasTag("unlock")) { StartWork(SolveRoutine(PathTime(solveTime), CurrentInstant)); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
+        if (d.HasTag("craft")) { StartWork(CraftRoutine(PathTime(craftTime))); return; }
+        if (d.HasTag("heal")) { StartWork(HealRoutine(PathTime(healTime))); return; }
+        if (d.HasTag("build")) { StartWork(BuildRoutine(PathTime(buildTime))); return; }
         Toast("This needs some careful study.", 2.2f);
     }
 
     protected override void OnWorkCancelled() => ClearLaid();
 
     // ── Survey: identify, label, bones fly into place ────────────────────
+
+    // Prep (Heal): first-aid know-how. Hearts and bone labels pop over the pile as you name each bone.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f, 0.1f);
+        if (heart != null) Fx(new[] { heart }, Top(), 1.5f, 0.2f, 24);
+        Vector3 c = bonePile != null ? bonePile.bounds.center : transform.position;
+        for (int i = 0; i < 3; i++)
+        {
+            if (boneLabel != null) Fx(new[] { boneLabel }, c + new Vector3(-0.5f + 0.5f * i, 0.35f, 0f), 1.4f, 0.15f, 24);
+            Fx(sparkFrames, c + new Vector3(-0.5f + 0.5f * i, 0.1f, 0f), 12f, 0.1f, 23);
+            SunodGame.Core.vc_Sfx.Play("text_blip", 0.35f, 0.15f);
+            yield return new WaitForSeconds(0.3f);
+        }
+        yield return new WaitForSeconds(0.1f);
+    }
 
     private IEnumerator SurveyRoutine()
     {
@@ -114,25 +153,25 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
 
     // ── Solve: the puzzle order, skull to legs ───────────────────────────
 
-    private IEnumerator SolveRoutine()
+    private IEnumerator SolveRoutine(float seconds, bool oneGo)
     {
-        Toast("Skull, ribs, arms, legs... in order.", solveTime);
+        Toast(oneGo ? "Skull, ribs, arms, legs... you know the order by heart!" : "Skull, ribs, arms, legs... in order.", seconds);
         ShowBar(true);
-        float think = 1f;
-        if (questionBubble != null) Fx(new[] { questionBubble }, Top(), 1.2f, 0.2f, 24);
+        float think = Mathf.Min(1f, seconds * 0.25f);
+        if (questionBubble != null && !oneGo) Fx(new[] { questionBubble }, Top(), 1.2f, 0.2f, 24);
         SunodGame.Core.vc_Sfx.Play("idea", 0.4f);
-        yield return BarStep(think, 0f, think / solveTime);
-        yield return AssembleSteps(think, solveTime, solveTime - think, label: false, fromPile: true);
-        Done1("Puzzle solved. The skeleton stands tall!");
+        yield return BarStep(think, 0f, think / seconds);
+        yield return AssembleSteps(think, seconds, seconds - think, label: false, fromPile: true);
+        Done1(oneGo ? "Skull to toes in one go. The skeleton stands tall!" : "Puzzle solved. The skeleton stands tall!");
     }
 
     // ── Plan: lay out by region, then assemble ───────────────────────────
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float seconds)
     {
-        Toast("You lay the bones out by body region...", planTime);
+        Toast("You lay the bones out by body region...", seconds);
         ShowBar(true);
-        float lay = 2.4f, t = 0f;
+        float lay = 2.4f * seconds / Mathf.Max(0.1f, planTime), t = 0f;
         int n = regionSpots != null ? regionSpots.Length : 0;
         float per = lay / Mathf.Max(1, n);
         for (int i = 0; i < n; i++)
@@ -140,21 +179,23 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
             if (bonePile != null && boneFly != null)
                 yield return Arc(bonePile.bounds.center, regionSpots[i].position, per * 0.6f, keep: true);
             if (boneLabel != null) Fx(new[] { boneLabel }, regionSpots[i].position + new Vector3(0f, 0.3f, 0f), 1.2f, 0.1f, 24);
-            yield return BarStep(per * 0.4f, (t + per * 0.6f) / planTime, (t + per) / planTime);
+            yield return BarStep(per * 0.4f, (t + per * 0.6f) / seconds, (t + per) / seconds);
             t += per;
         }
         if (bonePile != null) bonePile.enabled = false;
-        yield return AssembleSteps(t, planTime, planTime - t, label: false, fromPile: false);
+        yield return AssembleSteps(t, seconds, Mathf.Max(0.3f, seconds - t), label: false, fromPile: false);
         Done1("Sorted by region, then built. Nicely planned!");
     }
 
     // ── Craft: wire the bones together like an art model ─────────────────
 
-    private IEnumerator CraftRoutine()
+    private IEnumerator CraftRoutine(float seconds)
     {
-        Toast("You wire the bones together like an art model...", craftTime);
+        Toast("You wire the bones together like an art model...", seconds);
         ShowBar(true);
         float t = 0f;
+        float f = seconds / Mathf.Max(0.1f, craftTime);
+        float wireStep = 0.3f * f;
         // bend a wire frame first: sparks trace the spine from the stand up
         Vector3 b = skeleton != null ? skeleton.transform.position : transform.position;
         const int wireSteps = 6;
@@ -162,12 +203,12 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
         {
             Fx(sparkFrames, b + new Vector3(Random.Range(-0.08f, 0.08f), 0.3f + i * 0.28f, 0f), 12f, 0.05f);
             SunodGame.Core.vc_Sfx.Play("brush", 0.3f, 0.15f);
-            yield return BarStep(0.3f, t / craftTime, (t + 0.3f) / craftTime);
-            t += 0.3f;
+            yield return BarStep(wireStep, t / seconds, (t + wireStep) / seconds);
+            t += wireStep;
         }
         // then each part is tied on with a few twists of wire (slow, careful joints)
         int steps = Mathf.Max(1, 3 - _stage);
-        float per = (craftTime - t - 0.2f) / steps;
+        float per = Mathf.Max(0.3f, (seconds - t - 0.2f * f) / steps);
         while (_stage < 3)
         {
             Vector3 dst = StageSpot(_stage + 1);
@@ -176,12 +217,12 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
             {
                 Fx(sparkFrames, dst + new Vector3(-0.25f + 0.25f * k, 0.05f, 0f), 12f, 0.08f);
                 SunodGame.Core.vc_Sfx.Play("clack", 0.3f, 0.2f);
-                yield return BarStep(per * 0.15f, t / craftTime, (t + per * 0.15f) / craftTime);
+                yield return BarStep(per * 0.15f, t / seconds, (t + per * 0.15f) / seconds);
                 t += per * 0.15f;
             }
             SetStage(_stage + 1);
             StartCoroutine(Settle());
-            yield return BarStep(per * 0.2f, t / craftTime, (t + per * 0.2f) / craftTime);
+            yield return BarStep(per * 0.2f, t / seconds, (t + per * 0.2f) / seconds);
             t += per * 0.2f;
         }
         if (bonePile != null) bonePile.enabled = false;
@@ -190,42 +231,44 @@ public class vc_SkeletonModelQuest : vc_FitQuestBase
 
     // ── Heal: name the bones from first aid, slowly ──────────────────────
 
-    private IEnumerator HealRoutine()
+    private IEnumerator HealRoutine(float seconds)
     {
-        Toast("You name bones from first-aid lessons...", healTime);
+        Toast("You name bones from first-aid lessons...", seconds);
         ShowBar(true);
-        float recall = 3.2f, t = 0f;
+        float f = seconds / Mathf.Max(0.1f, healTime);
+        float recall = 3.2f * f, recallStep = Mathf.Max(0.1f, 0.8f * f), t = 0f;
         while (t < recall)
         {
             if (heart != null && t < 0.2f) Fx(new[] { heart }, Top(), 1.5f, 0.2f, 24);
             if (boneLabel != null && bonePile != null) Fx(new[] { boneLabel }, bonePile.bounds.center + new Vector3(Random.Range(-0.4f, 0.4f), 0.35f, 0f), 1.4f, 0.15f, 24);
             SunodGame.Core.vc_Sfx.Play("text_blip", 0.4f, 0.1f);
-            yield return BarStep(0.8f, t / healTime, (t + 0.8f) / healTime);
-            t += 0.8f;
+            yield return BarStep(recallStep, t / seconds, (t + recallStep) / seconds);
+            t += recallStep;
         }
-        yield return AssembleSteps(t, healTime, healTime - t, label: true, fromPile: true);
+        yield return AssembleSteps(t, seconds, Mathf.Max(0.3f, seconds - t), label: true, fromPile: true);
         Done1("You knew your bones! The skeleton is complete.");
     }
 
     // ── Build: trial and error by hand ───────────────────────────────────
 
-    private IEnumerator BuildRoutine()
+    private IEnumerator BuildRoutine(float seconds)
     {
-        Toast("You fit bones together, trial and error...", buildTime);
+        Toast("You fit bones together, trial and error...", seconds);
         ShowBar(true);
         float t = 0f;
+        float f = seconds / Mathf.Max(0.1f, buildTime);
         // two wrong tries knock bones back off, then it clicks
         for (int miss = 0; miss < 2; miss++)
         {
-            yield return Arc(bonePile.bounds.center, Top() + new Vector3(0f, -0.9f, 0f), 0.4f, keep: false);
+            yield return Arc(bonePile.bounds.center, Top() + new Vector3(0f, -0.9f, 0f), 0.4f * f, keep: false);
             if (crossMark != null) Fx(new[] { crossMark }, Top(), 1.4f, 0.15f, 24);
             SunodGame.Core.vc_Sfx.Play("buzz", 0.35f);
             if (skeleton != null) StartCoroutine(Shake(skeleton.transform, _skeletonRest, 0.3f, 1));
             Fx(dustFrames, skeleton.transform.position + new Vector3(0.4f, 0.1f, 0f), 10f, 0.1f);
-            yield return BarStep(1.6f, (t + 0.4f) / buildTime, (t + 2f) / buildTime);
-            t += 2f;
+            yield return BarStep(1.6f * f, (t + 0.4f * f) / seconds, (t + 2f * f) / seconds);
+            t += 2f * f;
         }
-        yield return AssembleSteps(t, buildTime, buildTime - t, label: false, fromPile: true);
+        yield return AssembleSteps(t, seconds, Mathf.Max(0.3f, seconds - t), label: false, fromPile: true);
         Done1("Trial and error, but it's together!");
     }
 

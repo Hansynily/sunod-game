@@ -55,6 +55,7 @@ public class vc_SnackStallQuest : vc_FitQuestBase
     [SerializeField] private float callTime = 4f;
     [SerializeField] private float mapTime = 5f;
     [SerializeField] private float craftTime = 8f;
+    [SerializeField] private float commandTime = 4f;
 
     private class Walker
     {
@@ -70,6 +71,30 @@ public class vc_SnackStallQuest : vc_FitQuestBase
             tr.position = new Vector3(Mathf.Round(g.x * 32f) / 32f, Mathf.Round((g.y + footOffset) * 32f) / 32f, g.z);
         }
     }
+
+    // Skill system v2 (QUEST_REDESIGN.md): Craft (prep) props up an eye-catching sign, then Call
+    // brings a whole crowd at once. Preference: Charm. Command (new path): classmates line up and buy.
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Jun",
+        presses = 5,
+        bestFitTag = "persuade",
+        bestFitSeconds = 1.5f,
+        prepTag = "craft",
+        prepUnlocksTag = "summon",
+        prepLine = "You prop up an eye-catching sign by the stall...",
+        preferredTag = "charm",
+        preferenceLine = "Just being friendly worked! Thanks, I'm too shy!",
+        fastLines = new[]
+        {
+            ("charm", "Everyone smiled and bought one! Teach me!"),
+            ("summon", "One shout and we sold out?!"),
+            ("map", "We moved and sold out right away!"),
+            ("command", "You got everyone in line that fast?"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
 
     private Walker _shopper, _passA, _passB;
     private readonly List<Walker> _temp = new List<Walker>();
@@ -117,7 +142,7 @@ public class vc_SnackStallQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Snack Stall",
-            "The cookie stall needs a customer. Make a sale!",
+            "Jun is too shy to sell at the cookie stall, and nobody is stopping. Make a sale!",
             new[] { "Sell a snack" });
     }
 
@@ -172,11 +197,56 @@ public class vc_SnackStallQuest : vc_FitQuestBase
     {
         if (d.HasTag("persuade")) { StartWork(PersuadeRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("charm")) { StartWork(CharmRoutine()); return; }
-        if (d.HasTag("summon")) { StartWork(CallRoutine()); return; }
-        if (d.HasTag("map")) { StartWork(MapRoutine()); return; }
-        if (d.HasTag("craft")) { StartWork(CraftRoutine()); return; }
+        if (d.HasTag("charm")) { StartWork(CharmRoutine(PathTime(charmTime))); return; }
+        if (d.HasTag("summon")) { StartWork(CallRoutine(PathTime(callTime), CurrentInstant)); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime))); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime))); return; }
+        if (d.HasTag("craft")) { StartWork(CraftRoutine(PathTime(craftTime))); return; }
         Toast("That won't sell any snacks.", 2.2f);
+    }
+
+    // Prep (Craft): the eye-catching sign is hammered up and pops into place.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        if (fancySign != null)
+        {
+            fancySign.gameObject.SetActive(true);
+            if (signStages != null && signStages.Length > 0) fancySign.sprite = signStages[signStages.Length - 1];
+            StartCoroutine(PopScale(fancySign.transform));
+            Fx(hammerFrames, fancySign.transform.position + new Vector3(0.5f, 1.3f, 0f), 8f);
+            Fx(sparkFrames, fancySign.transform.position + new Vector3(0f, 0.9f, 0f), 10f, 0.2f);
+        }
+        SunodGame.Core.vc_Sfx.Play("hammer", 0.6f, 0.1f);
+        yield return new WaitForSeconds(0.45f);
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.45f);
+    }
+
+    // ── Command: classmates line up neatly and the line starts buying ────
+
+    private IEnumerator CommandRoutine(float seconds)
+    {
+        Toast("\"Line up, everyone!\" Jun's classmates form a line...", seconds);
+        ShowBar(true);
+        Fx(bubbleShout, BuyGround + new Vector3(0.9f, 2.3f, 0f), 1.2f, 0.2f, 24);
+        SunodGame.Core.vc_Sfx.Play("bell", 0.5f, 0.05f);
+        Sprite[][] looks = { lookKid, lookCaller, lookKid };
+        var line = new Walker[3];
+        float walk = seconds * 0.5f;
+        for (int i = 0; i < 3; i++)
+        {
+            line[i] = MakeTemp(looks[i], i == 1 ? 1f : 0.8f, new Vector3(-6.5f - i * 0.8f, BuyGround.y, 0f));
+            Track(Walk(line[i], BuyGround + new Vector3(-0.6f - i * 0.7f, 0f, 0f), walk, i * 0.1f));
+        }
+        yield return BarStep(walk + 0.2f, 0f, 0.6f);
+        float per = (seconds - walk - 0.2f) / 3f;
+        for (int i = 0; i < 3; i++)
+        {
+            Pay(line[i]);
+            yield return BarStep(per, 0.6f + 0.4f * i / 3f, 0.6f + 0.4f * (i + 1) / 3f);
+        }
+        Finish("The classmates lined up neatly and everyone bought a snack!");
     }
 
     protected override void OnWorkCancelled()
@@ -206,7 +276,7 @@ public class vc_SnackStallQuest : vc_FitQuestBase
 
     // ── Charm ────────────────────────────────────────────────────────────
 
-    private IEnumerator CharmRoutine()
+    private IEnumerator CharmRoutine(float charmTime)
     {
         Toast("You flash a big, friendly smile...", charmTime);
         ShowBar(true);
@@ -224,24 +294,33 @@ public class vc_SnackStallQuest : vc_FitQuestBase
 
     // ── Call ─────────────────────────────────────────────────────────────
 
-    private IEnumerator CallRoutine()
+    private IEnumerator CallRoutine(float callTime, bool crowd)
     {
-        Toast("\"Fresh cookies!\" You call out...", callTime);
+        Toast(crowd ? "\"Fresh cookies!\" A whole crowd comes running!" : "\"Fresh cookies!\" You call out...", callTime);
         ShowBar(true);
         Vector3 spotTop = BuyGround + new Vector3(0f, 2.3f, 0f);
         Fx(bubbleShout, spotTop + new Vector3(0.9f, 0f, 0f), 1.2f, 0.2f, 24);
         for (int i = 0; i < 3; i++) { SunodGame.Core.vc_Sfx.Play("text_blip", 0.6f, 0.15f); yield return BarStep(0.15f, i * 0.04f, (i + 1) * 0.04f); }
         Walker c = MakeTemp(lookCaller, 1f, new Vector3(-7f, BuyGround.y, 0f));
         Track(Walk(c, BuyGround + new Vector3(-0.6f, 0f, 0f), callTime * 0.8f, 0f));
+        Walker k1 = null, k2 = null;
+        if (crowd)
+        {
+            k1 = MakeTemp(lookKid, 0.8f, new Vector3(-6.2f, BuyGround.y, 0f));
+            k2 = MakeTemp(lookKid, 0.8f, new Vector3(-8f, BuyGround.y, 0f));
+            Track(Walk(k1, BuyGround + new Vector3(-1.3f, 0f, 0f), callTime * 0.8f, 0f));
+            Track(Walk(k2, BuyGround + new Vector3(-2.0f, 0f, 0f), callTime * 0.8f, 0f));
+        }
         yield return BarStep(callTime * 0.88f, 0.12f, 0.95f);
         Pay(c);
+        if (k1 != null) { Pay(k1); Pay(k2); }
         yield return BarStep(callTime * 0.12f, 0.95f, 1f);
-        Finish("You called them over. Sold!");
+        Finish(crowd ? "Your sign and one shout brought a crowd. Sold out!" : "You called them over. Sold!");
     }
 
     // ── Map ──────────────────────────────────────────────────────────────
 
-    private IEnumerator MapRoutine()
+    private IEnumerator MapRoutine(float mapTime)
     {
         Toast("You move the stall to the busy path...", mapTime);
         ShowBar(true);
@@ -284,13 +363,13 @@ public class vc_SnackStallQuest : vc_FitQuestBase
 
     // ── Craft: build a sign, the shopper notices ─────────────────────────
 
-    private IEnumerator CraftRoutine()
+    private IEnumerator CraftRoutine(float craftTime)
     {
         Toast("You make an eye-catching sign...", craftTime);
         ShowBar(true);
-        float elapsed = 0f;
+        float elapsed = 0f, k = craftTime / 8f;
         if (fancySign != null) fancySign.gameObject.SetActive(true);
-        float[] stageAt = { 0.2f, 1.9f, 3.6f };
+        float[] stageAt = { 0.2f * k, 1.9f * k, 3.6f * k };
         for (int s = 0; s < 3; s++)
         {
             float wait = stageAt[s] - elapsed;
@@ -304,18 +383,18 @@ public class vc_SnackStallQuest : vc_FitQuestBase
             }
             SunodGame.Core.vc_Sfx.Play(s == 2 ? "step_done" : "hammer", 0.6f, 0.1f);
         }
-        yield return BarStep(5.0f - elapsed, elapsed / craftTime, 5.0f / craftTime);
-        elapsed = 5.0f;
+        yield return BarStep(5.0f * k - elapsed, elapsed / craftTime, 5.0f * k / craftTime);
+        elapsed = 5.0f * k;
 
         _frozenUntil = Time.time + 1.4f;
         Say(exclaimFrames, _passA, 0.9f);
         Say(exclaimFrames, _passB, 0.9f);
         Say(bubbleHeart, _shopper, 1.0f);
         SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f);
-        float walk = 2.2f;
-        Track(Walk(_shopper, BuyGround, walk, 0.6f));
-        yield return BarStep(walk + 0.6f, elapsed / craftTime, (elapsed + walk + 0.6f) / craftTime);
-        elapsed += walk + 0.6f;
+        float walk = 2.2f * k;
+        Track(Walk(_shopper, BuyGround, walk, 0.6f * k));
+        yield return BarStep(walk + 0.6f * k, elapsed / craftTime, (elapsed + walk + 0.6f * k) / craftTime);
+        elapsed += walk + 0.6f * k;
         Pay(_shopper);
         yield return BarStep(Mathf.Max(0.05f, craftTime - elapsed), elapsed / craftTime, 1f);
         Finish("Your eye-catching sign worked. Sold!");

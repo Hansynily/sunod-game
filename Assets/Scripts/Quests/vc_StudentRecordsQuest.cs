@@ -42,6 +42,29 @@ public class vc_StudentRecordsQuest : vc_FitQuestBase
     [SerializeField] private float collectTime = 4f;
     [SerializeField] private float planTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Plan (prep) pins a filing plan to the cabinet, then
+    // Collect sweeps every paper into its folder in one go. Preference: Inspect (checking each stack).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mrs. Ong",
+        presses = 5,
+        bestFitTag = "direct",
+        bestFitSeconds = 2f,
+        prepTag = "plan",
+        prepUnlocksTag = "collect",
+        prepLine = "You pin a filing plan to the cabinet...",
+        preferredTag = "inspect",
+        preferenceLine = "You checked every record for mistakes? Thank you, that was careful work!",
+        fastLines = new[]
+        {
+            ("inspect", "Every mistake caught already? Sharp eyes!"),
+            ("collect", "All gathered and filed? Thank you!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
+    private GameObject _planPin;
     private Sprite[] _pileSprites;
     private Vector3[] _pileRest;
     private bool[] _filed;
@@ -62,6 +85,7 @@ public class vc_StudentRecordsQuest : vc_FitQuestBase
     protected override void OnBegin()
     {
         if (_sheet != null) Destroy(_sheet);
+        if (_planPin != null) Destroy(_planPin);
         for (int i = 0; i < piles.Length; i++)
         {
             piles[i].gameObject.SetActive(true);
@@ -77,7 +101,7 @@ public class vc_StudentRecordsQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Student Records",
-            "The student records are all mixed up. Help Mrs. Ong sort them.",
+            "Mrs. Ong's student records are all mixed up, and some have mistakes in them. Get them sorted. She'd love it if someone checked the records over.",
             new[] { "File the records" });
     }
 
@@ -119,8 +143,8 @@ public class vc_StudentRecordsQuest : vc_FitQuestBase
         if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
         if (BlockedByWork()) return;
         if (d.HasTag("inspect")) { InspectPress(); return; }
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
-        if (d.HasTag("plan")) { StartWork(PlanRoutine()); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime), CurrentInstant)); return; }
+        if (d.HasTag("plan")) { StartWork(PlanRoutine(PathTime(planTime))); return; }
         Toast("Records need careful, orderly work.", 2.2f);
     }
 
@@ -137,47 +161,80 @@ public class vc_StudentRecordsQuest : vc_FitQuestBase
         Finish("Filed A to Z. Neat and orderly!");
     }
 
+    // 3 presses at Lv1, 2 at Lv2, 1 at Lv3: each press checks and files its share of the stacks.
     private void InspectPress()
     {
-        int i = NextUnfiled();
-        if (i < 0) return;
         _inspected++;
-        Vector3 top = PileTop(i);
+        int need = Mathf.Max(1, PathPresses(inspectPresses));
+        if (_inspected >= need)
+        {
+            StartWork(InspectFinishRoutine(need == 1));
+            return;
+        }
+
+        int left = 0;
+        for (int n = 0; n < piles.Length; n++) if (!_filed[n]) left++;
+        int share = Mathf.Max(1, Mathf.CeilToInt(left / (float)(need - _inspected + 1)));
+        for (int k = 0; k < share; k++)
+        {
+            int pi = NextUnfiled();
+            if (pi < 0) break;
+            CheckPile(pi, k * 0.3f);
+        }
+        Toast($"Stack checked and filed ({_inspected}/{need})", 2f);
+    }
+
+    private IEnumerator InspectFinishRoutine(bool oneGo)
+    {
+        Toast(oneGo ? "You check every stack in one sweep!" : "You check the last stacks...", 2f);
+        ShowBar(true);
+        int k = 0;
+        for (int n = 0; n < piles.Length; n++)
+            if (!_filed[n]) { CheckPile(n, k * 0.3f); k++; }
+        yield return BarStep(k * 0.3f + 0.7f, 0f, 1f);
+        Finish(oneGo ? "Every record checked and filed in one sweep. No errors!" : "Every record checked and filed. No errors!");
+    }
+
+    /// <summary>Magnifier and check mark over a pile, then it files itself.</summary>
+    private void CheckPile(int pile, float delay)
+    {
+        Vector3 top = PileTop(pile);
+        if (delay <= 0f) PileCheckFx(top);
+        else StartCoroutine(Later(delay, () => PileCheckFx(top)));
+        StartCoroutine(FileOne(pile, 0.35f, true, delay));
+    }
+
+    private void PileCheckFx(Vector3 top)
+    {
         if (magnifier != null) Fx(new[] { magnifier }, top, 2.5f, 0.15f, 24);
         if (checkMark != null) StartCoroutine(Later(0.3f, () => Fx(new[] { checkMark }, top + new Vector3(0.3f, 0.2f, 0f), 1.6f, 0.2f, 25)));
         SunodGame.Core.vc_Sfx.Play("scan", 0.4f, 0.1f);
-        StartCoroutine(FileOne(i, 0.35f, true));
-        if (_inspected < inspectPresses && NextUnfiled() >= 0)
-        {
-            Toast($"Stack checked and filed ({_inspected}/{inspectPresses})", 2f);
-            return;
-        }
-        Finish("Every record checked and filed. No errors!");
     }
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float total, bool oneGo)
     {
-        Toast("You gather the loose papers into folders...", collectTime);
+        Toast(oneGo ? "Following the plan, every paper lands in its folder!" : "You gather the loose papers into folders...", total);
         ShowBar(true);
-        float gather = collectTime - 1.6f, per = gather / Mathf.Max(1, piles.Length), t = 0f;
+        float gather = total * 0.6f, per = gather / Mathf.Max(1, piles.Length), t = 0f;
         for (int i = 0; i < piles.Length; i++)
         {
             if (_filed[i]) { t += per; continue; }
             Fx(dustFrames, PileTop(i) + new Vector3(0f, -0.3f, 0f), 10f, 0.15f);
             SunodGame.Core.vc_Sfx.Play("rustle", 0.5f, 0.1f);
-            yield return BarStep(per * 0.6f, t / collectTime, (t + per * 0.6f) / collectTime);
+            yield return BarStep(per * 0.6f, t / total, (t + per * 0.6f) / total);
             if (folders != null && i < folders.Length) piles[i].sprite = folders[i];
             SunodGame.Core.vc_Sfx.Play("page_next", 0.5f, 0.1f);
-            yield return BarStep(per * 0.4f, (t + per * 0.6f) / collectTime, (t + per) / collectTime);
+            yield return BarStep(per * 0.4f, (t + per * 0.6f) / total, (t + per) / total);
             t += per;
         }
-        yield return FileAll(t, collectTime);
-        Finish("Papers gathered and filed. All tidy!");
+        yield return FileAll(t, total);
+        if (_planPin != null) Destroy(_planPin);
+        Finish(oneGo ? "Every paper gathered and filed in one go. All tidy!" : "Papers gathered and filed. All tidy!");
     }
 
-    private IEnumerator PlanRoutine()
+    private IEnumerator PlanRoutine(float total)
     {
-        Toast("You design a new filing system first...", planTime);
+        Toast("You design a new filing system first...", total);
         ShowBar(true);
         Vector3 at = (piles.Length > 0 ? _pileRest[0] : transform.position) + new Vector3(-0.2f, -0.9f, 0f);
         if (planSheet != null)
@@ -188,18 +245,46 @@ public class vc_StudentRecordsQuest : vc_FitQuestBase
             var sr = _sheet.AddComponent<SpriteRenderer>();
             sr.sprite = planSheet; sr.sortingLayerName = sortingLayer; sr.sortingOrder = 14;
         }
-        float work = planTime - 2.4f, t = 0f;
+        float work = total * 0.7f, t = 0f, step = Mathf.Clamp(work / 6f, 0.1f, 0.4f);
         while (t < work)
         {
             Fx(scribbleFrames, at + new Vector3(Random.Range(-0.25f, 0.25f), Random.Range(0.1f, 0.6f), 0f), 6f, 0f, 22);
             SunodGame.Core.vc_Sfx.Play("scribble", 0.35f, 0.15f, 0.3f);
-            yield return BarStep(0.4f, t / planTime, (t + 0.4f) / planTime);
-            t += 0.4f;
+            yield return BarStep(step, t / total, (t + step) / total);
+            t += step;
         }
         if (checkMark != null) Fx(new[] { checkMark }, at + new Vector3(0f, 0.9f, 0f), 1.5f, 0.2f, 24);
-        yield return FileAll(t, planTime);
+        yield return FileAll(t, total);
         if (_sheet != null) Destroy(_sheet);
         Finish("Your new system works. Everything's filed!");
+    }
+
+    // Prep (Plan): a filing plan is pinned to the cabinet; it stays up until Collect has filed everything.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("scribble", 0.5f, 0.1f);
+        Vector3 at = (fileWall != null ? fileWall.bounds.center : transform.position) + new Vector3(0f, 1.0f, 0f);
+        if (_planPin != null) Destroy(_planPin);
+        _planPin = new GameObject("FilingPlanPin");
+        _planPin.transform.SetParent(transform, true);
+        _planPin.transform.position = Snap(at);
+        var pinSr = _planPin.AddComponent<SpriteRenderer>();
+        pinSr.sortingLayerName = sortingLayer; pinSr.sortingOrder = 14;
+        if (planSheet != null) pinSr.sprite = planSheet;
+        else
+        {
+            pinSr.sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
+            pinSr.color = new Color(1f, 0.96f, 0.8f);
+            _planPin.transform.localScale = new Vector3(0.8f, 1.0f, 1f);
+        }
+        for (int k = 0; k < 3; k++)
+        {
+            Fx(scribbleFrames, at + new Vector3(Random.Range(-0.25f, 0.25f), Random.Range(-0.2f, 0.4f), 0f), 6f, 0f, 22);
+            yield return new WaitForSeconds(0.25f);
+        }
+        if (checkMark != null) Fx(new[] { checkMark }, at + new Vector3(0.3f, 0.5f, 0f), 1.6f, 0.2f, 25);
+        yield return new WaitForSeconds(0.25f);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────
@@ -225,10 +310,11 @@ public class vc_StudentRecordsQuest : vc_FitQuestBase
     }
 
     /// <summary>Pile turns into its folder and flies into the cabinet.</summary>
-    private IEnumerator FileOne(int i, float seconds, bool openWall)
+    private IEnumerator FileOne(int i, float seconds, bool openWall, float delay = 0f)
     {
         if (_filed[i]) yield break;
         _filed[i] = true;
+        if (delay > 0f) yield return new WaitForSeconds(delay);
         if (openWall && fileWall != null) fileWall.sprite = wallOpen;
         if (folders != null && i < folders.Length) piles[i].sprite = folders[i];
         Vector3 from = piles[i].transform.position;

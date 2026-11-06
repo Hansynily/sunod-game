@@ -52,6 +52,28 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
     [SerializeField] private float surveyTime = 8f;
     [SerializeField] private float commandTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Command (prep) has the dockhands line the crates up, then
+    // Direct logs the whole row at once. Preference: Collect (he wants to keep the delivery slips).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mang Tonyo",
+        presses = 4,
+        bestFitTag = "inspect",
+        bestFitSeconds = 2f,
+        prepTag = "command",
+        prepUnlocksTag = "direct",
+        prepLine = "\"Line them up!\" The dockhands shuffle the crates into a row...",
+        preferredTag = "collect",
+        preferenceLine = "You kept the slips! Salamat, that's just what I needed.",
+        fastLines = new[]
+        {
+            ("collect", "Every slip, all in order? Salamat!"),
+            ("direct", "Neatest dock I've ever had."),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private Vector3[] _crateRest;
     private Vector3 _boatRest;
     private Vector3[] _gullRest;
@@ -90,7 +112,7 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Dockside Ledger",
-            "The boat just unloaded. Write down every crate on the dock.",
+            "The boat just unloaded. Mang Tonyo wants every crate written down, and he needs the delivery slips kept too.",
             new[] { "Log the crates" });
     }
 
@@ -177,10 +199,10 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
         if (d.HasTag("inspect")) { StopNear(); StartWork(InspectRoutine()); return; }
         if (BlockedByWork()) return;
         StopNear();
-        if (d.HasTag("collect")) { StartWork(CollectRoutine()); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
-        if (d.HasTag("survey")) { StartWork(SurveyRoutine()); return; }
-        if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
+        if (d.HasTag("collect")) { StartWork(CollectRoutine(PathTime(collectTime))); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime), CurrentInstant)); return; }
+        if (d.HasTag("survey")) { StartWork(SurveyRoutine(PathTime(surveyTime))); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime))); return; }
         Toast("Records need careful checking.", 2.2f);
     }
 
@@ -192,6 +214,20 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
     }
 
     // ── Inspect: check each crate against the manifest ───────────────────
+
+    // Prep (Command): a shout, then the dockhands shuffle every crate into its row slot.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        for (int i = 0; i < crates.Length; i++)
+        {
+            Vector3 p = crates[i].transform.position;
+            if (i == 0) Fx(new[] { shout }, p + new Vector3(-0.4f, 1.3f, 0f), 1.4f, 0.2f, 24);
+            Vector3 to = rowSlots != null && i < rowSlots.Length && rowSlots[i] != null ? rowSlots[i].position : _crateRest[i];
+            StartCoroutine(Slide(crates[i].transform, to, 0.1f + i * 0.2f, 0.5f));
+        }
+        yield return new WaitForSeconds(1f);
+    }
 
     private IEnumerator InspectRoutine()
     {
@@ -219,20 +255,22 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
 
     // ── Collect: gather the delivery slips ───────────────────────────────
 
-    private IEnumerator CollectRoutine()
+    private IEnumerator CollectRoutine(float seconds)
     {
-        Toast("Gathering the delivery slips...", collectTime);
+        Toast("Gathering the delivery slips...", seconds);
         ShowBar(true);
-        yield return Timeline(collectTime, 0f,
-            At(0.1f, () => FlySlip(0)),
-            At(0.65f, () => FlySlip(1)),
-            At(1.2f, () => FlySlip(2)),
-            At(collectTime - 1.0f, () => Log(1)),
-            At(collectTime - 0.4f, () => Log(2)));
+        float f = seconds / Mathf.Max(0.1f, collectTime);
+        float fly = Mathf.Clamp(seconds * 0.25f, 0.3f, 1f);
+        yield return Timeline(seconds, 0f,
+            At(0.1f * f, () => FlySlip(0, fly)),
+            At(0.65f * f, () => FlySlip(1, fly)),
+            At(1.2f * f, () => FlySlip(2, fly)),
+            At(seconds - 1.0f * f, () => Log(1)),
+            At(seconds - 0.4f * f, () => Log(2)));
         Finish("You gathered the slips and logged every crate!");
     }
 
-    private void FlySlip(int i)
+    private void FlySlip(int i, float flight)
     {
         if (i >= crates.Length || slip == null) return;
         var go = new GameObject("Slip");
@@ -242,12 +280,12 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
         _spawned.Add(go);
         SunodGame.Core.vc_Sfx.Play("cut_whoosh", 0.3f, 0.15f);
         StartCoroutine(SlipFlight(go.transform, crates[i].transform.position + new Vector3(0f, 0.5f, 0f),
-                                  (ledger != null ? ledger.transform.position : transform.position) + new Vector3(0f, 0.8f, 0f)));
+                                  (ledger != null ? ledger.transform.position : transform.position) + new Vector3(0f, 0.8f, 0f), flight));
     }
 
-    private IEnumerator SlipFlight(Transform tr, Vector3 from, Vector3 to)
+    private IEnumerator SlipFlight(Transform tr, Vector3 from, Vector3 to, float dur)
     {
-        float t = 0f, dur = 1.0f;
+        float t = 0f;
         while (t < dur && tr != null)
         {
             t += Time.deltaTime;
@@ -262,28 +300,31 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
 
     // ── Direct: slide the crates into a neat row ─────────────────────────
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float seconds, bool oneGo)
     {
-        Toast("Sorting the crates into a neat row...", directTime);
+        Toast(oneGo ? "The crates are already in a row. Logging them all at once..." : "Sorting the crates into a neat row...", seconds);
         ShowBar(true);
+        float f = seconds / Mathf.Max(0.1f, directTime);
         for (int i = 0; i < crates.Length; i++)
         {
             int k = i;
-            StartCoroutine(Slide(crates[k].transform, rowSlots != null && k < rowSlots.Length ? rowSlots[k].position : _crateRest[k], 0.4f + k * 0.55f, 0.9f));
+            StartCoroutine(Slide(crates[k].transform, rowSlots != null && k < rowSlots.Length ? rowSlots[k].position : _crateRest[k], (0.4f + k * 0.55f) * f, Mathf.Max(0.25f, 0.9f * f)));
         }
-        yield return Timeline(directTime, 0f,
-            At(2.6f, () => Digit(1, crates[0].transform.position + new Vector3(0f, 0.95f, 0f))),
-            At(3.0f, () => Digit(2, crates[1].transform.position + new Vector3(0f, 0.95f, 0f))),
-            At(3.4f, () => Digit(3, crates[2].transform.position + new Vector3(0f, 0.95f, 0f))),
-            At(directTime - 1.2f, () => Log(1)),
-            At(directTime - 0.5f, () => Log(2)));
-        Finish("You sorted the crates into rows and logged them!");
+        yield return Timeline(seconds, 0f,
+            At(2.6f * f, () => Digit(1, crates[0].transform.position + new Vector3(0f, 0.95f, 0f))),
+            At(3.0f * f, () => Digit(2, crates[1].transform.position + new Vector3(0f, 0.95f, 0f))),
+            At(3.4f * f, () => Digit(3, crates[2].transform.position + new Vector3(0f, 0.95f, 0f))),
+            At(seconds - 1.2f * f, () => Log(1)),
+            At(seconds - 0.5f * f, () => Log(2)));
+        Finish(oneGo ? "The whole row logged in one go!" : "You sorted the crates into rows and logged them!");
     }
 
     private IEnumerator Slide(Transform tr, Vector3 to, float delay, float dur)
     {
         yield return new WaitForSeconds(delay);
+        if (tr == null) yield break;
         Vector3 from = tr.position;
+        if ((from - to).sqrMagnitude < 0.0001f) yield break;   // already in its slot
         float t = 0f, scrape = 0f;
         SunodGame.Core.vc_Sfx.Play("scrape", 0.4f, 0.1f);
         while (t < dur && tr != null)
@@ -300,43 +341,45 @@ public class vc_DockLedgerQuest : vc_FitQuestBase
 
     // ── Survey: count from the dock steps, slowly ────────────────────────
 
-    private IEnumerator SurveyRoutine()
+    private IEnumerator SurveyRoutine(float seconds)
     {
-        Toast("Counting the crates from the dock steps...", surveyTime);
+        Toast("Counting the crates from the dock steps...", seconds);
         ShowBar(true);
+        float f = seconds / Mathf.Max(0.1f, surveyTime);
         var ev = new List<Ev>();
         for (int i = 0; i < crates.Length; i++)
         {
-            int k = i; float b = 0.3f + k * 2f;
+            int k = i; float b = (0.3f + k * 2f) * f;
             ev.Add(At(b, () => Fx(new[] { magnifier }, crates[k].transform.position + new Vector3(0.2f, 0.8f, 0f), 0.75f, 0.1f, 22)));
-            ev.Add(At(b + 0.5f, () => Fx(ringFrames, crates[k].transform.position + new Vector3(0f, 0.1f, 0f), 6f)));
-            ev.Add(At(b + 1.2f, () => CheckCrate(k)));
+            ev.Add(At(b + 0.5f * f, () => Fx(ringFrames, crates[k].transform.position + new Vector3(0f, 0.1f, 0f), 6f)));
+            ev.Add(At(b + 1.2f * f, () => CheckCrate(k)));
         }
-        ev.Add(At(surveyTime - 1.6f, () => Log(1)));
-        ev.Add(At(surveyTime - 0.7f, () => Log(2)));
-        yield return Timeline(surveyTime, 0f, ev.ToArray());
+        ev.Add(At(seconds - 1.6f * f, () => Log(1)));
+        ev.Add(At(seconds - 0.7f * f, () => Log(2)));
+        yield return Timeline(seconds, 0f, ev.ToArray());
         Finish("You counted every crate from the steps. Logged!");
     }
 
     // ── Command: a dockhand calls out the numbers ────────────────────────
 
-    private IEnumerator CommandRoutine()
+    private IEnumerator CommandRoutine(float seconds)
     {
         Toast("You call over a dockhand...", 3f);
+        float f = seconds / Mathf.Max(0.1f, commandTime);
         ShowBar(true);
         Vector3 to = _crateRest[0] + new Vector3(-1.5f, -0.9f, 0f);
         Vector3 from = to + new Vector3(-5.5f, 0f, 0f);
         SpawnHelper(from, 7);
-        float walk = 2.4f;
-        yield return HelperWalk(from, to, walk, t => SetBar(t / commandTime));
+        float walk = 2.4f * f;
+        yield return HelperWalk(from, to, walk, t => SetBar(t / seconds));
         Toast("The dockhand calls out the numbers...", 4f);
         Vector3 hp = to + new Vector3(0f, 1.3f, 0f);
-        yield return Timeline(commandTime - walk, walk / commandTime,
-            At(0.3f, () => { Fx(new[] { shout }, hp, 1.4f, 0.2f, 24); CheckCrate(0); }),
-            At(1.5f, () => { Fx(new[] { shout }, hp, 1.4f, 0.2f, 24); CheckCrate(1); }),
-            At(2.7f, () => { Fx(new[] { shout }, hp, 1.4f, 0.2f, 24); CheckCrate(2); }),
-            At(commandTime - walk - 1.7f, () => Log(1)),
-            At(commandTime - walk - 0.7f, () => Log(2)));
+        yield return Timeline(seconds - walk, walk / seconds,
+            At(0.3f * f, () => { Fx(new[] { shout }, hp, 1.4f, 0.2f, 24); CheckCrate(0); }),
+            At(1.5f * f, () => { Fx(new[] { shout }, hp, 1.4f, 0.2f, 24); CheckCrate(1); }),
+            At(2.7f * f, () => { Fx(new[] { shout }, hp, 1.4f, 0.2f, 24); CheckCrate(2); }),
+            At(seconds - walk - 1.7f * f, () => Log(1)),
+            At(seconds - walk - 0.7f * f, () => Log(2)));
         Finish("The dockhands called out the numbers. All logged!");
     }
 

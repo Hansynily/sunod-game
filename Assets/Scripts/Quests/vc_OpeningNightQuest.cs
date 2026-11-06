@@ -57,6 +57,28 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
     [SerializeField] private float commandTime = 8f;
     [SerializeField] private float teachTime = 8f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Command (prep) calls "Places!" and the cast steps aside,
+    // then Paint sweeps the whole backdrop at once. Preference: Barrier (the costumes).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Direk Paulo",
+        presses = 4,
+        bestFitTag = "craft",
+        bestFitSeconds = 2f,
+        prepTag = "command",
+        prepUnlocksTag = "paint",
+        prepLine = "\"Places!\" The cast steps aside, the backdrop is all yours.",
+        preferredTag = "barrier",
+        preferenceLine = "The costumes are perfect! Salamat, anak!",
+        fastLines = new[]
+        {
+            ("paint", "The set's done?! Curtain up!"),
+            ("barrier", "Every costume, ready in seconds!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private SpriteRenderer[] _sr;
     private Vector3[] _wait;
     private bool[] _costumed;
@@ -106,7 +128,7 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Opening Night",
-            "Opening night is tonight and the stage is still bare. Get the play ready.",
+            "Direk Paulo: opening night is tonight, the scenery is blank and the costumes aren't done. Get the play ready. He is very proud of his costumes.",
             new[] { "Get the play started" });
     }
 
@@ -145,10 +167,10 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
 
         if (BlockedByWork()) return;
 
-        if (d.HasTag("paint")) { StartWork(PaintRoutine()); return; }
-        if (d.HasTag("barrier")) { StartWork(BarrierRoutine()); return; }
-        if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
-        if (d.HasTag("teach")) { StartWork(TeachRoutine()); return; }
+        if (d.HasTag("paint")) { StartWork(PaintRoutine(PathTime(paintTime), CurrentInstant)); return; }
+        if (d.HasTag("barrier")) { StartWork(BarrierRoutine(PathTime(barrierTime))); return; }
+        if (d.HasTag("command")) { StartWork(CommandRoutine(PathTime(commandTime))); return; }
+        if (d.HasTag("teach")) { StartWork(TeachRoutine(PathTime(teachTime))); return; }
 
         Toast("The show needs a creative eye.", 2.2f);
     }
@@ -170,9 +192,10 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
 
     // ── Paint ◆ ──────────────────────────────────────────────────────────
 
-    private IEnumerator PaintRoutine()
+    private IEnumerator PaintRoutine(float paintTime, bool oneGo)
     {
-        Toast("Painting the scenery...", paintTime);
+        float sc = Mathf.Max(0.1f, paintTime / 4f);
+        Toast(oneGo ? "One sweep across the whole backdrop!" : "Painting the scenery...", paintTime);
         ShowBar(true);
         yield return ShowSets(setBlank, false);
         float t = 0.4f;
@@ -184,8 +207,8 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
             Vector3 to = set.transform.position + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.3f, 0.4f), 0f);
             StartCoroutine(Fly(dabFrames != null && dabFrames.Length > 0 ? dabFrames[k % dabFrames.Length] : null, from, to, 0.3f));
             SunodGame.Core.vc_Sfx.Play("brush", 0.4f, 0.1f);
-            yield return BarStep(0.25f, t / paintTime, (t + 0.25f) / paintTime);
-            t += 0.25f;
+            yield return BarStep(0.25f * sc, t / paintTime, (t + 0.25f * sc) / paintTime);
+            t += 0.25f * sc;
         }
         foreach (SpriteRenderer s in sets)
         {
@@ -193,9 +216,9 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
             Fx(sparkFrames, s.transform.position + new Vector3(0f, 0.3f, 0f), 12f, 0.2f);
         }
         SunodGame.Core.vc_Sfx.Play("chime", 0.6f);
-        SendCast(1.5f, 0f, 0.15f);
-        yield return BarStep(1.1f, t / paintTime, (t + 1.1f) / paintTime);
-        t += 1.1f;
+        SendCast(1.5f * sc, 0f, 0.15f * sc);
+        yield return BarStep(1.1f * sc, t / paintTime, (t + 1.1f * sc) / paintTime);
+        t += 1.1f * sc;
         OpenCurtains();
         yield return BarStep(Mathf.Max(0.1f, paintTime - 0.7f - t), t / paintTime, 1f);
         yield return Curtain();
@@ -203,13 +226,14 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
 
     // ── Barrier ◆ ────────────────────────────────────────────────────────
 
-    private IEnumerator BarrierRoutine()
+    private IEnumerator BarrierRoutine(float barrierTime)
     {
+        float k = Mathf.Max(0.1f, barrierTime / 5f);
         Toast("Shaping costumes for the cast...", barrierTime);
         ShowBar(true);
         yield return ShowSets(setBlank, false);
         float t = 0.4f;
-        float per = 0.95f;
+        float per = 0.95f * k;
         for (int i = 0; i < _sr.Length; i++)
         {
             SunodGame.Core.vc_Sfx.Play("snip", 0.5f, 0.1f);
@@ -224,9 +248,9 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
             yield return BarStep(per * 0.5f, t / barrierTime, (t + per * 0.5f) / barrierTime);
             t += per * 0.5f;
         }
-        SendCast(1.0f, 0f, 0.1f);
-        yield return BarStep(0.8f, t / barrierTime, (t + 0.8f) / barrierTime);
-        t += 0.8f;
+        SendCast(1.0f * k, 0f, 0.1f * k);
+        yield return BarStep(0.8f * k, t / barrierTime, (t + 0.8f * k) / barrierTime);
+        t += 0.8f * k;
         OpenCurtains();
         yield return BarStep(Mathf.Max(0.1f, barrierTime - 0.7f - t), t / barrierTime, 1f);
         yield return Curtain();
@@ -234,28 +258,29 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
 
     // ── Command ○ ────────────────────────────────────────────────────────
 
-    private IEnumerator CommandRoutine()
+    private IEnumerator CommandRoutine(float commandTime)
     {
-        Toast("\"Places, everyone!\"", 2.5f);
+        float k = Mathf.Max(0.1f, commandTime / 8f);
+        Toast("\"Places, everyone!\"", Mathf.Min(2.5f, commandTime));
         ShowBar(true);
         for (int i = 0; i < _sr.Length; i++)
             Fx(new[] { bubbleShout }, cast[i].position + new Vector3(0.1f, 1.05f, 0f), 1.5f, 0.3f);
         SunodGame.Core.vc_Sfx.Play("drum_hit", 0.5f);
-        yield return BarStep(1.0f, 0f, 1f / commandTime);
-        float t = 1.0f;
+        yield return BarStep(1.0f * k, 0f, 1f * k / commandTime);
+        float t = 1.0f * k;
         yield return ShowSets(setPainted, true);
         t += 0.4f;
 
         // the lead runs straight; the extras first run the wrong way and have to turn around
         Vector3 lead = Mark(0);
-        _routes.Add(StartCoroutine(WalkCast(0, lead, 4.6f, 0f)));
+        _routes.Add(StartCoroutine(WalkCast(0, lead, 4.6f * k, 0f)));
         for (int i = 1; i < _sr.Length; i++)
         {
             Vector3 wrong = cast[i].position + new Vector3(i == 1 ? -1.5f : 1.0f, -1.4f, 0f);
-            _routes.Add(StartCoroutine(Scramble(i, wrong, Mark(i), 2.0f, 2.8f)));
+            _routes.Add(StartCoroutine(Scramble(i, wrong, Mark(i), 2.0f * k, 2.8f * k)));
         }
-        yield return BarStep(4.6f, t / commandTime, (t + 4.6f) / commandTime);
-        t += 4.6f;
+        yield return BarStep(4.6f * k, t / commandTime, (t + 4.6f * k) / commandTime);
+        t += 4.6f * k;
         OpenCurtains();
         yield return BarStep(Mathf.Max(0.1f, commandTime - 0.7f - t), t / commandTime, 1f);
         yield return Curtain();
@@ -271,14 +296,15 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
 
     // ── Teach ○ ──────────────────────────────────────────────────────────
 
-    private IEnumerator TeachRoutine()
+    private IEnumerator TeachRoutine(float teachTime)
     {
+        float k = Mathf.Max(0.1f, teachTime / 8f);
         Toast("Coaching the lead's lines...", teachTime);
         ShowBar(true);
         yield return ShowSets(setPainted, true);
         float t = 0.4f;
         Sprite[] steps = { bubbleQuestion, bubbleDots, bubbleLine, bubblePitch, bubbleSmile };
-        float per = 1.0f;
+        float per = 1.0f * k;
         foreach (Sprite s in steps)
         {
             Fx(new[] { s }, cast[0].position + new Vector3(0.1f, 1.05f, 0f), 1.2f, 0.25f);
@@ -288,9 +314,9 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
             t += per;
         }
         SunodGame.Core.vc_Sfx.Play("chime", 0.6f);
-        SendCast(1.3f, 0f, 0.15f);
-        yield return BarStep(1.4f, t / teachTime, (t + 1.4f) / teachTime);
-        t += 1.4f;
+        SendCast(1.3f * k, 0f, 0.15f * k);
+        yield return BarStep(1.4f * k, t / teachTime, (t + 1.4f * k) / teachTime);
+        t += 1.4f * k;
         OpenCurtains();
         yield return BarStep(Mathf.Max(0.1f, teachTime - 0.7f - t), t / teachTime, 1f);
         yield return Curtain();
@@ -306,6 +332,22 @@ public class vc_OpeningNightQuest : vc_FitQuestBase
             tr.position = b;
             yield return new WaitForSeconds(0.1f);
         }
+    }
+
+    // ── Prep (Command): "Places!", the cast steps aside so Paint can sweep the backdrop ──
+
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        for (int i = 0; i < _sr.Length; i++)
+            Fx(new[] { bubbleShout }, cast[i].position + new Vector3(0.1f, 1.05f, 0f), 1.5f, 0.3f);
+        SunodGame.Core.vc_Sfx.Play("drum_hit", 0.5f);
+        for (int i = 0; i < _sr.Length; i++)
+        {
+            Vector3 aside = cast[i].position + new Vector3(i % 2 == 0 ? -1.3f : 1.3f, -0.2f, 0f);
+            StartCoroutine(WalkCast(i, aside, 0.8f, 0.05f * i));
+        }
+        yield return new WaitForSeconds(1f);
     }
 
     // ── Shared stage actions ─────────────────────────────────────────────

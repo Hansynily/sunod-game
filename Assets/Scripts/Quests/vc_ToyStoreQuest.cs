@@ -64,6 +64,30 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
     [SerializeField] private float mapTime = 5f;
     [SerializeField] private float directTime = 7f;
 
+    // Skill system v2 (QUEST_REDESIGN.md): Direct (prep) snaps price tags onto the shelves, then Map
+    // slides the shelves into a perfect layout at once. Preference: Charm (the train set).
+    private static readonly vc_QuestSkillProfile Profile = new vc_QuestSkillProfile
+    {
+        npcName = "Mr. Tan",
+        presses = 6,
+        bestFitTag = "command",
+        bestFitSeconds = 2f,
+        prepTag = "direct",
+        prepUnlocksTag = "map",
+        prepLine = "Price tags snap onto every shelf...",
+        preferredTag = "charm",
+        preferenceLine = "The train set! You knew just what they wanted!",
+        fastLines = new[]
+        {
+            ("persuade", "Sold the biggest teddy in seconds!"),
+            ("charm", "The train set! You knew!"),
+            ("summon", "A whole rush, just like that!"),
+            ("map", "The shop flows perfectly now. How?!"),
+        },
+    };
+
+    protected override vc_QuestSkillProfile SkillProfile => Profile;
+
     private class Walker
     {
         public Transform tr;
@@ -127,7 +151,7 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
         vc_QuestHUD.Instance?.ShowQuestInfo(
             "Quest",
             "Toy Store Rush",
-            "The toy store is getting busy. Help keep it running.",
+            "Mr. Tan's toy store is so busy! The kids always run straight to the train set. Help keep it running.",
             new[] { "Help run the store" });
     }
 
@@ -162,11 +186,11 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
     {
         if (d.HasTag("command")) { StartWork(CommandRoutine()); return; }
         if (BlockedByWork()) return;
-        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine()); return; }
-        if (d.HasTag("charm")) { StartWork(CharmRoutine()); return; }
+        if (d.HasTag("persuade")) { StartWork(PersuadeRoutine(PathTime(persuadeTime))); return; }
+        if (d.HasTag("charm")) { StartWork(CharmRoutine(PathTime(charmTime))); return; }
         if (d.HasTag("summon")) { CallPress(); return; }
-        if (d.HasTag("map")) { StartWork(MapRoutine()); return; }
-        if (d.HasTag("direct")) { StartWork(DirectRoutine()); return; }
+        if (d.HasTag("map")) { StartWork(MapRoutine(PathTime(mapTime))); return; }
+        if (d.HasTag("direct")) { StartWork(DirectRoutine(PathTime(directTime))); return; }
         Toast("The store needs someone to run it.", 2.2f);
     }
 
@@ -186,6 +210,24 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
     }
 
     // ── Command: the staff restock, the register rings, a sale follows ───
+
+    // Prep (Direct): price tags snap onto the shelf one after another.
+    protected override IEnumerator OnPrep(vc_SkillData prepSkill)
+    {
+        Toast(Profile.prepLine, 1.4f);
+        SunodGame.Core.vc_Sfx.Play("text_blip", 0.5f, 0.05f);
+        Vector3 top = toyShelf.position + new Vector3(0f, 1.2f, 0f);
+        for (int i = 0; i < 4; i++)
+        {
+            Vector3 at = top + new Vector3(-0.8f + i * 0.55f, (i % 2) * 0.15f, 0f);
+            Fx(saleTag, at, 1.6f, 0.3f, 24);
+            Fx(checkFrames, at + new Vector3(0f, 0.4f, 0f), 2.5f, 0.2f, 24);
+            SunodGame.Core.vc_Sfx.Play("clack", 0.35f, 0.1f);
+            yield return new WaitForSeconds(0.2f);
+        }
+        SunodGame.Core.vc_Sfx.Play("step_done", 0.45f, 0.05f);
+        yield return new WaitForSeconds(0.2f);
+    }
 
     private IEnumerator CommandRoutine()
     {
@@ -224,7 +266,7 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
 
     // ── Persuade: sell the biggest teddy bear ────────────────────────────
 
-    private IEnumerator PersuadeRoutine()
+    private IEnumerator PersuadeRoutine(float persuadeTime)
     {
         Toast("You pitch the biggest teddy bear...", persuadeTime);
         ShowBar(true);
@@ -245,7 +287,7 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
 
     // ── Charm: a kid runs to the toy train ───────────────────────────────
 
-    private IEnumerator CharmRoutine()
+    private IEnumerator CharmRoutine(float charmTime)
     {
         Toast("You flash a friendly smile at a kid...", charmTime);
         ShowBar(true);
@@ -288,10 +330,20 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
         Walker w = MakeTemp(_callerLooks[idx], 1f, new Vector3(-7.2f, spot.y, 0f));
         Track(Walk(w, spot, 2.0f, 0f));
 
-        if (_callCount < callPresses)
-            Toast($"A shopper comes in! ({_callCount}/{callPresses})", 2f);
+        int need = Mathf.Max(1, PathPresses(callPresses));
+        if (_callCount < need)
+            Toast($"A shopper comes in! ({_callCount}/{need})", 2f);
         else
+        {
+            // fewer presses (levels): the rest of the crowd follows in at once
+            for (int k = _callCount; k < callPresses; k++)
+            {
+                Vector3 sp = BuyGround + new Vector3(-0.9f * k - 0.3f, 0.2f * (k % 2), 0f);
+                Walker extra = MakeTemp(_callerLooks[k % 3], 1f, new Vector3(-7.2f, sp.y, 0f));
+                Track(Walk(extra, sp, 2.0f, 0.15f * k));
+            }
             StartWork(CallRushRoutine());
+        }
     }
 
     private IEnumerator CallRushRoutine()
@@ -323,7 +375,7 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
 
     // ── Map: rearrange the shelf so shoppers flow through ────────────────
 
-    private IEnumerator MapRoutine()
+    private IEnumerator MapRoutine(float mapTime)
     {
         Toast("You rearrange the shelves for a better flow...", mapTime);
         ShowBar(true);
@@ -365,13 +417,13 @@ public class vc_ToyStoreQuest : vc_FitQuestBase
 
     // ── Direct: tidy the messy stock, then sales come ────────────────────
 
-    private IEnumerator DirectRoutine()
+    private IEnumerator DirectRoutine(float directTime)
     {
         Toast("You sort the messy stock onto the shelf...", directTime);
         ShowBar(true);
         float elapsed = 0f;
         int n = messItems.Length;
-        float per = (directTime - 2.1f) / Mathf.Max(1, n);
+        float per = Mathf.Max(0.1f, directTime * (1f - 2.1f / this.directTime)) / Mathf.Max(1, n);
         for (int i = 0; i < n; i++)
         {
             Transform item = messItems[i];
