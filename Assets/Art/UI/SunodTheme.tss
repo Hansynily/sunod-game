@@ -495,3 +495,136 @@ TextField, .unity-text-field { min-height: 84px; font-size: 28px; margin: 6px 0 
     border-bottom-color: var(--sn-gold);
     padding: 0 18px 6px 18px;
 }
+
+/* =====================================================================================
+   Classic UI style (default): hand-shaded pixel art for buttons, panels and cards
+   (Resources/UIClassic, Art/UI/Panels/make_classic_skin.py). vc_ClassicSkin applies the
+   same art inline as a backstop for screens whose own USS wins over these rules.
+   ===================================================================================== */
+.sn-classic .sn-btn, .sn-classic .sl-button, .sn-classic .sl-button-wide {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 7;
+    -unity-slice-scale: 3px;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+.sn-classic .sn-btn--ghost { background-image: none; }
+.sn-classic .sn-btn { background-image: url("/Assets/Resources/UIClassic/btn_cream.png"); }
+.sn-classic .sn-btn:active:enabled { background-image: url("/Assets/Resources/UIClassic/btn_cream_down.png"); }
+.sn-classic .sl-button { background-image: url("/Assets/Resources/UIClassic/btn_cream.png"); }
+.sn-classic .sl-button:active:enabled { background-image: url("/Assets/Resources/UIClassic/btn_cream_down.png"); }
+.sn-classic .sl-button-wide { background-image: url("/Assets/Resources/UIClassic/btn_cream.png"); }
+.sn-classic .sl-button-wide:active:enabled { background-image: url("/Assets/Resources/UIClassic/btn_cream_down.png"); }
+.sn-classic .sn-btn--primary { background-image: url("/Assets/Resources/UIClassic/btn_green.png"); }
+.sn-classic .sn-btn--primary:active:enabled { background-image: url("/Assets/Resources/UIClassic/btn_green_down.png"); }
+.sn-classic .sn-btn--gold { background-image: url("/Assets/Resources/UIClassic/btn_gold.png"); }
+.sn-classic .sn-btn--gold:active:enabled { background-image: url("/Assets/Resources/UIClassic/btn_gold_down.png"); }
+.sn-classic .sn-btn--danger { background-image: url("/Assets/Resources/UIClassic/btn_red.png"); }
+.sn-classic .sn-btn--danger:active:enabled { background-image: url("/Assets/Resources/UIClassic/btn_red_down.png"); }
+.sn-classic .sn-btn--night { background-image: url("/Assets/Resources/UIClassic/btn_night.png"); }
+.sn-classic .sn-btn--night:active:enabled { background-image: url("/Assets/Resources/UIClassic/btn_night_down.png"); }
+
+.sn-classic .sn-panel, .sn-classic .sl-panel-wood, .sn-classic .sl-dialog {
+    background-image: url("/Assets/Resources/UIClassic/panel.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    -unity-slice-left: 6; -unity-slice-top: 6; -unity-slice-right: 6; -unity-slice-bottom: 9;
+    -unity-slice-scale: 3px;
+}
+.sn-classic .sn-panel--dark, .sn-classic .sl-panel-dark {
+    background-image: url("/Assets/Resources/UIClassic/panel_dark.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    -unity-slice-left: 6; -unity-slice-top: 6; -unity-slice-right: 6; -unity-slice-bottom: 9;
+    -unity-slice-scale: 3px;
+}
+.sn-classic .sn-card, .sn-classic .sl-panel-cream, .sn-classic .sl-slot {
+    background-image: url("/Assets/Resources/UIClassic/card.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 5;
+    -unity-slice-scale: 3px;
+}
+.sn-classic .sn-card--selected { background-image: url("/Assets/Resources/UIClassic/card_sel.png"); }
+.sn-classic .sn-chip, .sn-classic .sl-chip {
+    background-image: url("/Assets/Resources/UIClassic/chip.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 5;
+    -unity-slice-scale: 3px;
+}
+
+/* Classic: crisp pixel shadows behind text (no blur), like hand-made game UI */
+.sn-classic .sn-btn, .sn-classic .sl-button, .sn-classic .sl-button-wide,
+.sn-classic .sn-btn Label, .sn-classic .sl-button Label, .sn-classic .sl-button-wide Label {
+    text-shadow: 2px 2px 0 rgb(214, 188, 148);
+}
+.sn-classic .sn-btn--primary, .sn-classic .sn-btn--primary Label { text-shadow: 2px 2px 0 rgb(36, 82, 46); }
+.sn-classic .sn-btn--gold, .sn-classic .sn-btn--gold Label { text-shadow: 2px 2px 0 rgb(255, 236, 158); }
+.sn-classic .sn-btn--danger, .sn-classic .sn-btn--danger Label { text-shadow: 2px 2px 0 rgb(112, 36, 32); }
+.sn-classic .sn-btn--night, .sn-classic .sn-btn--night Label { text-shadow: 2px 2px 0 rgb(44, 44, 94); }
+.sn-classic .sn-title, .sn-classic .sn-display, .sn-classic .sl-ribbon, .sn-classic .sn-subtitle {
+    text-shadow: 2px 2px 0 rgb(222, 200, 162);
+}
+.sn-classic .sn-chip Label, .sn-classic .sn-chip, .sn-classic .sn-badge {
+    text-shadow: 1px 1px 0 rgba(140, 113, 92, 0.45);
+}
+.sn-classic .sn-panel--dark Label, .sn-classic .sn-on-dark { text-shadow: 2px 2px 0 rgb(36, 24, 16); }
+
+/* Classic: town board posters = pinned paper notes; tags + scrollbar + dividers in pixels */
+.sn-classic .qb-card {
+    background-image: url("/Assets/Resources/UIClassic/note.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    -unity-slice-left: 5; -unity-slice-top: 5; -unity-slice-right: 5; -unity-slice-bottom: 5;
+    -unity-slice-scale: 3px;
+    padding-top: 20px;
+}
+.sn-classic .sn-badge {
+    background-image: url("/Assets/Resources/UIClassic/badge_green.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    -unity-slice-left: 3; -unity-slice-top: 3; -unity-slice-right: 3; -unity-slice-bottom: 4;
+    -unity-slice-scale: 2px;
+    padding: 2px 10px 6px 10px;
+    color: var(--sn-cream-hi);
+    text-shadow: 1px 1px 0 rgb(22, 50, 28);
+}
+.sn-classic .sn-badge--gold { background-image: url("/Assets/Resources/UIClassic/badge_gold.png"); color: var(--sn-ink); text-shadow: 1px 1px 0 rgb(255, 236, 158); }
+.sn-classic .sn-badge--silver { background-image: url("/Assets/Resources/UIClassic/badge_silver.png"); color: var(--sn-ink); text-shadow: 1px 1px 0 rgb(244, 248, 255); }
+
+.sn-classic .qb-tab--on, .sn-classic .qb-tab--on Label,
+.sn-classic .settings-choice-btn--on, .sn-classic .settings-choice-btn--on Label {
+    color: var(--sn-cream-hi);
+    text-shadow: 2px 2px 0 rgb(36, 82, 46);
+}
+
+.sn-classic .unity-scroller .unity-base-slider__tracker {
+    background-color: rgb(226, 206, 170);
+    border-color: rgb(150, 112, 74);
+    border-width: 2px;
+    border-radius: 0;
+}
+.sn-classic .unity-scroller .unity-base-slider__dragger {
+    background-color: rgb(176, 130, 88);
+    border-color: rgb(84, 56, 38);
+    border-width: 2px;
+    border-top-color: rgb(214, 170, 120);
+    border-radius: 0;
+}
+
+.sn-classic .sn-divider {
+    height: 3px;
+    background-color: rgb(206, 178, 136);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(255, 252, 242);
+    border-radius: 0;
+}
+

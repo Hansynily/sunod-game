@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace SunodGame.UI
 {
     /// <summary>
-    /// UI V2 helper (2026-11-07). UI Toolkit draws a corner radius bigger than half the
+    /// UI V2 helper (2026-11-07). Also applies the Classic UI style's small corners. UI Toolkit draws a corner radius bigger than half the
     /// element's size as a squashed oval instead of capping it like CSS. The theme uses big
     /// radii for pills and circles ("as round as possible"), so this pass caps every element's
     /// radius at half its smaller side: pills and circles come out exact at any size.
@@ -39,20 +39,31 @@ namespace SunodGame.UI
         private void LateUpdate()
         {
             if (Time.unscaledTime < _next) return;
-            _next = Time.unscaledTime + 0.2f;
+            _next = Time.unscaledTime + 0.1f;
             if (++_tick % 10 == 0) Refresh();   // UIDocuments created mid-scene
+            Classic = vc_PlayerOptions.ClassicUI;
             for (int i = _docs.Count - 1; i >= 0; i--)
             {
                 UIDocument d = _docs[i];
                 if (d == null) { _docs.RemoveAt(i); continue; }
-                if (d.isActiveAndEnabled && d.rootVisualElement != null) Walk(d.rootVisualElement);
+                if (d.isActiveAndEnabled && d.rootVisualElement != null)
+                {
+                    d.rootVisualElement.EnableInClassList("sn-classic", Classic);   // per-style USS hooks
+                    Walk(d.rootVisualElement);
+                }
             }
         }
 
+        /// <summary>Classic UI style: corners stay small and pixel-like (except .sn-round).</summary>
+        public const float ClassicMaxRadius = 8f;
+        private static bool Classic;   // read once per pass
+
         private static void Walk(VisualElement ve)
         {
-            if (ve.resolvedStyle.display == DisplayStyle.None) return;
-            Clamp(ve);
+            // Classic art goes on hidden elements too, so a panel is skinned before it opens
+            bool skinned = vc_ClassicSkin.Apply(ve, Classic);
+            bool shown = ve.resolvedStyle.display != DisplayStyle.None;
+            if (shown && !skinned) Clamp(ve);
             int n = ve.hierarchy.childCount;
             for (int i = 0; i < n; i++) Walk(ve.hierarchy[i]);
         }
@@ -67,6 +78,7 @@ namespace SunodGame.UI
             Rect r = ve.layout;
             if (r.width <= 1f || r.height <= 1f) return;
             float half = Mathf.Min(r.width, r.height) * 0.5f;
+            if (Classic && !ve.ClassListContains("sn-round")) half = Mathf.Min(half, ClassicMaxRadius);
             IResolvedStyle s = ve.resolvedStyle;
             if (!Asked.TryGetValue(ve, out Wanted w))
             {

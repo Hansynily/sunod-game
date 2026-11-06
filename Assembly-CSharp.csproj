@@ -121,6 +121,7 @@
     <Compile Include="Assets\Scripts\Town\vc_TownAtmosphere.cs" />
     <Compile Include="Assets\Scripts\vc_CatQuest.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Results.cs" />
+    <Compile Include="Assets\Scripts\UI\vc_ClassicSkin.cs" />
     <Compile Include="Assets\Scripts\vc_BuildSkill.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_PortGeneratorQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_WorkshopGrinderQuest.cs" />

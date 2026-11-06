@@ -31,6 +31,14 @@ namespace SunodGame.UI
         public const float EnterTime = 0.32f;
         public const float ExitTime = 0.18f;
 
+        /// <summary>
+        /// Classic UI style (default, vc_PlayerOptions.ClassicUI): calm, traditional motion.
+        /// No overshoot/elastic, small distances, short times, and tweens step at ~12 fps like
+        /// sprite animation instead of gliding. Modern = the full juicy V2 motion.
+        /// </summary>
+        public static bool Classic => vc_PlayerOptions.ClassicUI;
+        private const float ClassicFps = 12f;
+
         // ── easing ────────────────────────────────────────────────────────
         public static float OutCubic(float t) { t = 1f - t; return 1f - t * t * t; }
         public static float InCubic(float t) => t * t * t;
@@ -86,6 +94,7 @@ namespace SunodGame.UI
             if (ease == null) ease = OutCubic;
             float start = Time.unscaledTime + Mathf.Max(0f, delay);
             seconds = Mathf.Max(0.0001f, seconds);
+            int steps = Classic ? Mathf.Max(1, Mathf.RoundToInt(seconds * ClassicFps)) : 0;
             if (delay <= 0f) step(ease(0f));
             h.Item = ve.schedule.Execute(() =>
             {
@@ -93,6 +102,7 @@ namespace SunodGame.UI
                 float now = Time.unscaledTime;
                 if (now < start) return;
                 float t = Mathf.Clamp01((now - start) / seconds);
+                if (steps > 0) t = Mathf.Min(1f, Mathf.Ceil(t * steps) / steps);   // stepped, sprite-like
                 step(ease(t));
                 if (t >= 1f)
                 {
@@ -116,15 +126,17 @@ namespace SunodGame.UI
             if (ve == null) return null;
             ve.style.display = DisplayStyle.Flex;
             ve.style.visibility = Visibility.Visible;
+            bool classic = Classic;
             float dur = seconds > 0f ? seconds : (kind == Enter.Fade ? 0.22f : EnterTime);
-            Vector2 from = Offset(kind, 48f);
+            if (classic) dur = Mathf.Min(dur, kind == Enter.Fade ? 0.15f : 0.18f);
+            Vector2 from = Offset(kind, classic ? 14f : 48f);
             bool pops = kind == Enter.Pop || kind == Enter.Drop;
-            float s0 = kind == Enter.Pop ? 0.82f : kind == Enter.Drop ? 1.12f : 1f;
+            float s0 = kind == Enter.Pop ? (classic ? 0.95f : 0.82f) : kind == Enter.Drop ? (classic ? 1.03f : 1.12f) : 1f;
             // start state now, so nothing flashes at full size during the delay
             ve.style.opacity = 0f;
             ve.style.scale = new Scale(new Vector2(s0, s0));
             ve.style.translate = new Translate(from.x, from.y);
-            return Tween(ve, dur, kind == Enter.Fade ? (Func<float, float>)OutCubic : OutBack, e =>
+            return Tween(ve, dur, kind == Enter.Fade || classic ? (Func<float, float>)OutCubic : OutBack, e =>
             {
                 float lin = Mathf.Clamp01(e);
                 ve.style.opacity = Mathf.Clamp01(lin * 1.6f);
@@ -139,16 +151,19 @@ namespace SunodGame.UI
         {
             if (ve == null) { done?.Invoke(); return null; }
             if (ve.resolvedStyle.display == DisplayStyle.None) { done?.Invoke(); return null; }
+            bool classic = Classic;
             float dur = seconds > 0f ? seconds : ExitTime;
+            if (classic) dur = Mathf.Min(dur, 0.12f);
+            float k = classic ? 0.3f : 1f;
             Vector2 to = kind switch
             {
-                Exit.SlideDown => new Vector2(0f, 48f),
-                Exit.SlideUp => new Vector2(0f, -48f),
-                Exit.SlideLeft => new Vector2(-64f, 0f),
-                Exit.SlideRight => new Vector2(64f, 0f),
+                Exit.SlideDown => new Vector2(0f, 48f * k),
+                Exit.SlideUp => new Vector2(0f, -48f * k),
+                Exit.SlideLeft => new Vector2(-64f * k, 0f),
+                Exit.SlideRight => new Vector2(64f * k, 0f),
                 _ => Vector2.zero
             };
-            float s1 = kind == Exit.Shrink ? 0.88f : 1f;
+            float s1 = kind == Exit.Shrink ? (classic ? 0.97f : 0.88f) : 1f;
             float o0 = ve.resolvedStyle.opacity;
             return Tween(ve, dur, InCubic, e =>
             {
@@ -179,6 +194,7 @@ namespace SunodGame.UI
         public static void Stagger(IEnumerable<VisualElement> items, Enter kind = Enter.SlideUp, float step = 0.04f, float delay = 0f)
         {
             if (items == null) return;
+            if (Classic) step = Mathf.Min(step, 0.02f);
             int i = 0;
             foreach (VisualElement ve in items)
             {
@@ -194,6 +210,7 @@ namespace SunodGame.UI
         public static Handle Punch(VisualElement ve, float amount = 0.18f, float seconds = 0.35f)
         {
             if (ve == null) return null;
+            if (Classic) { amount *= 0.45f; seconds *= 0.75f; }
             return Tween(ve, seconds, t => t, t =>
             {
                 float s = 1f + amount * Mathf.Sin(t * Mathf.PI) * (1f - t * 0.5f);
@@ -205,6 +222,7 @@ namespace SunodGame.UI
         public static Handle Shake(VisualElement ve, float px = 10f, float seconds = 0.36f)
         {
             if (ve == null) return null;
+            if (Classic) px *= 0.6f;
             return Tween(ve, seconds, t => t, t =>
             {
                 float x = Mathf.Sin(t * Mathf.PI * 6f) * px * (1f - t);
@@ -218,10 +236,14 @@ namespace SunodGame.UI
             var h = new Handle();
             if (ve == null) { h.Stopped = true; return h; }
             float t0 = Time.unscaledTime;
+            bool classic = Classic;
+            if (classic) amount *= 0.5f;
             h.Item = ve.schedule.Execute(() =>
             {
                 if (h.Stopped) return;
-                float k = (Mathf.Sin((Time.unscaledTime - t0) / period * Mathf.PI * 2f) + 1f) * 0.5f;
+                float now = Time.unscaledTime - t0;
+                if (classic) now = Mathf.Floor(now * 6f) / 6f;   // two-frame-ish blink rhythm
+                float k = (Mathf.Sin(now / period * Mathf.PI * 2f) + 1f) * 0.5f;
                 float s = 1f + amount * k;
                 ve.style.scale = new Scale(new Vector2(s, s));
             }).Every(0);
@@ -244,16 +266,18 @@ namespace SunodGame.UI
             ve.RegisterCallback<PointerDownEvent>(_ =>
             {
                 if (!ve.enabledInHierarchy) return;
+                float sq = Classic ? Mathf.Max(squish, 0.96f) : squish;
                 Tween(ve, 0.08f, OutCubic, e =>
                 {
-                    float s = Mathf.Lerp(1f, squish, e);
+                    float s = Mathf.Lerp(1f, sq, e);
                     ve.style.scale = new Scale(new Vector2(s, s));
                 }, null, 0f, false);
             }, TrickleDown.TrickleDown);
             EventCallback<EventBase> release = _ =>
             {
                 float from = ve.resolvedStyle.scale.value.x;
-                Tween(ve, 0.32f, OutElastic, e =>
+                bool classic = Classic;
+                Tween(ve, classic ? 0.1f : 0.32f, classic ? (Func<float, float>)OutCubic : OutElastic, e =>
                 {
                     float s = Mathf.LerpUnclamped(from, 1f, e);
                     ve.style.scale = new Scale(new Vector2(s, s));

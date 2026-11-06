@@ -61,6 +61,8 @@ namespace SunodGame.UI
         private Slider _musicSlider;
         private Button _btnNamesEnglish;
         private Button _btnNamesFilipino;
+        private Button _btnUiClassic;
+        private Button _btnUiModern;
         private Button _btnAvatarBoy;
         private Button _btnAvatarGirl;
         private Button _btnSettingsClose;
@@ -130,6 +132,8 @@ namespace SunodGame.UI
             _musicSlider      = root.Q<Slider>("settings-music-slider");
             _btnNamesEnglish  = root.Q<Button>("btn-names-english");
             _btnNamesFilipino = root.Q<Button>("btn-names-filipino");
+            _btnUiClassic = root.Q<Button>("btn-ui-classic");
+            _btnUiModern  = root.Q<Button>("btn-ui-modern");
             _btnAvatarBoy     = root.Q<Button>("btn-avatar-boy");
             _btnAvatarGirl    = root.Q<Button>("btn-avatar-girl");
             _characterOverlay  = root.Q<VisualElement>("character-overlay");
@@ -155,6 +159,8 @@ namespace SunodGame.UI
             _btnNewRunCancel? .RegisterCallback<ClickEvent>(OnNewRunCancelClicked);
             _btnNamesEnglish? .RegisterCallback<ClickEvent>(OnNamesEnglishClicked);
             _btnNamesFilipino?.RegisterCallback<ClickEvent>(OnNamesFilipinoClicked);
+            _btnUiClassic?.RegisterCallback<ClickEvent>(OnUiClassicClicked);
+            _btnUiModern? .RegisterCallback<ClickEvent>(OnUiModernClicked);
             _btnAvatarBoy?.RegisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.RegisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _rightPanel?.RegisterCallback<ClickEvent>(OnPlayerCardClicked);
@@ -203,6 +209,7 @@ namespace SunodGame.UI
             _titleFloat = title.schedule.Execute(() =>
             {
                 float y = Mathf.Sin(Time.unscaledTime * 1.3f) * 6f;
+                if (vc_UIAnim.Classic) y = Mathf.Round(Mathf.Sin(Mathf.Floor(Time.unscaledTime * 4f) / 4f * 1.3f) * 2f) * 2f;   // classic: 2px steps
                 title.style.translate = new Translate(0f, y);
             }).Every(16);
         }
@@ -294,6 +301,8 @@ namespace SunodGame.UI
             _btnNewRunCancel? .UnregisterCallback<ClickEvent>(OnNewRunCancelClicked);
             _btnNamesEnglish? .UnregisterCallback<ClickEvent>(OnNamesEnglishClicked);
             _btnNamesFilipino?.UnregisterCallback<ClickEvent>(OnNamesFilipinoClicked);
+            _btnUiClassic?.UnregisterCallback<ClickEvent>(OnUiClassicClicked);
+            _btnUiModern? .UnregisterCallback<ClickEvent>(OnUiModernClicked);
             _btnAvatarBoy?.UnregisterCallback<ClickEvent>(OnAvatarBoyClicked);
             _btnAvatarGirl?.UnregisterCallback<ClickEvent>(OnAvatarGirlClicked);
             _rightPanel?.UnregisterCallback<ClickEvent>(OnPlayerCardClicked);
@@ -452,8 +461,20 @@ namespace SunodGame.UI
             RefreshNameChoice();
         }
 
+        private void OnUiClassicClicked(ClickEvent _) => SetClassicUI(true);
+        private void OnUiModernClicked(ClickEvent _)  => SetClassicUI(false);
+
+        private void SetClassicUI(bool classic)
+        {
+            if (vc_PlayerOptions.ClassicUI != classic) vc_PlayerOptions.ClassicUI = classic;
+            RefreshNameChoice();
+        }
+
         private void RefreshNameChoice()
         {
+            bool classicUi = vc_PlayerOptions.ClassicUI;
+            _btnUiClassic?.EnableInClassList("settings-choice-btn--on", classicUi);
+            _btnUiModern?.EnableInClassList("settings-choice-btn--on", !classicUi);
             bool filipino = vc_PlayerOptions.UseBaybayinNames;
             _btnNamesEnglish?.EnableInClassList("settings-choice-btn--on", !filipino);
             _btnNamesFilipino?.EnableInClassList("settings-choice-btn--on", filipino);

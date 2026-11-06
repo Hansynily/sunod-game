@@ -31,6 +31,26 @@ public static class vc_PlayerOptions
         }
     }
 
+    private const string UiStyleKey = "sunod.ui_classic";
+
+    /// <summary>
+    /// UI style (2026-11-07): Classic (default) = small pixel corners + calm, simple motion;
+    /// Modern = the full rounded, juicy UI V2. Same colours either way.
+    /// </summary>
+    public static bool ClassicUI
+    {
+        get
+        {
+            try { return PlayerPrefs.GetInt(UiStyleKey, 1) == 1; }
+            catch { return true; }
+        }
+        set
+        {
+            try { PlayerPrefs.SetInt(UiStyleKey, value ? 1 : 0); PlayerPrefs.Save(); } catch { }
+            Changed?.Invoke();
+        }
+    }
+
     private const string AvatarKey = "sunod.avatar_girl";
 
     /// <summary>

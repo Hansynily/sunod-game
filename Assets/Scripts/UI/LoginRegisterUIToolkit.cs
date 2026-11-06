@@ -173,6 +173,7 @@ namespace SunodGame.UI
                 _floatItems.Add(label.schedule.Execute(() =>
                 {
                     float y = Mathf.Sin(Time.unscaledTime * 1.4f + phase) * 5f;
+                    if (vc_UIAnim.Classic) y = Mathf.Round(Mathf.Sin(Mathf.Floor(Time.unscaledTime * 4f) / 4f * 1.4f + phase) * 2f) * 2f;   // classic: 2px steps
                     label.style.translate = new Translate(0f, y);
                 }).Every(16));
             });

@@ -77,14 +77,17 @@ namespace SunodGame.UI
 
             _ring = new VisualElement { name = "radial-ring", pickingMode = PickingMode.Ignore };
             _ring.AddToClassList("radial-ring");
+            _ring.AddToClassList("sn-round");
             Add(_ring);
 
             _burst = new VisualElement { name = "radial-burst", pickingMode = PickingMode.Ignore };
             _burst.AddToClassList("radial-burst");
+            _burst.AddToClassList("sn-round");
             Add(_burst);
 
             Hub = new VisualElement { name = "skill-hub" };
             Hub.AddToClassList("radial-hub");
+            Hub.AddToClassList("sn-round");
             _hand = new vc_HandIcon { pickingMode = PickingMode.Ignore };
             _hand.AddToClassList("radial-hub-icon");
             Hub.Add(_hand);
@@ -116,10 +119,12 @@ namespace SunodGame.UI
 
             var face = new VisualElement { pickingMode = PickingMode.Ignore };
             face.AddToClassList("radial-face");
+            face.AddToClassList("sn-round");
             b.Add(face);
 
             var disc = new VisualElement { pickingMode = PickingMode.Ignore };
             disc.AddToClassList("radial-disc");
+            disc.AddToClassList("sn-round");
             face.Add(disc);
             var icon = new VisualElement { name = $"slot-icon-{i}", pickingMode = PickingMode.Ignore };
             icon.AddToClassList("radial-icon");
@@ -241,6 +246,30 @@ namespace SunodGame.UI
             Hub.AddToClassList("radial-hub--open");
             SunodGame.Core.vc_Sfx.Play("click", 0.55f, 0.05f);
 
+            bool classic = vc_UIAnim.Classic;
+            if (classic)
+            {
+                // Classic: the ring appears, petals step out a short way. Nothing else.
+                vc_UIAnim.Show(_ring, vc_UIAnim.Enter.Fade, 0f, null, 0.1f);
+                _tag.style.visibility = Visibility.Hidden;
+                for (int i = 0; i < Count; i++)
+                {
+                    Button p = _petals[i];
+                    p.pickingMode = PickingMode.Position;
+                    p.style.visibility = Visibility.Visible;
+                    Vector2 back = (Center - PetalCenter(i)) * 0.3f;
+                    p.style.opacity = 0f;
+                    vc_UIAnim.Tween(p, 0.14f, vc_UIAnim.OutCubic, e =>
+                    {
+                        p.style.translate = new Translate(back.x * (1f - e), back.y * (1f - e));
+                        p.style.opacity = e;
+                        p.style.scale = StyleKeyword.Null;
+                    }, null, 0.012f * i);
+                }
+                OpenChanged?.Invoke(true);
+                return;
+            }
+
             // hub: quick squash + the hand tilts; gold ring fades in; a ring bursts outward
             vc_UIAnim.Tween(_hand, 0.3f, vc_UIAnim.OutBack, e =>
                 _hand.style.rotate = new Rotate(new Angle(Mathf.LerpUnclamped(0f, -18f, e), AngleUnit.Degree)));
@@ -279,6 +308,27 @@ namespace SunodGame.UI
             IsOpen = false;
             SetHover(-1);
             Hub.RemoveFromClassList("radial-hub--open");
+            if (vc_UIAnim.Classic)
+            {
+                _hand.style.rotate = StyleKeyword.Null;
+                vc_UIAnim.Hide(_ring, null, vc_UIAnim.Exit.Fade, 0f, true, 0.08f);
+                _tag.style.visibility = Visibility.Visible;
+                _tag.style.opacity = StyleKeyword.Null;
+                for (int i = 0; i < Count; i++)
+                {
+                    Button p = _petals[i];
+                    p.pickingMode = PickingMode.Ignore;
+                    Vector2 back = (Center - PetalCenter(i)) * 0.3f;
+                    vc_UIAnim.Tween(p, 0.1f, vc_UIAnim.InCubic, e =>
+                    {
+                        p.style.translate = new Translate(back.x * e, back.y * e);
+                        p.style.opacity = 1f - e;
+                    }, () => p.style.visibility = Visibility.Hidden);
+                }
+                RefreshHubAlert();
+                OpenChanged?.Invoke(false);
+                return;
+            }
             vc_UIAnim.Tween(_hand, 0.22f, vc_UIAnim.OutCubic, e =>
                 _hand.style.rotate = new Rotate(new Angle(Mathf.Lerp(-18f, 0f, e), AngleUnit.Degree)));
             vc_UIAnim.Hide(_ring, null, vc_UIAnim.Exit.Shrink, 0f, true, 0.16f);
@@ -330,7 +380,7 @@ namespace SunodGame.UI
             _wasOpen = IsOpen;
             vc_UIAnim.Tween(Hub, 0.08f, vc_UIAnim.OutCubic, k =>
             {
-                float s = Mathf.Lerp(1f, 0.9f, k);
+                float s = Mathf.Lerp(1f, vc_UIAnim.Classic ? 0.95f : 0.9f, k);
                 Hub.style.scale = new Scale(new Vector2(s, s));
             }, null, 0f, false);
             if (!IsOpen) Open();
@@ -373,7 +423,8 @@ namespace SunodGame.UI
             if (_pointerId != -1 && Hub.HasPointerCapture(_pointerId)) Hub.ReleasePointer(_pointerId);
             _pointerId = -1;
             float from = Hub.resolvedStyle.scale.value.x;
-            vc_UIAnim.Tween(Hub, 0.34f, vc_UIAnim.OutElastic, k =>
+            bool classicRel = vc_UIAnim.Classic;
+            vc_UIAnim.Tween(Hub, classicRel ? 0.08f : 0.34f, classicRel ? (System.Func<float, float>)vc_UIAnim.OutCubic : vc_UIAnim.OutElastic, k =>
             {
                 float s = Mathf.LerpUnclamped(from, 1f, k);
                 Hub.style.scale = new Scale(new Vector2(s, s));
@@ -420,9 +471,10 @@ namespace SunodGame.UI
             {
                 Button b = _petals[i];
                 b.AddToClassList("radial-petal--hover");
-                vc_UIAnim.Tween(b, 0.18f, vc_UIAnim.OutBack, e =>
+                bool classicHover = vc_UIAnim.Classic;
+                vc_UIAnim.Tween(b, classicHover ? 0.08f : 0.18f, classicHover ? (System.Func<float, float>)vc_UIAnim.OutCubic : vc_UIAnim.OutBack, e =>
                 {
-                    float s = Mathf.LerpUnclamped(1f, 1.16f, e);
+                    float s = Mathf.LerpUnclamped(1f, classicHover ? 1.07f : 1.16f, e);
                     b.style.scale = new Scale(new Vector2(s, s));
                 }, null, 0f, false);
                 SunodGame.Core.vc_Sfx.Play("click", 0.3f, 0.15f);
@@ -438,6 +490,7 @@ namespace SunodGame.UI
             Button b = _petals[i];
             b.style.scale = StyleKeyword.Null;
             vc_UIAnim.Punch(b, 0.22f, 0.32f);
+            if (vc_UIAnim.Classic) { if (thenClose) schedule.Execute(Close).StartingIn(150); return; }
             var flash = new VisualElement { pickingMode = PickingMode.Ignore };
             flash.AddToClassList("radial-flash");
             Vector2 c = PetalCenter(i);
