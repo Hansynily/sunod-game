@@ -125,7 +125,7 @@ def button(p, pressed):
             px[x, y] = rgba(c)
     if not pressed:
         px[3, 3] = rgba(p["H"])                             # a glint in the lit corner
-    return with_shadow(im, BW, BH, m)
+    return im                                               # no drop shadow on buttons (Han)
 
 
 for name, pal in BUTTONS.items():
@@ -282,5 +282,159 @@ def badge(p):
 
 for name, pal in BADGES.items():
     badge(pal).save(os.path.join(OUT, f"{name}.png"))
+
+# ---------------------------------------------------------------- round things (radial menu)
+def circle_mask(n, r=None):
+    r = (n - 1) / 2.0 if r is None else r
+    c = (n - 1) / 2.0
+    return [[(x - c) ** 2 + (y - c) ** 2 <= (r + 0.35) ** 2 for x in range(n)] for y in range(n)]
+
+
+def disc(n, O, H, F, FL, LIP, LIPD, lip_rows=3, glint=True):
+    m = circle_mask(n)
+    d = rings(m)
+    im = Image.new("RGBA", (n, n), CLEAR)
+    px = im.load()
+    ys = [y for y in range(n) if any(m[y])]
+    bottom = max(ys)
+    for y in range(n):
+        for x in range(n):
+            if not m[y][x]:
+                continue
+            r = d[y][x]
+            # how far up from the bottom edge of this column
+            col_bottom = max(yy for yy in range(n) if m[yy][x])
+            up = col_bottom - y
+            if r == 1:
+                c = O
+            elif up <= lip_rows and up >= 1:
+                c = LIPD if up == 1 else LIP
+            elif r == 2 and (y < n * 0.45 and x < n * 0.6):
+                c = H
+            elif y > n * 0.62:
+                c = FL
+            else:
+                c = F
+            px[x, y] = rgba(c)
+    if glint:
+        gx, gy = int(n * 0.28), int(n * 0.22)
+        px[gx, gy] = rgba(H)
+        px[gx + 1, gy] = rgba(H)
+        px[gx, gy + 1] = rgba(H)
+    return im
+
+
+KIND = {"R": (217, 72, 80), "I": (236, 140, 46), "A": (148, 88, 214), "S": (62, 166, 96), "E": (58, 118, 214), "C": (36, 172, 190)}
+CREAM = dict(O=(84, 56, 38), H=(255, 253, 244), F=(248, 238, 216), FL=(238, 224, 196))
+for k, col in KIND.items():
+    disc(32, CREAM["O"], CREAM["H"], CREAM["F"], CREAM["FL"], col, mix(col, (0, 0, 0), 0.35)).save(os.path.join(OUT, f"petal_{k}.png"))
+disc(32, (96, 60, 18), (255, 246, 200), (255, 236, 178), (250, 222, 150), (244, 196, 80), (186, 132, 34)).save(os.path.join(OUT, "petal_gold.png"))
+disc(32, (140, 110, 80), (246, 236, 214), (236, 220, 190), (226, 206, 172), (206, 182, 144), (170, 140, 104), glint=False).save(os.path.join(OUT, "petal_empty.png"))
+G = BUTTONS["green"]
+disc(36, G["O"], G["H"], G["F"], mix(G["F"], G["S"], 0.35), G["S"], G["D"], lip_rows=4).save(os.path.join(OUT, "hub.png"))
+disc(36, G["O"], G["H"], mix(G["F"], G["H"], 0.25), G["F"], G["S"], G["D"], lip_rows=2).save(os.path.join(OUT, "hub_open.png"))
+Y = BUTTONS["gold"]
+disc(36, Y["O"], Y["H"], Y["F"], mix(Y["F"], Y["S"], 0.35), Y["S"], Y["D"], lip_rows=4).save(os.path.join(OUT, "hub_gold.png"))
+# gold ring around the open hub
+n = 42
+outer, inner = circle_mask(n), circle_mask(n, (n - 1) / 2.0 - 3)
+im = Image.new("RGBA", (n, n), CLEAR)
+px = im.load()
+for y in range(n):
+    for x in range(n):
+        if outer[y][x] and not inner[y][x]:
+            ring_d = ((x - (n - 1) / 2) ** 2 + (y - (n - 1) / 2) ** 2) ** 0.5
+            edge = ring_d > (n - 1) / 2 - 0.9 or ring_d < (n - 1) / 2 - 2.4
+            px[x, y] = rgba((150, 100, 28) if edge else ((255, 226, 130) if y < n / 2 else (232, 182, 66)))
+im.save(os.path.join(OUT, "ring.png"))
+
+# ---------------------------------------------------------------- inset wells: fields, tracks, checks
+def well(w, h, O, IN, F, H, ins=(1,)):
+    """Sunken box: outline, dark inner shadow top/left, light bottom/right edge."""
+    m = mask(w, h, list(ins))
+    d = rings(m)
+    im = Image.new("RGBA", (w, h), CLEAR)
+    px = im.load()
+    for y in range(h):
+        for x in range(w):
+            if not m[y][x]:
+                continue
+            r = d[y][x]
+            if r == 1:
+                c = O
+            elif r == 2 and (y <= 2 or x <= 2):
+                c = IN
+            elif r == 2:
+                c = H
+            elif y <= 3:
+                c = mix(F, IN, 0.25)
+            else:
+                c = F
+            px[x, y] = rgba(c)
+    return im
+
+
+well(12, 12, (84, 56, 38), (196, 170, 132), (255, 252, 244), (255, 255, 255), ins=(2, 1)).save(os.path.join(OUT, "field.png"))
+well(12, 12, (46, 108, 60), (150, 200, 140), (250, 255, 246), (255, 255, 255), ins=(2, 1)).save(os.path.join(OUT, "field_focus.png"))
+well(10, 8, (84, 56, 38), (170, 140, 104), (226, 206, 170), (246, 236, 214)).save(os.path.join(OUT, "track.png"))
+well(10, 10, (84, 56, 38), (196, 170, 132), (255, 252, 244), (255, 255, 255)).save(os.path.join(OUT, "check.png"))
+# checked box: green key with a cream tick
+ck = button(dict(BUTTONS["green"]), False).crop((0, 0, BW, BH)).resize((10, 10), Image.NEAREST)
+# (no tick drawn here: the quest card draws its own tick on top)
+ck.save(os.path.join(OUT, "check_on.png"))
+
+# slider knob (14x14 green key) + progress fill (banded green)
+knob = Image.new("RGBA", (14, 14), CLEAR)
+km = mask(14, 14, [3, 1, 1])
+kd = rings(km)
+kp = knob.load()
+for y in range(14):
+    for x in range(14):
+        if not km[y][x]:
+            continue
+        r = kd[y][x]
+        c = G["O"] if r == 1 else (G["D"] if y >= 12 else G["S"] if y >= 10 else G["H"] if (r == 2 and (y <= 2 or x <= 2)) else G["F"])
+        kp[x, y] = rgba(c)
+knob.save(os.path.join(OUT, "knob.png"))
+fill = Image.new("RGBA", (6, 8), CLEAR)
+fp = fill.load()
+for y in range(8):
+    for x in range(6):
+        fp[x, y] = rgba(G["H"] if y <= 1 else G["S"] if y >= 6 else G["F"])
+fill.save(os.path.join(OUT, "fill.png"))
+
+# gold tag (dialog name tag)
+small(dict(O=(96, 60, 18), H=(255, 240, 180), F=(244, 196, 80), L=(204, 146, 44))).save(os.path.join(OUT, "chip_gold.png"))
+
+# ---------------------------------------------------------------- inventory slots (hotbar style)
+def slot(O, IN, F, H, ins=(2, 1)):
+    """Sunken square slot like a classic hotbar: dark rim, shadow top-left, lit bottom-right."""
+    w = h = 16
+    m = mask(w, h, list(ins))
+    d = rings(m)
+    im = Image.new("RGBA", (w, h), CLEAR)
+    px = im.load()
+    for y in range(h):
+        for x in range(w):
+            if not m[y][x]:
+                continue
+            r = d[y][x]
+            if r == 1:
+                c = O
+            elif r == 2 and (y <= 2 or x <= 2):
+                c = IN
+            elif r == 2:
+                c = H
+            elif r == 3 and (y <= 3 or x <= 3):
+                c = mix(F, IN, 0.4)
+            else:
+                c = F
+            px[x, y] = rgba(c)
+    return im
+
+
+slot((84, 56, 38), (176, 140, 98), (236, 220, 190), (252, 244, 226)).save(os.path.join(OUT, "slot.png"))
+slot((150, 100, 28), (214, 160, 60), (255, 236, 178), (255, 250, 222)).save(os.path.join(OUT, "slot_ready.png"))
+slot((28, 58, 34), (110, 170, 104), (220, 240, 208), (246, 255, 240)).save(os.path.join(OUT, "slot_sel.png"))
 
 print("wrote", sorted(os.listdir(OUT)))

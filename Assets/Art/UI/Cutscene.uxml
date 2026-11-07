@@ -2,7 +2,7 @@
     <ui:Style src="CutsceneStyle.uss"/>
     <ui:VisualElement name="cutscene-root" class="cutscene-root">
 
-        <ui:VisualElement name="stage" class="stage"/>
+        <ui:VisualElement name="stage" class="stage sn-keep"/>
 
         <ui:VisualElement name="fade-overlay" class="fade-overlay" picking-mode="Ignore"/>
 

@@ -505,7 +505,7 @@ TextField, .unity-text-field { min-height: 84px; font-size: 28px; margin: 6px 0 
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     border-radius: 0;
-    -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 7;
+    -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 6;
     -unity-slice-scale: 3px;
     -unity-background-scale-mode: stretch-to-fill;
 }
@@ -559,15 +559,7 @@ TextField, .unity-text-field { min-height: 84px; font-size: 28px; margin: 6px 0 
     -unity-slice-scale: 3px;
 }
 
-/* Classic: crisp pixel shadows behind text (no blur), like hand-made game UI */
-.sn-classic .sn-btn, .sn-classic .sl-button, .sn-classic .sl-button-wide,
-.sn-classic .sn-btn Label, .sn-classic .sl-button Label, .sn-classic .sl-button-wide Label {
-    text-shadow: 2px 2px 0 rgb(214, 188, 148);
-}
-.sn-classic .sn-btn--primary, .sn-classic .sn-btn--primary Label { text-shadow: 2px 2px 0 rgb(36, 82, 46); }
-.sn-classic .sn-btn--gold, .sn-classic .sn-btn--gold Label { text-shadow: 2px 2px 0 rgb(255, 236, 158); }
-.sn-classic .sn-btn--danger, .sn-classic .sn-btn--danger Label { text-shadow: 2px 2px 0 rgb(112, 36, 32); }
-.sn-classic .sn-btn--night, .sn-classic .sn-btn--night Label { text-shadow: 2px 2px 0 rgb(44, 44, 94); }
+/* Classic: crisp pixel text shadows on titles/tags only - buttons stay clean (Han) */
 .sn-classic .sn-title, .sn-classic .sn-display, .sn-classic .sl-ribbon, .sn-classic .sn-subtitle {
     text-shadow: 2px 2px 0 rgb(222, 200, 162);
 }
@@ -603,7 +595,6 @@ TextField, .unity-text-field { min-height: 84px; font-size: 28px; margin: 6px 0 
 .sn-classic .qb-tab--on, .sn-classic .qb-tab--on Label,
 .sn-classic .settings-choice-btn--on, .sn-classic .settings-choice-btn--on Label {
     color: var(--sn-cream-hi);
-    text-shadow: 2px 2px 0 rgb(36, 82, 46);
 }
 
 .sn-classic .unity-scroller .unity-base-slider__tracker {
@@ -626,5 +617,65 @@ TextField, .unity-text-field { min-height: 84px; font-size: 28px; margin: 6px 0 
     border-bottom-width: 1px;
     border-bottom-color: rgb(255, 252, 242);
     border-radius: 0;
+}
+
+/* Classic press: no smooth easing - the key swaps to its pressed sprite and drops 3px, instantly */
+.sn-classic .sn-btn, .sn-classic .sl-button, .sn-classic .sl-button-wide,
+.sn-classic .inventory-preview-btn, .sn-classic .radial-hub {
+    transition-duration: 0s;
+}
+.sn-classic .sn-btn:active:enabled, .sn-classic .sl-button:active:enabled, .sn-classic .sl-button-wide:active:enabled {
+    scale: 1 1;
+    translate: 0 3px;
+}
+.sn-classic .sn-btn--primary, .sn-classic .sn-btn--danger, .sn-classic .sn-btn--night,
+.sn-classic .sn-btn--primary Label, .sn-classic .sn-btn--danger Label, .sn-classic .sn-btn--night Label {
+    color: var(--sn-cream-hi);
+}
+
+/* Classic radial: pixel-drawn hub + ring (petal faces are set from code per kind) */
+.sn-classic .radial-hub {
+    background-image: url("/Assets/Resources/UIClassic/hub.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+.sn-classic .radial-hub--open { background-image: url("/Assets/Resources/UIClassic/hub_open.png"); background-color: rgba(0, 0, 0, 0); }
+.sn-classic .radial-hub--alert { background-image: url("/Assets/Resources/UIClassic/hub_gold.png"); background-color: rgba(0, 0, 0, 0); }
+.sn-classic .radial-ring {
+    background-image: url("/Assets/Resources/UIClassic/ring.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+.sn-classic .radial-face {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+.sn-classic .radial-disc {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+.sn-classic .radial-shade { background-color: rgba(70, 46, 30, 0.5); }
+.sn-classic .inventory-preview-btn {
+    background-image: url("/Assets/Resources/UIClassic/btn_cream.png");
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 6;
+    -unity-slice-scale: 3px;
+}
+.sn-classic .inventory-preview-btn:active:enabled {
+    background-image: url("/Assets/Resources/UIClassic/btn_cream_down.png");
+    scale: 1 1;
+    translate: 0 3px;
+}
+
+/* Classic panels: the wooden frame is ~18 units thick, keep content clear of it */
+.sn-classic .sn-panel, .sn-classic .sn-panel--dark, .sn-classic .sl-panel-wood, .sn-classic .sl-dialog {
+    padding-top: 20px;
+    padding-left: 22px;
+    padding-right: 22px;
+    padding-bottom: 24px;
 }
 

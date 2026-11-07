@@ -266,6 +266,7 @@ namespace SunodGame.UI
             ve.RegisterCallback<PointerDownEvent>(_ =>
             {
                 if (!ve.enabledInHierarchy) return;
+                if (Classic) return;   // classic: the pressed sprite + 3px drop is the whole press
                 float sq = Classic ? Mathf.Max(squish, 0.96f) : squish;
                 Tween(ve, 0.08f, OutCubic, e =>
                 {
@@ -275,6 +276,7 @@ namespace SunodGame.UI
             }, TrickleDown.TrickleDown);
             EventCallback<EventBase> release = _ =>
             {
+                if (Classic) { ve.style.scale = StyleKeyword.Null; return; }
                 float from = ve.resolvedStyle.scale.value.x;
                 bool classic = Classic;
                 Tween(ve, classic ? 0.1f : 0.32f, classic ? (Func<float, float>)OutCubic : OutElastic, e =>

@@ -174,9 +174,12 @@ namespace SunodGame.Cutscene
 
             // Fixed 16:9 stage, scaled to fit and centered - blended bars (stageColor) fill
             // the rest on off-ratio screens (T24: 20:9 phones).
+            // Cover (2026-11-07): fill the screen, centred - on wider phones the 16:9 art used to
+            // stop short of the screen sides (Han: "cutoff left and right"). Now a sliver of sky
+            // top/bottom is cropped instead; the root clips it.
             float stageW = availW;
             float stageH = stageW * (StageHeight / StageWidth);
-            if (stageH > availH)
+            if (stageH < availH)
             {
                 stageH = availH;
                 stageW = stageH * (StageWidth / StageHeight);

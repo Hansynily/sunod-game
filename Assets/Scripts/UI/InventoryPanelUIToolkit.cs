@@ -67,6 +67,12 @@ namespace SunodGame.UI
             _panel       = root.Q<VisualElement>("inv-panel");
             _slotsGrid   = root.Q<VisualElement>("inv-slots");
             _cardsScroll = root.Q<ScrollView>("cards-scroll");
+            if (_cardsScroll != null)
+            {
+                // Bag = a wrapping grid of square tiles
+                _cardsScroll.contentContainer.style.flexDirection = FlexDirection.Row;
+                _cardsScroll.contentContainer.style.flexWrap = Wrap.Wrap;
+            }
 
             // Detail pane
             _detailEmpty     = root.Q<VisualElement>("detail-empty");
@@ -100,8 +106,9 @@ namespace SunodGame.UI
                 // kind ring + a Lv badge holder on each slot
                 if (_slotFrames[i] != null)
                 {
-                    vc_UITheme.Border(_slotFrames[i], 4f, vc_UITheme.Riasec(vc_SkillManager.CategoryLetterForSlot(i)));
-                    _slotFrames[i].style.borderBottomWidth = 7f;
+                    // kind shown by the coloured corner letter (hotbar style)
+                    Label num = _slotFrames[i].Q<Label>(className: "slot-number");
+                    if (num != null) num.style.color = vc_UITheme.Riasec(vc_SkillManager.CategoryLetterForSlot(i));
                     if (_slotLv[i] == null && _slotFrames[i].parent != null)
                     {
                         _slotLv[i] = new Label { name = $"slot-lv-{i}", pickingMode = PickingMode.Ignore };
@@ -262,66 +269,43 @@ namespace SunodGame.UI
             }
         }
 
+        /// <summary>A Bag tile (2026-11-07 rework): square sunken slot with the kind symbol, the
+        /// kind letter in the corner (hotbar style), a Lv tag, and the name underneath.</summary>
         private VisualElement CreateRow(vc_SkillData skill)
         {
             var row = new VisualElement();
-            row.AddToClassList("skill-row");
+            row.AddToClassList("skill-tile");
 
             string letter = (skill.riaSecLetter ?? "?").ToUpper();
             bool riasec = letter.Length == 1 && "RIASEC".IndexOf(letter[0]) >= 0;
             Color kind = riasec ? vc_UITheme.Riasec(letter) : vc_UITheme.Brown;
 
-            // kind strip along the top
-            var strip = new VisualElement { pickingMode = PickingMode.Ignore };
-            strip.AddToClassList("row-strip");
-            strip.style.backgroundColor = kind;
-            row.Add(strip);
-
-            // Icon disc, ringed in the kind colour
-            var iconFrame = new VisualElement { pickingMode = PickingMode.Ignore };
-            iconFrame.AddToClassList("row-icon-frame");
-            vc_UITheme.Border(iconFrame, 3f, kind);
-            iconFrame.style.borderBottomWidth = 5f;
-            var icon = new VisualElement();
-            icon.AddToClassList("row-icon");
+            var frame = new VisualElement { pickingMode = PickingMode.Ignore };
+            frame.AddToClassList("tile-frame");
+            var icon = new VisualElement { pickingMode = PickingMode.Ignore };
+            icon.AddToClassList("tile-icon");
             icon.style.backgroundImage = vc_RiasecSymbols.Background(skill.riaSecLetter);
-            iconFrame.Add(icon);
-            row.Add(iconFrame);
+            frame.Add(icon);
 
-            // Text block
-            var textBlock = new VisualElement();
-            textBlock.AddToClassList("row-textblock");
+            var corner = new Label(letter) { pickingMode = PickingMode.Ignore };
+            corner.AddToClassList("tile-letter");
+            corner.style.color = kind;
+            frame.Add(corner);
 
             int lv = vc_SkillLevels.Level(skill);
-            var nameLabel = new Label(skill.DisplayName);
-            nameLabel.AddToClassList("row-name");
-            textBlock.Add(nameLabel);
-
-            string riasecName = RiasecNames.TryGetValue(letter.ToLower(), out var n) ? n : "-";
-            var metaLabel = new Label(riasecName);
-            metaLabel.AddToClassList("row-meta");
-            textBlock.Add(metaLabel);
-
-            row.Add(textBlock);
-
-            // RIASEC tag square
-            var tag = new VisualElement();
-            tag.AddToClassList("row-tag");
-            tag.AddToClassList($"riasec-{letter.ToLower()}");
-            var tagLetter = new Label(letter);
-            tagLetter.AddToClassList("row-tag-letter");
-            tag.Add(tagLetter);
-            row.Add(tag);
-
-            // Lv badge: silver Lv2, gold Lv3
             if (lv > 1)
             {
                 var lvBadge = new Label($"Lv{lv}") { pickingMode = PickingMode.Ignore };
                 lvBadge.AddToClassList("sn-badge");
                 lvBadge.AddToClassList(lv >= vc_SkillLevels.MaxLevel ? "sn-badge--gold" : "sn-badge--silver");
-                lvBadge.AddToClassList("row-lv");
-                row.Add(lvBadge);
+                lvBadge.AddToClassList("tile-lv");
+                frame.Add(lvBadge);
             }
+            row.Add(frame);
+
+            var nameLabel = new Label(skill.DisplayName) { pickingMode = PickingMode.Ignore };
+            nameLabel.AddToClassList("tile-name");
+            row.Add(nameLabel);
 
             row.RegisterCallback<ClickEvent>(_ => OnRowClicked(row, skill));
             vc_UIAnim.Press(row, 0.94f);

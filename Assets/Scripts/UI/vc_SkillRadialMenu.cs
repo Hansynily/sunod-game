@@ -178,6 +178,35 @@ namespace SunodGame.UI
             _names[i].text = hasSkill ? (displayName ?? "") : "";
             _gems[i].style.display = kept ? DisplayStyle.Flex : DisplayStyle.None;
             _petals[i].EnableInClassList("radial-petal--empty", !hasSkill);
+            _letters[i] = (letter ?? "").Trim().ToUpperInvariant();
+            ClassicFace(i);
+        }
+
+        // ── Classic UI style: pixel-drawn petal faces (Resources/UIClassic/petal_*.png) ──
+        private readonly string[] _letters = new string[Count];
+        private static readonly System.Collections.Generic.Dictionary<string, Texture2D> FaceTex =
+            new System.Collections.Generic.Dictionary<string, Texture2D>();
+
+        private void ClassicFace(int i)
+        {
+            VisualElement face = _faces[i], disc = _discs[i];
+            if (!vc_UIAnim.Classic)
+            {
+                face.style.backgroundImage = StyleKeyword.Null;
+                return;
+            }
+            string name = (_hover == i || _glow[i]) ? "petal_gold"
+                        : !_hasSkill[i] ? "petal_empty"
+                        : "petal_" + (string.IsNullOrEmpty(_letters[i]) ? "R" : _letters[i]);
+            if (!FaceTex.TryGetValue(name, out Texture2D t) || t == null)
+            {
+                t = Resources.Load<Texture2D>("UIClassic/" + name);
+                if (t != null) t.filterMode = FilterMode.Point;
+                FaceTex[name] = t;
+            }
+            if (t != null) face.style.backgroundImage = new StyleBackground(t);
+            vc_UITheme.Border(disc, 0f, Color.clear);          // the kind shows on the petal's lip
+            disc.style.backgroundColor = Color.clear;
         }
 
         public void SetLevel(int i, int level, bool max)
@@ -220,6 +249,7 @@ namespace SunodGame.UI
             if (i < 0 || i >= Count || _glow[i] == on) return;
             _glow[i] = on;
             _petals[i].EnableInClassList("radial-petal--glow", on);
+            ClassicFace(i);
             if (on) _glowPulse[i] = vc_UIAnim.Pulse(_faces[i], 0.07f, 0.8f);
             else vc_UIAnim.StopPulse(ref _glowPulse[i], _faces[i]);
             RefreshHubAlert();
@@ -466,7 +496,10 @@ namespace SunodGame.UI
                     old.style.scale = new Scale(new Vector2(s, s));
                 }, null, 0f, false);
             }
+            int was = _hover;
             _hover = i;
+            if (was >= 0) ClassicFace(was);
+            if (i >= 0) ClassicFace(i);
             if (i >= 0)
             {
                 Button b = _petals[i];

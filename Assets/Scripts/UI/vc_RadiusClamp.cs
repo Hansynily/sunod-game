@@ -60,6 +60,8 @@ namespace SunodGame.UI
 
         private static void Walk(VisualElement ve)
         {
+            // art stages (cutscenes) draw their own shapes: never restyle inside them
+            if (ve.ClassListContains("sn-keep")) return;
             // Classic art goes on hidden elements too, so a panel is skinned before it opens
             bool skinned = vc_ClassicSkin.Apply(ve, Classic);
             bool shown = ve.resolvedStyle.display != DisplayStyle.None;

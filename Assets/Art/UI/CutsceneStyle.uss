@@ -17,6 +17,7 @@
    scaled-to-fit and centered on any screen ratio. */
 .stage {
     position: relative;
+    flex-shrink: 0;   /* cover mode: the stage may be bigger than the screen */
     /* layers that slide in (floodwater, rain sheets) stay inside the 16:9 frame */
     overflow: hidden;
 }
