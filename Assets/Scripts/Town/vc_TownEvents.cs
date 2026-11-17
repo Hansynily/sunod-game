@@ -346,13 +346,18 @@ public class vc_TownEvents : MonoBehaviour
         return d.y > 0 ? "north" : "south";
     }
 
+    /// <summary>Today's event host while the event is still waiting to be joined (Old Compass Lv2 points here).</summary>
+    public Transform PendingHost => _host != null && !_running && _event != null ? _host.transform : null;
+
     private void InviteToEvent()
     {
         if (_event == null || _running || vc_DialogPanel.Instance == null || vc_DialogPanel.Instance.IsOpen) return;
         SunodGame.Core.vc_Sfx.Play("bubble", 0.45f, 0.08f);
+        // loop 2+: the host notices an event keepsake you carry
+        string noticed = vc_LoopMeta.EventHostLine(_event.id, vc_LoopMeta.Loop + _event.id.Length);
         vc_DialogPanel.Instance.ShowChoice(
             _hostName,
-            _event.invite + "\n\n(Town event. Doesn't use energy.)",
+            (string.IsNullOrEmpty(noticed) ? "" : noticed + "\n\n") + _event.invite + "\n\n(Town event. Doesn't use energy.)",
             null, "Join", "Later",
             () => StartCoroutine(RunEvent()),
             () => vc_QuestHUD.Instance?.ShowFeedbackTimed("It's only today. Don't miss it!", 2.5f));
@@ -369,7 +374,7 @@ public class vc_TownEvents : MonoBehaviour
         player?.MoveAction.Disable();
         vc_RunProgressUI ui = vc_RunProgressUI.Instance;
         ui?.SetCinematic(true);
-        if (ui != null) yield return ui.FadeScreen(1f, 0.35f);
+        yield return vc_PixelTransition.Cover(0.35f);
 
         // set the scene: you in front, a few neighbors around
         // the dialog docks at the bottom: you, the crowd and the host stay in view above it
@@ -379,7 +384,7 @@ public class vc_TownEvents : MonoBehaviour
         if (player != null) player.ScriptedMove = new Vector2(0f, 0.001f);   // face the host
         SpawnCrowd(gathering ? 7 : 3, front, gathering);
         if (_mark != null) _mark.enabled = false;
-        if (ui != null) yield return ui.FadeScreen(0f, 0.45f);
+        yield return vc_PixelTransition.Open(0.45f);
         if (player != null) { player.ScriptedMove = null; player.MoveAction.Disable(); }
 
         foreach (string raw in ev.lines)
@@ -408,7 +413,7 @@ public class vc_TownEvents : MonoBehaviour
         vc_DialogPanel.Instance?.SetDockedBottom(false);
 
         // the crowd goes home
-        if (ui != null) yield return ui.FadeScreen(1f, 0.3f);
+        yield return vc_PixelTransition.Cover(0.3f);
         foreach (GameObject g in _crowd) if (g != null) Destroy(g);
         _crowd.Clear();
         _crowdAnim.Clear();
@@ -419,7 +424,7 @@ public class vc_TownEvents : MonoBehaviour
         Plan after = PlanFor(vc_SkillLevels.StageIndex);
         if (_boardNew != null) _boardNew.enabled = !_boardReadToday && after.fiesta && _day <= after.fiestaDay;
         ui?.SetCinematic(false);
-        if (ui != null) yield return ui.FadeScreen(0f, 0.4f);
+        yield return vc_PixelTransition.Open(0.4f);
         player?.MoveAction.Enable();
         _stage?.SetBusy(false);
         _running = false;
@@ -434,6 +439,7 @@ public class vc_TownEvents : MonoBehaviour
                 if (s != null && string.Equals(s.riaSecLetter?.Trim(), ev.letter, StringComparison.OrdinalIgnoreCase))
                     names.Add(s.DisplayName);
         vc_SkillLevels.AddCategoryXp(ev.letter, vc_TownEventData.EventXp);
+        vc_LoopMeta.NoteEvent(ev.letter, false);   // Lucky Shell / Lucky Coin, offline too
 
         string marker = EventMarker(ev);
         vc_TownFlow.MarkQuestDone(marker);
@@ -563,6 +569,7 @@ public class vc_TownEvents : MonoBehaviour
         vc_TownFlow.MarkQuestDone(FiestaMarker);
         vc_QuestRoom.SaveProgressIds(new[] { FiestaMarker }, SceneName);
         vc_BonusStars.Grant(FiestaMarker, vc_TownEventData.FiestaStars, SceneName);
+        vc_LoopMeta.NoteEvent(null, true);   // Banderitas (free event keepsake), offline too
 
         SunodGame.Core.vc_Sfx.Play("cheer", 0.8f);
         PlayerController player = FindFirstObjectByType<PlayerController>();

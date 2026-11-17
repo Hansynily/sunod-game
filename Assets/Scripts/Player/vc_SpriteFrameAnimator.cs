@@ -63,6 +63,51 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
         vc_Sfx.Play(clip, vol, 0.02f);
     }
 
+    // Skill-use pose: 4 frames per facing, loaded from Resources/PlayerUse
+    // (Tools/art/make_player_use.py). Plays once when a skill is used; walking cancels it.
+    private const float UseFps = 9f;
+    private Sprite[][] _useBoy, _useGirl;      // [facing][frame]
+    private float _useClock = -1f;             // < 0 = not playing
+    private vc_SkillManager _skills;
+
+    private static Sprite[][] LoadUse(string who)
+    {
+        string[] dirs = { "right", "left", "up", "down" };   // same order as Facing
+        var set = new Sprite[dirs.Length][];
+        for (int d = 0; d < dirs.Length; d++)
+        {
+            set[d] = new Sprite[4];
+            for (int i = 0; i < 4; i++)
+            {
+                set[d][i] = Resources.Load<Sprite>("PlayerUse/" + who + "_use_" + dirs[d] + "_" + i);
+                if (set[d][i] == null) return null;          // art missing: no pose, nothing breaks
+            }
+        }
+        return set;
+    }
+
+    private void OnSkillUsed(int slot, vc_PlayerSkill skill) => _useClock = 0f;
+
+    /// <summary>True while the pose is showing (it sets the sprite itself).</summary>
+    private bool TickUsePose(bool walking)
+    {
+        if (_skills != vc_SkillManager.Instance)
+        {
+            if (_skills != null) _skills.SkillUsed -= OnSkillUsed;
+            _skills = vc_SkillManager.Instance;
+            if (_skills != null) _skills.SkillUsed += OnSkillUsed;
+        }
+        if (_useClock < 0f) return false;
+        Sprite[][] set = _girl && _useGirl != null ? _useGirl : _useBoy;
+        if (walking || set == null || body == null) { _useClock = -1f; return false; }
+        int frame = Mathf.FloorToInt(_useClock * UseFps);
+        // hold the last frame a moment, then go back to idle
+        if (frame >= 6) { _useClock = -1f; return false; }
+        body.sprite = set[(int)_facing][Mathf.Min(frame, 3)];
+        _useClock += Time.deltaTime;
+        return true;
+    }
+
     private Facing _facing = Facing.Down;
     private Facing _lastSide = Facing.Right;
     private bool _walking;
@@ -81,10 +126,16 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
         if (player == null) player = GetComponentInParent<PlayerController>();
         if (body == null) body = GetComponent<SpriteRenderer>();
         _girl = vc_PlayerOptions.UseGirlAvatar;
+        _useBoy = LoadUse("player");
+        _useGirl = LoadUse("girl");
     }
 
     private void OnEnable()  => vc_PlayerOptions.Changed += OnOptionsChanged;
-    private void OnDisable() => vc_PlayerOptions.Changed -= OnOptionsChanged;
+    private void OnDisable()
+    {
+        vc_PlayerOptions.Changed -= OnOptionsChanged;
+        if (_skills != null) { _skills.SkillUsed -= OnSkillUsed; _skills = null; }
+    }
 
     private void OnOptionsChanged() => _girl = vc_PlayerOptions.UseGirlAvatar;
 
@@ -112,6 +163,8 @@ public class vc_SpriteFrameAnimator : MonoBehaviour
             _frame = 0;
             _frameClock = 0f;
         }
+
+        if (TickUsePose(walking)) return;
 
         Sprite[] frames = Pick(walking);
         if (frames == null || frames.Length == 0 || body == null) return;

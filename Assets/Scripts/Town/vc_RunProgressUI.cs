@@ -1381,7 +1381,7 @@ public class vc_RunProgressUI : MonoBehaviour
         var btn = new Button();
         btn.AddToClassList("sn-btn");
         if (!string.IsNullOrEmpty(variant)) btn.AddToClassList("sn-btn--" + variant);
-        VisualElement icon = null;   // Han: no icons on labelled buttons
+        VisualElement icon = null;   // no icons on labelled buttons
         var label = new Label(text) { pickingMode = PickingMode.Ignore };
         label.AddToClassList("sn-btn__label");
         if (icon == null) label.AddToClassList("rp-label--solo");

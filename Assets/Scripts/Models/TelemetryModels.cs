@@ -336,9 +336,34 @@ namespace SunodGame.Models
         public int passed;
         public int failed;
         public List<string> kept_skills = new List<string>();
-        public List<string> mementos = new List<string>();
+        public List<string> mementos = new List<string>();        // carried that loop
+        public List<string> mementos_lv2 = new List<string>();
+        public List<string> helpers_used = new List<string>();
         public int stars_earned;
         public string finished_at;
+        // what changed since the loop before (server: loop_meta.compare_loops, recorded data only)
+        public bool changed;
+        public string change_line;
+        public string reason_line;
+    }
+
+    [Serializable]
+    public class LoopPath
+    {
+        public int loop;
+        public string holland_code;
+        public string career;
+    }
+
+    /// <summary>Final result when loops disagree: both the first path (baseline) and the latest.</summary>
+    [Serializable]
+    public class LoopPaths
+    {
+        public bool differ;
+        public LoopPath baseline = new LoopPath();
+        public LoopPath latest = new LoopPath();
+        public string change_line;
+        public string reason_line;
     }
 
     [Serializable]
@@ -346,6 +371,18 @@ namespace SunodGame.Models
     {
         public string id;
         public int cost;
+        public string type;      // keepsake | event | pocket | helper | outfit | hat | trail | pet | home | page
+        public int lv2_cost;
+    }
+
+    [Serializable]
+    public class LoopEquipped
+    {
+        public string outfit;
+        public string hat;
+        public string trail;
+        public string pet;
+        public List<string> home = new List<string>();
     }
 
     [Serializable]
@@ -358,11 +395,26 @@ namespace SunodGame.Models
         public List<string> threats_seen = new List<string>();
         public List<string> kept_skills = new List<string>();
         public List<string> unlocked_mementos = new List<string>();   // in the shop
-        public List<string> owned_mementos = new List<string>();      // bought: all come along
-        public int stars;                                             // banked, to spend
+        public List<string> owned_mementos = new List<string>();      // owned forever
+        public List<string> carried_mementos = new List<string>();    // in the pockets: only these work
+        public int pockets = 2;
+        public int max_pockets = 4;
+        public List<string> lv2_unlocked = new List<string>();
+        public List<string> lv2_owned = new List<string>();
+        public List<string> events_joined = new List<string>();
+        public bool fiesta_seen;
+        public List<string> helpers_held = new List<string>();
+        public List<string> helpers_bought_loop = new List<string>();
+        public List<string> helpers_used_loop = new List<string>();
+        public List<string> cosmetics_owned = new List<string>();
+        public LoopEquipped equipped = new LoopEquipped();
+        public int stars;                                             // what the stall can spend (server figure)
+        public int bank_stars;                                        // the bank alone (changes only at a loop's end)
         public List<LoopShopItem> shop = new List<LoopShopItem>();
         public int memory_slots = 3;
         public List<LoopHistoryItem> history = new List<LoopHistoryItem>();
+        public LoopPaths paths;                                       // from 2 finished loops on
+        public List<SkillXpEntryDto> faded_skill_xp = new List<SkillXpEntryDto>();   // Name Tag
         public List<string> last_owned_skills = new List<string>();
         public List<SkillXpEntryDto> kept_skill_xp = new List<SkillXpEntryDto>();   // XP the remembered skills carry
         public List<SkillXpEntryDto> last_skill_xp = new List<SkillXpEntryDto>();
@@ -375,11 +427,8 @@ namespace SunodGame.Models
     public class LoopBeginPayload
     {
         public List<string> kept_skills = new List<string>();
+        public List<string> carried_mementos = new List<string>();
+        public bool has_carried;
     }
 
-    [Serializable]
-    public class LoopBuyPayload
-    {
-        public string memento_id;
-    }
 }

@@ -51,7 +51,7 @@ pill buttons with an icon + label, a radial skill menu). Only the UI changes; wo
    targets. Nothing important within 24 px of the screen edge (safe area handled by vc_SafeArea).
 3. **Type**: titles 40, body 26, caption 21; never below 18. Max ~45 characters per line in
    dialogs (use max-width on text). Sentence case on buttons ("Start day", not "START DAY").
-   Short game words, no filler (Han hates wordy text): "Rec. Lv2", "Accept", "Go".
+   Short game words, no filler (the developer hates wordy text): "Rec. Lv2", "Accept", "Go".
 4. **Spacing**: 8 px grid. Panel padding 18/22. Gaps between groups 16-24.
 5. **Colour**: text is ink on cream. Never pure white or pure black. Colour is never the only
    signal (pair it with an icon or a word).

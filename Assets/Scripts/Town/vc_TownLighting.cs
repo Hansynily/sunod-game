@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// The towns' light (2026-11-07, after Han's references): a low warm sun.
+/// The towns' light (2026-11-07, after the references): a low warm sun.
 ///  - cast shadows: every building, tree, prop, the home, the stall and the board throws a
 ///    soft slanted shadow down-right (SUNOD/SpriteCastShadow),
 ///  - a warm wash and a soft vignette over the world (camera-attached, under the HUD),
@@ -17,7 +17,7 @@ public class vc_TownLighting : MonoBehaviour
     public static float Skew = 0.55f;        // shadow slants right by this much per unit of height
     public static float Drop = -0.5f;       // ...and falls down by this much
     public static Color Warm = new Color(1f, 0.72f, 0.36f, 0.06f);
-    public static float VignetteStrength = 0f;   // Han: no vignette (2026-11-07)
+    public static float VignetteStrength = 0f;   // no vignette (2026-11-07)
 
     private static readonly string[] SmallThings =
         { "tuft", "flower", "tiny_", "grass_", "bloom", "mush", "clover", "pebble", "debris", "towel", "shell", "starfish", "foam", "plank", "bush", "dock", "boat",

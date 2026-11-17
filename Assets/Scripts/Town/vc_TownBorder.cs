@@ -112,6 +112,7 @@ public static class vc_TownBorder
     /// </summary>
     public static void WallRoom(GameObject room, float size = 16f)
     {
+        vc_RoomDressing.Dress(room);   // visual only: indoor rooms get walls + a dark surround
         if (room == null || room.transform.Find("RoomWalls") != null) return;
         var walls = new GameObject("RoomWalls").transform;
         walls.SetParent(room.transform, false);

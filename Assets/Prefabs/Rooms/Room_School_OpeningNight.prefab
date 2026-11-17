@@ -246,7 +246,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.15, y: 3.5, z: 0}
-  m_LocalScale: {x: 2.3, y: 3.9, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 243768541778223181}
@@ -300,7 +300,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 12
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: b9f00c5201578a04d96f24fdc6277544, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5f9bea834f7c49f4a0fb53c19551d38b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5698,7 +5698,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.15, y: 3.5, z: 0}
-  m_LocalScale: {x: 2.3, y: 3.9, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 243768541778223181}
@@ -5752,7 +5752,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 12
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: b9f00c5201578a04d96f24fdc6277544, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5f9bea834f7c49f4a0fb53c19551d38b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5887,6 +5887,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::vc_QuestRoom
   questLogic: {fileID: 3636955538328952839}
+  minigameLogic: {fileID: 0}
   questId: h_a2_play
   questName: Opening Night
   primaryRiasec: A
@@ -6404,7 +6405,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 5.8, z: 0}
-  m_LocalScale: {x: 8, y: 0.6, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7449547779965647554}
@@ -6458,7 +6459,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: b9f00c5201578a04d96f24fdc6277544, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a48482636c554d63bd08bb6817ca3ab8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

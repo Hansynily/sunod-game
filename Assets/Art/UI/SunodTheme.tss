@@ -559,7 +559,7 @@ TextField, .unity-text-field { min-height: 84px; font-size: 28px; margin: 6px 0 
     -unity-slice-scale: 3px;
 }
 
-/* Classic: crisp pixel text shadows on titles/tags only - buttons stay clean (Han) */
+/* Classic: crisp pixel text shadows on titles/tags only - buttons stay clean */
 .sn-classic .sn-title, .sn-classic .sn-display, .sn-classic .sl-ribbon, .sn-classic .sn-subtitle {
     text-shadow: 2px 2px 0 rgb(222, 200, 162);
 }

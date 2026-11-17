@@ -692,6 +692,13 @@ public class vc_TownLife : MonoBehaviour
     private void TickBirds(float dt)
     {
         if (_cam == null) return;
+        if (vc_RoomDressing.Indoors)
+        {
+            // inside a building: no sky, so no flock and no shadows sliding over the floor
+            foreach (var (bird, shadow, _) in _birds) { if (bird != null) Destroy(bird.gameObject); if (shadow != null) Destroy(shadow.gameObject); }
+            _birds.Clear();
+            return;
+        }
         if (_birdFrames == null) _birdFrames = new[] { Resources.Load<Sprite>("TownLife/bird_0"), Resources.Load<Sprite>("TownLife/bird_1") };
 
         if (Time.time > _nextBird && _birds.Count == 0 && _birdFrames[0] != null)

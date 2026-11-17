@@ -17,6 +17,10 @@ public class vc_TownHome : MonoBehaviour
     public GameObject[] debris;   // shown while the house is still damaged
 
     private int _stage = -1;
+    private int _stageCount = 1;
+
+    private void OnEnable() => vc_LoopMeta.Changed += RefreshAddOns;
+    private void OnDisable() => vc_LoopMeta.Changed -= RefreshAddOns;
 
     /// <summary>Front door: bottom-middle of the house sprite.</summary>
     public Vector3 DoorPosition
@@ -41,6 +45,7 @@ public class vc_TownHome : MonoBehaviour
         int count = Mathf.Max(1, baseStages != null ? baseStages.Length : 1);
         int stage = Mathf.Clamp(Mathf.FloorToInt(progress01 * (count - 1) + 0.0001f) + bonusStages, 0, count - 1);
         UpdateThreatMarks(stage, count);
+        _stageCount = count;
         if (stage == _stage) return;
 
         bool rebuilt = _stage >= 0 && stage > _stage;
@@ -57,6 +62,92 @@ public class vc_TownHome : MonoBehaviour
         }
 
         if (rebuilt) vc_QuestHUD.Instance?.ShowFeedbackTimed("Your home is getting stronger!", 2f);
+        RefreshAddOns();
+    }
+
+    // ── Home add-ons from the stall (garden, capiz windows, hammock, sari-sari sign) ─────
+    // Bought with stars, switched on in the stall's Style section, kept every loop. They show
+    // once the home is at least half rebuilt (the "rebuilt home"). Purely visual, no colliders.
+    // Art: Tools/art/make_cosmetics.py -> Resources/Cosmetics/home_*.png (16 px per unit).
+
+    private readonly System.Collections.Generic.Dictionary<string, SpriteRenderer> _addOns =
+        new System.Collections.Generic.Dictionary<string, SpriteRenderer>();
+
+    private static readonly string[] AddOnIds = { "home_garden", "home_capiz", "home_hammock", "home_sarisari" };
+
+    private void RefreshAddOns()
+    {
+        if (this == null || baseRenderer == null || baseRenderer.sprite == null) return;
+        bool rebuiltEnough = _stage >= 0 && _stage * 2 >= _stageCount - 1;
+        Bounds b = baseRenderer.bounds;
+        foreach (string id in AddOnIds)
+        {
+            bool want = rebuiltEnough && vc_LoopMeta.HomeAddOn(id);
+            _addOns.TryGetValue(id, out SpriteRenderer sr);
+            if (!want) { if (sr != null) sr.gameObject.SetActive(false); continue; }
+            if (sr == null)
+            {
+                Texture2D tex = Resources.Load<Texture2D>("Cosmetics/" + id);
+                if (tex == null) continue;
+                tex.filterMode = FilterMode.Point;
+                var go = new GameObject("AddOn_" + id);
+                go.transform.SetParent(transform, false);
+                sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0f), 16f);
+                sr.sortingLayerID = baseRenderer.sortingLayerID;
+                _addOns[id] = sr;
+                if (id == "home_capiz")   // a second window on the other side of the door
+                {
+                    var twin = new GameObject("AddOn_home_capiz_2");
+                    twin.transform.SetParent(go.transform, false);
+                    var tsr = twin.AddComponent<SpriteRenderer>();
+                    tsr.sprite = sr.sprite;
+                    tsr.sortingLayerID = sr.sortingLayerID;
+                }
+            }
+            bool wasOff = !sr.gameObject.activeSelf;
+            sr.gameObject.SetActive(true);
+            Vector3 at;
+            switch (id)
+            {
+                case "home_garden":      // front-left, on the ground
+                    at = new Vector3(b.min.x + 0.4f, b.min.y - 1.3f, 0f);
+                    sr.sortingOrder = baseRenderer.sortingOrder + 1;
+                    break;
+                case "home_hammock":     // out to the right, past the HOME signpost
+                    at = new Vector3(b.max.x + 4.4f, b.min.y - 0.3f, 0f);
+                    sr.sortingOrder = baseRenderer.sortingOrder + 1;
+                    break;
+                case "home_sarisari":    // over the door, in front of the roof's edge
+                    at = new Vector3(b.center.x, b.min.y + 1.15f, 0f);
+                    sr.sortingOrder = Mathf.Max(baseRenderer.sortingOrder, topRenderer != null ? topRenderer.sortingOrder : 0) + 3;
+                    if (topRenderer != null) sr.sortingLayerID = topRenderer.sortingLayerID;
+                    break;
+                default:                 // capiz windows: either side of the door, on the wall
+                    at = new Vector3(b.center.x - b.extents.x * 0.55f, b.min.y + 0.45f, 0f);
+                    sr.sortingOrder = baseRenderer.sortingOrder + 2;
+                    Transform twin = sr.transform.Find("AddOn_home_capiz_2");
+                    if (twin != null)
+                    {
+                        twin.localPosition = new Vector3(Mathf.Round(b.extents.x * 1.1f * 16f) / 16f, 0f, 0f);
+                        twin.GetComponent<SpriteRenderer>().sortingOrder = sr.sortingOrder;
+                    }
+                    break;
+            }
+            sr.transform.position = new Vector3(Mathf.Round(at.x * 16f) / 16f, Mathf.Round(at.y * 16f) / 16f, transform.position.z);
+            if (wasOff) StartCoroutine(PopIn(sr.transform));
+        }
+    }
+
+    private static System.Collections.IEnumerator PopIn(Transform t)
+    {
+        for (float k = 0f; k < 1f && t != null; k += Time.deltaTime / 0.3f)
+        {
+            float s = k < 0.7f ? Mathf.Lerp(0.3f, 1.12f, k / 0.7f) : Mathf.Lerp(1.12f, 1f, (k - 0.7f) / 0.3f);
+            t.localScale = new Vector3(s, s, 1f);
+            yield return null;
+        }
+        if (t != null) t.localScale = Vector3.one;
     }
 
     // ── This loop's threat, left on the ground around the wrecked home ─────

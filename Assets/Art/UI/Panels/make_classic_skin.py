@@ -4,7 +4,7 @@ chips, used only in the Classic UI style (vc_ClassicSkin.cs + SunodTheme.tss .sn
 Run:  python -I make_classic_skin.py
 Writes Assets/Resources/UIClassic/*.png (small sources; drawn at 3x with point filtering).
 
-Look (after Han's cozy-farm reference): stair-stepped round pixel corners, a thick dark
+Look (after the cozy-farm reference): stair-stepped round pixel corners, a thick dark
 outline, a light inset line just inside it, banded fills (lighter top band, darker bottom
 band) instead of flat colour, a 1px pixel drop shadow, and on buttons a 2-tone bottom lip
 (pressed = lip gone, inner shadow on top). Palette = the UI V2 tokens.
@@ -125,7 +125,7 @@ def button(p, pressed):
             px[x, y] = rgba(c)
     if not pressed:
         px[3, 3] = rgba(p["H"])                             # a glint in the lit corner
-    return im                                               # no drop shadow on buttons (Han)
+    return im                                               # no drop shadow on buttons
 
 
 for name, pal in BUTTONS.items():

@@ -83,7 +83,12 @@ public class vc_TownCritters : MonoBehaviour
         if (_cat != null) TickCat(dt);
         TickLaundry();
         TickMist(dt);
-        TickDew(dt);
+        if (!vc_RoomDressing.Indoors) TickDew(dt);
+        else if (_dew.Count > 0)
+        {
+            foreach (var (sr, _, _) in _dew) if (sr != null) Destroy(sr.gameObject);
+            _dew.Clear();
+        }
     }
 
     // ── helpers ───────────────────────────────────────────────────────────

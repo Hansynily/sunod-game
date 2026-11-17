@@ -86,6 +86,43 @@ namespace SunodGame.UI
             _btnSurveyLink?.RegisterCallback<ClickEvent>(OnSurveyLinkClicked);
 
             PlayEntrance(root, quests, stars, questsOutOf);
+            ShowLoopPaths(root);
+        }
+
+        /// <summary>
+        /// From loop 2 on, when the loops disagree: show both the first path (loop 1, the
+        /// baseline) and the latest, with what changed (same rule as My Progress and the admin
+        /// page; text from the server, built from what the runs recorded).
+        /// </summary>
+        private void ShowLoopPaths(VisualElement root)
+        {
+            VisualElement section = root.Q<VisualElement>("career-section");
+            if (section == null) return;
+            vc_LoopMeta.Fetch(meta =>
+            {
+                if (this == null || meta == null || meta.paths == null || meta.paths.baseline == null
+                    || meta.paths.baseline.loop <= 0 || !meta.paths.differ) return;
+                LoopPaths p = meta.paths;
+                var box = new VisualElement { name = "loop-paths" };
+                box.style.marginTop = 10;
+                box.style.alignItems = Align.Center;
+                Label Line(string text, int size, Color color, bool bold)
+                {
+                    var l = new Label(text);
+                    l.AddToClassList(bold ? "sn-bold" : "sn-caption");
+                    l.style.fontSize = size;
+                    l.style.color = color;
+                    l.style.whiteSpace = WhiteSpace.Normal;
+                    l.style.unityTextAlign = TextAnchor.MiddleCenter;
+                    return l;
+                }
+                box.Add(Line($"Your first path (baseline): {p.baseline.holland_code} · {p.baseline.career}", 20, vc_UITheme.InkMuted, false));
+                box.Add(Line($"Your latest path: {p.latest.holland_code} · {p.latest.career}", 22, new Color32(76, 50, 140, 255), true));
+                if (!string.IsNullOrWhiteSpace(p.change_line)) box.Add(Line(p.change_line, 20, vc_UITheme.Ink, true));
+                if (!string.IsNullOrWhiteSpace(p.reason_line)) box.Add(Line(p.reason_line, 18, vc_UITheme.InkMuted, false));
+                section.Add(box);
+                vc_UIAnim.Show(box, vc_UIAnim.Enter.SlideUp, 0.6f);
+            });
         }
 
         /// <summary>

@@ -40,6 +40,9 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
     /// <summary>This quest's best fit / prep / preference / lines. Null = presses + XP only.</summary>
     protected virtual vc_QuestSkillProfile SkillProfile => null;
 
+    /// <summary>Read-only view of the profile (the Field Notebook keepsake shows its prep skill).</summary>
+    public vc_QuestSkillProfile QuestProfile => SkillProfile;
+
     /// <summary>False for the minigame quests ("New" gameplay): no press limit, no XP.</summary>
     protected virtual bool UsesSkillSystem => true;
 
@@ -369,6 +372,8 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
     {
         int perQuest = SkillProfile != null ? SkillProfile.presses : 0;   // per-quest limit (QUEST_REDESIGN.md)
         _pressesTotal = UsesSkillSystem ? (perQuest > 0 ? perQuest : vc_SkillLevels.PressesForStage(Stage)) : 0;
+        // Papa's Hammer keepsake: +1 press on every quest (+2 at Lv2). Same for every kind.
+        if (UsesSkillSystem) _pressesTotal += vc_LoopMeta.Level("hammer");
         _pressesLeft = _pressesTotal;
         _prepared = _prepping = false;
         _prepSkill = _workSkill = null;
@@ -497,8 +502,13 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         {
             // stars are the one currency: done their way = +1 bonus star (once per quest per run)
             string scene = vc_TownStage.Current != null ? vc_TownStage.Current.gameObject.scene.name : gameObject.scene.name;
-            bool paid = QuestRoom != null && vc_BonusStars.Grant("pref:" + QuestRoom.QuestId, PreferenceStars, scene);
-            if (paid) LastXpReport = (LastXpReport != null ? LastXpReport + "   " : "") + $"+{PreferenceStars} bonus star";
+            // Vintage Jacket keepsake: x2 bonus stars (x3 at Lv2). Bank only, never the quest's stars.
+            int jacket = vc_LoopMeta.Level("jacket");
+            int bonus = PreferenceStars * (jacket == 2 ? 3 : jacket == 1 ? 2 : 1);
+            bool paid = QuestRoom != null && vc_BonusStars.Grant("pref:" + QuestRoom.QuestId, bonus, scene);
+            if (paid) LastXpReport = (LastXpReport != null ? LastXpReport + "   " : "") + (bonus == 1 ? "+1 bonus star" : $"+{bonus} bonus stars");
+            // friendship (Lv2) unlock for this giver's keepsake, offline too (the server agrees from the run save)
+            if (QuestRoom != null) vc_LoopMeta.NotePreferredSolve(QuestRoom.QuestionCode);
             StartCoroutine(PreferenceHeart(npc));
         }
     }

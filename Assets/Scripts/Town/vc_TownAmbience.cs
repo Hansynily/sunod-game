@@ -131,6 +131,7 @@ public class vc_TownAmbience : MonoBehaviour
     {
         var root = new GameObject("Ambience").transform;
         root.SetParent(transform, false);
+        _ambienceRoot = root.gameObject;
 
         if (_butterflyFrames[0] != null && _flowerSpots.Count > 0)
             for (int i = 0; i < butterflies; i++)
@@ -194,8 +195,13 @@ public class vc_TownAmbience : MonoBehaviour
 
     // ── Per frame ────────────────────────────────────────────────────────
 
+    private GameObject _ambienceRoot;
+
     private void Update()
     {
+        bool indoors = vc_RoomDressing.Indoors;
+        if (_ambienceRoot != null && _ambienceRoot.activeSelf == indoors) _ambienceRoot.SetActive(!indoors);
+        if (indoors) return;
         if (_cam == null) { _cam = Camera.main; if (_cam == null) return; }
         Rect view = CameraRect(2f);
 

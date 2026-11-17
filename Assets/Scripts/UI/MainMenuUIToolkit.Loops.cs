@@ -104,12 +104,35 @@ namespace SunodGame.UI
             var preselected = new List<string>(meta.kept_skills);
             int slots = Mathf.Max(1, meta.memory_slots);
 
+            // owned keepsakes to choose from for the pockets (only these work next loop)
+            var owned = meta.owned_mementos.Select(vc_LoopMeta.KeepsakeById).Where(k => k != null).ToList();
+            int pockets = Mathf.Clamp(meta.pockets, 2, 4);
+            var carriedNow = new List<string>(meta.carried_mementos);
+
             SunodGame.Cutscene.vc_CutscenePlayer.PendingInterludeAfterCut = 0;
             SunodGame.Cutscene.vc_CutscenePlayer.PendingInterlude = resume =>
             {
                 vc_LoopMoments moments = vc_LoopMoments.Instance;
-                if (moments == null) { BeginLoop(new List<string>(), _ => resume()); return; }
-                moments.ShowRemember(candidates, slots, preselected, BeginLoop, resume);
+                if (moments == null) { BeginLoop(new List<string>(), carriedNow, _ => resume()); return; }
+                List<string> kept = new List<string>();
+                // 1) what will you remember? (kept locally) -> 2) what will you carry? -> begin
+                moments.ShowRemember(candidates, slots, preselected,
+                    (held, reply) => { kept = held; reply(null); },
+                    () =>
+                    {
+                        // nothing to choose: every keepsake fits in the pockets
+                        if (owned.Count <= pockets)
+                        {
+                            BeginLoop(kept, owned.Select(k => k.id).ToList(), err =>
+                            {
+                                if (err == null) { resume(); return; }
+                                moments.ShowRemember(candidates, slots, kept, (h, r) => BeginLoop(h, owned.Select(k => k.id).ToList(), r), resume);
+                            });
+                            return;
+                        }
+                        moments.ShowPockets(owned, pockets, carriedNow,
+                            (bag, reply) => BeginLoop(kept, bag, reply), resume);
+                    });
             };
 
             if (!SunodGame.Cutscene.vc_CutscenePlayer.Play("GoBack", StartLoopRun))
@@ -120,7 +143,7 @@ namespace SunodGame.UI
         }
 
         /// <summary>Clears the finished run's save and starts the next loop. Reports null on success.</summary>
-        private static void BeginLoop(List<string> kept, System.Action<string> reply)
+        private static void BeginLoop(List<string> kept, List<string> carried, System.Action<string> reply)
         {
             TelemetryManager tm = TelemetryManager.Instance;
             if (tm == null) { reply("Not signed in."); return; }
@@ -131,7 +154,7 @@ namespace SunodGame.UI
             vc_SkillLevels.PendingRestore = null;
             PlayerPrefs.DeleteKey(TelemetryManager.RunFinishPendingPrefKey);
 
-            var payload = new LoopBeginPayload { kept_skills = kept };
+            var payload = new LoopBeginPayload { kept_skills = kept, carried_mementos = carried ?? new List<string>(), has_carried = carried != null };
             System.Action begin = () => tm.BeginMyLoop(payload,
                 meta => { vc_LoopMeta.Set(meta); reply(null); },
                 error =>
@@ -177,7 +200,7 @@ namespace SunodGame.UI
         private void BuildLoopsSection(LoopMetaResponse meta)
         {
             _loopsSection.Clear();
-            bool show = meta != null && (meta.current_loop > 1 || meta.owned_mementos.Count > 0);
+            bool show = meta != null && (meta.current_loop > 1 || meta.owned_mementos.Count > 0 || meta.history.Count > 0);
             _loopsSection.SetDisplay(show);
             if (!show) return;
 
@@ -185,45 +208,117 @@ namespace SunodGame.UI
                 ? $"Your loops ({meta.loops_completed} lived)"
                 : $"Loop {meta.current_loop}  ·  {vc_LoopMeta.ThreatName(meta.threat)}"));
 
+            // Final result when loops disagree: show both, loop 1 as the baseline.
+            LoopPaths paths = meta.paths;
+            if (paths != null && paths.baseline != null && paths.baseline.loop > 0)
+                _loopsSection.Add(PathsCard(paths));
+
             if (meta.kept_skills.Count > 0)
-                _loopsSection.Add(Tags("Remembering: ", meta.kept_skills.Select(s => FindSkill(s)?.DisplayName ?? s)));
+                _loopsSection.Add(Tags("Remembering: ", meta.kept_skills.Select(SkillLabel)));
+            if (meta.carried_mementos.Count > 0)
+                _loopsSection.Add(Tags("Carrying: ", meta.carried_mementos.Select(KeepsakeLabel)));
 
-            if (meta.owned_mementos.Count > 0)
-                _loopsSection.Add(Tags("Keepsakes: ", meta.owned_mementos.Select(m => vc_LoopMeta.KeepsakeById(m)?.name ?? m)));
-
-            var careers = meta.history.Select(h => h.career).Where(c => !string.IsNullOrWhiteSpace(c)).Distinct().ToList();
-            if (careers.Count > 0) _loopsSection.Add(Tags("Paths found: ", careers));
-
-            for (int i = meta.history.Count - 1; i >= 0; i--)
-            {
-                LoopHistoryItem h = meta.history[i];
-                var card = new VisualElement();
-                card.AddToClassList("history-card");
-                card.AddToClassList("sn-card");
-                var index = new Label($"L{h.loop}");
-                index.AddToClassList("history-index");
-                card.Add(index);
-                var body = new VisualElement();
-                body.AddToClassList("history-body");
-                var career = new Label(string.IsNullOrWhiteSpace(h.career) ? "No career result" : h.career);
-                career.AddToClassList("history-career");
-                body.Add(career);
-                var sub = new Label($"{vc_LoopMeta.ThreatName(h.threat)}  ·  {h.passed} passed, {h.failed} failed");
-                sub.AddToClassList("history-sub");
-                body.Add(sub);
-                card.Add(body);
-                var code = new Label(string.IsNullOrWhiteSpace(h.holland_code) ? "---" : h.holland_code);
-                code.AddToClassList("history-code");
-                card.Add(code);
-                _loopsSection.Add(card);
-            }
+            // every finished loop, in order, side by side (wraps on narrow screens)
+            var row = new VisualElement();
+            row.AddToClassList("loop-cards");
+            foreach (LoopHistoryItem h in meta.history)
+                row.Add(LoopCard(h));
+            if (meta.history.Count > 0) _loopsSection.Add(row);
 
             var divider = new VisualElement();
             divider.AddToClassList("divider");
             _loopsSection.Add(divider);
 
             vc_UIAnim.Stagger(_loopsSection.Children(), vc_UIAnim.Enter.SlideUp, 0.04f, 0.1f);
+            vc_UIAnim.Stagger(row.Children(), vc_UIAnim.Enter.Pop, 0.06f, 0.2f);
         }
+
+        /// <summary>"Your first path (baseline)" next to "Your latest path", plus what changed.</summary>
+        private static VisualElement PathsCard(LoopPaths p)
+        {
+            var card = new VisualElement();
+            card.AddToClassList("sn-card");
+            card.AddToClassList("loop-paths");
+            var pair = new VisualElement();
+            pair.AddToClassList("loop-paths-pair");
+            pair.Add(PathBox("Your first path (baseline)", p.baseline, false));
+            pair.Add(PathBox(p.differ ? "Your latest path" : $"Your latest path (loop {p.latest.loop})", p.latest, true));
+            card.Add(pair);
+            string what = p.differ ? p.change_line : "Both loops point the same way.";
+            if (!string.IsNullOrWhiteSpace(what))
+            {
+                var l = new Label(what);
+                l.AddToClassList("loop-change");
+                card.Add(l);
+            }
+            if (p.differ && !string.IsNullOrWhiteSpace(p.reason_line))
+            {
+                var r = new Label(p.reason_line);
+                r.AddToClassList("loop-reason");
+                card.Add(r);
+            }
+            return card;
+        }
+
+        private static VisualElement PathBox(string title, LoopPath path, bool latest)
+        {
+            var box = new VisualElement();
+            box.AddToClassList("loop-path");
+            if (latest) box.AddToClassList("loop-path--latest");
+            var t = new Label(title);
+            t.AddToClassList("loop-path-title");
+            box.Add(t);
+            var code = new Label(string.IsNullOrWhiteSpace(path?.holland_code) ? "---" : path.holland_code);
+            code.AddToClassList("history-code");
+            box.Add(code);
+            var career = new Label(string.IsNullOrWhiteSpace(path?.career) ? "No career result" : path.career);
+            career.AddToClassList("loop-path-career");
+            box.Add(career);
+            return box;
+        }
+
+        /// <summary>One finished loop: "Loop 2 · Fire", code, career, remembered skills, keepsakes, what changed.</summary>
+        private VisualElement LoopCard(LoopHistoryItem h)
+        {
+            var card = new VisualElement();
+            card.AddToClassList("sn-card");
+            card.AddToClassList("loop-card");
+            if (h.loop == 1) card.AddToClassList("loop-card--baseline");
+            var head = new Label($"Loop {h.loop}  ·  {vc_LoopMeta.ThreatName(h.threat)}" + (h.loop == 1 ? "  ·  baseline" : ""));
+            head.AddToClassList("loop-card-head");
+            card.Add(head);
+            var code = new Label(string.IsNullOrWhiteSpace(h.holland_code) ? "---" : h.holland_code);
+            code.AddToClassList("history-code");
+            code.AddToClassList("loop-card-code");
+            card.Add(code);
+            var career = new Label(string.IsNullOrWhiteSpace(h.career) ? "No career result" : h.career);
+            career.AddToClassList("loop-path-career");
+            card.Add(career);
+            var sub = new Label($"{h.passed} passed, {h.failed} failed");
+            sub.AddToClassList("history-sub");
+            card.Add(sub);
+            card.Add(Line("Remembered", h.kept_skills.Count > 0 ? string.Join(", ", h.kept_skills.Select(SkillLabel)) : "nothing yet"));
+            card.Add(Line("Carried", h.mementos.Count > 0
+                ? string.Join(", ", h.mementos.Select(m => KeepsakeLabel(m) + (h.mementos_lv2.Contains(m) ? " Lv2" : "")))
+                : "no keepsakes"));
+            if (!string.IsNullOrWhiteSpace(h.change_line))
+            {
+                var c = new Label(h.change_line + (string.IsNullOrWhiteSpace(h.reason_line) ? "" : " " + h.reason_line));
+                c.AddToClassList(h.changed ? "loop-change" : "loop-reason");
+                card.Add(c);
+            }
+            return card;
+        }
+
+        private static VisualElement Line(string lead, string text)
+        {
+            var l = new Label($"{lead}: {text}");
+            l.AddToClassList("loop-card-line");
+            return l;
+        }
+
+        private string SkillLabel(string s) => FindSkill(s)?.DisplayName ?? s;
+        private static string KeepsakeLabel(string m) => vc_LoopMeta.KeepsakeById(m)?.name ?? m;
 
         private static Label Heading(string text)
         {

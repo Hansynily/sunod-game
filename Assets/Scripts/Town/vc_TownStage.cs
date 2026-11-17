@@ -93,6 +93,7 @@ public class vc_TownStage : MonoBehaviour
 
     // today's tally for the end-of-day summary
     private int _starsToday;
+    private int _lastQuestStars;
     private int _questsToday;          // energy spent (accepted quests)
     private int _passedToday;
     private readonly Dictionary<string, int> _usageToday = new Dictionary<string, int>();
@@ -102,7 +103,9 @@ public class vc_TownStage : MonoBehaviour
     /// <summary>A town event's cutscene holds the town like the sleep cutscene does (no prompts, no hint arrow).</summary>
     public void SetBusy(bool busy) { _busy = busy; RefreshTownControls(); }
     public int Day => _day;
-    public int Energy => Mathf.Max(0, questsPerDay - _questsToday);
+    public int Energy => Mathf.Max(0, questsPerDay + BanderitasEnergy - _questsToday);
+    /// <summary>Banderitas keepsake (from the fiesta): +1 energy on day 1 of each town.</summary>
+    private int BanderitasEnergy => _day == 1 && vc_LoopMeta.HasMemento("banderitas") ? 1 : 0;
     public int BuiltQuestCount => _npcs.Count(n => n.HasQuest);
     public int AttemptedCount => _npcs.Count(n => n.HasQuest && n.Attempted);
     public int PassedCount => _npcs.Count(n => n.HasQuest && n.Attempted && n.Passed);
@@ -231,7 +234,7 @@ public class vc_TownStage : MonoBehaviour
         // Lucky Ribbon keepsake: a free skill pick on arriving in a new town (once per town per loop).
         if (vc_LoopMeta.HasMemento("ribbon") && AttemptedCount == 0 && _day == 1
             && RibbonPicksGiven.Add($"{vc_LoopMeta.Loop}:{stageId}"))
-            StartCoroutine(RibbonPickWhenFree());
+            StartCoroutine(RibbonPickWhenFree(vc_LoopMeta.Level("ribbon")));
 
         // First morning of a new loop: "Loop N" - what you remember, what you still carry.
         if (vc_LoopMeta.IsRepeatLoop && WakeUpShownForLoop != vc_LoopMeta.Loop && AttemptedCount == 0 && _day == 1
@@ -335,33 +338,42 @@ public class vc_TownStage : MonoBehaviour
         foreach (vc_TownNPC n in asking) n.PlaceAt(n.HomePosition);
     }
 
+    /// <summary>
+    /// Who asks for help on this day: the saved set if it was already rolled (Continue, or the
+    /// Lucky Shell rolling tomorrow at night), else a fresh random set, saved right away.
+    /// </summary>
+    private List<vc_TownNPC> RollRequests(int day)
+    {
+        var list = new List<vc_TownNPC>();
+        foreach (vc_TownNPC npc in _npcs)
+            if (npc.HasQuest && vc_TownFlow.IsQuestDone(RequestMarker(day, npc.QuestId)))
+                list.Add(npc);
+        if (list.Count > 0) return list;
+
+        // A fresh random set every morning (nobody is skipped for good: the stage only ends
+        // once everyone has been helped).
+        var open = _npcs.Where(n => n.IsOpen).OrderBy(_ => Random.value).ToList();
+        // Mang Erning's Whistle keepsake: one more person asks each morning (two at Lv2: more
+        // choice of who to help first; nothing about scoring changes).
+        int extra = Mathf.Max(0, extraRequestsPerDay) + vc_LoopMeta.Level("whistle");
+        int count = Mathf.Min(open.Count, questsPerDay + extra);
+        list.AddRange(open.Take(count));
+
+        var ids = new List<string>();
+        foreach (vc_TownNPC npc in list)
+        {
+            string m = RequestMarker(day, npc.QuestId);
+            vc_TownFlow.MarkQuestDone(m);
+            ids.Add(m);
+        }
+        if (ids.Count > 0) vc_QuestRoom.SaveProgressIds(ids, gameObject.scene.name);
+        return list;
+    }
+
     private void StartDay()
     {
         _today.Clear();
-        foreach (vc_TownNPC npc in _npcs)
-            if (npc.HasQuest && vc_TownFlow.IsQuestDone(RequestMarker(_day, npc.QuestId)))
-                _today.Add(npc);
-
-        if (_today.Count == 0)
-        {
-            // A fresh random set every morning (nobody is skipped for good: the stage only ends
-            // once everyone has been helped).
-            var open = _npcs.Where(n => n.IsOpen).OrderBy(_ => Random.value).ToList();
-            // Mang Erning's Whistle keepsake: one more person asks each morning (more choice
-            // of who to help first; nothing about scoring changes).
-            int extra = Mathf.Max(0, extraRequestsPerDay) + (vc_LoopMeta.HasMemento("whistle") ? 1 : 0);
-            int count = Mathf.Min(open.Count, questsPerDay + extra);
-            _today.AddRange(open.Take(count));
-
-            var ids = new List<string>();
-            foreach (vc_TownNPC npc in _today)
-            {
-                string m = RequestMarker(_day, npc.QuestId);
-                vc_TownFlow.MarkQuestDone(m);
-                ids.Add(m);
-            }
-            if (ids.Count > 0) vc_QuestRoom.SaveProgressIds(ids, gameObject.scene.name);
-        }
+        _today.AddRange(RollRequests(_day));
 
         foreach (vc_TownNPC npc in _npcs)
         {
@@ -389,9 +401,11 @@ public class vc_TownStage : MonoBehaviour
         UpdateTalkButton();
         KeepPlayerInTown();
         // Old Sneakers keepsake: faster walking around town, never inside a quest room.
-        PlayerController.SpeedMultiplier = !_inQuest && vc_LoopMeta.HasMemento("sneakers") ? 1.25f : 1f;
+        // Lv2: faster still, with a dust trail (vc_PlayerCosmetics).
+        int sneakers = vc_LoopMeta.Level("sneakers");
+        PlayerController.SpeedMultiplier = _inQuest || sneakers == 0 ? 1f : sneakers == 2 ? 1.4f : 1.25f;
         // The keepsakes you carry, at the top of the screen while you're in town.
-        if (vc_LoopMeta.Current != null && vc_LoopMeta.Current.owned_mementos.Count > 0)
+        if (vc_LoopMeta.Carried.Count > 0)
             vc_LoopMoments.Instance?.SetPocketVisible(!_inQuest && !_busy);
 
         // Tap / click an NPC you're standing next to, to talk again (e.g. after "Later").
@@ -533,20 +547,25 @@ public class vc_TownStage : MonoBehaviour
         // Old Compass keepsake: the arrow shows up after a few seconds instead of hintArrowDelay.
         float delay = vc_LoopMeta.HasMemento("compass") ? Mathf.Min(hintArrowDelay, 6f) : hintArrowDelay;
         bool allowed = !_inQuest && !_busy && Energy > 0 && RequestsLeftToday > 0 && Time.time - _lastTalkTime > delay;
-        vc_TownNPC nearest = null;
-        if (allowed)
+        // Old Compass Lv2: also points toward today's town event (events don't need energy).
+        Transform eventHost = vc_LoopMeta.Level("compass") == 2 ? GetComponent<vc_TownEvents>()?.PendingHost : null;
+        bool eventAllowed = eventHost != null && !_inQuest && !_busy && Time.time - _lastTalkTime > delay;
+        Transform nearest = null;
+        PlayerController player = allowed || eventAllowed ? FindFirstObjectByType<PlayerController>() : null;
+        float best = float.MaxValue;
+        if (allowed && player != null)
         {
-            PlayerController player = FindFirstObjectByType<PlayerController>();
-            float best = float.MaxValue;
             foreach (vc_TownNPC npc in _today)
             {
-                if (!npc.IsOpen || !npc.gameObject.activeInHierarchy || player == null) continue;
+                if (!npc.IsOpen || !npc.gameObject.activeInHierarchy) continue;
                 float d = Vector2.Distance(player.transform.position, npc.transform.position);
-                if (d < best) { best = d; nearest = npc; }
+                if (d < best) { best = d; nearest = npc.transform; }
             }
         }
+        if (eventAllowed && player != null && Vector2.Distance(player.transform.position, eventHost.position) < best)
+            nearest = eventHost;
 
-        if (nearest != null) { arrow.SetTarget(nearest.transform); arrow.ShowArrow(); _hintShown = true; }
+        if (nearest != null) { arrow.SetTarget(nearest); arrow.ShowArrow(); _hintShown = true; }
         else if (_hintShown) { arrow.ClearTarget(); arrow.HideArrow(); _hintShown = false; }
     }
     private bool _hintShown;
@@ -596,11 +615,12 @@ public class vc_TownStage : MonoBehaviour
             // Someone whose keepsake you carry notices it; everyone else half-remembers you.
             vc_LoopMeta.Keepsake theirs = vc_LoopMeta.KeepsakeByCode(npc.questCode);
             string opener = theirs != null && vc_LoopMeta.HasMemento(theirs.id)
-                ? theirs.rememberLine
+                ? vc_LoopMeta.RememberLine(theirs)
                 : vc_LoopMeta.MemoryOpener(npc.QuestId, npc.QuestId.GetHashCode() & 0x7fffffff);
             ask = opener + "\n\n" + ask;
         }
         ask += RecommendedLine(npc.questCode);
+        ask += NotebookLine(npc);
 
         // Only Help / Later: every quest gets played (pass or fail), nobody is turned down.
         vc_DialogPanel.Instance.ShowChoice(
@@ -627,17 +647,45 @@ public class vc_TownStage : MonoBehaviour
         return $"\n\nRec. Lv{vc_SkillLevels.RecommendedLevel(vc_SkillLevels.StageIndex, questCode)}";
     }
 
+    /// <summary>Field Notebook keepsake: the request shows the quest's prep skill (and, at Lv2,
+    /// the skill the person would like). The same hint for every kind of quest.</summary>
+    private static string NotebookLine(vc_TownNPC npc)
+    {
+        int level = vc_LoopMeta.Level("notebook");
+        if (level == 0 || npc == null || npc.questPrefab == null) return "";
+        vc_FitQuestBase quest = npc.questPrefab.GetComponentInChildren<vc_FitQuestBase>(true);
+        vc_QuestSkillProfile p = quest != null ? quest.QuestProfile : null;
+        if (p == null) return "";
+        string prep = SkillNameForTag(p.prepTag);
+        string pref = level == 2 ? SkillNameForTag(p.preferredTag) : null;
+        string line = "";
+        if (!string.IsNullOrEmpty(prep)) line += $"\nNotebook: prep with {prep}";
+        if (!string.IsNullOrEmpty(pref)) line += (line.Length > 0 ? " · " : "\nNotebook: ") + $"they'd like {pref}";
+        return line;
+    }
+
+    private static string SkillNameForTag(string tag)
+    {
+        if (string.IsNullOrEmpty(tag)) return null;
+        vc_QuestAvailabilityFilter filter = vc_QuestAvailabilityFilter.Instance;
+        vc_SkillData[] all = filter != null && filter.GameSettings != null ? filter.GameSettings.skills : null;
+        vc_SkillData s = all != null ? System.Array.Find(all, x => x != null && x.HasTag(tag)) : null;
+        return s != null ? s.DisplayName : tag.ToUpperInvariant();
+    }
+
     private static readonly HashSet<string> MemoryOpenersShown = new HashSet<string>();
     private static int WakeUpShownForLoop;
     private static readonly HashSet<string> RibbonPicksGiven = new HashSet<string>();
 
-    private IEnumerator RibbonPickWhenFree()
+    private IEnumerator RibbonPickWhenFree(int picks)
     {
         yield return null;
         while (_busy || (vc_DialogPanel.Instance != null && vc_DialogPanel.Instance.IsOpen)
                || (vc_LoopMoments.Existing != null && vc_LoopMoments.Existing.IsShowing))
             yield return null;
-        OfferSkillPick(null);
+        // Lucky Ribbon: one pick, two at Lv2
+        if (picks >= 2) OfferSkillPick(() => OfferSkillPick(null));
+        else OfferSkillPick(null);
     }
 
     private static List<vc_SkillData> RememberedSkills()
@@ -658,7 +706,7 @@ public class vc_TownStage : MonoBehaviour
     {
         var list = new List<vc_LoopMeta.Keepsake>();
         if (vc_LoopMeta.Current == null) return list;
-        foreach (string id in vc_LoopMeta.Current.owned_mementos)
+        foreach (string id in vc_LoopMeta.Carried)
         {
             vc_LoopMeta.Keepsake k = vc_LoopMeta.KeepsakeById(id);
             if (k != null) list.Add(k);
@@ -700,7 +748,8 @@ public class vc_TownStage : MonoBehaviour
         vc_QuestRoom.OnAnyQuestComplete += OnQuestDoneAcknowledged;
 
         // Standing inside the room's trigger starts the quest + timer.
-        MovePlayer(roomPos + (Vector3)roomEntryOffset);
+        // Pixel iris: the screen closes in town and opens inside the room.
+        vc_PixelTransition.Through(() => MovePlayer(roomPos + (Vector3)roomEntryOffset));
     }
 
     /// <summary>
@@ -735,6 +784,7 @@ public class vc_TownStage : MonoBehaviour
         {
             _passedToday++;
             _starsToday += result.FinalStarsEarnedNormalized;
+            _lastQuestStars = result.FinalStarsEarnedNormalized;
         }
         if (vc_SkillManager.Instance != null)
             foreach (var kv in vc_SkillManager.Instance.GetUsageSummary())
@@ -767,6 +817,7 @@ public class vc_TownStage : MonoBehaviour
 
         vc_QuestRoom.OnAnyQuestComplete -= OnQuestDoneAcknowledged;
 
+        yield return vc_PixelTransition.Cover();   // pixel iris closes on the room
         if (_activeRoom != null) Destroy(_activeRoom);
         _activeRoom = null;
         _activeNpc = null;
@@ -779,6 +830,7 @@ public class vc_TownStage : MonoBehaviour
             npc.SetPassed(passed);
             MovePlayer(SafeTownSpot(npc.transform.position + new Vector3(0f, -1f, 0f)));
         }
+        vc_PixelTransition.Reveal();               // ...and opens back in town
 
         _promptCooldownUntil = Time.time + 1f;
         _lastTalkTime = Time.time;
@@ -789,6 +841,15 @@ public class vc_TownStage : MonoBehaviour
         // Helping some people unlocks their keepsake in the shop.
         if (passed && npc != null && vc_LoopMeta.TryUnlock(npc.questCode, out vc_LoopMeta.Keepsake unlocked))
             vc_LoopMoments.Instance?.ShowUnlocked(unlocked);
+
+        // Lucky Coin keepsake: once a loop, the first quest passed pays its stars again into the
+        // bank (a bonus-star marker; the quest's own scored stars don't change).
+        if (passed && _lastQuestStars > 0 && vc_LoopMeta.HasMemento("luckycoin")
+            && vc_BonusStars.Grant("luckycoin", _lastQuestStars, gameObject.scene.name))
+        {
+            vc_RunProgressUI.Instance?.ShowStamp("Lucky Coin!", new Color32(255, 196, 40, 255));
+            vc_QuestHUD.Instance?.ShowFeedbackTimed($"Lucky Coin: +{_lastQuestStars} bonus stars", 3f);
+        }
 
         AfterTownChange();
     }
@@ -859,6 +920,14 @@ public class vc_TownStage : MonoBehaviour
             (left > 0 ? $"Still to help in {stageTitle}: {left}\n" : $"Everyone in {stageTitle} has been helped!\n") + "\n" +
             (string.IsNullOrEmpty(kinds) ? "You took it one step at a time today." : $"Today you leaned on {kinds} skills.");
 
+        // Lucky Shell keepsake: tomorrow's requests are decided tonight and shown here.
+        if (vc_LoopMeta.HasMemento("shell") && left > 0 && afterSleep == null)
+        {
+            List<vc_TownNPC> tomorrow = RollRequests(_day + 1);
+            if (tomorrow.Count > 0)
+                body += "\n\nThe shell hums. Tomorrow: " + string.Join(", ", tomorrow.Select(n => n.npcName));
+        }
+
         vc_RunProgressUI ui = vc_RunProgressUI.Instance;
         string dream = nightDreams != null && nightDreams.Length > 0 ? nightDreams[(_day - 1) % nightDreams.Length] : null;
 
@@ -887,8 +956,8 @@ public class vc_TownStage : MonoBehaviour
         // by sleeping through days).
         bool earnedPick = _questsToday > 0;
         System.Action<System.Action> pick = endingRun || !earnedPick ? (System.Action<System.Action>)(then => then?.Invoke())
-            : vc_LoopMeta.HasMemento("lantern") ? (then => OfferSkillPick(() => OfferSkillPick(then)))   // Lola's Lantern: +1 pick
-            : OfferSkillPick;
+            : vc_LoopMeta.HasMemento("lantern") ? (then => OfferSkillPick(() => OfferSkillPick(then, NightCards()), NightCards()))   // Lola's Lantern: +1 pick
+            : (System.Action<System.Action>)(then => OfferSkillPick(then, NightCards()));
 
         string title = $"{stageTitle} - Day {_day} done";
         Vector3 home = HomeWake ?? WakePosition;
@@ -1092,20 +1161,38 @@ public class vc_TownStage : MonoBehaviour
     /// 4 is a duplicate of one you own (+4 XP to it, Hades style), and about 1 night in 6 a rare
     /// skill (Plan / Survey) shows up (SKILL_SYSTEM_DESIGN.md §5).
     /// </summary>
-    private void OfferSkillPick(System.Action then)
+    /// <summary>Cards in a night pick: 3, or 4 with Lola's Lantern at Lv2.</summary>
+    private static int NightCards() => vc_LoopMeta.Level("lantern") == 2 ? 4 : 3;
+
+    private void OfferSkillPick(System.Action then) => OfferSkillPick(then, 3);
+
+    /// <summary>The night-pick popup shows at most this many cards (vc_SkillAwardPopup).</summary>
+    private const int MaxPickCards = 4;
+
+    private void OfferSkillPick(System.Action then, int cards)
     {
-        vc_SkillData[] picks = DrawSkillPicks(3);
+        // Lucky Card helper (bought at the stall): this pick offers one extra card (the popup
+        // holds 4 at most, so it waits for a pick with room). Letter-neutral: it never favours
+        // rare skills (both rares are Investigative). Used up here.
+        bool lucky = cards < MaxPickCards && vc_LoopMeta.HoldsHelper("luckycard");
+        if (lucky) cards++;
+        vc_SkillData[] picks = DrawSkillPicks(cards);
         if (picks.Length == 0 || vc_SkillAwardPopup.Instance == null) { then?.Invoke(); return; }
+        if (lucky)
+            vc_LoopMeta.UseHelper("luckycard", ok => { if (ok) vc_QuestHUD.Instance?.ShowFeedbackTimed("Lucky Card: an extra card tonight!", 2.5f); });
 
         vc_SkillAwardPopup.Instance.Show(picks, chosen =>
         {
             if (chosen != null)
             {
                 bool duplicate = vc_PlayerInventory.Instance != null && vc_PlayerInventory.Instance.HasSkill(chosen);
+                // Press Pass keepsake: +1 XP to whatever skill you pick (+2 at Lv2).
+                int pass = vc_LoopMeta.Level("presspass");
                 if (duplicate)
                 {
-                    vc_SkillLevels.AddXp(chosen, vc_SkillLevels.XpDuplicate);
-                    vc_QuestHUD.Instance?.ShowFeedbackTimed($"{chosen.DisplayName} +{vc_SkillLevels.XpDuplicate} XP", 2.5f);
+                    int xp = vc_SkillLevels.XpDuplicate + pass;
+                    vc_SkillLevels.AddXp(chosen, xp);
+                    vc_QuestHUD.Instance?.ShowFeedbackTimed($"{chosen.DisplayName} +{xp} XP", 2.5f);
                     // not in its button right now? offer the swap, else nothing to ask
                     if (vc_SkillManager.Instance != null && vc_SkillManager.Instance.GetSkillInCategory(chosen.riaSecLetter) != chosen)
                         vc_SkillManager.Instance.OfferEquip(chosen);
@@ -1113,13 +1200,18 @@ public class vc_TownStage : MonoBehaviour
                 else
                 {
                     vc_PlayerInventory.Instance?.AddSkill(chosen);
+                    if (pass > 0)
+                    {
+                        vc_SkillLevels.AddXp(chosen, pass);
+                        vc_QuestHUD.Instance?.ShowFeedbackTimed($"Press Pass: {chosen.DisplayName} +{pass} XP", 2.5f);
+                    }
                     vc_SkillManager.Instance?.OfferEquip(chosen);
                 }
                 // save the pick (new skill or XP) right away, so quitting tonight keeps it
                 vc_QuestRoom.SaveProgressIds(null, gameObject.scene.name);
             }
             StartCoroutine(AfterDialogClosed(then));
-        });
+        }, () => DrawSkillPicks(cards));
     }
 
     private IEnumerator AfterDialogClosed(System.Action then)
@@ -1167,7 +1259,8 @@ public class vc_TownStage : MonoBehaviour
 
         var picks = new List<vc_SkillData>();
 
-        // Rare: about 1 night in 6 (a rare you already own: about 1 night in 12).
+        // Rare: about 1 night in 6 (a rare you already own: about 1 night in 12). Nothing boosts
+        // these odds: both rares are Investigative, so a boost would favour one letter.
         if (rares.Count > 0 && Random.value < 1f / 6f) picks.Add(rares[Random.Range(0, rares.Count)]);
         else if (rareDupes.Count > 0 && Random.value < 1f / 12f) picks.Add(rareDupes[Random.Range(0, rareDupes.Count)]);
 
@@ -1468,7 +1561,7 @@ public class vc_TownStage : MonoBehaviour
         return player != null ? player.transform.position : transform.position;
     }
 
-    /// <summary>Quest journal: fade out, appear next to 'who', fade in.</summary>
+    /// <summary>Quest journal: pixel iris closes, appear next to 'who', iris opens.</summary>
     public void TeleportTo(vc_TownNPC who)
     {
         if (who == null || _inQuest || _busy) return;
@@ -1479,14 +1572,13 @@ public class vc_TownStage : MonoBehaviour
     {
         _busy = true;
         RefreshTownControls();
-        vc_RunProgressUI ui = vc_RunProgressUI.Instance;
-        if (ui != null) yield return ui.FadeScreen(1f, 0.3f);
+        yield return vc_PixelTransition.Cover(0.3f);
         vc_Sfx_Play("quest_start");
         MovePlayer(SafeTownSpot(who.transform.position + new Vector3(0f, -1.3f, 0f)));
         _lastTalkTime = Time.time;
         _promptCooldownUntil = Time.time + 0.6f;
         yield return new WaitForSeconds(0.15f);
-        if (ui != null) yield return ui.FadeScreen(0f, 0.35f);
+        yield return vc_PixelTransition.Open(0.4f);
         _busy = false;
         RefreshTownControls();
     }

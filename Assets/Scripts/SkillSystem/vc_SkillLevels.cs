@@ -129,11 +129,16 @@ public static class vc_SkillLevels
         return LevelForXp(xp);
     }
 
-    /// <summary>A fresh run: loop 1 starts empty; loop 2+ starts with the remembered skills' XP.</summary>
+    /// <summary>A fresh run: loop 1 starts empty; loop 2+ starts with the remembered skills' XP
+    /// (plus, with the Name Tag keepsake, part of the forgotten skills' XP, waiting for the
+    /// skill to be found again - server: loop_meta.begin_loop faded_skill_xp).</summary>
     public static void StartRun()
     {
         LoopMetaResponse meta = vc_LoopMeta.Current;
-        Load(meta != null ? meta.kept_skill_xp : null);
+        var all = new List<SkillXpEntryDto>();
+        if (meta?.kept_skill_xp != null) all.AddRange(meta.kept_skill_xp);
+        if (meta?.faded_skill_xp != null) all.AddRange(meta.faded_skill_xp);
+        Load(all);
     }
 
     // ── Rare skills (night pick) ──────────────────────────────────────────

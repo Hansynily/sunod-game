@@ -6,8 +6,8 @@ using UnityEngine;
 namespace SunodGame.Cutscene.Editor
 {
     /// <summary>
-    /// Pulls Han's cutscene SVG layers from the art source folder (kept outside Assets/,
-    /// alongside the project) into the imported project folder. Run again whenever Han
+    /// Pulls the developer's cutscene SVG layers from the art source folder (kept outside Assets/,
+    /// alongside the project) into the imported project folder. Run again whenever the developer
     /// adds or updates a layer - existing files are overwritten in place so GUIDs and
     /// every reference to them (Cutscene_Intro.asset, etc.) survive the update.
     /// </summary>

@@ -18,7 +18,7 @@ using SunodGame.UI;
 /// Built in code on its own UIDocument (borrowing the scene's PanelSettings), so no scene
 /// setup is needed. Lives across scene loads.
 /// </summary>
-public class vc_LoopMoments : MonoBehaviour
+public partial class vc_LoopMoments : MonoBehaviour
 {
     private static vc_LoopMoments _instance;
 
@@ -350,160 +350,6 @@ public class vc_LoopMoments : MonoBehaviour
         _ => "",
     };
 
-    // ══ Keepsake Shop (the stall in town) ═════════════════════════════════════════════
-
-    private VisualElement _shopList, _shopCard;
-    private Label _shopStars, _shopError;
-    private PlayerController _shopPlayer;
-
-    public void ShowShop()
-    {
-        StopAllCoroutines();
-        BeginStage(vc_UITheme.Scrim, stars: false);
-        _shopPlayer = FindFirstObjectByType<PlayerController>();
-        _shopPlayer?.MoveAction.Disable();
-
-        var card = new VisualElement();
-        card.AddToClassList("sn-panel");
-        card.AddToClassList("sn-sheet");
-        card.style.width = 720;
-        card.style.maxWidth = Length.Percent(92);
-        card.style.maxHeight = Length.Percent(92);
-        _shopCard = card;
-        _stage.Add(card);
-
-        // header: title centred, round close top-right
-        var header = new VisualElement();
-        header.AddToClassList("sn-header");
-        header.style.justifyContent = Justify.SpaceBetween;
-        var spacer = new VisualElement();
-        spacer.style.width = 72; spacer.style.flexShrink = 0;
-        header.Add(spacer);
-        var title = Text("Keepsake Shop", "title");
-        title.style.flexGrow = 1;
-        header.Add(title);
-        Button close = MakeButton("×", CloseShop, "icon-sm");
-        close.style.marginTop = 0; close.style.marginBottom = 0; close.style.marginRight = 0;
-        close.style.fontSize = 40;
-        header.Add(close);
-        card.Add(header);
-
-        _shopStars = Text("", "body");
-        _shopStars.AddToClassList("sn-chip");
-        _shopStars.AddToClassList("sn-semibold");
-        _shopStars.style.alignSelf = Align.Center;
-        _shopStars.style.marginBottom = 10;
-        card.Add(_shopStars);
-
-        var scroll = new ScrollView(ScrollViewMode.Vertical);
-        scroll.style.flexShrink = 1;
-        scroll.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
-        _shopList = new VisualElement();
-        scroll.Add(_shopList);
-        card.Add(scroll);
-
-        _shopError = Text("", "caption", vc_UITheme.Red);
-        _shopError.style.marginTop = 6;
-        card.Add(_shopError);
-
-        BuildShopRows();
-        vc_UIAnim.Show(card, vc_UIAnim.Enter.Pop);
-        if (_shopList != null) vc_UIAnim.Stagger(_shopList.Children(), vc_UIAnim.Enter.SlideUp, 0.04f, 0.12f);
-        vc_LoopMeta.Fetch(_ => { if (_shopList != null && IsShowing) { vc_LoopMeta.MarkShopSeen(); BuildShopRows(); } });
-    }
-
-    private void CloseShop()
-    {
-        if (_shopList == null) return;          // already closing
-        vc_Sfx.Play("click", 0.5f);
-        _shopList = null;
-        _shopPlayer?.MoveAction.Enable();
-        StartCoroutine(CloseShopRoutine());
-    }
-
-    private IEnumerator CloseShopRoutine()
-    {
-        if (_shopCard != null) vc_UIAnim.Hide(_shopCard);
-        _shopCard = null;
-        yield return HideStage();
-        EndStage();
-        RefreshPocket();
-    }
-
-    private void BuildShopRows()
-    {
-        if (_shopList == null) return;
-        _shopList.Clear();
-        var meta = vc_LoopMeta.Current;
-        _shopStars.text = meta != null ? $"{meta.stars} stars" : "";
-        _shopStars.style.display = meta != null ? DisplayStyle.Flex : DisplayStyle.None;
-        if (meta == null) { _shopError.text = "No connection."; return; }
-
-        foreach (vc_LoopMeta.Keepsake k in vc_LoopMeta.Keepsakes)
-        {
-            bool owned = meta.owned_mementos.Contains(k.id);
-            bool unlocked = owned || meta.unlocked_mementos.Contains(k.id);
-            int cost = vc_LoopMeta.Price(k.id);
-
-            var row = new VisualElement();
-            row.AddToClassList("sn-card");
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.marginBottom = 10;
-            if (!unlocked) row.style.backgroundColor = vc_UITheme.CreamLo;
-
-            VisualElement icon = Icon(k.id, 52);
-            icon.style.marginRight = 14;
-            icon.style.flexShrink = 0;
-            if (!unlocked) icon.style.unityBackgroundImageTintColor = new Color(vc_UITheme.Ink.r, vc_UITheme.Ink.g, vc_UITheme.Ink.b, 0.85f);
-            row.Add(icon);
-
-            var body = new VisualElement();
-            body.style.flexGrow = 1; body.style.flexShrink = 1;
-            var title = Text(unlocked ? k.name : "???", "body");
-            title.AddToClassList("sn-semibold");
-            title.style.unityTextAlign = TextAnchor.MiddleLeft;
-            body.Add(title);
-            var sub = Text(unlocked ? k.effect : $"Help {k.giver}", "caption");
-            sub.style.unityTextAlign = TextAnchor.MiddleLeft;
-            body.Add(sub);
-            row.Add(body);
-
-            bool canBuy = !owned && unlocked && meta.stars >= cost;
-            string id = k.id;
-            Button btn = MakeButton(owned ? "Owned" : !unlocked ? "Locked" : $"{cost} stars",
-                () => BuyKeepsake(id), "small", canBuy ? "gold" : null);
-            btn.style.minWidth = 150;
-            btn.style.flexShrink = 0;
-            btn.style.marginRight = 0;
-            if (!canBuy) btn.SetEnabled(false);
-            row.Add(btn);
-            _shopList.Add(row);
-        }
-    }
-
-    private void BuyKeepsake(string id)
-    {
-        var tm = SunodGame.Telemetry.TelemetryManager.Instance;
-        if (tm == null) return;
-        vc_Sfx.Play("click", 0.6f);
-        _shopError.text = "";
-        tm.BuyMemento(id,
-            meta =>
-            {
-                vc_LoopMeta.Set(meta);
-                vc_Sfx.Play("step_done", 0.8f);
-                BuildShopRows();
-                if (_shopStars != null) vc_UIAnim.Punch(_shopStars, 0.12f, 0.3f);
-            },
-            _ =>
-            {
-                if (_shopError == null) return;
-                _shopError.text = "Couldn't buy.";
-                vc_UIAnim.Shake(_shopError);
-            });
-    }
-
     // ══ Unlocked (small notice: a keepsake is now in the shop) ═══════════════════════
 
     private VisualElement _notice;
@@ -596,7 +442,7 @@ public class vc_LoopMoments : MonoBehaviour
     private void RefreshPocket()
     {
         if (_pocket == null) return;
-        var owned = vc_LoopMeta.Current != null ? vc_LoopMeta.Current.owned_mementos : null;
+        var owned = vc_LoopMeta.Current != null ? vc_LoopMeta.Carried : null;   // only what's in your pockets
         bool show = _pocketWanted && owned != null && owned.Count > 0 && !IsShowing;
         bool wasShown = _pocket.style.display == DisplayStyle.Flex;
         if (!show)
@@ -609,14 +455,15 @@ public class vc_LoopMoments : MonoBehaviour
         {
             vc_LoopMeta.Keepsake k = vc_LoopMeta.KeepsakeById(id);
             if (k == null) continue;
-            VisualElement icon = Icon(id, 40);
+            bool lv2 = vc_LoopMeta.IsLv2(id);
+            VisualElement icon = Icon(id, 40, lv2);
             icon.style.marginLeft = 3; icon.style.marginRight = 3;
             icon.pickingMode = PickingMode.Position;
             icon.RegisterCallback<ClickEvent>(_ =>
             {
                 vc_Sfx.Play("click", 0.5f);
                 vc_UIAnim.Punch(icon, 0.2f, 0.3f);
-                vc_QuestHUD.Instance?.ShowFeedbackTimed($"{k.name}: {k.effect}", 3f);
+                vc_QuestHUD.Instance?.ShowFeedbackTimed(lv2 ? $"{k.name} Lv2: {k.effect} {k.lv2Effect}" : $"{k.name}: {k.effect}", 3f);
             });
             _pocket.Add(icon);
         }
@@ -734,7 +581,7 @@ public class vc_LoopMoments : MonoBehaviour
     {
         var chip = new VisualElement { pickingMode = PickingMode.Ignore };
         chip.style.alignItems = Align.Center;
-        chip.Add(Icon(k.id, size));
+        chip.Add(Icon(k.id, size, vc_LoopMeta.IsLv2(k.id)));
         if (showName)
         {
             var n = Text(k.name, "caption", vc_UITheme.CreamHi);
@@ -744,11 +591,11 @@ public class vc_LoopMoments : MonoBehaviour
         return chip;
     }
 
-    private static VisualElement Icon(string id, float size)
+    private static VisualElement Icon(string id, float size, bool lv2 = false)
     {
         var icon = new VisualElement { pickingMode = PickingMode.Ignore };
         icon.style.width = size; icon.style.height = size;
-        Texture2D tex = vc_LoopMeta.KeepsakeIcon(id);
+        Texture2D tex = vc_LoopMeta.KeepsakeIcon(id, lv2);
         if (tex != null)
         {
             tex.filterMode = FilterMode.Point;

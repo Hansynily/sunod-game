@@ -457,14 +457,6 @@ namespace SunodGame.Telemetry
                 JsonUtility.ToJson(payload ?? new LoopBeginPayload())));
         }
 
-        public void BuyMemento(string mementoId, Action<LoopMetaResponse> onSuccess, Action<string> onError = null)
-        {
-            if (!TryGetToken(out string token, onError)) return;
-            StartCoroutine(PostAuthorizedNoBody("/api/telemetry/users/me/loop/buy", token, onSuccess,
-                onError ?? (e => Debug.LogWarning($"[Telemetry] Keepsake buy error: {e}")),
-                JsonUtility.ToJson(new LoopBuyPayload { memento_id = mementoId })));
-        }
-
         public void ResetMyLoop(Action<LoopMetaResponse> onSuccess = null, Action<string> onError = null)
         {
             if (!TryGetToken(out string token, onError)) return;
