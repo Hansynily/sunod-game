@@ -158,7 +158,7 @@ public partial class vc_LoopMoments
         }
 
         _shopList.Clear();
-        if (meta == null) { _shopError.text = "Play a little first - the stall opens once your loop is loaded."; return; }
+        if (meta == null) { _shopError.text = "Not ready yet. Try again soon."; return; }
         switch (_shopTab)
         {
             case "Pockets": BuildPockets(meta); break;
@@ -177,7 +177,7 @@ public partial class vc_LoopMoments
 
     private void BuildKeepsakes(LoopMetaResponse meta)
     {
-        _shopList.Add(Note($"Only keepsakes in your pockets work ({meta.carried_mementos.Count}/{vc_LoopMeta.Pockets} carried). Choose them at Go Back."));
+        _shopList.Add(Note($"Only what's in your pockets works. ({meta.carried_mementos.Count}/{vc_LoopMeta.Pockets})"));
         foreach (vc_LoopMeta.Keepsake k in vc_LoopMeta.Keepsakes)
         {
             bool owned = meta.owned_mementos.Contains(k.id);
@@ -189,7 +189,7 @@ public partial class vc_LoopMoments
             string sub = !unlocked ? (k.fromEvent ? $"Free from {k.giver}." : $"Help {k.giver}.")
                 : lv2 ? $"{k.effect}  Lv2: {k.lv2Effect}"
                 : canUpgrade ? $"{k.effect}  Lv2: {k.lv2Effect}"
-                : !k.fromEvent && owned ? $"{k.effect}  (Lv2: help {k.giver} their way in a later loop.)"
+                : !k.fromEvent && owned ? $"{k.effect}  (Help {k.giver} again for Lv2.)"
                 : k.effect;
 
             string label; string[] variant; Action act = null; bool enabled = false;
@@ -224,7 +224,7 @@ public partial class vc_LoopMoments
     private void BuildPockets(LoopMetaResponse meta)
     {
         int have = vc_LoopMeta.Pockets;
-        _shopList.Add(Note("Each pocket carries one keepsake through a loop. Choose what to carry when you go back."));
+        _shopList.Add(Note("More pockets, more keepsakes."));
         var slots = new VisualElement();
         slots.style.flexDirection = FlexDirection.Row;
         slots.style.justifyContent = Justify.Center;
@@ -237,7 +237,7 @@ public partial class vc_LoopMoments
         }
         _shopList.Add(slots);
 
-        if (have >= meta.max_pockets) { _shopList.Add(Note("All pockets sewn on. Your bag is as big as it gets!")); return; }
+        if (have >= meta.max_pockets) { _shopList.Add(Note("Your bag is full size!")); return; }
         int next = have + 1;
         int cost = vc_LoopMeta.Price(vc_LoopMeta.NextPocketId);
         _shopList.Add(Row(PocketSlot(null, true, 56), $"Pocket {next}", $"Carry {next} keepsakes each loop.",
@@ -270,7 +270,7 @@ public partial class vc_LoopMoments
 
     private void BuildHelpers(LoopMetaResponse meta)
     {
-        _shopList.Add(Note("One-use. One of each per loop. Reroll and Study Notes show up at the night pick; the Lucky Card works on its own."));
+        _shopList.Add(Note("One of each per loop."));
         foreach (vc_LoopMeta.ShopGood g in vc_LoopMeta.Helpers)
         {
             bool held = vc_LoopMeta.HoldsHelper(g.id);

@@ -81,8 +81,8 @@ namespace SunodGame.UI
         {
             if (_lblNewRunBody == null) return;
             _lblNewRunBody.text = HasLoopsToLose
-                ? "Erases everything: run, remembered skills, keepsakes and stars."
-                : "Your saved run will be erased.";
+                ? "You'll lose everything and start over."
+                : "You'll lose this run.";
         }
 
         // ── Going back ────────────────────────────────────────────────────────

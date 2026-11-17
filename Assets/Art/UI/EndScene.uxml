@@ -12,7 +12,7 @@
                 </ui:VisualElement>
 
                 <ui:VisualElement name="career-section" class="career-section">
-                    <ui:Label text="Best fit" class="recommended-label sn-caption" />
+                    <ui:Label text="Your career" class="recommended-label sn-caption" />
                     <ui:Label name="lbl-career-name" text="..." class="career-name" />
                     <ui:Label text="From your RIASEC profile." class="riasec-note sn-caption" />
                     <ui:Label name="lbl-partial-note" text="" class="riasec-note partial-note sn-caption" />

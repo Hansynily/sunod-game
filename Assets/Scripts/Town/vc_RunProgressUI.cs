@@ -1145,7 +1145,7 @@ public class vc_RunProgressUI : MonoBehaviour
         if (want != null) _pressPulse = vc_UIAnim.Pulse(want, 0.25f, 0.6f);
     }
 
-    // ── stamp: "Perfect fit!" / "Prepared!" / "Lv2!" over the room ──────────
+    // ── stamp: "Nailed it!" / "Prepared!" / "Lv2!" over the room ──────────
 
     /// <summary>The last stamp shown (tests / debugging).</summary>
     public string LastStamp { get; private set; }
@@ -1153,7 +1153,7 @@ public class vc_RunProgressUI : MonoBehaviour
     /// <summary>
     /// A big tilted word that drops onto the room for a moment, under the quest-done sheet.
     /// yShift moves it down (+) or up (-) in steps of ~20% of the screen, so a level-up and a
-    /// "Perfect fit!" can show at once. The colour fills the stamp; text is ink or cream for contrast.
+    /// "Nailed it!" can show at once. The colour fills the stamp; text is ink or cream for contrast.
     /// </summary>
     public void ShowStamp(string text, Color color, float yShift = 0f)
     {

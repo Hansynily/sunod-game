@@ -341651,7 +341651,7 @@ MonoBehaviour:
   questPrefab: {fileID: 4199325092526589879, guid: b199373012dc82f4080fd6d4e3f5151a, type: 3}
   askLine: The pump's motor bracket is too rough to fit. Grind it down? My grinding
     wheel's gone dull, though...
-  thanksLine: A perfect fit!
+  thanksLine: Good as new!
   idleFrames:
   - {fileID: 21300000, guid: e97e92d5a28762040ba8007d40a77408, type: 3}
   - {fileID: 21300000, guid: c14cacfb981595249928293af373763c, type: 3}

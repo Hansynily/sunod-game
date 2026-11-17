@@ -386,7 +386,7 @@ public class vc_TutorialFlowController : MonoBehaviour
                     () => vc_DialogPanel.Instance?.ShowMessage(
                         "Watch Your Progress",
                         "The ring in the top-right corner shows your life stage and the day. Tap it to see all 3 stages.\n\n" +
-                        "Finish all 48 quests (16 per stage) and SUNOD shows the careers that fit you best.",
+                        "Finish all 48 quests (16 per stage) and SUNOD shows your best careers.",
                         OnLifeStagesLearned)))));
     }
 

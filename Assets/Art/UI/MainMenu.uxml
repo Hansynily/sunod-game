@@ -148,7 +148,7 @@
         <ui:VisualElement name="newrun-confirm-overlay" class="overlay-root sn-scrim">
             <ui:VisualElement class="confirm-box sn-panel sn-sheet">
                 <ui:Label text="New game?" class="confirm-title sn-title"/>
-                <ui:Label name="lbl-newrun-body" text="Your saved run will be erased." class="confirm-body"/>
+                <ui:Label name="lbl-newrun-body" text="You'll lose this run." class="confirm-body"/>
                 <ui:VisualElement class="confirm-button-row">
                     <ui:Button name="btn-newrun-cancel" class="action-btn sn-btn sn-btn--ghost">
                         <ui:Label text="Cancel" class="action-btn-label"/>

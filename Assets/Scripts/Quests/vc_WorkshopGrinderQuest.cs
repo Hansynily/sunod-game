@@ -61,7 +61,7 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         fastLines = new[]
         {
             ("repair", "The wheel's sharp again and the bracket fits!"),
-            ("build", "A jig that fast? A perfect fit!"),
+            ("build", "A jig that fast? Wow!"),
         },
     };
 
@@ -189,7 +189,7 @@ public class vc_WorkshopGrinderQuest : vc_FitQuestBase
         }
         yield return Grind(Mathf.Max(0.2f, seconds - t - fitT), t, seconds, true);
         yield return Fit(seconds - fitT, seconds);
-        Finish(oneGo ? "A perfect jig, and the bracket went straight in. One go!" : "The jig kept the bracket straight. Perfect fit!");
+        Finish(oneGo ? "A perfect jig, and the bracket went straight in. One go!" : "The jig kept the bracket straight. Nice!");
     }
 
     private IEnumerator InspectRoutine(float seconds)

@@ -39,7 +39,7 @@ public static class vc_TutorialEndScreen
         string body =
             $"Maybe: {p.Careers}.\n\n" +
             $"You picked {name} ({p.Trait}). Just one idea, not your result.\n\n" +
-            "Play the full game to find your fit.";
+            "Play the full game to find your path.";
 
         if (vc_DialogPanel.Instance != null)
             vc_DialogPanel.Instance.ShowMessage("A possible path", body, () => ShowLoops(onDone));

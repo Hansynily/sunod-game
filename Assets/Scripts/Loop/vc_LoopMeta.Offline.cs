@@ -132,12 +132,12 @@ public static partial class vc_LoopMeta
     /// <summary>Why this can't be bought now, or null if it can.</summary>
     public static string CantBuy(string item)
     {
-        if (Current == null) return "No loop record yet.";
+        if (Current == null) return "Not ready yet.";
         if (!InRun) return "Open the stall in town.";
         int cost = item.StartsWith("lv2:") ? Lv2Price(item.Substring(4)) : Price(item);
         if (KeepsakeById(item) is Keepsake k)
         {
-            if (k.fromEvent) return "Event keepsakes can't be bought.";
+            if (k.fromEvent) return "Not for sale.";
             if (Owns(item)) return "Owned.";
             if (!IsUnlocked(item)) return "Locked.";
         }
@@ -149,7 +149,7 @@ public static partial class vc_LoopMeta
         }
         else if (item.StartsWith("pocket"))
         {
-            if (item != NextPocketId) return "Buy the pockets in order.";
+            if (item != NextPocketId) return "Get the other pocket first.";
         }
         else if (Array.Exists(Helpers, g => g.id == item))
         {

@@ -117,7 +117,7 @@ public static class vc_NpcDialogue
         { "Jun", new[] {
             "Banana cue, two for ten! Okay, three for ten, because you're my friend.",
             "My business plan: sell snacks, buy more snacks, sell those too. Genius.",
-            "Tip: if your skills don't fit the job, get new ones! Every night before you sleep you get to pick one.",
+            "Tip: if your skills can't do the job, get new ones! Every night before you sleep you get to pick one.",
             "Someday I'll own a whole mall. With a snack stall inside. Mine.",
         } },
         { "Mr. Tan", new[] {
@@ -167,7 +167,7 @@ public static class vc_NpcDialogue
         { "Kuya Dan", new[] {
             "Signal's crisp today. I can catch a station all the way from the city if I hold the antenna and stand on one foot.",
             "Anything with wires is just a puzzle that buzzes.",
-            "Most quests have more than one way to solve them. The best-fit skill just gets there faster.",
+            "Most quests have more than one way to solve them. The right skill just gets there faster.",
             "I took apart our TV when I was eight. My mom still hasn't forgiven me. It works better now, though.",
         } },
         { "Ate Carla", new[] {
@@ -210,7 +210,7 @@ public static class vc_NpcDialogue
             "Two hundred and six bones in the human body. I've named all of them. Don't ask.",
             "Your heart beats about a hundred thousand times a day. Make a few of them count.",
             "Curiosity isn't a distraction. It's the whole point.",
-            "Lost in a quest? Look around the room. The things in it usually hint at the skill that fits.",
+            "Lost in a quest? Look around the room. The things in it usually hint at the skill to use.",
         } },
         { "Mrs. Ong", new[] {
             "A to Z. Then by year. Then by color. I'm not obsessive, I'm organized.",
@@ -228,7 +228,7 @@ public static class vc_NpcDialogue
             "Picture this: sisig, but in a cone. I'm telling you, it's the future.",
             "Confidence is ninety percent of a pitch. The other ten is having a good product.",
             "If they say no, you just pitch it better tomorrow.",
-            "Future CEO tip: pick a skill that fits the job and you finish faster. Faster means more stars.",
+            "Future CEO tip: pick the right skill for the job and you finish faster. Faster means more stars.",
         } },
         { "Aling Nena", new[] {
             "The eggplants did well this season. The tomatoes are sulking.",
@@ -266,7 +266,7 @@ public static class vc_NpcDialogue
             "Bioluminescence! I've waited my whole career to use that word casually.",
             "The forest is the oldest lab in the world. We're just borrowing it.",
             "Every answer gives you two new questions. That's how you know you're doing it right.",
-            "Not sure which skill fits? Looking closer never hurts. Inspect or Survey usually tells you something.",
+            "Not sure which skill to use? Looking closer never hurts. Inspect or Survey usually tells you something.",
         } },
         { "Ms. Rivera", new[] {
             "Everyone asks me what they should become. I ask them back: what makes you lose track of time?",

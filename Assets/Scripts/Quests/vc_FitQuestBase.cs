@@ -459,7 +459,7 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         vc_QuestTimer.Instance?.AbortQuest();           // same as the timer running out
     }
 
-    /// <summary>XP, the Lv3 / prep surprise line, the NPC's preference, the "Perfect fit!" stamp.</summary>
+    /// <summary>XP, the Lv3 / prep surprise line, the NPC's preference, the "Nailed it!" stamp.</summary>
     private void AwardFinish()
     {
         vc_SkillData who = _workSkill != null ? _workSkill : CurrentSkill;
@@ -489,7 +489,7 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
 
         // Stamp: the best fit, or a same-category skill at best-fit speed (Lv3 or prepped).
         bool fastSame = path == vc_SkillPath.SameCategory && (level >= vc_SkillLevels.MaxLevel || instant);
-        if (path == vc_SkillPath.BestFit) vc_RunProgressUI.Instance?.ShowStamp("Perfect fit!", new Color32(255, 196, 40, 255));
+        if (path == vc_SkillPath.BestFit) vc_RunProgressUI.Instance?.ShowStamp("Nailed it!", new Color32(255, 196, 40, 255));
         else if (fastSame) vc_RunProgressUI.Instance?.ShowStamp(instant ? "One go!" : "Mastered!", new Color32(255, 196, 40, 255));
 
         string npc = p != null && !string.IsNullOrEmpty(p.npcName) ? p.npcName : "They";
