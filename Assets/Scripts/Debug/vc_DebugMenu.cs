@@ -28,6 +28,7 @@ public class vc_DebugMenu : MonoBehaviour
     private bool _showNpcs = true;
     private float _fps;
     private string _status = "";
+    private string _starsText = "500";
     private float _statusUntil;
 
     private const string HideButtonKey = "sunod.debug_button_hidden";
@@ -250,6 +251,17 @@ public class vc_DebugMenu : MonoBehaviour
         foreach (float ts in new[] { 1f, 2f, 4f })
             if (GUILayout.Button(Mathf.Approximately(Time.timeScale, ts) ? $"[Time x{ts}]" : $"Time x{ts}"))
                 Time.timeScale = ts;
+        GUILayout.EndHorizontal();
+
+        // stars the stall can spend (this device only: the server's bank isn't touched)
+        GUILayout.BeginHorizontal();
+        GUILayout.Label($"Stars: {vc_LoopMeta.Available}", GUILayout.Width(110));
+        _starsText = GUILayout.TextField(_starsText ?? "", 7, GUILayout.Width(90));
+        if (GUILayout.Button("Set stars"))
+        {
+            if (int.TryParse(_starsText, out int stars) && stars >= 0) { vc_LoopMeta.DebugSetStars(stars); Say($"Stars set to {stars} (this device only)"); }
+            else Say("Type a whole number first");
+        }
         GUILayout.EndHorizontal();
 
         if (GUILayout.Button("Close any dialog")) vc_DialogPanel.Instance?.Hide();

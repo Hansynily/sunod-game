@@ -5927,6 +5927,7 @@ MonoBehaviour:
   paintTime: 1.5
   craftTime: 3
   stencilTime: 5
+  planTime: 8
 --- !u!114 &5685454301647305038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7823,7 +7824,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.1818181, y: 0.6363636}
+    oldSize: {x: 1.1875, y: 0.625}
     newSize: {x: 1.1818181, y: 0.6363636}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -8186,7 +8187,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.2727273, y: 0.54545456}
+    oldSize: {x: 1.25, y: 0.5625}
     newSize: {x: 1.2727273, y: 0.54545456}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -8324,7 +8325,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 2.7272727, y: 3.4545455}
+    oldSize: {x: 2.75, y: 3.4375}
     newSize: {x: 2.7272727, y: 3.4545455}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

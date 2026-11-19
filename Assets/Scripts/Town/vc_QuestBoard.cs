@@ -72,7 +72,7 @@ public class vc_QuestBoard : MonoBehaviour
     {
         _notices = notices ?? "";
         _journal = false;
-        _showNotices = false;
+        _showNotices = !vc_LoopMeta.BoardUnlocked;   // locked: open on the notices
         Open();
     }
 
@@ -134,14 +134,22 @@ public class vc_QuestBoard : MonoBehaviour
         }
 
         _title.text = "Town Board";
+        bool locked = !vc_LoopMeta.BoardUnlocked;
         int open = 0;
         if (_stage != null)
             foreach (vc_TownNPC n in _stage.TodayRequests) if (n.HasQuest && !n.Attempted) open++;
-        _tabRequests.text = open > 0 ? $"Requests ({open})" : "Requests";
+        _tabRequests.text = locked ? "Requests (locked)" : open > 0 ? $"Requests ({open})" : "Requests";
 
         if (_showNotices)
         {
             _list.Add(Note(string.IsNullOrEmpty(_notices) ? "No notices today." : _notices));
+            _footer.text = "";
+            return;
+        }
+
+        if (locked)
+        {
+            _list.Add(Note("Locked. Get the Town Board at the stall."));
             _footer.text = "";
             return;
         }

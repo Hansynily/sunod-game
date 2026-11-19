@@ -150,6 +150,57 @@ PEOPLE = {
 }
 
 
+# ── named roamers (vc_NpcDialogue roamer lists). Look id = "rm_" + name in lower case, letters only ──
+ROAMERS = {
+    # Elementary
+    "Aling Pacing": P(skin="morena", hair="bun", hair_col=DBROWN, top="blouse", top_col=tri("orange", 6), bottom="skirt", bottom_col=tri("brown", 3),
+                      hat="kerchief", hat_col=tri("pink", 5), extras=[("dots", PAPER)]),
+    "Kuya Bert": P(build="man", skin="tan", hair="short", hair_col=BLACK, top="tshirt", top_col=white(), bottom="shorts", bottom_col=tri("blue", 4),
+                   hat="cap", hat_col=tri("violet", 4), extras=[("apron", tri("amber", 6)), ("towel",)], cheeks=False),
+    "Mika": P(build="kid", skin="tan", hair="pony", hair_col=BLACK, top="tshirt", top_col=tri("amber", 6), bottom="skirt", bottom_col=tri("red", 5), extras=[("flower",)]),
+    "Mang Isko": P(build="man", skin="dark", hair="crop", hair_col=BLACK, top="sando", top_col=tri("cool", 3), bottom="shorts", bottom_col=KHAKI,
+                   hat="cap", hat_col=tri("blue", 3), moustache=C["cool"][1], extras=[("towel",)], cheeks=False),
+    "Tess": P(build="kid", skin="morena", hair="bob", hair_col=DBROWN, top="dress", top_col=tri("teal", 5), bottom="dress", bottom_col=tri("teal", 5)),
+    "Lola Betty": P(skin="light", hair="bun", hair_col=WHITEH, top="dress", top_col=tri("cyan", 5), bottom="dress", bottom_col=tri("cyan", 5),
+                    glasses=True, extras=[("dots", PAPER)]),
+    # High School
+    "Ram": P(build="man", skin="morena", hair="spiky", hair_col=BLACK, top="tshirt", top_col=tri("cool", 1), bottom="pants", bottom_col=DENIM,
+             extras=[("stripe", tri("red", 5), 3)], cheeks=False),
+    "Ate Lyn": P(skin="light", hair="long", hair_col=BLACK, top="uniform", top_col=white(), bottom="skirt", bottom_col=NAVY,
+                 extras=[("collar", tri("blue", 4)), ("lanyard", C["red"][4])]),
+    "Mang Kanor": P(build="man", skin="tan", hair="receding", hair_col=GREY, top="sando", top_col=white(), bottom="shorts", bottom_col=tri("cool", 2),
+                    hat="salakot", hat_col=tri("amber", 5), moustache=C["warm"][5], cheeks=False),
+    "Trixie": P(skin="fair", hair="pony", hair_col=tri("brown", 3), top="jacket", top_col=tri("pink", 5), bottom="skirt", bottom_col=tri("violet", 2),
+                extras=[("open", white())]),
+    "Sir Gabe": P(build="man", skin="tan", hair="crop", hair_col=BLACK, top="jacket", top_col=tri("blue", 4), bottom="pants", bottom_col=tri("blue", 2),
+                  extras=[("stripe", white(), 4), ("lanyard", C["amber"][6])], cheeks=False),
+    "Nanay Lumen": P(skin="morena", hair="bun", hair_col=GREY, top="blouse", top_col=tri("green", 4), bottom="skirt", bottom_col=tri("brown", 2),
+                     extras=[("apron", tri("red", 5))]),
+    # College
+    "Patrick": P(build="man", skin="fair", hair="spiky", hair_col=DBROWN, top="jacket", top_col=tri("cool", 3), bottom="pants", bottom_col=KHAKI,
+                 glasses=True, extras=[("open", tri("teal", 5))], cheeks=False),
+    "Ate Grace": P(skin="tan", hair="pony", hair_col=BLACK, top="tshirt", top_col=white(), bottom="pants", bottom_col=tri("cool", 1),
+                   extras=[("apron", tri("brown", 3))], hat="cap", hat_col=tri("brown", 4)),
+    "Mang Rudy": P(build="man", skin="morena", hair="crop", hair_col=BLACK, top="long", top_col=tri("blue", 2), bottom="pants", bottom_col=tri("blue", 1),
+                   hat="cap", hat_col=tri("blue", 1), extras=[("badge", C["amber"][6])], moustache=C["cool"][1], cheeks=False),
+    "Jess": P(skin="morena", hair="pony", hair_col=BLACK, top="sando", top_col=tri("lime", 5), bottom="shorts", bottom_col=tri("cool", 1),
+              hat="kerchief", hat_col=tri("red", 5), shoe_col=white()),
+    "Bianca": P(skin="light", hair="long", hair_col=tri("brown", 2), top="tshirt", top_col=tri("blue", 5), bottom="pants", bottom_col=DENIM,
+                hat="beret", hat_col=tri("red", 4), extras=[("dots", C["amber"][6])]),
+    "Tito Boy": P(build="man", skin="tan", hair="receding", hair_col=GREY, top="polo", top_col=tri("lime", 4), bottom="pants", bottom_col=KHAKI,
+                  hat="bucket", hat_col=tri("warm", 5), glasses=True, moustache=C["warm"][6], cheeks=False),
+}
+
+
+def roamer_look(name):
+    return "rm_" + "".join(ch for ch in name.lower() if ch.isalpha())
+
+
+for _n, _s in ROAMERS.items():
+    _s["name"] = _n
+    PEOPLE[roamer_look(_n)] = _s
+
+
 def contact(looks, out, sc=5):
     G = C["green"][4] + (255,)
     per = 4

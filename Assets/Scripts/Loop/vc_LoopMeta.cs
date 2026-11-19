@@ -253,7 +253,7 @@ public static partial class vc_LoopMeta
 
         // town events (free, never sold)
         new Keepsake { id = "banderitas", name = "Banderitas", giver = "the Fiesta", fromEvent = true,
-            effect = "+1 energy on day 1 of each town.",
+            effect = "Start each new town with 1 extra energy.",
             rememberLine = "Banderitas! Already? The fiesta isn't for days.",
             lv2Effect = "" },
         new Keepsake { id = "shell", name = "Lucky Shell", giver = "a town event", fromEvent = true,
@@ -406,8 +406,8 @@ public static partial class vc_LoopMeta
     public static readonly ShopGood[] Cosmetics =
     {
         new ShopGood { id = "outfit_elem", type = "outfit", name = "Elementary Uniform", blurb = "White polo, green shorts or skirt." },
-        new ShopGood { id = "outfit_hs", type = "outfit", name = "High School Uniform", blurb = "Pressed shirt, school-blue." },
-        new ShopGood { id = "outfit_college", type = "outfit", name = "College Uniform", blurb = "Maroon and gold, very serious." },
+        new ShopGood { id = "outfit_hs", type = "outfit", name = "High School Uniform", blurb = "Free once you reach High School." },
+        new ShopGood { id = "outfit_college", type = "outfit", name = "College Uniform", blurb = "Free once you reach College." },
         new ShopGood { id = "outfit_fiesta", type = "outfit", name = "Fiesta Best", blurb = "Barong or Filipiniana, for the plaza." },
         new ShopGood { id = "outfit_raincoat", type = "outfit", name = "Yellow Raincoat", blurb = "Ready for any storm." },
         new ShopGood { id = "outfit_farmer", type = "outfit", name = "Camisa de Chino", blurb = "Light, loose, made for the fields." },
@@ -437,7 +437,22 @@ public static partial class vc_LoopMeta
         && (Current.helpers_used_loop == null || !Current.helpers_used_loop.Contains(id));
 
     public static bool OwnsCosmetic(string id) =>
-        Current != null && Current.cosmetics_owned != null && Current.cosmetics_owned.Contains(id);
+        IsStageUniform(id) ? UniformUnlocked(id)
+        : Current != null && Current.cosmetics_owned != null && Current.cosmetics_owned.Contains(id);
+
+    // ── school uniforms: free, unlocked by reaching that school in this loop ──
+    // (a new loop is a new childhood: they lock again until you get there)
+
+    public static string UniformStage(string id) =>
+        id == "outfit_hs" ? "highschool" : id == "outfit_college" ? "college" : null;
+
+    public static bool IsStageUniform(string id) => UniformStage(id) != null;
+
+    public static bool UniformUnlocked(string id)
+    {
+        string stage = UniformStage(id);
+        return stage != null && vc_TownFlow.IsQuestDone("in:" + stage);   // saved when you first enter that town
+    }
 
     public static string Equipped(string slot)
     {

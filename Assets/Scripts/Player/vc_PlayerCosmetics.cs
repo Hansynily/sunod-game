@@ -74,9 +74,18 @@ public class vc_PlayerCosmetics : MonoBehaviour
         if (_catGo != null) Destroy(_catGo);
     }
 
+    /// <summary>The outfit chosen at the stall. A school uniform only shows once that school is
+    /// reached in this loop (a new loop is a new childhood).</summary>
+    private static string DesiredOutfit()
+    {
+        string chosen = vc_LoopMeta.Equipped("outfit");
+        if (vc_LoopMeta.IsStageUniform(chosen) && !vc_LoopMeta.UniformUnlocked(chosen)) return "";
+        return chosen;
+    }
+
     private void Refresh()
     {
-        string outfit = vc_LoopMeta.Equipped("outfit");
+        string outfit = DesiredOutfit();
         if (outfit != _outfit)
         {
             _outfit = outfit;
@@ -91,6 +100,7 @@ public class vc_PlayerCosmetics : MonoBehaviour
     private void LateUpdate()
     {
         if (_body == null) return;
+        if (DesiredOutfit() != _outfit) Refresh();   // moved to a new school stage
         Sprite src = _body.sprite;
         if (src != null && !_ours.Contains(src))
         {

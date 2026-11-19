@@ -116,6 +116,16 @@ public static partial class vc_LoopMeta
         }
     }
 
+    /// <summary>Debug (vc_DebugMenu): the stall shows exactly this many stars. Only this device's
+    /// copy changes; the server's bank is left alone, so a refresh from the server undoes it.</summary>
+    public static void DebugSetStars(int stars)
+    {
+        if (Current == null) Set(new LoopMetaResponse());
+        Current.bank_stars += Mathf.Max(0, stars) - Available;
+        Current.stars = Mathf.Max(0, stars);
+        Changed?.Invoke();
+    }
+
     private static int MarkerCost(string marker)
     {
         if (!marker.StartsWith(BuyPrefix)) return 0;
@@ -125,6 +135,9 @@ public static partial class vc_LoopMeta
     }
 
     // ── buy ───────────────────────────────────────────────────────────────
+
+    /// <summary>The plaza board's Requests tab and the Journal are a stall upgrade.</summary>
+    public static bool BoardUnlocked => Current != null && Current.board_unlocked;
 
     /// <summary>The stall id for the next pocket ("pocket3" / "pocket4"), or null when all are bought.</summary>
     public static string NextPocketId => Pockets >= 4 ? null : "pocket" + (Pockets + 1);
@@ -151,6 +164,10 @@ public static partial class vc_LoopMeta
         else if (item.StartsWith("pocket"))
         {
             if (item != NextPocketId) return "Get the other pocket first.";
+        }
+        else if (item == "board")
+        {
+            if (BoardUnlocked) return "Owned.";
         }
         else if (Array.Exists(Helpers, g => g.id == item))
         {
@@ -204,6 +221,10 @@ public static partial class vc_LoopMeta
                     if (!Current.carried_mementos.Contains(m)) { FillPocket(m); break; }
             }
         }
+        else if (item == "board")
+        {
+            Current.board_unlocked = true;
+        }
         else if (Array.Exists(Helpers, g => g.id == item))
         {
             if (!Current.helpers_bought_loop.Contains(item)) Current.helpers_bought_loop.Add(item);
@@ -245,6 +266,13 @@ public static partial class vc_LoopMeta
         if (Current == null || !InRun) return false;
         item = item ?? "";
         if (!string.IsNullOrEmpty(item) && !OwnsCosmetic(item)) return false;
+        // a home add-on is saved as on/off, not a toggle: re-applying the run's markers over a
+        // fresh copy of the loop record must land on the same result every time
+        if (slot == "home")
+        {
+            if (string.IsNullOrEmpty(item)) return false;
+            slot = HomeAddOn(item) ? "homeoff" : "homeon";
+        }
         int n = 1;
         foreach (string m in RunIds()) if (m.StartsWith(EquipPrefix)) n++;
         SaveMarker($"{EquipPrefix}{n}:{slot}:{item}");
@@ -264,9 +292,11 @@ public static partial class vc_LoopMeta
             case "hat": e.hat = item; break;
             case "trail": e.trail = item; break;
             case "pet": e.pet = item; break;
-            case "home":
-                if (string.IsNullOrEmpty(item)) break;
-                if (e.home.Contains(item)) e.home.Remove(item); else e.home.Add(item);
+            case "homeon":
+                if (!string.IsNullOrEmpty(item) && !e.home.Contains(item)) e.home.Add(item);
+                break;
+            case "homeoff":
+                e.home.Remove(item);
                 break;
         }
     }

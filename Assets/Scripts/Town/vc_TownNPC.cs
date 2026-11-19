@@ -230,6 +230,8 @@ public class vc_TownNPC : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // someone with a request waits for the Talk button; they don't pop up on contact
+        if (HasQuest) return;
         if (!Leaving && other != null && other.CompareTag("Player"))
             vc_TownStage.Current?.OnNpcApproached(this);
     }

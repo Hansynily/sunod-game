@@ -162,7 +162,7 @@ public static class vc_SkillLevels
         }
     }
 
-    public static int PressesForStage(int stage) => stage >= 2 ? 4 : stage == 1 ? 5 : 6;
+    public static int PressesForStage(int stage) => stage >= 2 ? 4 : stage == 1 ? 4 : 5;
 
     /// <summary>Slower paths take longer in later stages; the best fit never does.</summary>
     public static float SlowFactorForStage(int stage) => stage >= 2 ? 1.4f : stage == 1 ? 1.2f : 1f;

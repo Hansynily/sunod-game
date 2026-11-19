@@ -124,6 +124,7 @@ namespace SunodGame.UI
             var mgr = vc_SkillManager.Instance;
             if (mgr == null || _radial == null) return;
 
+            bool anyUsable = false;
             for (int i = 0; i < vc_SkillManager.SlotCount; i++)
             {
                 var current = mgr.GetSkillInSlot(i);
@@ -135,9 +136,13 @@ namespace SunodGame.UI
 
                 var uguiBtn = mgr.GetSkillSlot(i)?.GetComponent<UGUIButton>();
                 if (uguiBtn != null) _radial.SetPetalEnabled(i, uguiBtn.interactable);
+                if (current != null && uguiBtn != null && uguiBtn.interactable) anyUsable = true;
 
                 _radial.SetCooldown(i, current != null ? mgr.CooldownFraction(i) : 0f, mgr.CooldownRemaining(i));
             }
+
+            // the Skills hub greys out outside a skill zone and lights up inside one
+            _radial.SetUsable(anyUsable);
 
             UpdatePrepGlow();
 

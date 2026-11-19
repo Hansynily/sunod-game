@@ -17,7 +17,7 @@ public partial class vc_LoopMoments
 {
     public const string KeeperName = "Aling Tess";
 
-    private static readonly string[] Tabs = { "Keepsakes", "Pockets", "Helpers", "Style" };
+    private static readonly string[] Tabs = { "Keepsakes", "Upgrades", "Helpers", "Style" };
 
     private VisualElement _shopList, _shopCard, _shopTabs;
     private Label _shopStars, _shopError, _keeperLine;
@@ -161,7 +161,7 @@ public partial class vc_LoopMoments
         if (meta == null) { _shopError.text = "Not ready yet. Try again soon."; return; }
         switch (_shopTab)
         {
-            case "Pockets": BuildPockets(meta); break;
+            case "Upgrades": BuildPockets(meta); BuildBoardUpgrade(); break;
             case "Helpers": BuildHelpers(meta); break;
             case "Style": BuildStyle(meta); break;
             default: BuildKeepsakes(meta); break;
@@ -242,6 +242,19 @@ public partial class vc_LoopMoments
         int cost = vc_LoopMeta.Price(vc_LoopMeta.NextPocketId);
         _shopList.Add(Row(PocketSlot(null, true, 56), $"Pocket {next}", $"Carry {next} keepsakes each loop.",
             $"★{cost}", () => Buy(vc_LoopMeta.NextPocketId), vc_LoopMeta.Available >= cost, new[] { "small", "gold" }));
+    }
+
+    /// <summary>The plaza board's Requests tab + the Journal: a one-time upgrade.</summary>
+    private void BuildBoardUpgrade()
+    {
+        bool owned = vc_LoopMeta.BoardUnlocked;
+        int cost = vc_LoopMeta.Price("board");
+        VisualElement row = Row(GoodIcon("board", 56), "Town Board", "See every request on the plaza board.",
+            owned ? "Owned" : $"★{cost}", owned ? null : (System.Action)(() => Buy("board")),
+            !owned && vc_LoopMeta.Available >= cost, owned ? new[] { "small" } : new[] { "small", "gold" });
+        row.name = "item-board";
+        row.style.marginTop = 10;
+        _shopList.Add(row);
     }
 
     private VisualElement PocketSlot(string keepsake, bool open, float size)
@@ -331,7 +344,12 @@ public partial class vc_LoopMoments
 
         string id = g.id, type = g.type;
         Button btn;
-        if (!owned)
+        if (vc_LoopMeta.IsStageUniform(id) && !owned)
+        {
+            btn = MakeButton("Locked", () => { }, "small");   // free once you reach that school this loop
+            btn.SetEnabled(false);
+        }
+        else if (!owned)
         {
             bool can = vc_LoopMeta.Available >= cost;
             btn = MakeButton($"★{cost}", () => Buy(id), "small", "gold");
@@ -458,6 +476,7 @@ public partial class vc_LoopMoments
     private static string BuyLine(string itemId)
     {
         if (itemId.StartsWith("lv2:")) return "Look at that shine. Friendship does that to old things.";
+        if (itemId == "board") return "Now you can see every request at the plaza. Lazy, but smart!";
         if (itemId.StartsWith("pocket")) return "There. Sewn on tight. Room for one more treasure.";
         if (vc_LoopMeta.KeepsakeById(itemId) != null) return "Take good care of it. It remembers more than you think.";
         vc_LoopMeta.ShopGood g = vc_LoopMeta.GoodById(itemId);

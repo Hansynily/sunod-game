@@ -372,6 +372,9 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
     {
         int perQuest = SkillProfile != null ? SkillProfile.presses : 0;   // per-quest limit (QUEST_REDESIGN.md)
         _pressesTotal = UsesSkillSystem ? (perQuest > 0 ? perQuest : vc_SkillLevels.PressesForStage(Stage)) : 0;
+        // Tighter spare presses (2026-11-19): Elementary +2, High School +1, College +1 over the
+        // longest solution. The per-quest numbers were written with +3 / +2 / +1.
+        if (UsesSkillSystem && perQuest > 0 && Stage <= 1) _pressesTotal = Mathf.Max(1, _pressesTotal - 1);
         // Papa's Hammer keepsake: +1 press on every quest (+2 at Lv2). Same for every kind.
         if (UsesSkillSystem) _pressesTotal += vc_LoopMeta.Level("hammer");
         _pressesLeft = _pressesTotal;

@@ -175,7 +175,9 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
             return;
         }
 
-        foreach (vc_SkillData skill in gameSettings.startingSkills)
+        // One random skill of each kind (rare skills never start: everyone begins on equal
+        // footing). Falls back to the fixed kit for a kind with nothing to draw from.
+        foreach (vc_SkillData skill in RandomStartingKit())
         {
             if (skill == null) continue;
             vc_PlayerInventory.Instance.AddSkill(skill);
@@ -190,7 +192,25 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
         vc_SkillLevels.StartRun();
 
         _startingKitApplied = true;
-        Debug.Log($"[vc_QuestAvailabilityFilter] Applied starting kit ({gameSettings.startingSkills.Length} skill(s)).");
+        Debug.Log("[vc_QuestAvailabilityFilter] Applied a random starting kit (one skill per kind).");
+    }
+
+    private List<vc_SkillData> RandomStartingKit()
+    {
+        var kit = new List<vc_SkillData>();
+        foreach (string letter in new[] { "R", "I", "A", "S", "E", "C" })
+        {
+            var pool = new List<vc_SkillData>();
+            if (gameSettings.skills != null)
+                foreach (vc_SkillData s in gameSettings.skills)
+                    if (s != null && !vc_SkillLevels.IsRare(s)
+                        && string.Equals(s.riaSecLetter?.Trim(), letter, System.StringComparison.OrdinalIgnoreCase))
+                        pool.Add(s);
+            vc_SkillData fallback = System.Array.Find(gameSettings.startingSkills, s => s != null
+                && string.Equals(s.riaSecLetter?.Trim(), letter, System.StringComparison.OrdinalIgnoreCase));
+            kit.Add(pool.Count > 0 ? pool[Random.Range(0, pool.Count)] : fallback);
+        }
+        return kit;
     }
 
     private void ReequipIfButtonsEmpty()

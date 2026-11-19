@@ -180,6 +180,15 @@ public class vc_TownStage : MonoBehaviour
     /// <summary>Called by vc_TownFlow once the player is in this town.</summary>
     public void Enter()
     {
+        // The player grows up a little with each stage (8 px steps on the 32 px/unit sprite:
+        // 9/8 in High School, 10/8 in College, so the pixels stay as even as possible).
+        var kid = FindFirstObjectByType<vc_SpriteFrameAnimator>();
+        if (kid != null)
+        {
+            float grow = stageId == "college" ? 1.25f : stageId == "highschool" ? 1.125f : 1f;
+            kid.transform.localScale = new Vector3(grow, grow, 1f);
+        }
+
         var abandoned = new List<string>();
         foreach (vc_TownNPC npc in _npcs)
         {
@@ -448,6 +457,8 @@ public class vc_TownStage : MonoBehaviour
     private const float TalkRange = 1.7f;
     private float _nextTalkCheck;
 
+    private const float StallRange = 1.1f;   // from the stall's edge, any side
+
     private void UpdateTalkButton()
     {
         if (Time.time < _nextTalkCheck) return;
@@ -459,7 +470,8 @@ public class vc_TownStage : MonoBehaviour
         vc_QuestBoard board = GetComponent<vc_QuestBoard>();
         bool boardOpen = board != null && board.IsOpen;
         // the journal: always there in town (with how many accepted requests are waiting)
-        ui.SetJournalButton(_inQuest || _busy || boardOpen ? -1 : (board != null ? board.JournalEntries().Count : 0), () => board?.OpenJournal());
+        // the Journal comes with the Town Board upgrade (stall)
+        ui.SetJournalButton(_inQuest || _busy || boardOpen || !vc_LoopMeta.BoardUnlocked ? -1 : (board != null ? board.JournalEntries().Count : 0), () => board?.OpenJournal());
         bool blocked = _inQuest || _busy || boardOpen || player == null || (vc_DialogPanel.Instance != null && vc_DialogPanel.Instance.IsOpen);
         if (blocked) { ui.SetTalkButton(null, null); return; }
 
@@ -477,6 +489,19 @@ public class vc_TownStage : MonoBehaviour
             best = d;
             label = npc.HasQuest && npc.IsOpen && !npc.Attempted ? "Talk!" : "Talk";
             act = () => { _promptCooldownUntil = 0f; OnNpcApproached(who); };
+        }
+
+        // the stall: "Open shop" when you stand at its counter (nearest wins, one button only)
+        vc_KeepsakeStall stall = GetComponentInChildren<vc_KeepsakeStall>();
+        if (stall != null && vc_LoopMoments.Instance != null)
+        {
+            float ds = stall.DistanceTo(pp);   // from any side of the stall
+            if (ds < StallRange && (act == null || ds < best))
+            {
+                best = Mathf.Min(best, ds);
+                label = "Open shop";
+                act = () => { if (vc_LoopMoments.Existing == null || !vc_LoopMoments.Existing.IsShowing) vc_LoopMoments.Instance?.ShowShop(); };
+            }
         }
 
         vc_TownEvents events = GetComponent<vc_TownEvents>();

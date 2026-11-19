@@ -1711,13 +1711,13 @@ public class vc_RunProgressUI : MonoBehaviour
         public Glyph Kind
         {
             get => _glyph;
-            set { _glyph = value; MarkDirtyRepaint(); }
+            set { _glyph = value; ApplyClassicArt(); MarkDirtyRepaint(); }
         }
 
         public bool Empty
         {
             get => _empty;
-            set { if (_empty == value) return; _empty = value; MarkDirtyRepaint(); }
+            set { if (_empty == value) return; _empty = value; ApplyClassicArt(); MarkDirtyRepaint(); }
         }
 
         public HudIcon(Glyph glyph)
@@ -1725,10 +1725,31 @@ public class vc_RunProgressUI : MonoBehaviour
             _glyph = glyph;
             pickingMode = PickingMode.Ignore;
             generateVisualContent += Draw;
+            RegisterCallback<AttachToPanelEvent>(_ => ApplyClassicArt());
+            ApplyClassicArt();
+        }
+
+        // Classic UI: stars are pixel art (Resources/UIClassic/star*.png, make_classic_skin.py)
+        private bool _classicArt;
+        private static Texture2D _starFull, _starEmpty;
+
+        private void ApplyClassicArt()
+        {
+            bool classic = _glyph == Glyph.Star && SunodGame.UI.vc_UIAnim.Classic;
+            _classicArt = classic;
+            if (!classic) { style.backgroundImage = StyleKeyword.Null; return; }
+            if (_starFull == null) _starFull = Resources.Load<Texture2D>("UIClassic/star");
+            if (_starEmpty == null) _starEmpty = Resources.Load<Texture2D>("UIClassic/star_empty");
+            Texture2D t = _empty ? _starEmpty : _starFull;
+            if (t == null) { _classicArt = false; return; }
+            t.filterMode = FilterMode.Point;
+            style.backgroundImage = new StyleBackground(t);
+            style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
         }
 
         private void Draw(MeshGenerationContext ctx)
         {
+            if (_classicArt) return;   // the pixel star is the background image
             Rect rc = contentRect;
             float s = Mathf.Min(rc.width, rc.height);
             if (s < 4f) return;

@@ -33,6 +33,15 @@ public static class vc_NpcSprites
     /// <summary>Sitting, facing right or left.</summary>
     public static Sprite[] Sit(string look, bool faceRight) => Slice("sit", look, faceRight ? 0 : 6, 6, 32);
 
+    /// <summary>A named roamer's own look: "Kuya Bert" -> "rm_kuyabert" (letters only, lower case).</summary>
+    public static string RoamerLook(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return null;
+        var sb = new System.Text.StringBuilder("rm_");
+        foreach (char c in name.ToLowerInvariant()) if (c >= 'a' && c <= 'z') sb.Append(c);
+        return sb.ToString();
+    }
+
     public static Dir DirFor(Vector2 v)
     {
         if (Mathf.Abs(v.x) >= Mathf.Abs(v.y)) return v.x >= 0f ? Dir.Right : Dir.Left;

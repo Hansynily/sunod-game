@@ -399,6 +399,7 @@ namespace SunodGame.Models
         public List<string> carried_mementos = new List<string>();    // in the pockets: only these work
         public int pockets = 2;
         public int max_pockets = 4;
+        public bool board_unlocked;                                   // plaza board Requests + Journal (stall upgrade)
         public List<string> lv2_unlocked = new List<string>();
         public List<string> lv2_owned = new List<string>();
         public List<string> events_joined = new List<string>();

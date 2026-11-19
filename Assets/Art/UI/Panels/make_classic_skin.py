@@ -437,4 +437,51 @@ slot((84, 56, 38), (176, 140, 98), (236, 220, 190), (252, 244, 226)).save(os.pat
 slot((150, 100, 28), (214, 160, 60), (255, 236, 178), (255, 250, 222)).save(os.path.join(OUT, "slot_ready.png"))
 slot((28, 58, 34), (110, 170, 104), (220, 240, 208), (246, 255, 240)).save(os.path.join(OUT, "slot_sel.png"))
 
+# timer / quest-done stars (classic): a 16 px pixel star, full (gold) and empty (cream)
+STAR = [
+    ".......oo.......",
+    "......oHHo......",
+    "......oHFo......",
+    ".....oHFFFo.....",
+    "ooooooHFFFoooooo",
+    "oHHHHHFFFFFFFFLo",
+    ".oHFFFFFFFFFFLo.",
+    "..oHFFFFFFFFLo..",
+    "...oFFFFFFFLo...",
+    "...oFFFFFFFLo...",
+    "..oFFFFLLFFFLo..",
+    "..oFFFLooLFFLo..",
+    ".oFFFLo..oLFFLo.",
+    ".oFFLo....oLFLo.",
+    "oFLLo......oLLLo",
+    "ooo..........ooo",
+]
+
+
+def star(O, H, F, L):
+    im = Image.new("RGBA", (16, 16), CLEAR)
+    px = im.load()
+    pal = {"o": O, "H": H, "F": F, "L": L}
+    for y, row in enumerate(STAR):
+        for x, ch in enumerate(row):
+            if ch in pal:
+                px[x, y] = rgba(pal[ch])
+    return im
+
+
+star((150, 100, 28), (255, 250, 222), (250, 204, 84), (214, 150, 40)).save(os.path.join(OUT, "star.png"))
+star((176, 140, 98), (252, 244, 226), (238, 224, 196), (214, 190, 150)).save(os.path.join(OUT, "star_empty.png"))
+
+# the skill hub while no skill can be used (outside a skill zone): the green hub, greyed
+_hub = Image.open(os.path.join(OUT, "hub.png")).convert("RGBA")
+_px = _hub.load()
+for _y in range(_hub.height):
+    for _x in range(_hub.width):
+        r, g, b, a = _px[_x, _y]
+        if a:
+            v = int(0.30 * r + 0.59 * g + 0.11 * b)
+            v = int(v * 0.85 + 30)
+            _px[_x, _y] = (v, v, min(255, v + 6), a)
+_hub.save(os.path.join(OUT, "hub_off.png"))
+
 print("wrote", sorted(os.listdir(OUT)))

@@ -794,7 +794,7 @@ public class vc_TownEvents : MonoBehaviour
     {
         if (!_boardReadToday && (_event != null || _fiesta)) return true;
         vc_QuestBoard board = GetComponent<vc_QuestBoard>();
-        if (board == null || _stage == null) return false;
+        if (board == null || _stage == null || !vc_LoopMeta.BoardUnlocked) return false;
         foreach (vc_TownNPC n in _stage.TodayRequests)
             if (n.HasQuest && !n.Attempted && !board.IsAccepted(n)) return true;
         return false;

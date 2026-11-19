@@ -2,19 +2,34 @@ using UnityEngine;
 
 /// <summary>
 /// The Keepsake Shop stall, in every town, a few steps from the player's home. Walk up to it
-/// to open the shop (vc_LoopMoments.ShowShop). A gold bag bobs over it; it turns into a "!"
-/// when something new is unlocked. Placed at runtime by vc_TownStage (no scene setup).
+/// and the town's Talk button turns into "Open shop" (vc_TownStage.UpdateTalkButton). A gold
+/// bag bobs over it; it turns into a "!" when something new is unlocked. Placed at runtime by
+/// vc_TownStage (no scene setup).
 /// </summary>
 public class vc_KeepsakeStall : MonoBehaviour
 {
-    private const float OpenRange = 1.4f;
-    private const float RearmRange = 2.4f;
+
+    /// <summary>Just in front of the counter (where the debug tools put the player).</summary>
+    public Vector2 Front => (Vector2)transform.position + new Vector2(0f, -0.4f);
+
+    /// <summary>How far a point is from the stall itself (0 when touching it), from any side.</summary>
+    public float DistanceTo(Vector2 p)
+    {
+        Bounds b = default;
+        bool any = false;
+        foreach (SpriteRenderer r in GetComponentsInChildren<SpriteRenderer>())
+        {
+            if (r == _sign || r.sprite == null) continue;
+            if (!any) { b = r.bounds; any = true; } else b.Encapsulate(r.bounds);
+        }
+        if (!any) return Vector2.Distance(p, Front);
+        Vector3 c = b.ClosestPoint(new Vector3(p.x, p.y, b.center.z));
+        return Vector2.Distance(p, c);
+    }
 
     private SpriteRenderer _sign;
     private Sprite _bag, _new;
     private Vector3 _signBase;
-    private Transform _player;
-    private bool _armed = true;
 
     /// <summary>Puts the stall near the town's home (on a free spot) and returns it.</summary>
     public static vc_KeepsakeStall Place(vc_TownStage stage, Vector3 near, Sprite newMarker)
@@ -100,27 +115,5 @@ public class vc_KeepsakeStall : MonoBehaviour
             float bob = Mathf.Round(Mathf.Sin(Time.time * 3f) * 1.5f) / 16f;
             _sign.transform.localPosition = _signBase + new Vector3(0f, bob, 0f);
         }
-
-        if (_player == null)
-        {
-            var pc = FindFirstObjectByType<PlayerController>();
-            if (pc == null) return;
-            _player = pc.transform;
-        }
-
-        // the counter side faces down: measure from just in front of it
-        Vector2 front = (Vector2)transform.position + new Vector2(0f, -0.4f);
-        float d = Vector2.Distance(_player.position, front);
-        if (d > RearmRange) _armed = true;
-        if (!_armed || d > OpenRange) return;
-
-        vc_TownStage stage = vc_TownStage.Current;
-        if (stage == null || stage.InQuest || stage.Busy) return;
-        if (vc_DialogPanel.Instance != null && vc_DialogPanel.Instance.IsOpen) return;
-        vc_LoopMoments moments = vc_LoopMoments.Instance;
-        if (moments == null || moments.IsShowing) return;
-
-        _armed = false;
-        moments.ShowShop();
     }
 }

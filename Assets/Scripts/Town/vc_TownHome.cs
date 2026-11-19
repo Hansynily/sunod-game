@@ -66,8 +66,8 @@ public class vc_TownHome : MonoBehaviour
     }
 
     // ── Home add-ons from the stall (garden, capiz windows, hammock, sari-sari sign) ─────
-    // Bought with stars, switched on in the stall's Style section, kept every loop. They show
-    // once the home is at least half rebuilt (the "rebuilt home"). Purely visual, no colliders.
+    // Bought with stars, switched on in the stall's Style section, kept every loop, in every
+    // town. Purely visual, no colliders.
     // Art: Tools/art/make_cosmetics.py -> Resources/Cosmetics/home_*.png (16 px per unit).
 
     private readonly System.Collections.Generic.Dictionary<string, SpriteRenderer> _addOns =
@@ -78,7 +78,7 @@ public class vc_TownHome : MonoBehaviour
     private void RefreshAddOns()
     {
         if (this == null || baseRenderer == null || baseRenderer.sprite == null) return;
-        bool rebuiltEnough = _stage >= 0 && _stage * 2 >= _stageCount - 1;
+        bool rebuiltEnough = _stage >= 0;   // shown as soon as you have them, whatever the home looks like
         Bounds b = baseRenderer.bounds;
         foreach (string id in AddOnIds)
         {

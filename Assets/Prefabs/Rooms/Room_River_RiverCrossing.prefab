@@ -2832,7 +2832,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.90909094, y: 0.72727275}
+    oldSize: {x: 0.9375, y: 0.75}
     newSize: {x: 0.90909094, y: 0.72727275}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -3791,7 +3791,7 @@ Tilemap:
       - {fileID: -9036296027799684117, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
       - {fileID: 3305497872946061214, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
       - {fileID: 4485240199076182616, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 2, y: 7, z: 0}
@@ -3801,7 +3801,7 @@ Tilemap:
       - {fileID: 5721968779285860166, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
       - {fileID: -6566214777087617381, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
       - {fileID: 4000913392658070235, guid: 89c3b81f6db4b4441a8083ad35a774e4, type: 2}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   m_TileAssetArray:
@@ -4508,7 +4508,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.90909094, y: 0.72727275}
+    oldSize: {x: 0.9375, y: 0.75}
     newSize: {x: 0.90909094, y: 0.72727275}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -5132,7 +5132,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.90909094, y: 0.72727275}
+    oldSize: {x: 0.9375, y: 0.75}
     newSize: {x: 0.90909094, y: 0.72727275}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

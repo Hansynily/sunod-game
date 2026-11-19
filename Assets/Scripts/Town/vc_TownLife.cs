@@ -175,7 +175,9 @@ public class vc_TownLife : MonoBehaviour
                 name = i < _names.Length ? _names[i] : "Neighbor",
                 speed = walkSpeed * (0.8f + (float)rng.NextDouble() * 0.45f),   // some stroll, some hurry
             };
-            Build(r, looks[i], p, "Roamer_" + r.name);
+            // a named roamer has their own look (drawn for that person: Tools/art/npc/townsfolk.py ROAMERS)
+            string own = vc_NpcSprites.RoamerLook(r.name);
+            Build(r, vc_NpcSprites.Idle(own, vc_NpcSprites.Dir.Down) != null ? own : looks[i], p, "Roamer_" + r.name);
             r.waitUntil = Time.time + Random.Range(0f, 3f);
             r.Play(vc_NpcSprites.Idle(r.look, vc_NpcSprites.Dir.Down));
             _roamers.Add(r);

@@ -237,6 +237,76 @@ namespace SunodGame.UI
             _petals[i].EnableInClassList("radial-petal--cooling", cooling);
         }
 
+        // ── usable or not: the hub greys out outside a skill zone, and lights up on entering one ──
+
+        private bool _usable = true;
+        private static readonly Color HubOff = new Color(0.85f, 0.85f, 0.85f, 1f);
+
+        /// <summary>Greyed out while no skill can be used (outside a skill zone); a pop and a ring
+        /// flash when skills become usable. Modern: smooth; Classic: stepped, pixel blinks.</summary>
+        public void SetUsable(bool usable)
+        {
+            if (usable == _usable) return;
+            _usable = usable;
+            if (!usable)
+            {
+                if (vc_UIAnim.Classic)
+                {
+                    // classic: the pixel hub, greyed (Resources/UIClassic/hub_off.png, make_classic_skin.py)
+                    Texture2D off = Resources.Load<Texture2D>("UIClassic/hub_off");
+                    if (off != null) { off.filterMode = FilterMode.Point; Hub.style.backgroundImage = new StyleBackground(off); }
+                }
+                Hub.style.unityBackgroundImageTintColor = HubOff;
+                Hub.style.backgroundColor = new Color(0.55f, 0.55f, 0.55f, 1f);  // modern: the flat hub
+                Hub.style.borderTopColor = Hub.style.borderBottomColor = Hub.style.borderLeftColor = Hub.style.borderRightColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+                _hand.style.opacity = 0.55f;
+                _tag.style.opacity = 0.55f;
+                return;
+            }
+            Hub.style.backgroundImage = StyleKeyword.Null;
+            Hub.style.unityBackgroundImageTintColor = StyleKeyword.Null;
+            Hub.style.backgroundColor = StyleKeyword.Null;
+            Hub.style.borderTopColor = Hub.style.borderBottomColor = Hub.style.borderLeftColor = Hub.style.borderRightColor = StyleKeyword.Null;
+            _hand.style.opacity = StyleKeyword.Null;
+            _tag.style.opacity = StyleKeyword.Null;
+            vc_UIAnim.Punch(Hub, 0.25f, 0.4f);
+            HubFlash();
+        }
+
+        private void HubFlash()
+        {
+            var flash = new VisualElement { pickingMode = PickingMode.Ignore };
+            flash.AddToClassList("radial-flash");
+            flash.style.position = Position.Absolute;
+            flash.style.left = (Size - HubSize) * 0.5f;
+            flash.style.top = (Size - HubSize) * 0.5f;
+            flash.style.width = HubSize; flash.style.height = HubSize;
+            vc_UITheme.Border(flash, 6f, vc_UITheme.Gold);
+            Add(flash);
+            if (vc_UIAnim.Classic)
+            {
+                // pixel style: the ring steps out in 3 hard frames and blinks away
+                flash.style.borderTopLeftRadius = flash.style.borderTopRightRadius =
+                    flash.style.borderBottomLeftRadius = flash.style.borderBottomRightRadius = 8f;
+                int frame = 0;
+                flash.schedule.Execute(() =>
+                {
+                    frame++;
+                    float s = 1f + 0.18f * frame;
+                    flash.style.scale = new Scale(new Vector2(s, s));
+                    flash.style.opacity = frame % 2 == 1 ? 1f : 0.4f;
+                    if (frame >= 4) flash.RemoveFromHierarchy();
+                }).Every(70).Until(() => frame >= 4);
+                return;
+            }
+            vc_UIAnim.Tween(flash, 0.45f, vc_UIAnim.OutCubic, e =>
+            {
+                float s = Mathf.Lerp(0.95f, 1.6f, e);
+                flash.style.scale = new Scale(new Vector2(s, s));
+                flash.style.opacity = 1f - e;
+            }, () => flash.RemoveFromHierarchy(), 0f, false);
+        }
+
         public void SetPetalEnabled(int i, bool on)
         {
             if (i < 0 || i >= Count || _petals[i].enabledSelf == on) return;
