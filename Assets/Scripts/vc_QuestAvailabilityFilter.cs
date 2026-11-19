@@ -161,6 +161,10 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
 
         if (vc_PlayerInventory.Instance.GatheredSkills.Count > 0)
         {
+            // Safety net: skills owned but every skill button empty (the inventory survived a
+            // scene load that rebuilt the buttons) - put one of each kind back, starting skills
+            // first, so the player never lands in a run with empty buttons.
+            ReequipIfButtonsEmpty();
             _startingKitApplied = true;
             return;
         }
@@ -187,6 +191,25 @@ public class vc_QuestAvailabilityFilter : MonoBehaviour
 
         _startingKitApplied = true;
         Debug.Log($"[vc_QuestAvailabilityFilter] Applied starting kit ({gameSettings.startingSkills.Length} skill(s)).");
+    }
+
+    private void ReequipIfButtonsEmpty()
+    {
+        vc_SkillManager sm = vc_SkillManager.Instance;
+        if (sm == null) return;
+        for (int i = 0; i < vc_SkillManager.SlotCount; i++)
+            if (sm.GetSkillInSlot(i) != null) return;   // something is equipped: leave the loadout alone
+        var owned = new List<vc_SkillData>(vc_PlayerInventory.Instance.GatheredSkills);
+        // later wins its kind's slot: other skills first, then the starting kit, then remembered
+        var starting = gameSettings != null && gameSettings.startingSkills != null
+            ? new List<vc_SkillData>(gameSettings.startingSkills) : new List<vc_SkillData>();
+        foreach (vc_SkillData s in owned) if (s != null && !starting.Contains(s)) sm.EquipToCategorySlot(s);
+        foreach (vc_SkillData s in starting) if (s != null && owned.Contains(s)) sm.EquipToCategorySlot(s);
+        var meta = vc_LoopMeta.Current;
+        if (meta != null && meta.kept_skills != null)
+            foreach (vc_SkillData s in owned)
+                if (s != null && meta.kept_skills.Contains(s.skillName)) sm.EquipToCategorySlot(s);
+        Debug.Log("[vc_QuestAvailabilityFilter] Skill buttons were empty - re-equipped from the inventory.");
     }
 
     private void ApplyKeptSkills()

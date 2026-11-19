@@ -54,6 +54,10 @@ namespace SunodGame.Core
             SceneManager.LoadScene(sceneName);
         }
 
+        /// <summary>Clears the run that survives scene loads (inventory, skill buttons, session),
+        /// for entries into the game that don't go through GoToPlay (the admin Quest Lab).</summary>
+        public static void ResetRunState() => ResetForNewRun();
+
         private static void ResetForNewRun()
         {
             vc_PlayerInventory.Instance?.ClearInventory();

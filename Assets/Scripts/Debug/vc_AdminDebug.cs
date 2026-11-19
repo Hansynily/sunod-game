@@ -4,7 +4,7 @@ using UnityEngine;
 using SunodGame.Core;
 
 /// <summary>
-/// Debug tools for admin accounts, in every build (unlike vc_DebugMenu, which is editor /
+/// Debug tools for admin accounts and no-account sessions, in every build (unlike vc_DebugMenu, which is editor /
 /// development only). Switched on in the main menu Settings; never saved, so it starts off
 /// on every launch and every login (it is tied to the login's access token).
 ///
@@ -21,15 +21,16 @@ public static class vc_AdminDebug
     private static string _token;
 
     private static SessionState Session => SessionState.Instance;
-    private static string Token => Session != null ? Session.AccessToken : null;
+    /// <summary>Who is playing right now (account + login); changes on every login or logout.</summary>
+    private static string Token => Session == null ? "|" : (Session.Username ?? "") + "|" + (Session.AccessToken ?? "");
 
-    /// <summary>Signed in with an admin account.</summary>
-    public static bool CanUse => Session != null && Session.IsLoggedIn && Session.IsAdmin;
+    /// <summary>An admin account, or a no-account ("Adventurer") session used for testing.</summary>
+    public static bool CanUse => Session == null || !Session.IsLoggedIn || Session.IsAdmin;
 
-    /// <summary>The Settings switch. Off by default, and off again after any new login.</summary>
+    /// <summary>The Settings switch. Off by default, and off again after any login or logout.</summary>
     public static bool Enabled
     {
-        get => _on && CanUse && !string.IsNullOrEmpty(_token) && _token == Token;
+        get => _on && CanUse && _token != null && _token == Token;
         set
         {
             _on = value && CanUse;
@@ -80,6 +81,9 @@ public static class vc_AdminDebug
     {
         if (!Enabled || q == null || string.IsNullOrEmpty(q.town)) return;
         ClearRunLeftovers();
+        // the inventory and skill buttons survive scene loads: start clean, like a new run,
+        // so the starting kit lands in the skill buttons again
+        SceneLoader.ResetRunState();
         LabActive = true;
         LabTarget = q;
         vc_SessionTelemetry.Instance?.StartSession();

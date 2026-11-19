@@ -7,8 +7,8 @@ using SunodGame.Core;
 namespace SunodGame.UI
 {
     /// <summary>
-    /// Admin debug tools on the main menu (vc_AdminDebug):
-    ///  - Settings row "Debug tools: Off / On" (admin accounts only; off on every login),
+    /// Debug tools on the main menu (vc_AdminDebug), for admins and no-account sessions:
+    ///  - Settings row "Debug tools: Off / On" (off on every launch and login),
     ///  - a "Quest Lab" menu button while it's on: pick any quest and play it in a sandbox.
     /// Built in code, no UXML changes.
     /// </summary>
@@ -43,6 +43,21 @@ namespace SunodGame.UI
                 choices.Add(_btnDebugOn);
                 _debugRow.Add(choices);
                 gameplay.parent.Insert(gameplay.parent.IndexOf(gameplay) + 1, _debugRow);
+
+                // the rows no longer fit every screen: let them scroll under the header
+                VisualElement box = gameplay.parent;
+                if (box.Q<ScrollView>("settings-scroll") == null)
+                {
+                    var rows = box.Children().Where(c => c.ClassListContains("settings-row")).ToList();
+                    if (rows.Count > 0)
+                    {
+                        var sv = new ScrollView(ScrollViewMode.Vertical) { name = "settings-scroll" };
+                        sv.style.flexShrink = 1;
+                        sv.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+                        box.Insert(box.IndexOf(rows[0]), sv);
+                        foreach (VisualElement r in rows) sv.Add(r);
+                    }
+                }
             }
 
             // "Quest Lab" tile next to the other menu buttons

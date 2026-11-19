@@ -12,9 +12,9 @@ public static class vc_NpcSprites
 {
     public enum Dir { Right = 0, Up = 1, Left = 2, Down = 3 }
 
-    /// <summary>Same scale as the town builder's NPC frames: 32 px per unit, the player's pixel size
-    /// (storybook townsfolk, Tools/art/npc). Bottom-center pivot.</summary>
-    public const float Ppu = 32f;
+    /// <summary>Same scale as the town builder's NPC frames and the quest-room people: 22 px per unit
+    /// (the slim 16x32 townsfolk would stand shorter than the chibi player at 32). Bottom-center pivot.</summary>
+    public const float Ppu = 22f;
     public static readonly string[] TownsfolkLooks = { "town0", "town1", "town2", "town3", "town4", "town5", "town6", "town7" };
 
     private static readonly Dictionary<string, Sprite[]> Cache = new Dictionary<string, Sprite[]>();
