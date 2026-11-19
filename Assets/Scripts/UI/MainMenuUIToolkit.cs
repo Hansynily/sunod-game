@@ -191,6 +191,7 @@ namespace SunodGame.UI
             else _privacyOverlay?.SetDisplay(false);
             BindLoops(root);
             BindGameplay(root);
+            BindQuestLab(root);
 
             // UI V2: squish on every button (and the player card), gentle float on the logo
             vc_UIAnim.PressAll(root);
@@ -431,6 +432,7 @@ namespace SunodGame.UI
             _musicSlider?.SetValueWithoutNotify(vc_PlayerOptions.MusicVolume);
             RefreshNameChoice();
             RefreshGameplayChoice();
+            RefreshDebugTools();
             OpenModal(_settingsOverlay);
             if (_settingsOverlay != null)
                 vc_UIAnim.Stagger(_settingsOverlay.Query<VisualElement>(className: "settings-row").ToList(),

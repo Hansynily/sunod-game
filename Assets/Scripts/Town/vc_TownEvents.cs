@@ -209,6 +209,7 @@ public class vc_TownEvents : MonoBehaviour
     /// <summary>Called by vc_TownStage at the start of every day (and on Continue).</summary>
     public void OnDayStart(int day)
     {
+        if (vc_AdminDebug.LabActive) return;   // Quest Lab: no events, fiesta or letters
         Setup();
         _day = day;
         ClearToday();

@@ -11913,7 +11913,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: fd88d3dd2716ea94384520be65a587b2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fbbbcf7015054167bacc7a7bcd79282e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -18651,7 +18651,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 2a1cdd7841675f8439d5d2228a930f90, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 712e1687645c4a14a12e2cc2cae4840c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -28748,7 +28748,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 813f9ca887844b62ba5d389768f22384, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -35465,12 +35465,12 @@ MonoBehaviour:
     done!
   thanksLine: Standing ovation!
   idleFrames:
-  - {fileID: 21300000, guid: fd88d3dd2716ea94384520be65a587b2, type: 3}
-  - {fileID: 21300000, guid: 32959305db3fcc14ca253598bd6ea0f0, type: 3}
-  - {fileID: 21300000, guid: 28374782a2422804eb8401bf729a79b0, type: 3}
-  - {fileID: 21300000, guid: cae35296dd049ae44912528f5de03774, type: 3}
-  - {fileID: 21300000, guid: 494802b5dde2a3c4c8448ab85a09d8a5, type: 3}
-  - {fileID: 21300000, guid: 625de73d26617f546abd4f0064742a33, type: 3}
+  - {fileID: 21300000, guid: fbbbcf7015054167bacc7a7bcd79282e, type: 3}
+  - {fileID: 21300000, guid: 359c73d0a8da458ea8577c829336725a, type: 3}
+  - {fileID: 21300000, guid: 98b7010fe1a2445d9cb7296dc8133189, type: 3}
+  - {fileID: 21300000, guid: cad965864c2745c2a687bb182e4a6204, type: 3}
+  - {fileID: 21300000, guid: 1816555002694401a3dc0dadf2962bb3, type: 3}
+  - {fileID: 21300000, guid: c210b41a7f314a06a5ee106116415712, type: 3}
   frameTime: 0.15
   body: {fileID: 82951337}
   marker: {fileID: 1223451307}
@@ -46923,12 +46923,12 @@ MonoBehaviour:
     hurts...
   thanksLine: Neat and exact. Salamat!
   idleFrames:
-  - {fileID: 21300000, guid: aeb5bccf5f44bdc47be8c57cc50c5fc2, type: 3}
-  - {fileID: 21300000, guid: ad0eee2df1a48e94b86f1d1dcac539ac, type: 3}
-  - {fileID: 21300000, guid: 93535adc41af08d4cb6e3e22ea552310, type: 3}
-  - {fileID: 21300000, guid: 963ad0d257d0ed24498eb7b7c5137f23, type: 3}
-  - {fileID: 21300000, guid: e4dfba54221c09341b35abb8341ab1e2, type: 3}
-  - {fileID: 21300000, guid: 806273e74dba37b4a8606e918663497a, type: 3}
+  - {fileID: 21300000, guid: f882875157e14841980d7b232c0fbd08, type: 3}
+  - {fileID: 21300000, guid: 84f4f007abe64d3ea2a2e1110428ae85, type: 3}
+  - {fileID: 21300000, guid: 5df9921606fa4582bbfcf27c311cb9b0, type: 3}
+  - {fileID: 21300000, guid: be7b2cec15d346bda829a6e3bf6297fc, type: 3}
+  - {fileID: 21300000, guid: 9e99e2fdbc56421597fe31bd5cb317ec, type: 3}
+  - {fileID: 21300000, guid: 8a4ce48bd06c4055bc911bfdc1f042e4, type: 3}
   frameTime: 0.15
   body: {fileID: 489131807}
   marker: {fileID: 922044994}
@@ -56492,7 +56492,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 13f6f60dc4659714e82aa3c508931b32, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 038a6ed11e1f447f8e85224e54bba591, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -68074,7 +68074,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: aeb5bccf5f44bdc47be8c57cc50c5fc2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f882875157e14841980d7b232c0fbd08, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -68322,12 +68322,12 @@ MonoBehaviour:
     jacket...
   thanksLine: Best sales day this month!
   idleFrames:
-  - {fileID: 21300000, guid: 380d21287af166846b0c01ec2903fa41, type: 3}
-  - {fileID: 21300000, guid: 867d005c40063554183b5ca49796fb5c, type: 3}
-  - {fileID: 21300000, guid: 8f7aab4671b6f53449ce10b98118d3a0, type: 3}
-  - {fileID: 21300000, guid: 3231e105478f33c43b647bc6a838ca35, type: 3}
-  - {fileID: 21300000, guid: 35e5ce1c095a1304384dfe43437c3394, type: 3}
-  - {fileID: 21300000, guid: 2ecc22a1e19591043928becdb168652e, type: 3}
+  - {fileID: 21300000, guid: 756fed19eb08491dae3751696f083878, type: 3}
+  - {fileID: 21300000, guid: 6a201bca4fc24d1aae1843049f3911df, type: 3}
+  - {fileID: 21300000, guid: b76fa0c6de5b4fa99c0ea50e0e1c2226, type: 3}
+  - {fileID: 21300000, guid: 38a51cc21442411798ee1611cbeca783, type: 3}
+  - {fileID: 21300000, guid: 25ec72675dbc469fb574a94a46643eb9, type: 3}
+  - {fileID: 21300000, guid: 1743f1bc53564dbd99514df6a1e5d7cb, type: 3}
   frameTime: 0.15
   body: {fileID: 1362242119}
   marker: {fileID: 1928888229}
@@ -78551,7 +78551,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: f242b5ffcdbd9ad47ace9bb91f3d4a68, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 663bf6f44da944a3a198eab3623ecc22, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -171272,7 +171272,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0a3f5fcb7a7b33d4abca96555655da9a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e7f2e92e9a54454c9b05ed4685c86d08, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -208997,12 +208997,12 @@ MonoBehaviour:
     taste it...
   thanksLine: They said yes!
   idleFrames:
-  - {fileID: 21300000, guid: 13f6f60dc4659714e82aa3c508931b32, type: 3}
-  - {fileID: 21300000, guid: f7b9f75156303b14a995a329490eb26b, type: 3}
-  - {fileID: 21300000, guid: 7c7dd174e8f402442a99924ffda4e49e, type: 3}
-  - {fileID: 21300000, guid: be9f43f6481b79e41b93c6c11f6e6d08, type: 3}
-  - {fileID: 21300000, guid: 678dc7b015ec4b24ead08f39b90105a2, type: 3}
-  - {fileID: 21300000, guid: b9afa467b90cc7447a4393fdde8cb73a, type: 3}
+  - {fileID: 21300000, guid: 038a6ed11e1f447f8e85224e54bba591, type: 3}
+  - {fileID: 21300000, guid: ae794f2e98874d08ae07c9b390eb52cf, type: 3}
+  - {fileID: 21300000, guid: a6d78559a63940d49e2864ff8df3b59d, type: 3}
+  - {fileID: 21300000, guid: 8f98f25d226b486ba43d66fa67a72b51, type: 3}
+  - {fileID: 21300000, guid: adaf3c2f7f9c40659b02ba7d7d7d45f1, type: 3}
+  - {fileID: 21300000, guid: 627eba632ee84d18bb5b45bdab39794a, type: 3}
   frameTime: 0.15
   body: {fileID: 405629007}
   marker: {fileID: 76977623}
@@ -214187,12 +214187,12 @@ MonoBehaviour:
     be great...
   thanksLine: Not a single bad part!
   idleFrames:
-  - {fileID: 21300000, guid: 8ef1db48341aa4346a34a2e028580945, type: 3}
-  - {fileID: 21300000, guid: 67ca9e7e48e6f09429cd9951de0ceb02, type: 3}
-  - {fileID: 21300000, guid: 05ec1343730252840af03f1360f2afcc, type: 3}
-  - {fileID: 21300000, guid: e904447f78a47df44adf6383deb8b024, type: 3}
-  - {fileID: 21300000, guid: b0611dfced2fea945876babce52381c0, type: 3}
-  - {fileID: 21300000, guid: 79e3f83b6851ce24796bfa3db4550507, type: 3}
+  - {fileID: 21300000, guid: 3cfb263eac1041c2b87eae91abc88a7e, type: 3}
+  - {fileID: 21300000, guid: ee54fd44342a4583a6065e3f8527aa4c, type: 3}
+  - {fileID: 21300000, guid: 53d6f2c3b9774aefb73dcb4f4464403d, type: 3}
+  - {fileID: 21300000, guid: b21bf6d2b11046b199d24c67d6cb20c3, type: 3}
+  - {fileID: 21300000, guid: 841fc15e1fd8429a934e8a13fd17b462, type: 3}
+  - {fileID: 21300000, guid: f756a5ead16b4140a15d3b77fba470de, type: 3}
   frameTime: 0.15
   body: {fileID: 1403278898}
   marker: {fileID: 1373600415}
@@ -216648,7 +216648,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: ad26bd24eff8b7a4ea648e29b5335a97, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 593c4f6d9b9d4f9aa830dc1642289a5c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -216771,7 +216771,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 5d4f798eee7e3564d9bfd42e627d53bf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f1748b7a0e36483689d592f5a87465fc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -219306,12 +219306,12 @@ MonoBehaviour:
   askLine: Help me put together the fundraiser kits? Some pieces came broken, though...
   thanksLine: We'll raise so much with these!
   idleFrames:
-  - {fileID: 21300000, guid: 8e93f4b7346c4b3409d3a762904727f3, type: 3}
-  - {fileID: 21300000, guid: 6f77044a98fda3c4e834c9dd9af2fd56, type: 3}
-  - {fileID: 21300000, guid: 6f96e16f8708c9e4dbe185c7195e5987, type: 3}
-  - {fileID: 21300000, guid: e4020c0a3b7e8c74098b76f6a3115040, type: 3}
-  - {fileID: 21300000, guid: 0104420b33c1b2a43b1580fd755e40b8, type: 3}
-  - {fileID: 21300000, guid: 13a174bbc1ce5f94eb06d22581cd6a1e, type: 3}
+  - {fileID: 21300000, guid: eefe4d6bf8da49059a61956e5843e2ff, type: 3}
+  - {fileID: 21300000, guid: 819d7634754843dd91da8a5171c09eef, type: 3}
+  - {fileID: 21300000, guid: 4ffccef8f55f407388b8da554cfdec48, type: 3}
+  - {fileID: 21300000, guid: 433d6f27d426493e886e6819caadba85, type: 3}
+  - {fileID: 21300000, guid: e836fc0e74ba4921b4453345b37c28bf, type: 3}
+  - {fileID: 21300000, guid: 6083a0036b814adaad56db9743f85a5a, type: 3}
   frameTime: 0.15
   body: {fileID: 1304546337}
   marker: {fileID: 2110375504}
@@ -220799,7 +220799,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 2f33cb5a1dec0324da957694afd8cd86, type: 3}
+  m_Sprite: {fileID: 21300000, guid: baafb1e52dea4d41a68badcc3026e777, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -309560,12 +309560,12 @@ MonoBehaviour:
     for it too.
   thanksLine: The riverbank looks so much better!
   idleFrames:
-  - {fileID: 21300000, guid: e878d36fc118676448667460ba660993, type: 3}
-  - {fileID: 21300000, guid: 3839cdf624ec52440aa99b2b074532f7, type: 3}
-  - {fileID: 21300000, guid: c80fe8ed40a9d744daf81f792cd9f0c5, type: 3}
-  - {fileID: 21300000, guid: 39adb43dedc38d5409dd28513458d5ce, type: 3}
-  - {fileID: 21300000, guid: c06f1f5a43af4b048bee17c4dd51fc10, type: 3}
-  - {fileID: 21300000, guid: 4255747887bc2d24caac5e46cb0dccb1, type: 3}
+  - {fileID: 21300000, guid: f4fe748ae5484e9f8a1675ab66103e55, type: 3}
+  - {fileID: 21300000, guid: 074007c2b94948eca6e0ab170822bc83, type: 3}
+  - {fileID: 21300000, guid: 0de7c6ed81984f1b87a092433243f436, type: 3}
+  - {fileID: 21300000, guid: c3866285ec78418ca42348642bb86353, type: 3}
+  - {fileID: 21300000, guid: 74ce0d5aa7ec4baab36f8bcab1f73c93, type: 3}
+  - {fileID: 21300000, guid: 4421de824f2d40bcb347d75bdff8cc6d, type: 3}
   frameTime: 0.15
   body: {fileID: 1853102316}
   marker: {fileID: 103740144}
@@ -325520,12 +325520,12 @@ MonoBehaviour:
     it's vintage!
   thanksLine: We're back on the air!
   idleFrames:
-  - {fileID: 21300000, guid: f242b5ffcdbd9ad47ace9bb91f3d4a68, type: 3}
-  - {fileID: 21300000, guid: 1014086250c7cb643a36078d71c2c67d, type: 3}
-  - {fileID: 21300000, guid: f9351f2f5753ede42b0e4f55f47bc9f2, type: 3}
-  - {fileID: 21300000, guid: 85d5428579c13a741bdeb15e992a7f49, type: 3}
-  - {fileID: 21300000, guid: 297a5353e5eff2d4c82a2158231b4ea3, type: 3}
-  - {fileID: 21300000, guid: fc436926b744ad54f8b0417f1f49a453, type: 3}
+  - {fileID: 21300000, guid: 663bf6f44da944a3a198eab3623ecc22, type: 3}
+  - {fileID: 21300000, guid: 10a6f79093f84fe6a34dd9d912a4ae26, type: 3}
+  - {fileID: 21300000, guid: c2ad5f4e11384db293adbf908e7973b0, type: 3}
+  - {fileID: 21300000, guid: b887c9420ebc424b85798f50eb798f85, type: 3}
+  - {fileID: 21300000, guid: e51d8af0eec3425c925dd255139ed141, type: 3}
+  - {fileID: 21300000, guid: 56758b2d82334e1dbcafdb3f4e932b24, type: 3}
   frameTime: 0.15
   body: {fileID: 569096112}
   marker: {fileID: 1461557583}
@@ -334595,12 +334595,12 @@ MonoBehaviour:
     I need them.
   thanksLine: Every box accounted for!
   idleFrames:
-  - {fileID: 21300000, guid: 5d4f798eee7e3564d9bfd42e627d53bf, type: 3}
-  - {fileID: 21300000, guid: d9300bc79b8d94949b259aeb436b957b, type: 3}
-  - {fileID: 21300000, guid: 447894c6bc533e248ae727e85568124c, type: 3}
-  - {fileID: 21300000, guid: cec7cc3d2bdda7040a3f8e61fdc831f4, type: 3}
-  - {fileID: 21300000, guid: 364a4fe9e2b0dc84aac6255c5938d478, type: 3}
-  - {fileID: 21300000, guid: f2b4d5220968af641be44c25ecd1fab3, type: 3}
+  - {fileID: 21300000, guid: f1748b7a0e36483689d592f5a87465fc, type: 3}
+  - {fileID: 21300000, guid: 3cab628b5680405482cadb98ad6bb105, type: 3}
+  - {fileID: 21300000, guid: f188fa62e0304f0dafba84713f81fbed, type: 3}
+  - {fileID: 21300000, guid: 4ccdd9b8e1814db58389dc53d865a909, type: 3}
+  - {fileID: 21300000, guid: b40ccb1f7bd44c9faf82fc65eb75b296, type: 3}
+  - {fileID: 21300000, guid: 15a49edea33c4155ace00491e63e8bcf, type: 3}
   frameTime: 0.15
   body: {fileID: 1026738458}
   marker: {fileID: 387142391}
@@ -336399,7 +336399,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 8e93f4b7346c4b3409d3a762904727f3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eefe4d6bf8da49059a61956e5843e2ff, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -340867,12 +340867,12 @@ MonoBehaviour:
     the class can follow.
   thanksLine: You know your bones!
   idleFrames:
-  - {fileID: 21300000, guid: 2a1cdd7841675f8439d5d2228a930f90, type: 3}
-  - {fileID: 21300000, guid: 2f9a9d7aeb31f8745b89d531838b5d10, type: 3}
-  - {fileID: 21300000, guid: cca27390f327c7144a778292cd01c414, type: 3}
-  - {fileID: 21300000, guid: 35a1ea3d0e49cef43818522e4980e9bd, type: 3}
-  - {fileID: 21300000, guid: 4e2d4fed03ce65d46959fdf06bd79098, type: 3}
-  - {fileID: 21300000, guid: 2a0097b55033c2046ac78d8bb0ed6fa3, type: 3}
+  - {fileID: 21300000, guid: 712e1687645c4a14a12e2cc2cae4840c, type: 3}
+  - {fileID: 21300000, guid: f640906a95e24873a9366478b7782000, type: 3}
+  - {fileID: 21300000, guid: 4bfe8a2c5f8f44c68062549008ef00a4, type: 3}
+  - {fileID: 21300000, guid: 0970824f34be427c960cf44d3c9d7afd, type: 3}
+  - {fileID: 21300000, guid: 7bdc850570a946808294e585275363c1, type: 3}
+  - {fileID: 21300000, guid: 1f5302327b0c407f84b7d1bed85ce8f0, type: 3}
   frameTime: 0.15
   body: {fileID: 116209271}
   marker: {fileID: 1044875227}
@@ -344765,7 +344765,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 380d21287af166846b0c01ec2903fa41, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 756fed19eb08491dae3751696f083878, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -345011,7 +345011,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: e97e92d5a28762040ba8007d40a77408, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 25de8159a2254f54bf41152ffedc2770, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -350824,12 +350824,12 @@ MonoBehaviour:
   askLine: Walk me to my chair, hijo? My knees ache so much today...
   thanksLine: You're such a kind young one.
   idleFrames:
-  - {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
-  - {fileID: 21300000, guid: d3ccb4c40a96dd742a713936be2dd143, type: 3}
-  - {fileID: 21300000, guid: 145d647df8ca4034384904bc57325590, type: 3}
-  - {fileID: 21300000, guid: 83feba27aeb62814987620c1cd86ce9b, type: 3}
-  - {fileID: 21300000, guid: 535ddd05877846d49a7a49fcb9a44ab8, type: 3}
-  - {fileID: 21300000, guid: 73e673bdebd315a45bf32904e71e6923, type: 3}
+  - {fileID: 21300000, guid: 813f9ca887844b62ba5d389768f22384, type: 3}
+  - {fileID: 21300000, guid: b9b949c4da5d4e40bf112b9675b7dd39, type: 3}
+  - {fileID: 21300000, guid: f89114fb2ab8456e80280325e10ce178, type: 3}
+  - {fileID: 21300000, guid: 455425a06e15428e94322164e2839387, type: 3}
+  - {fileID: 21300000, guid: 8529bb6c5df444dca282a033b6d1d193, type: 3}
+  - {fileID: 21300000, guid: 5ae86e6599d24c43aa25b437742bf2d7, type: 3}
   frameTime: 0.15
   body: {fileID: 186659615}
   marker: {fileID: 1101114903}
@@ -351091,7 +351091,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 8ef1db48341aa4346a34a2e028580945, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3cfb263eac1041c2b87eae91abc88a7e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -402528,12 +402528,12 @@ MonoBehaviour:
     it, you know?
   thanksLine: The stage looks amazing!
   idleFrames:
-  - {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
-  - {fileID: 21300000, guid: d3ccb4c40a96dd742a713936be2dd143, type: 3}
-  - {fileID: 21300000, guid: 145d647df8ca4034384904bc57325590, type: 3}
-  - {fileID: 21300000, guid: 83feba27aeb62814987620c1cd86ce9b, type: 3}
-  - {fileID: 21300000, guid: 535ddd05877846d49a7a49fcb9a44ab8, type: 3}
-  - {fileID: 21300000, guid: 73e673bdebd315a45bf32904e71e6923, type: 3}
+  - {fileID: 21300000, guid: 20a1551d51e540f7a3c590ff27af30d9, type: 3}
+  - {fileID: 21300000, guid: 8e0d550d5def404d818c9ef91a5978bb, type: 3}
+  - {fileID: 21300000, guid: af87ac2a263b4989837f85d407a37bf4, type: 3}
+  - {fileID: 21300000, guid: 34e6538944bb4203b507296ff91e11c4, type: 3}
+  - {fileID: 21300000, guid: f5f131746a6e493c8265c3b6ecca7f7a, type: 3}
+  - {fileID: 21300000, guid: 28d3c39373db4874bfb125cc294f463a, type: 3}
   frameTime: 0.15
   body: {fileID: 1982065024}
   marker: {fileID: 1520796838}
@@ -409050,12 +409050,12 @@ MonoBehaviour:
     in them...
   thanksLine: Everything's filed. Thank you!
   idleFrames:
-  - {fileID: 21300000, guid: 0a3f5fcb7a7b33d4abca96555655da9a, type: 3}
-  - {fileID: 21300000, guid: 887995e6c542cc340a6563a464989a97, type: 3}
-  - {fileID: 21300000, guid: 348657b631a3caa42be63c1e09898b3a, type: 3}
-  - {fileID: 21300000, guid: b475f034eaf30844ea3bbfc73d6968e8, type: 3}
-  - {fileID: 21300000, guid: d138b627481123546aa2ed25a12290f2, type: 3}
-  - {fileID: 21300000, guid: 3a2319dd415537148ab5113579773d05, type: 3}
+  - {fileID: 21300000, guid: e7f2e92e9a54454c9b05ed4685c86d08, type: 3}
+  - {fileID: 21300000, guid: 272af0fa91ed46758d072c3bd52f68ce, type: 3}
+  - {fileID: 21300000, guid: 019eb469a84b4400986b207db629ce9b, type: 3}
+  - {fileID: 21300000, guid: 6143f33e3ba8418b8d385f79b1f83c3a, type: 3}
+  - {fileID: 21300000, guid: 8c0ce6b4c16b41fe9cfb515f518ac93a, type: 3}
+  - {fileID: 21300000, guid: 39ec8cdd95104e2f8c545f2f2b5fa1c6, type: 3}
   frameTime: 0.15
   body: {fileID: 788327072}
   marker: {fileID: 489989314}
@@ -411425,7 +411425,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: e878d36fc118676448667460ba660993, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f4fe748ae5484e9f8a1675ab66103e55, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -419062,12 +419062,12 @@ MonoBehaviour:
     its own, okay?
   thanksLine: What a performance!
   idleFrames:
-  - {fileID: 21300000, guid: 2f33cb5a1dec0324da957694afd8cd86, type: 3}
-  - {fileID: 21300000, guid: de8781f07e201194db89e3ef6764820e, type: 3}
-  - {fileID: 21300000, guid: 9c6527e123b09a74792178ae8ccb7e06, type: 3}
-  - {fileID: 21300000, guid: 12bd14b6c50c80045933aacdcf088640, type: 3}
-  - {fileID: 21300000, guid: baf4bee5302e07d4a92372ff8effa9d0, type: 3}
-  - {fileID: 21300000, guid: be0f8ee4303a5284fbea41937aa0d4ad, type: 3}
+  - {fileID: 21300000, guid: baafb1e52dea4d41a68badcc3026e777, type: 3}
+  - {fileID: 21300000, guid: 8be389d8380e41d6a9f7b9903d77385a, type: 3}
+  - {fileID: 21300000, guid: 647df3ea083c4ac5bdecb5d66acfadc9, type: 3}
+  - {fileID: 21300000, guid: 6955bae9a5164b7785b85b3a6dd16206, type: 3}
+  - {fileID: 21300000, guid: 509d289d1647410a9d1391458c65ca5d, type: 3}
+  - {fileID: 21300000, guid: 6d08a727240f473597574c29e665616b, type: 3}
   frameTime: 0.15
   body: {fileID: 1057259129}
   marker: {fileID: 1322015940}
@@ -429100,7 +429100,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 40
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 20a1551d51e540f7a3c590ff27af30d9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -439376,12 +439376,12 @@ MonoBehaviour:
     it measured by hand.
   thanksLine: This map is perfect for the class!
   idleFrames:
-  - {fileID: 21300000, guid: e97e92d5a28762040ba8007d40a77408, type: 3}
-  - {fileID: 21300000, guid: c14cacfb981595249928293af373763c, type: 3}
-  - {fileID: 21300000, guid: 4326f7a6a8ee30342bee52d2e60c68fa, type: 3}
-  - {fileID: 21300000, guid: 106efd5ce0e85464abfee0ac6a0b2821, type: 3}
-  - {fileID: 21300000, guid: f2814f1002d0500409e8371a5723e3b0, type: 3}
-  - {fileID: 21300000, guid: 22e2bada653bca041aeea557a9cd1025, type: 3}
+  - {fileID: 21300000, guid: 25de8159a2254f54bf41152ffedc2770, type: 3}
+  - {fileID: 21300000, guid: 79b29b802ce947338700e524f0f07732, type: 3}
+  - {fileID: 21300000, guid: b6ae8104e545463196c5d7177ac4debe, type: 3}
+  - {fileID: 21300000, guid: 356bf0a72ab74b7fb4f8e2375dd2ef21, type: 3}
+  - {fileID: 21300000, guid: 516fc7670a20439298262a25617cc2ad, type: 3}
+  - {fileID: 21300000, guid: 9711f00cf1fb40e8bcd5d9ae8e304ecb, type: 3}
   frameTime: 0.15
   body: {fileID: 1363141906}
   marker: {fileID: 1547079835}
@@ -445181,12 +445181,12 @@ MonoBehaviour:
     wait.
   thanksLine: Every customer left smiling!
   idleFrames:
-  - {fileID: 21300000, guid: ad26bd24eff8b7a4ea648e29b5335a97, type: 3}
-  - {fileID: 21300000, guid: ffc0037643d305e4793e32d26f946eb7, type: 3}
-  - {fileID: 21300000, guid: 510167baa70d08242b0d3fd675c40fed, type: 3}
-  - {fileID: 21300000, guid: a72d01eab0d6aad469b54cfe4af25129, type: 3}
-  - {fileID: 21300000, guid: d466de7d542966b4bbb9a6061b978d60, type: 3}
-  - {fileID: 21300000, guid: 2479f3913384be94ca5a3b35b416ca35, type: 3}
+  - {fileID: 21300000, guid: 593c4f6d9b9d4f9aa830dc1642289a5c, type: 3}
+  - {fileID: 21300000, guid: b10df4bb815b47feb51e7342a1e25419, type: 3}
+  - {fileID: 21300000, guid: f8b45b9f99064d209c55c88d8f1f06a3, type: 3}
+  - {fileID: 21300000, guid: 3bc089c4d8f04093a25aa6c13030c6e5, type: 3}
+  - {fileID: 21300000, guid: 7225ea038892457491f23823428d3ea2, type: 3}
+  - {fileID: 21300000, guid: 66f382ba39a5494f8f51f79536ba2cfb, type: 3}
   frameTime: 0.15
   body: {fileID: 1024240947}
   marker: {fileID: 205053556}

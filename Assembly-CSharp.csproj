@@ -183,6 +183,7 @@
     <Compile Include="Assets\Scripts\ScheduleBarManager.cs" />
     <Compile Include="Assets\Scripts\Core\vc_PlayerOptions.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RiverbedMapQuest.cs" />
+    <Compile Include="Assets\Scripts\Debug\vc_AdminDebug.cs" />
     <Compile Include="Assets\Scripts\Skills\Conventional\PlanSkill.cs" />
     <Compile Include="Assets\Scripts\vc_SkillSpawner.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerSkillInput.cs" />
@@ -200,6 +201,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_ParadeDrumMinigame.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_PlaygroundWatchMinigame.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Bootstrap.cs" />
+    <Compile Include="Assets\Scripts\UI\MainMenuUIToolkit.QuestLab.cs" />
     <Compile Include="Assets\Scripts\Skills\Investigative\ScriptableObjects\Scan.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_BarbershopQuest.cs" />
     <Compile Include="Assets\Scripts\vc_QuestRoom.cs" />

@@ -916,7 +916,7 @@ public class vc_RunProgressUI : MonoBehaviour
     private VisualElement _doneToast, _doneScrim;
     private Label _doneTitle, _doneNote, _doneXp;
     private readonly List<HudIcon> _doneStars = new List<HudIcon>();
-    private Button _backBtn;
+    private Button _backBtn, _restartBtn;
     private Action _doneContinue;
     private IVisualElementScheduledItem _doneHide;
 
@@ -977,6 +977,74 @@ public class vc_RunProgressUI : MonoBehaviour
         _backBtn.AddToClassList("rp-side-btn");
         _backBtn.AddToClassList("rp-hidden");
         _side.Insert(0, _backBtn);
+
+        // admin debug (vc_AdminDebug): play the same quest again
+        _restartBtn = MakePill("Restart", HudIcon.Glyph.Star, "restart", "gold", () =>
+        {
+            SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+            vc_TownStage.Current?.RequestRestart();
+            HideQuestDone();
+            Action cb = _doneContinue;
+            _doneContinue = null;
+            cb?.Invoke();
+        });
+        _restartBtn.AddToClassList("rp-side-btn");
+        _restartBtn.AddToClassList("rp-hidden");
+        _side.Insert(1, _restartBtn);
+
+        BuildDebugStrip(parent);
+    }
+
+    // ── admin debug strip in quests: Pass / Fail / Restart / Freeze ────────
+
+    private VisualElement _debugStrip;
+    private Button _freezeBtn;
+
+    private void BuildDebugStrip(VisualElement parent)
+    {
+        _debugStrip = new VisualElement { name = "rp-debug-strip" };
+        // bottom centre, clear of the joystick (left) and the skill button (right)
+        _debugStrip.style.position = Position.Absolute;
+        _debugStrip.style.left = Length.Percent(50);
+        _debugStrip.style.translate = new Translate(Length.Percent(-50), 0);
+        _debugStrip.style.bottom = 12;
+        _debugStrip.style.flexDirection = FlexDirection.Row;
+        _debugStrip.style.display = DisplayStyle.None;
+        Button Small(string text, Action a)
+        {
+            Button b = SunodGame.UI.vc_UITheme.MakeButton(text, a, "small");
+            b.focusable = false;
+            b.style.minWidth = 0;
+            b.style.marginRight = 6;
+            _debugStrip.Add(b);
+            return b;
+        }
+        Small("Pass", () =>
+        {
+            vc_QuestRoom room = vc_TownStage.Current != null ? vc_TownStage.Current.ActiveQuestRoom : null;
+            room?.OnQuestComplete();
+        });
+        Small("Fail", () => vc_QuestTimer.Instance?.DebugForceFail());
+        Small("Restart", () => vc_TownStage.Current?.RestartNow());
+        _freezeBtn = Small("Freeze", () =>
+        {
+            vc_QuestTimer t = vc_QuestTimer.Instance;
+            if (t == null) return;
+            t.DebugFrozen = !t.DebugFrozen;
+            _freezeBtn.text = t.DebugFrozen ? "Unfreeze" : "Freeze";
+        });
+        parent.Add(_debugStrip);
+        _debugStrip.schedule.Execute(UpdateDebugStrip).Every(250);
+    }
+
+    private void UpdateDebugStrip()
+    {
+        if (_debugStrip == null) return;
+        bool show = vc_AdminDebug.Enabled && vc_TownStage.Current != null && vc_TownStage.Current.ActiveQuestRoom != null
+                    && _backBtn.ClassListContains("rp-hidden");
+        _debugStrip.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+        if (show && _freezeBtn != null && vc_QuestTimer.Instance != null)
+            _freezeBtn.text = vc_QuestTimer.Instance.DebugFrozen ? "Unfreeze" : "Freeze";
     }
 
     /// <summary>
@@ -984,13 +1052,13 @@ public class vc_RunProgressUI : MonoBehaviour
     /// at the top and leaves after a few seconds, and a pulsing "Back to town" button stays
     /// until the player taps it, so they can keep looking around the room first.
     /// </summary>
-    public void ShowQuestDone(string questName, int stars, Action onContinue)
+    public void ShowQuestDone(string questName, int stars, Action onContinue, bool failed = false)
     {
         _doneContinue = onContinue;
         stars = Mathf.Clamp(stars, 0, 5);
-        _doneTitle.text = string.IsNullOrEmpty(questName) ? "Quest done!" : $"{questName} done!";
+        _doneTitle.text = failed ? "Time's up!" : string.IsNullOrEmpty(questName) ? "Quest done!" : $"{questName} done!";
         string praise = stars >= 5 ? "Perfect!" : stars >= 3 ? "Nice work!" : "You did it!";
-        _doneNote.text = $"{praise} Look around, then head back.";
+        _doneNote.text = failed ? "Try again, or head back." : $"{praise} Look around, then head back.";
         string xp = vc_FitQuestBase.TakeXpReport();
         _doneXp.text = xp ?? "";
         _doneXp.style.display = string.IsNullOrEmpty(xp) ? DisplayStyle.None : DisplayStyle.Flex;
@@ -1020,6 +1088,7 @@ public class vc_RunProgressUI : MonoBehaviour
 
         SetShownEl(_backBtn, true, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
         SetGlow(_backBtn, true, true);
+        if (vc_AdminDebug.Enabled) SetShownEl(_restartBtn, true, vc_UIAnim.Enter.SlideLeft, vc_UIAnim.Exit.SlideRight);
     }
 
     private void HideDoneSheet()
@@ -1034,6 +1103,7 @@ public class vc_RunProgressUI : MonoBehaviour
         HideDoneSheet();
         SetGlow(_backBtn, false);
         HideEl(_backBtn, vc_UIAnim.Exit.SlideRight);
+        if (_restartBtn != null && !_restartBtn.ClassListContains("rp-hidden")) HideEl(_restartBtn, vc_UIAnim.Exit.SlideRight);
         HideToast();
     }
 

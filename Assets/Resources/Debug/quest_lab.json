@@ -1,0 +1,388 @@
+{
+    "quests": [
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "r_pump",
+            "code": "R6",
+            "npc": "Aling Rosa",
+            "quest": "Broken Pump"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_a1_choir",
+            "code": "A1",
+            "npc": "Mr. Santos",
+            "quest": "Choir Practice"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_a2_play",
+            "code": "A2",
+            "npc": "Direk Paulo",
+            "quest": "Opening Night"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "a_mural",
+            "code": "A8",
+            "npc": "Ate Carla",
+            "quest": "The Mural"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_c5_harvest",
+            "code": "C5",
+            "npc": "Aling Nena",
+            "quest": "Harvest Tally"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_c8_ledger",
+            "code": "C8",
+            "npc": "Mang Tonyo",
+            "quest": "Dockside Ledger"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_e1_pitch",
+            "code": "E1",
+            "npc": "Marco",
+            "quest": "Stall Pitch"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_e4_barber",
+            "code": "E4",
+            "npc": "Mang Ramil",
+            "quest": "Barbershop Rush"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_e6_thrift",
+            "code": "E6",
+            "npc": "Ate Joan",
+            "quest": "Thrift Shop"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_a5_story",
+            "code": "A5",
+            "npc": "Kevin",
+            "quest": "Campus Paper"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_c1_payday",
+            "code": "C1",
+            "npc": "Mr. Go",
+            "quest": "Payday Envelopes"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_c3_billing",
+            "code": "C3",
+            "npc": "Jay",
+            "quest": "Net Cafe Billing"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_c7_teller",
+            "code": "C7",
+            "npc": "Ms. Uy",
+            "quest": "Bank Teller"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_e3_hotel",
+            "code": "E3",
+            "npc": "Mr. Lee",
+            "quest": "Hotel Check-In"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_e5_team",
+            "code": "E5",
+            "npc": "Ms. Ria",
+            "quest": "Intern Team"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_e7_house",
+            "code": "E7",
+            "npc": "Agent Mel",
+            "quest": "Open House"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "L2_CatMedicine",
+            "code": "I4",
+            "npc": "Dr. Santos",
+            "quest": "Cat Medicine Quest"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "i5_mushrooms",
+            "code": "I5",
+            "npc": "Dr. Cruz",
+            "quest": "Glowing Mushrooms"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_i7_lab",
+            "code": "I7",
+            "npc": "Ana",
+            "quest": "Biology Lab"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_r5_grinder",
+            "code": "R5",
+            "npc": "Mang Erning",
+            "quest": "Workshop Job"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_s1_career",
+            "code": "S1",
+            "npc": "Ms. Rivera",
+            "quest": "Career Fair"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_s3_support",
+            "code": "S3",
+            "npc": "Kuya Joel",
+            "quest": "Finding Support"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_s5_family",
+            "code": "S5",
+            "npc": "Aling Cora",
+            "quest": "Family Talk"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_c4_records",
+            "code": "C4",
+            "npc": "Mrs. Ong",
+            "quest": "Student Records"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_i1_skeleton",
+            "code": "I1",
+            "npc": "Ms. Garcia",
+            "quest": "Skeleton Model"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_r7_kits",
+            "code": "R7",
+            "npc": "Joy",
+            "quest": "Fundraiser Kits"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_a7_stunt",
+            "code": "A7",
+            "npc": "Direk Bong",
+            "quest": "Stunt Double"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "r4_radio",
+            "code": "R4",
+            "npc": "Kuya Dan",
+            "quest": "Radio Repair"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_s8_lola",
+            "code": "S8",
+            "npc": "Lola Ising",
+            "quest": "Walk Lola Home"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "a3_poster",
+            "code": "A3",
+            "npc": "Ms. Dela Cruz",
+            "quest": "Poster for the Fair"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_i8_riverbed",
+            "code": "I8",
+            "npc": "Prof. Lim",
+            "quest": "Riverbed Map"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_a6_drum",
+            "code": "A6",
+            "npc": "Paolo",
+            "quest": "Parade Drum"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_c6_change",
+            "code": "C6",
+            "npc": "Manang Fe",
+            "quest": "Canteen Change"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "L3_FallenSparrow",
+            "code": "S2",
+            "npc": "Liza",
+            "quest": "Fallen Sparrow Quest"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_a4_song",
+            "code": "A4",
+            "npc": "Bea",
+            "quest": "Class Song"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "L2_MissingKey",
+            "code": "C2",
+            "npc": "Principal Reyes",
+            "quest": "Missing Key"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_e2_snacks",
+            "code": "E2",
+            "npc": "Jun",
+            "quest": "Snack Stall"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_e8_toys",
+            "code": "E8",
+            "npc": "Mr. Tan",
+            "quest": "Toy Store Rush"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "i2_rabbits",
+            "code": "I2",
+            "npc": "Kuya Migs",
+            "quest": "Watch the Rabbits"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_i3_seedlings",
+            "code": "I3",
+            "npc": "Teacher Joy",
+            "quest": "Seedling Study"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_i6_fish",
+            "code": "I6",
+            "npc": "Nico",
+            "quest": "Fish Count"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "r2_stones",
+            "code": "R2",
+            "npc": "Mang Ben",
+            "quest": "River Crossing"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "r8_floor",
+            "code": "R8",
+            "npc": "Lolo Ador",
+            "quest": "Creaky Floorboards"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_s4_exercise",
+            "code": "S4",
+            "npc": "Tita Lorna",
+            "quest": "Morning Exercise"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "L1_LostFriend",
+            "code": "S6",
+            "npc": "Ate Mia",
+            "quest": "Lost Friend Quest"
+        },
+        {
+            "town": "Town_Elementary",
+            "stage": "Elementary",
+            "questId": "e_s7_story",
+            "code": "S7",
+            "npc": "Toto",
+            "quest": "Story Time"
+        },
+        {
+            "town": "Town_HighSchool",
+            "stage": "High School",
+            "questId": "h_r1_parts",
+            "code": "R1",
+            "npc": "Coach Ramon",
+            "quest": "Parts Check"
+        },
+        {
+            "town": "Town_College",
+            "stage": "College",
+            "questId": "c_r3_generator",
+            "code": "R3",
+            "npc": "Engr. Paz",
+            "quest": "Port Generator"
+        }
+    ]
+}

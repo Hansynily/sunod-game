@@ -5537,12 +5537,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::vc_FundraiserKitsQuest
   mainMarker: {fileID: 8813950932412426366}
   helperWalk:
-  - {fileID: 21300000, guid: e878d36fc118676448667460ba660993, type: 3}
-  - {fileID: 21300000, guid: 3839cdf624ec52440aa99b2b074532f7, type: 3}
-  - {fileID: 21300000, guid: c80fe8ed40a9d744daf81f792cd9f0c5, type: 3}
-  - {fileID: 21300000, guid: 39adb43dedc38d5409dd28513458d5ce, type: 3}
-  - {fileID: 21300000, guid: c06f1f5a43af4b048bee17c4dd51fc10, type: 3}
-  - {fileID: 21300000, guid: 4255747887bc2d24caac5e46cb0dccb1, type: 3}
+  - {fileID: 21300000, guid: 9937ad04d023470caa2f3f688dc3ded2, type: 3}
+  - {fileID: 21300000, guid: c4819385fd294e92ba88523c49b77aad, type: 3}
+  - {fileID: 21300000, guid: 4f46417b2dc144e896c23db0b7ac00f6, type: 3}
+  - {fileID: 21300000, guid: 71c9725cae024802814d23f3244ab0d6, type: 3}
+  - {fileID: 21300000, guid: dbb915e2a1134b1f99194838a9929399, type: 3}
+  - {fileID: 21300000, guid: e7b7729291544002b769d54e9fccea9a, type: 3}
   sortingLayer: Default
   bins:
   - {fileID: 8786413225417289349}

@@ -231,6 +231,9 @@ public class vc_TownStage : MonoBehaviour
         StartDay();
         _lastTalkTime = Time.time;
 
+        // Quest Lab (admin debug): no intro, wake-up or ribbon pick - straight into the quest.
+        if (vc_AdminDebug.LabActive) { StartCoroutine(LabStart()); return; }
+
         // Lucky Ribbon keepsake: a free skill pick on arriving in a new town (once per town per loop).
         if (vc_LoopMeta.HasMemento("ribbon") && AttemptedCount == 0 && _day == 1
             && RibbonPicksGiven.Add($"{vc_LoopMeta.Loop}:{stageId}"))
@@ -811,8 +814,19 @@ public class vc_TownStage : MonoBehaviour
         {
             // A failed quest still counts as this NPC's one attempt - save it for Continue.
             room?.WriteAttemptCheckpoint();
-            vc_QuestHUD.Instance?.ShowFeedbackTimed("Time's up!", 2f);
-            yield return new WaitForSeconds(2f);
+            if (vc_AdminDebug.Enabled && _restartNpc == null && vc_RunProgressUI.Instance != null)
+            {
+                // admin debug: stay in the room with Restart / Back to town
+                _questDoneAcknowledged = false;
+                vc_RunProgressUI.Instance.ShowQuestDone(room != null ? room.QuestName : null, 0,
+                    () => _questDoneAcknowledged = true, failed: true);
+                while (!_questDoneAcknowledged) yield return null;
+            }
+            else if (_restartNpc == null)
+            {
+                vc_QuestHUD.Instance?.ShowFeedbackTimed("Time's up!", 2f);
+                yield return new WaitForSeconds(2f);
+            }
         }
 
         vc_QuestRoom.OnAnyQuestComplete -= OnQuestDoneAcknowledged;
@@ -851,7 +865,86 @@ public class vc_TownStage : MonoBehaviour
             vc_QuestHUD.Instance?.ShowFeedbackTimed($"Lucky Coin: +{_lastQuestStars} bonus stars", 3f);
         }
 
+        // admin debug: Restart = forget this attempt and play the same quest again
+        if (_restartNpc != null && npc == _restartNpc)
+        {
+            _restartNpc = null;
+            DebugResetQuest(npc);
+            yield return null;
+            DebugStartQuest(npc);
+            yield break;
+        }
+        _restartNpc = null;
+
         AfterTownChange();
+    }
+
+    // ── Admin debug (vc_AdminDebug): Quest Lab start, restart, in-quest strip ──
+
+    private vc_TownNPC _restartNpc;
+
+    /// <summary>The quest room being played, or null.</summary>
+    public vc_QuestRoom ActiveQuestRoom =>
+        _inQuest && _activeRoom != null ? _activeRoom.GetComponentInChildren<vc_QuestRoom>(true) : null;
+
+    /// <summary>The quest just ended (banner showing): play it again after returning to town.</summary>
+    public void RequestRestart()
+    {
+        if (!vc_AdminDebug.Enabled || _activeNpc == null) return;
+        _restartNpc = _activeNpc;
+    }
+
+    /// <summary>Mid-quest restart: ends this attempt as failed (not shown) and starts it again.</summary>
+    public void RestartNow()
+    {
+        if (!vc_AdminDebug.Enabled || !_inQuest || _activeNpc == null) return;
+        _restartNpc = _activeNpc;
+        vc_QuestTimer.Instance?.DebugForceFail();
+    }
+
+    private IEnumerator LabStart()
+    {
+        // let the town settle (skills restored, HUD built), then set the lab up
+        yield return null;
+        yield return null;
+        vc_DialogPanel.Instance?.Hide();
+        if (vc_AdminDebug.LabAllSkills) LabGiveAllSkills();
+        if (vc_AdminDebug.LabXp > 0 && vc_PlayerInventory.Instance != null)
+        {
+            var entries = new List<SunodGame.Models.SkillXpEntryDto>();
+            foreach (vc_SkillData sk in vc_PlayerInventory.Instance.GatheredSkills)
+                if (sk != null) entries.Add(new SunodGame.Models.SkillXpEntryDto { skill = sk.skillName, xp = vc_AdminDebug.LabXp });
+            vc_SkillLevels.Load(entries);
+        }
+
+        vc_AdminDebug.LabQuest target = vc_AdminDebug.LabTarget;
+        vc_TownNPC npc = target != null ? _npcs.FirstOrDefault(n => n.HasQuest && n.QuestId == target.questId) : null;
+        if (npc == null)
+        {
+            vc_QuestHUD.Instance?.ShowFeedbackTimed("Quest Lab: quest not found here.", 3f);
+            yield break;
+        }
+        float wait = 3f;
+        while ((_busy || (vc_LoopMoments.Existing != null && vc_LoopMoments.Existing.IsShowing)) && wait > 0f)
+        {
+            wait -= Time.deltaTime;
+            yield return null;
+        }
+        _busy = false;
+        DebugTeleportTo(npc);
+        DebugStartQuest(npc);
+        yield return null;
+        if (vc_AdminDebug.LabFreezeTimer && vc_QuestTimer.Instance != null) vc_QuestTimer.Instance.DebugFrozen = true;
+    }
+
+    private static void LabGiveAllSkills()
+    {
+        vc_QuestAvailabilityFilter filter = vc_QuestAvailabilityFilter.Instance
+            ?? FindFirstObjectByType<vc_QuestAvailabilityFilter>(FindObjectsInactive.Include);
+        vc_SkillData[] all = filter != null && filter.GameSettings != null ? filter.GameSettings.skills : null;
+        if (all == null || vc_PlayerInventory.Instance == null) return;
+        foreach (vc_SkillData s in all)
+            if (s != null) vc_PlayerInventory.Instance.AddSkill(s);
     }
 
     /// <summary>After a quest: refresh, then end the day / announce the stage as needed.</summary>

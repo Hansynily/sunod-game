@@ -1084,7 +1084,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 6
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9937ad04d023470caa2f3f688dc3ded2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5247,19 +5247,19 @@ MonoBehaviour:
   - {fileID: 2417884924795102886}
   - {fileID: 1750175808041425953}
   shopperWalkA:
-  - {fileID: 21300000, guid: 8e93f4b7346c4b3409d3a762904727f3, type: 3}
-  - {fileID: 21300000, guid: 6f77044a98fda3c4e834c9dd9af2fd56, type: 3}
-  - {fileID: 21300000, guid: 6f96e16f8708c9e4dbe185c7195e5987, type: 3}
-  - {fileID: 21300000, guid: e4020c0a3b7e8c74098b76f6a3115040, type: 3}
-  - {fileID: 21300000, guid: 0104420b33c1b2a43b1580fd755e40b8, type: 3}
-  - {fileID: 21300000, guid: 13a174bbc1ce5f94eb06d22581cd6a1e, type: 3}
+  - {fileID: 21300000, guid: 8bf9302fdf6d4544a45cff07fb8dee3f, type: 3}
+  - {fileID: 21300000, guid: 8c488ea7d5e54691b6647fb043ed5225, type: 3}
+  - {fileID: 21300000, guid: 2080cfb9fc704417af785b3add70d608, type: 3}
+  - {fileID: 21300000, guid: e40f1851f81a41f4a31f7e6297b328dd, type: 3}
+  - {fileID: 21300000, guid: 09b0f7020e524b5d9a4e9f37e2f9123d, type: 3}
+  - {fileID: 21300000, guid: 3ead2967c50c4bc6b10a03c5c943f9ae, type: 3}
   shopperWalkB:
-  - {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
-  - {fileID: 21300000, guid: d3ccb4c40a96dd742a713936be2dd143, type: 3}
-  - {fileID: 21300000, guid: 145d647df8ca4034384904bc57325590, type: 3}
-  - {fileID: 21300000, guid: 83feba27aeb62814987620c1cd86ce9b, type: 3}
-  - {fileID: 21300000, guid: 535ddd05877846d49a7a49fcb9a44ab8, type: 3}
-  - {fileID: 21300000, guid: 73e673bdebd315a45bf32904e71e6923, type: 3}
+  - {fileID: 21300000, guid: 9937ad04d023470caa2f3f688dc3ded2, type: 3}
+  - {fileID: 21300000, guid: c4819385fd294e92ba88523c49b77aad, type: 3}
+  - {fileID: 21300000, guid: 4f46417b2dc144e896c23db0b7ac00f6, type: 3}
+  - {fileID: 21300000, guid: 71c9725cae024802814d23f3244ab0d6, type: 3}
+  - {fileID: 21300000, guid: dbb915e2a1134b1f99194838a9929399, type: 3}
+  - {fileID: 21300000, guid: e7b7729291544002b769d54e9fccea9a, type: 3}
   paySpots:
   - {fileID: 1281533871347941832}
   - {fileID: 4826372922129837071}
@@ -5904,7 +5904,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 6
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 8e93f4b7346c4b3409d3a762904727f3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8bf9302fdf6d4544a45cff07fb8dee3f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

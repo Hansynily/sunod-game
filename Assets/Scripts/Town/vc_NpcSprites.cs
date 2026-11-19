@@ -4,15 +4,17 @@ using UnityEngine;
 /// <summary>
 /// Walk / idle / sit frames for town people, sliced at runtime from the sheets baked by
 /// Tools/bake_npc_sheets.py into Resources/TownLife (walk_&lt;look&gt;, idle_&lt;look&gt;, sit_&lt;look&gt;).
-/// A look is "adam_1" (a quest giver's palette) or "town0".."town7" (extra townsfolk).
+/// A look is a quest giver's code in lower case ("r6") or "town0".."town7" (extra townsfolk).
+/// Drawn by Tools/art/npc/townsfolk.py.
 /// Sheet order: right, up, left, down - 6 frames each. Sit sheets: right 6, left 6 (32px wide).
 /// </summary>
 public static class vc_NpcSprites
 {
     public enum Dir { Right = 0, Up = 1, Left = 2, Down = 3 }
 
-    /// <summary>Same scale as the town builder's NPC frames (22 px per unit, bottom-center pivot).</summary>
-    public const float Ppu = 22f;
+    /// <summary>Same scale as the town builder's NPC frames: 32 px per unit, the player's pixel size
+    /// (storybook townsfolk, Tools/art/npc). Bottom-center pivot.</summary>
+    public const float Ppu = 32f;
     public static readonly string[] TownsfolkLooks = { "town0", "town1", "town2", "town3", "town4", "town5", "town6", "town7" };
 
     private static readonly Dictionary<string, Sprite[]> Cache = new Dictionary<string, Sprite[]>();

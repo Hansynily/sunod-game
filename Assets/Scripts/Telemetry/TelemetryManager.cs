@@ -120,6 +120,9 @@ namespace SunodGame.Telemetry
                                         Action<QuestAttemptTelemetryOut> onSuccess = null,
                                         Action<string>                   onError   = null)
         {
+            // Quest Lab (admin debug): a sandbox, nothing is saved or sent
+            if (vc_AdminDebug.LabActive) return;
+
             string fallbackPlayerId = UnityEngine.SystemInfo.deviceUniqueIdentifier;
             string fallbackUsername = "DemoPlayer";
 
@@ -175,6 +178,9 @@ namespace SunodGame.Telemetry
                                         Action<RunSummaryTelemetryOut> onSuccess = null,
                                         Action<string>                 onError   = null)
         {
+            // Quest Lab (admin debug): a sandbox, nothing is saved or sent
+            if (vc_AdminDebug.LabActive) { onError?.Invoke("Quest Lab: not saved."); return; }
+
             string fallbackPlayerId = UnityEngine.SystemInfo.deviceUniqueIdentifier;
             string fallbackUsername = "DemoPlayer";
 
@@ -324,6 +330,9 @@ namespace SunodGame.Telemetry
                                     Action<RunStateResponse> onSuccess = null,
                                     Action<string>           onError   = null)
         {
+            // Quest Lab (admin debug): a sandbox, nothing is saved or sent
+            if (vc_AdminDebug.LabActive) return;
+
             if (SessionState.Instance == null || string.IsNullOrWhiteSpace(SessionState.Instance.AccessToken))
             {
                 onError?.Invoke("Not signed in.");
@@ -426,6 +435,9 @@ namespace SunodGame.Telemetry
         public void FinishMyRunState(Action<RunStateResetResponse> onSuccess = null,
                                        Action<string>                onError   = null)
         {
+            // Quest Lab (admin debug): a sandbox, nothing is saved or sent
+            if (vc_AdminDebug.LabActive) { onError?.Invoke("Quest Lab: not saved."); return; }
+
             if (SessionState.Instance == null || string.IsNullOrWhiteSpace(SessionState.Instance.AccessToken))
             {
                 onError?.Invoke("Not signed in.");

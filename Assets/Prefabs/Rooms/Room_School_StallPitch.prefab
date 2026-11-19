@@ -4779,12 +4779,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::vc_StallPitchQuest
   mainMarker: {fileID: 5775341455189190085}
   helperWalk:
-  - {fileID: 21300000, guid: 13f6f60dc4659714e82aa3c508931b32, type: 3}
-  - {fileID: 21300000, guid: f7b9f75156303b14a995a329490eb26b, type: 3}
-  - {fileID: 21300000, guid: 7c7dd174e8f402442a99924ffda4e49e, type: 3}
-  - {fileID: 21300000, guid: be9f43f6481b79e41b93c6c11f6e6d08, type: 3}
-  - {fileID: 21300000, guid: 678dc7b015ec4b24ead08f39b90105a2, type: 3}
-  - {fileID: 21300000, guid: b9afa467b90cc7447a4393fdde8cb73a, type: 3}
+  - {fileID: 21300000, guid: 038a6ed11e1f447f8e85224e54bba591, type: 3}
+  - {fileID: 21300000, guid: ae794f2e98874d08ae07c9b390eb52cf, type: 3}
+  - {fileID: 21300000, guid: a6d78559a63940d49e2864ff8df3b59d, type: 3}
+  - {fileID: 21300000, guid: 8f98f25d226b486ba43d66fa67a72b51, type: 3}
+  - {fileID: 21300000, guid: adaf3c2f7f9c40659b02ba7d7d7d45f1, type: 3}
+  - {fileID: 21300000, guid: 627eba632ee84d18bb5b45bdab39794a, type: 3}
   sortingLayer: Default
   judges:
   - {fileID: 227727017523917843}

@@ -129,37 +129,37 @@ public static partial class vc_TownBuilder
         t.Trees(34, 14, 6, 4, 2, "tree_round");
 
         const string R = "Room_";
-        t.N("R6", "Aling Rosa", "amelia_0", 17f, 24.9f, R + "House_BrokenPumpQuestNew",
+        t.N("R6", "Aling Rosa", "r6", 17f, 24.9f, R + "House_BrokenPumpQuestNew",
             "My yard pump's leaking again! My late husband always fixed it by hand... please don't replace anything.", "No more drip-drip-drip. Thank you!");
-        t.N("R2", "Mang Ben", "bob_1", 46.2f, 11.4f, R + "River_RiverCrossing",
+        t.N("R2", "Mang Ben", "r2", 46.2f, 11.4f, R + "River_RiverCrossing",
             "My old bridge is broken and the river's too deep. That bridge was my father's, you know...", "Now I can get to the other side again!");
-        t.N("R8", "Lolo Ador", "bob_3", 8.6f, 17.4f, R + "House_CreakyFloorboards",
+        t.N("R8", "Lolo Ador", "r8", 8.6f, 17.4f, R + "House_CreakyFloorboards",
             "These boards creak with every step. Just... keep it quiet if you can, apo. I nap at noon.", "So quiet now. Salamat, apo!");
-        t.N("S4", "Tita Lorna", "amelia_2", 18.6f, 7.6f, R + "Forest_MorningExercise",
+        t.N("S4", "Tita Lorna", "s4", 18.6f, 7.6f, R + "Forest_MorningExercise",
             "Show me some morning stretches? I always forget them... and my back's been so stiff lately.", "I feel so awake now!");
-        t.N("I2", "Kuya Migs", "adam_1", 46.8f, 32.2f, R + "Forest_WatchTheRabbits",
+        t.N("I2", "Kuya Migs", "i2", 46.8f, 32.2f, R + "Forest_WatchTheRabbits",
             "There are rabbits in the meadow! Want to watch them? Shh, don't scare them off...", "You noticed so much about them!");
-        t.N("I3", "Teacher Joy", "amelia_1", 20f, 28.5f, R + "Forest_SeedlingStudy",
+        t.N("I3", "Teacher Joy", "i3", 20f, 28.5f, R + "Forest_SeedlingStudy",
             "Help me check our seedlings? I want the kids to see how you measure them.", "Great notes, little scientist!");
-        t.N("I6", "Nico", "adam_2", 43.6f, 13.2f, R + "River_FishCount",
+        t.N("I6", "Nico", "i6", 43.6f, 13.2f, R + "River_FishCount",
             "How many fish live in this pond? Can we count them together, row by row?", "Wow, that's a lot of fish!");
-        t.N("A6", "Paolo", "alex_1", 31.2f, 24f, R + "School_ParadeDrum",
+        t.N("A6", "Paolo", "a6", 31.2f, 24f, R + "School_ParadeDrum",
             "The parade needs a drummer! Our drum is dented, though... I wish it looked as cool as it sounds.", "You kept the beat perfectly!");
-        t.N("E2", "Jun", "alex_2", 35.2f, 24.1f, R + "School_SnackStall",
+        t.N("E2", "Jun", "e2", 35.2f, 24.1f, R + "School_SnackStall",
             "Help me sell snacks at our stall? I'm too shy to sell... maybe just be friendly?", "We sold out! Thanks, partner!");
-        t.N("E8", "Mr. Tan", "bob_2", 48.2f, 24.5f, R + "House_ToyStore",
+        t.N("E8", "Mr. Tan", "e8", 48.2f, 24.5f, R + "House_ToyStore",
             "My toy store is so busy today! Help me run it? The kids always run straight to the train set.", "Best helper in town!");
-        t.N("A3", "Ms. Dela Cruz", "amelia_3", 25.2f, 32.4f, R + "School_FairPoster",
+        t.N("A3", "Ms. Dela Cruz", "a3", 25.2f, 32.4f, R + "School_FairPoster",
             "We need a poster for the fair! The kids cut out paper shapes for it too, if you want to use them.", "That poster is beautiful!");
-        t.N("C2", "Principal Reyes", "bob_0", 28f, 34f, R + "House_MissingKeyQuest",
+        t.N("C2", "Principal Reyes", "c2", 28f, 34f, R + "House_MissingKeyQuest",
             "The spare key is lost somewhere in the supply room. Please leave the shelves neat when you're done.", "Everything's back in order. Thank you!");
-        t.N("A4", "Bea", "alex_3", 21.4f, 34.2f, R + "School_ClassSong",
+        t.N("A4", "Bea", "a4", 21.4f, 34.2f, R + "School_ClassSong",
             "Our class needs a song for the program! I want everyone to be able to sing along.", "Everyone's humming our song!");
-        t.N("S6", "Ate Mia", "amelia_0", 36.6f, 33.2f, R + "School_LostFriendQuest",
+        t.N("S6", "Ate Mia", "s6", 36.6f, 33.2f, R + "School_LostFriendQuest",
             "A little one got lost on the way to class and won't stop crying. She's scared... please be gentle.", "They had so much fun with you!");
-        t.N("S7", "Toto", "adam_3", 11f, 30.6f, R + "School_StoryTime",
+        t.N("S7", "Toto", "s7", 11f, 30.6f, R + "School_StoryTime",
             "Can you help us read this storybook? My little sister hides whenever she's shy...", "I read the whole book!");
-        t.N("C6", "Manang Fe", "amelia_2", 42.6f, 34f, R + "School_CanteenChange",
+        t.N("C6", "Manang Fe", "c6", 42.6f, 34f, R + "School_CanteenChange",
             "The canteen line is so long! Help me with the change? And keep the coins tidy for me, ha?", "Not a single peso missing!");
         return t;
     }
@@ -266,37 +266,37 @@ public static partial class vc_TownBuilder
         t.Trees(2, 12, 6, 8, 2, "tree_green");
 
         const string R = "Room_";
-        t.N("R4", "Kuya Dan", "adam_0", 38.6f, 22.9f, R + "School_RadioRepair",
+        t.N("R4", "Kuya Dan", "r4", 38.6f, 22.9f, R + "School_RadioRepair",
             "The radio club's old radio stopped working. Keep it original if you can, it's vintage!", "We're back on the air!");
-        t.N("A8", "Ate Carla", "amelia_1", 49.6f, 33.4f, R + "House_MuralQuestNew",
+        t.N("A8", "Ate Carla", "a8", 49.6f, 33.4f, R + "House_MuralQuestNew",
             "We need a set painted for the town play. I want people to be able to touch it, you know?", "The stage looks amazing!");
-        t.N("A1", "Mr. Santos", "bob_0", 52.6f, 35.4f, R + "School_ChoirPractice",
+        t.N("A1", "Mr. Santos", "a1", 52.6f, 35.4f, R + "School_ChoirPractice",
             "The choir needs someone to lead them today. Let each section shine on its own, okay?", "What a performance!");
-        t.N("S2", "Liza", "alex_2", 15.6f, 13.6f, R + "Forest_FallenSparrowQuest",
+        t.N("S2", "Liza", "s2", 15.6f, 13.6f, R + "Forest_FallenSparrowQuest",
             "A sparrow's hurt here by the river. I want the kids to learn how to care for it too.", "The riverbank looks so much better!");
-        t.N("I8", "Prof. Lim", "bob_1", 16.6f, 19.2f, R + "River_RiverbedMap",
+        t.N("I8", "Prof. Lim", "i8", 16.6f, 19.2f, R + "River_RiverbedMap",
             "Help me map the river bottom for our field trip? My students should see it measured by hand.", "This map is perfect for the class!");
-        t.N("C8", "Mang Tonyo", "bob_3", 35.4f, 8.4f, R + "River_DocksideLedger",
+        t.N("C8", "Mang Tonyo", "c8", 35.4f, 8.4f, R + "River_DocksideLedger",
             "Boats keep coming in! Keep track for me? And keep the delivery slips, I need them.", "Every box accounted for!");
-        t.N("R1", "Coach Ramon", "adam_3", 36f, 35.4f, R + "School_RoboticsParts",
+        t.N("R1", "Coach Ramon", "r1", 36f, 35.4f, R + "School_RoboticsParts",
             "Check every part before the contest? A test rig the team could reuse would be great...", "Not a single bad part!");
-        t.N("I1", "Ms. Garcia", "amelia_3", 42.2f, 35.6f, R + "School_SkeletonModel",
+        t.N("I1", "Ms. Garcia", "i1", 42.2f, 35.6f, R + "School_SkeletonModel",
             "Help me put the skeleton model together? Lay them out by body region so the class can follow.", "You know your bones!");
-        t.N("C4", "Mrs. Ong", "amelia_0", 45.8f, 35.6f, R + "School_StudentRecords",
+        t.N("C4", "Mrs. Ong", "c4", 45.8f, 35.6f, R + "School_StudentRecords",
             "The student records are all mixed up! Some of them even have mistakes in them...", "Everything's filed. Thank you!");
-        t.N("R7", "Joy", "alex_0", 25.8f, 23.6f, R + "School_FundraiserKits",
+        t.N("R7", "Joy", "r7", 25.8f, 23.6f, R + "School_FundraiserKits",
             "Help me put together the fundraiser kits? Some pieces came broken, though...", "We'll raise so much with these!");
-        t.N("E1", "Marco", "adam_2", 34.2f, 23.6f, R + "School_StallPitch",
+        t.N("E1", "Marco", "e1", 34.2f, 23.6f, R + "School_StallPitch",
             "I want to pitch my food stall to the fair committee. If they could just taste it...", "They said yes!");
-        t.N("C5", "Aling Nena", "amelia_2", 22.4f, 13.8f, R + "River_HarvestTally",
+        t.N("C5", "Aling Nena", "c5", 22.4f, 13.8f, R + "River_HarvestTally",
             "Help me tally today's harvest? Bring the baskets together for me, my back hurts...", "Neat and exact. Salamat!");
-        t.N("A2", "Direk Paulo", "alex_1", 30f, 25.2f, R + "School_OpeningNight",
+        t.N("A2", "Direk Paulo", "a2", 30f, 25.2f, R + "School_OpeningNight",
             "Opening night is tonight! Help me direct? And the costumes still aren't done!", "Standing ovation!");
-        t.N("S8", "Lola Ising", "amelia_1", 22f, 37.2f, R + "House_WalkLolaHome",
+        t.N("S8", "Lola Ising", "s8", 22f, 37.2f, R + "House_WalkLolaHome",
             "Walk me to my chair, hijo? My knees ache so much today...", "You're such a kind young one.");
-        t.N("E4", "Mang Ramil", "bob_2", 46f, 23f, R + "House_Barbershop",
+        t.N("E4", "Mang Ramil", "e4", 46f, 23f, R + "House_Barbershop",
             "My barbershop has a long line! Help me run it? They get grumpy when they wait.", "Every customer left smiling!");
-        t.N("E6", "Ate Joan", "alex_3", 53.2f, 22.8f, R + "House_ThriftShop",
+        t.N("E6", "Ate Joan", "e6", 53.2f, 22.8f, R + "House_ThriftShop",
             "Run a shift at the thrift shop for me? Someone keeps eyeing that vintage jacket...", "Best sales day this month!");
         return t;
     }
@@ -403,37 +403,37 @@ public static partial class vc_TownBuilder
         t.Trees(11, 30, 8, 5, 3, "tree_green", "tree_round");
 
         const string R = "Room_";
-        t.N("I5", "Dr. Cruz", "bob_1", 54.8f, 37.6f, R + "Forest_GlowingMushrooms",
+        t.N("I5", "Dr. Cruz", "i5", 54.8f, 37.6f, R + "Forest_GlowingMushrooms",
             "We found glowing mushrooms! Help us study them? Let's run a proper experiment.", "This could be a big discovery!");
-        t.N("S1", "Ms. Rivera", "amelia_3", 25f, 33.6f, R + "School_CareerFair",
+        t.N("S1", "Ms. Rivera", "s1", 25f, 33.6f, R + "School_CareerFair",
             "Students keep asking about careers. Help at the booth? Explain things to them, don't just walk them over.", "You really helped them find a direction.");
-        t.N("I7", "Ana", "alex_2", 39.6f, 37f, R + "School_BioLab",
+        t.N("I7", "Ana", "i7", 39.6f, 37f, R + "School_BioLab",
             "Help me with the lab samples? Write down a test plan too, I'll need it later.", "Perfect results. Great lab work!");
-        t.N("A5", "Kevin", "adam_0", 21f, 37f, R + "School_CampusPaper",
+        t.N("A5", "Kevin", "a5", 21f, 37f, R + "School_CampusPaper",
             "The campus paper needs a story by tonight! It needs pictures though, people skip plain text.", "Front page material!");
-        t.N("E3", "Mr. Lee", "bob_0", 8f, 25.9f, R + "House_HotelLobby",
+        t.N("E3", "Mr. Lee", "e3", 8f, 25.9f, R + "House_HotelLobby",
             "Guests are arriving all at once! That one's very cranky... maybe a smile would help.", "Every guest checked in happy.");
-        t.N("C7", "Ms. Uy", "amelia_0", 16.6f, 25.9f, R + "House_BankTeller",
+        t.N("C7", "Ms. Uy", "c7", 16.6f, 25.9f, R + "House_BankTeller",
             "The bank line is long! Handle a window for me? Send people to the right windows, please.", "Every peso balanced. Thank you!");
-        t.N("E5", "Ms. Ria", "amelia_1", 39.2f, 25.9f, R + "School_InternTeam",
+        t.N("E5", "Ms. Ria", "e5", 39.2f, 25.9f, R + "School_InternTeam",
             "My intern team needs a leader today. Go easy on them, they're tired...", "The team did great under you.");
-        t.N("C1", "Mr. Go", "bob_3", 41.8f, 25.9f, R + "School_PaydayOffice",
+        t.N("C1", "Mr. Go", "c1", 41.8f, 25.9f, R + "School_PaydayOffice",
             "It's payday! Help me prepare everyone's envelopes? Sort them by name, please.", "Everyone got paid on time!");
-        t.N("C3", "Jay", "adam_1", 49.6f, 25.9f, R + "School_NetCafe",
+        t.N("C3", "Jay", "c3", 49.6f, 25.9f, R + "School_NetCafe",
             "Help me make the customer bills? Hand each one to the right customer, ha.", "No billing mistakes today!");
-        t.N("I4", "Dr. Santos", "bob_2", 9.6f, 16.6f, R + "House_CatMedicineQuest",
+        t.N("I4", "Dr. Santos", "i4", 9.6f, 16.6f, R + "House_CatMedicineQuest",
             "A sick cat was brought in. Help me find the right treatment? Test carefully, one by one.", "She's going to be okay. Thank you.");
-        t.N("E7", "Agent Mel", "alex_0", 20.6f, 17.6f, R + "House_OpenHouse",
+        t.N("E7", "Agent Mel", "e7", 20.6f, 17.6f, R + "House_OpenHouse",
             "I'm holding an open house! The buyer keeps staring out the window... they love that view.", "Sold! You're a natural.");
-        t.N("S3", "Kuya Joel", "adam_3", 25.4f, 7.8f, R + "School_SupportCorner",
+        t.N("S3", "Kuya Joel", "s3", 25.4f, 7.8f, R + "School_SupportCorner",
             "A friend's going through a hard time. Maybe just walk with them?", "Thank you for being there for them.");
-        t.N("S5", "Aling Cora", "amelia_2", 8.6f, 9.6f, R + "House_FamilyTalk",
+        t.N("S5", "Aling Cora", "s5", 8.6f, 9.6f, R + "House_FamilyTalk",
             "My family is having a hard day. They need to learn to take turns, I think...", "We feel so much better. Salamat.");
-        t.N("R5", "Mang Erning", "bob_1", 38.6f, 13.6f, R + "House_WorkshopGrinder",
+        t.N("R5", "Mang Erning", "r5", 38.6f, 13.6f, R + "House_WorkshopGrinder",
             "The pump's motor bracket is too rough to fit. Grind it down? My grinding wheel's gone dull, though...", "Good as new!");
-        t.N("A7", "Direk Bong", "alex_1", 52.4f, 13.6f, R + "Forest_StuntSet",
+        t.N("A7", "Direk Bong", "a7", 52.4f, 13.6f, R + "Forest_StuntSet",
             "Our student film needs a stunt double. Up for it? Safety first, always!", "That stunt was incredible!");
-        t.N("R3", "Engr. Paz", "adam_2", 45f, 2.8f, R + "River_PortGenerator",
+        t.N("R3", "Engr. Paz", "r3", 45f, 2.8f, R + "River_PortGenerator",
             "The port generator broke down. Get it running? A backup line so it never dies again would be ideal.", "Power's back on. Great work!");
         return t;
     }

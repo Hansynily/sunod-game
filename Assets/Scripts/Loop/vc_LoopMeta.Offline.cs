@@ -134,6 +134,7 @@ public static partial class vc_LoopMeta
     {
         if (Current == null) return "Not ready yet.";
         if (!InRun) return "Open the stall in town.";
+        if (vc_AdminDebug.LabActive) return "Closed in the Quest Lab.";
         int cost = item.StartsWith("lv2:") ? Lv2Price(item.Substring(4)) : Price(item);
         if (KeepsakeById(item) is Keepsake k)
         {

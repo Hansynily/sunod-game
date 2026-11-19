@@ -48,12 +48,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::vc_SupplyKeyQuest
   mainMarker: {fileID: 5996379917507009908}
   helperWalk:
-  - {fileID: 21300000, guid: 13f6f60dc4659714e82aa3c508931b32, type: 3}
-  - {fileID: 21300000, guid: f7b9f75156303b14a995a329490eb26b, type: 3}
-  - {fileID: 21300000, guid: 7c7dd174e8f402442a99924ffda4e49e, type: 3}
-  - {fileID: 21300000, guid: be9f43f6481b79e41b93c6c11f6e6d08, type: 3}
-  - {fileID: 21300000, guid: 678dc7b015ec4b24ead08f39b90105a2, type: 3}
-  - {fileID: 21300000, guid: b9afa467b90cc7447a4393fdde8cb73a, type: 3}
+  - {fileID: 21300000, guid: 9937ad04d023470caa2f3f688dc3ded2, type: 3}
+  - {fileID: 21300000, guid: c4819385fd294e92ba88523c49b77aad, type: 3}
+  - {fileID: 21300000, guid: 4f46417b2dc144e896c23db0b7ac00f6, type: 3}
+  - {fileID: 21300000, guid: 71c9725cae024802814d23f3244ab0d6, type: 3}
+  - {fileID: 21300000, guid: dbb915e2a1134b1f99194838a9929399, type: 3}
+  - {fileID: 21300000, guid: e7b7729291544002b769d54e9fccea9a, type: 3}
   sortingLayer: Default
   shelves:
   - {fileID: 2757587972997537952}

@@ -3644,12 +3644,12 @@ MonoBehaviour:
   sortingLayer: Default
   student: {fileID: 6969271177684461837}
   studentWalk:
-  - {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
-  - {fileID: 21300000, guid: d3ccb4c40a96dd742a713936be2dd143, type: 3}
-  - {fileID: 21300000, guid: 145d647df8ca4034384904bc57325590, type: 3}
-  - {fileID: 21300000, guid: 83feba27aeb62814987620c1cd86ce9b, type: 3}
-  - {fileID: 21300000, guid: 535ddd05877846d49a7a49fcb9a44ab8, type: 3}
-  - {fileID: 21300000, guid: 73e673bdebd315a45bf32904e71e6923, type: 3}
+  - {fileID: 21300000, guid: 9937ad04d023470caa2f3f688dc3ded2, type: 3}
+  - {fileID: 21300000, guid: c4819385fd294e92ba88523c49b77aad, type: 3}
+  - {fileID: 21300000, guid: 4f46417b2dc144e896c23db0b7ac00f6, type: 3}
+  - {fileID: 21300000, guid: 71c9725cae024802814d23f3244ab0d6, type: 3}
+  - {fileID: 21300000, guid: dbb915e2a1134b1f99194838a9929399, type: 3}
+  - {fileID: 21300000, guid: e7b7729291544002b769d54e9fccea9a, type: 3}
   rightBooth: {fileID: 3186492826452970999}
   booths:
   - {fileID: 4661076149130248233}
@@ -6274,7 +6274,7 @@ PrefabInstance:
     - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 13dadf8f3e5427546b96edb18dab7369, type: 3}
+      objectReference: {fileID: 21300000, guid: 9937ad04d023470caa2f3f688dc3ded2, type: 3}
     - target: {fileID: 2019010494852046955, guid: 820eb82e8d5f7014a9c172d4b729a3d2, type: 3}
       propertyPath: m_SortingOrder
       value: 6

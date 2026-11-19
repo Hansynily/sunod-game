@@ -52,10 +52,13 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Editor\QuestRoomGenerator.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_TutorialBuilder.cs" />
+    <Compile Include="Assets\Scripts\Editor\vc_ApplyNpcLooks.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_FarForestTile.cs" />
     <Compile Include="Assets\Scripts\Editor\SpriteGenerator.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_LoopCutsceneBuilder.cs" />
+    <Compile Include="Assets\Scripts\Editor\vc_QuestLabListBuilder.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_MinigameWiring.cs" />
+    <Compile Include="Assets\Scripts\Editor\vc_RoomSnapshot.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_CutsceneSync.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_ArtStretchedProps.cs" />
     <Compile Include="Assets\Scripts\Editor\vc_TownBuilder.Plans.cs" />
