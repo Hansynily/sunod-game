@@ -356,25 +356,53 @@ public class vc_PlayerCosmetics : MonoBehaviour
 
     private GameObject _catGo;
     private SpriteRenderer _cat;
+    private readonly List<Vector3> _catTrail = new List<Vector3>();   // where you walked, oldest first
+    private const float TrailStep = 0.12f;      // a breadcrumb every this far
+    private const float CatGap = 0.9f;          // how far behind you it walks
+    private float _catHop;
 
+    /// <summary>Muning walks the path you walked (around buildings, not through them), a little
+    /// behind, at your pace, with a small hop; sits when you stop. Only a big jump (Journal
+    /// "Go", a new day) puts her straight next to you.</summary>
     private void UpdatePet()
     {
         bool want = _pet == "pet_cat" && vc_TownStage.Current != null && !vc_TownStage.Current.InQuest;
-        if (!want) { if (_catGo != null) _catGo.SetActive(false); return; }
+        if (!want) { if (_catGo != null) _catGo.SetActive(false); _catTrail.Clear(); return; }
+        Vector3 me = transform.position;
         if (_catGo == null)
         {
             _catGo = new GameObject("Muning (follows you)");
             _cat = _catGo.AddComponent<SpriteRenderer>();
-            _catGo.transform.position = transform.position + new Vector3(-0.8f, -0.2f, 0f);
+            _catGo.transform.position = me + new Vector3(-CatGap, -0.2f, 0f);
         }
-        _catGo.SetActive(true);
-        Vector3 target = transform.position + new Vector3(-0.7f, -0.25f, 0f);
+        if (!_catGo.activeSelf) { _catGo.SetActive(true); _catTrail.Clear(); _catGo.transform.position = me + new Vector3(-CatGap, -0.2f, 0f); }
+
+        // breadcrumbs
+        if (_catTrail.Count == 0 || Vector2.Distance(_catTrail[_catTrail.Count - 1], me) >= TrailStep) _catTrail.Add(me);
         Vector3 p = _catGo.transform.position;
-        float d = Vector2.Distance(p, target);
-        bool walking = d > 0.35f;
-        if (d > 6f) p = target;                                       // teleports (journal Go, new day)
-        else if (walking) p = Vector3.MoveTowards(p, target, Time.deltaTime * Mathf.Lerp(2.5f, 6f, d / 3f));
+        if (Vector2.Distance(p, me) > 12f) { p = me + new Vector3(-CatGap, -0.2f, 0f); _catTrail.Clear(); _catTrail.Add(me); }   // teleported
+
+        // walk along the trail until CatGap behind you
+        float speed = Mathf.Max(3.2f, PlayerController.SpeedMultiplier * 3.4f);
+        float budget = speed * Time.deltaTime;
+        bool walking = false;
+        while (_catTrail.Count > 0 && budget > 0f)
+        {
+            if (PathLengthFrom(p) <= CatGap) break;
+            Vector3 next = _catTrail[0];
+            float d = Vector2.Distance(p, next);
+            if (d <= budget) { p = next; budget -= d; _catTrail.RemoveAt(0); walking = true; continue; }
+            Vector3 dir = (next - p).normalized;
+            if (Mathf.Abs(dir.x) > 0.05f) _cat.flipX = dir.x < 0f;
+            p += dir * budget; budget = 0f; walking = true;
+        }
+        // drop crumbs the cat has passed so the trail never grows forever
+        if (_catTrail.Count > 400) _catTrail.RemoveRange(0, _catTrail.Count - 400);
+
+        _catHop = walking ? _catHop + Time.deltaTime : 0f;
+        int hop = walking && Mathf.Repeat(_catHop, 0.24f) < 0.12f ? 1 : 0;   // a 1-pixel trot
         _catGo.transform.position = new Vector3(Mathf.Round(p.x * 16f) / 16f, Mathf.Round(p.y * 16f) / 16f, p.z);
+        _cat.transform.localPosition = Vector3.zero;
         Texture2D t = Resources.Load<Texture2D>(walking ? "Morning/cat_walk" : "Morning/cat_sit");
         if (t != null)
         {
@@ -382,9 +410,17 @@ public class vc_PlayerCosmetics : MonoBehaviour
             if (_cat.sprite == null || _cat.sprite.texture != t)
                 _cat.sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0f), 16f);
         }
-        if (walking) _cat.flipX = target.x < p.x;
+        _catGo.transform.position += new Vector3(0f, hop / 16f, 0f);
         _cat.sortingLayerID = _body.sortingLayerID;
-        _cat.sortingOrder = _body.sortingOrder + (p.y < transform.position.y ? 1 : -1);
+        _cat.sortingOrder = _body.sortingOrder + (p.y < me.y ? 1 : -1);
+    }
+
+    private float PathLengthFrom(Vector3 from)
+    {
+        float len = 0f;
+        Vector3 a = from;
+        foreach (Vector3 b in _catTrail) { len += Vector2.Distance(a, b); a = b; }
+        return len + Vector2.Distance(a, transform.position);
     }
 
     // ── the equip spin ────────────────────────────────────────────────────

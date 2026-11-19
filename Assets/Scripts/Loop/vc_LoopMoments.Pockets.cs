@@ -10,7 +10,6 @@ using SunodGame.UI;
 /// Two small loop moments:
 ///  - Pockets: at Go Back, after "What will you remember?", choose which owned keepsakes come
 ///    along this loop (2 pockets to start, more at the stall). Only carried keepsakes work.
-///  - Study Notes: the one-use stall helper, +3 XP to a skill you choose (from the night pick).
 /// </summary>
 public partial class vc_LoopMoments
 {
@@ -167,72 +166,4 @@ public partial class vc_LoopMoments
         done?.Invoke();
     }
 
-    // ══ Study Notes (stall helper) ═══════════════════════════════════════════
-
-    public void ShowStudyNotes(List<vc_SkillData> skills, Action closed)
-    {
-        if (_root == null || skills == null || skills.Count == 0) { closed?.Invoke(); return; }
-        var veil = new VisualElement();
-        Fill(veil);
-        veil.style.backgroundColor = vc_UITheme.Scrim;
-        veil.style.alignItems = Align.Center; veil.style.justifyContent = Justify.Center;
-        veil.pickingMode = PickingMode.Position;
-
-        var panel = new VisualElement();
-        panel.AddToClassList("sn-panel");
-        panel.style.maxWidth = Length.Percent(94);
-        panel.style.alignItems = Align.Center;
-        panel.Add(Text("Study Notes", "title"));
-        var hint = Text($"+{StudyXp} XP to which skill?", "body", vc_UITheme.InkMuted);
-        hint.style.marginBottom = 12;
-        panel.Add(hint);
-        var row = new VisualElement();
-        row.style.flexDirection = FlexDirection.Row;
-        row.style.flexWrap = Wrap.Wrap;
-        row.style.justifyContent = Justify.Center;
-        panel.Add(row);
-        bool busy = false;
-        void Close() { veil.RemoveFromHierarchy(); closed?.Invoke(); }
-
-        foreach (vc_SkillData s in skills)
-        {
-            VisualElement card = SkillCard(s, 150);
-            card.style.marginLeft = 6; card.style.marginRight = 6; card.style.marginBottom = 10;
-            card.pickingMode = PickingMode.Position;
-            vc_SkillData skill = s;
-            card.RegisterCallback<ClickEvent>(_ =>
-            {
-                if (busy) return;
-                busy = true;
-                vc_Sfx.Play("click", 0.6f);
-                vc_LoopMeta.UseHelper("studynotes", ok =>
-                {
-                    if (!ok) { busy = false; vc_UIAnim.Shake(card); return; }
-                    vc_SkillLevels.AddXp(skill, StudyXp);
-                    string scene = vc_TownStage.Current != null ? vc_TownStage.Current.gameObject.scene.name : null;
-                    vc_QuestRoom.SaveProgressIds(null, scene);
-                    vc_Sfx.Play("step_done", 0.8f);
-                    Burst(card, vc_UITheme.Gold, 14);
-                    vc_UIAnim.Punch(card, 0.2f, 0.35f);
-                    vc_QuestHUD.Instance?.ShowFeedbackTimed($"{skill.DisplayName} +{StudyXp} XP", 2.5f);
-                    StartCoroutine(CloseLater(Close, 0.6f));
-                });
-            });
-            row.Add(card);
-        }
-        Button cancel = MakeButton("Not now", () => { if (!busy) { vc_Sfx.Play("click", 0.5f); Close(); } }, "small");
-        cancel.style.marginTop = 8;
-        panel.Add(cancel);
-        veil.Add(panel);
-        _root.Add(veil);
-        vc_UIAnim.Show(panel, vc_UIAnim.Enter.Pop);
-    }
-
-    public const int StudyXp = 3;
-
-    private static IEnumerator CloseLater(Action close, float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        close?.Invoke();
-    }
 }

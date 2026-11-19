@@ -259,7 +259,7 @@ public class vc_DebugMenu : MonoBehaviour
         _starsText = GUILayout.TextField(_starsText ?? "", 7, GUILayout.Width(90));
         if (GUILayout.Button("Set stars"))
         {
-            if (int.TryParse(_starsText, out int stars) && stars >= 0) { vc_LoopMeta.DebugSetStars(stars); Say($"Stars set to {stars} (this device only)"); }
+            if (int.TryParse(_starsText, out int stars) && stars >= 0) vc_LoopMeta.DebugSetStars(stars, where => Say($"Stars set to {stars} ({where})"));
             else Say("Type a whole number first");
         }
         GUILayout.EndHorizontal();
@@ -297,9 +297,10 @@ public class vc_DebugMenu : MonoBehaviour
         if (skill != null) vc_SkillManager.Instance?.DebugRecordUse(skill, Random.Range(1, 3));
         if (timer != null)
         {
-            float spentSoFar = 30f - timer.GetTimeRemaining();
-            float target = Random.Range(2f, 14f);
-            if (target > spentSoFar) timer.DebugAddTime(-(target - spentSoFar));
+            // a believable fast solve: 85-97% of the quest's own time left (5 stars), whatever its length
+            timer.DebugAddTime(99999f);                       // back to full (clamped to the quest's total)
+            float total = timer.GetTimeRemaining();
+            timer.DebugAddTime(-total * Random.Range(0.03f, 0.15f));
         }
         room.OnQuestComplete();
         Say($"Completed {room.QuestName} with {(skill != null ? skill.DisplayName : "no skill")}");

@@ -116,14 +116,21 @@ public static partial class vc_LoopMeta
         }
     }
 
-    /// <summary>Debug (vc_DebugMenu): the stall shows exactly this many stars. Only this device's
-    /// copy changes; the server's bank is left alone, so a refresh from the server undoes it.</summary>
-    public static void DebugSetStars(int stars)
+    /// <summary>Debug (vc_DebugMenu): the stall shows exactly this many stars. Applied here right
+    /// away; for an admin account it is also saved on the server, so it sticks. Other sessions
+    /// (no account) only change this device's copy.</summary>
+    public static void DebugSetStars(int stars, Action<string> done = null)
     {
+        stars = Mathf.Max(0, stars);
         if (Current == null) Set(new LoopMetaResponse());
-        Current.bank_stars += Mathf.Max(0, stars) - Available;
-        Current.stars = Mathf.Max(0, stars);
+        Current.bank_stars += stars - Available;
+        Current.stars = stars;
         Changed?.Invoke();
+        var s = SunodGame.Core.SessionState.Instance;
+        var tm = SunodGame.Telemetry.TelemetryManager.Instance;
+        if (s == null || !s.IsLoggedIn || !s.IsAdmin || tm == null) { done?.Invoke("this device only (not an admin account)"); return; }
+        tm.DebugSetMyStars(stars, meta => { Set(meta); done?.Invoke("saved on the server"); },
+            err => done?.Invoke("server didn't take it: " + err));
     }
 
     private static int MarkerCost(string marker)

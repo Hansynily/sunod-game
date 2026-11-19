@@ -103,6 +103,7 @@ public class vc_SkillAwardPopup : MonoBehaviour
         _selectedIndex = -1;
         _onConfirm = onConfirm;
         _redraw = redraw;
+        if (_studying) SetStudyMode(false);
         RefreshHelpers();
 
         PopulateCards(skills);
@@ -212,8 +213,8 @@ public class vc_SkillAwardPopup : MonoBehaviour
         _helperRow.style.flexDirection = FlexDirection.Row;
         _helperRow.style.justifyContent = Justify.Center;
         _helperRow.style.marginTop = 6;
-        _rerollBtn = vc_UITheme.MakeButton("Reroll", OnRerollClicked, "small");
-        _studyBtn = vc_UITheme.MakeButton("Study Notes", OnStudyClicked, "small");
+        _rerollBtn = vc_UITheme.MakeButton("New cards (Reroll)", OnRerollClicked, "small");
+        _studyBtn = vc_UITheme.MakeButton("Study Notes: +3 XP", OnStudyClicked, "small");
         foreach (Button b in new[] { _rerollBtn, _studyBtn })
         {
             b.focusable = false;
@@ -227,12 +228,13 @@ public class vc_SkillAwardPopup : MonoBehaviour
     private void RefreshHelpers()
     {
         if (_helperRow == null) return;
-        bool reroll = _redraw != null && vc_LoopMeta.HoldsHelper("reroll");
-        bool study = vc_LoopMeta.HoldsHelper("studynotes");
+        bool reroll = !_studying && _redraw != null && vc_LoopMeta.HoldsHelper("reroll");
+        bool study = !_studying && vc_LoopMeta.HoldsHelper("studynotes");
         _rerollBtn.style.display = reroll ? DisplayStyle.Flex : DisplayStyle.None;
         _studyBtn.style.display = study ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_studyBack != null) _studyBack.style.display = _studying ? DisplayStyle.Flex : DisplayStyle.None;
         _rerollBtn.SetEnabled(true); _studyBtn.SetEnabled(true);
-        _helperRow.style.display = reroll || study ? DisplayStyle.Flex : DisplayStyle.None;
+        _helperRow.style.display = reroll || study || _studying ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     private void OnRerollClicked()
@@ -260,18 +262,106 @@ public class vc_SkillAwardPopup : MonoBehaviour
         });
     }
 
+    // ── Study Notes: inside this panel (no second layer on top) ──────────
+    // The cards make way for a scrollable list of your skills; tap one for +3 XP, or Back.
+
+    private const int StudyXp = 3;
+    private ScrollView _studyList;
+    private Label _subtitle;
+    private Button _studyBack;
+    private bool _studying;
+
     private void OnStudyClicked()
     {
-        vc_LoopMoments moments = vc_LoopMoments.Instance;
-        if (moments == null || vc_PlayerInventory.Instance == null) return;
+        if (vc_PlayerInventory.Instance == null || !vc_LoopMeta.HoldsHelper("studynotes")) return;
         SunodGame.Core.vc_Sfx.Play("click", 0.6f);
-        var owned = new System.Collections.Generic.List<vc_SkillData>();
-        foreach (vc_SkillData sk in vc_PlayerInventory.Instance.GatheredSkills)
-            if (sk != null && vc_SkillLevels.Level(sk) < vc_SkillLevels.MaxLevel) owned.Add(sk);
-        moments.ShowStudyNotes(owned, () =>
+        SetStudyMode(true);
+    }
+
+    private void SetStudyMode(bool on)
+    {
+        if (_box == null) return;
+        VisualElement cards = _box.Q<VisualElement>("award-cards");
+        if (_subtitle == null) _subtitle = _box.Q<Label>("award-subtitle");
+        if (_studyList == null)
         {
-            RefreshHelpers();
-            if (_offeredSkills != null) { PopulateCards(_offeredSkills); RefreshSelection(); }
+            _studyList = new ScrollView(ScrollViewMode.Vertical) { name = "award-study" };
+            _studyList.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            _studyList.style.maxHeight = 330;
+            _studyList.style.marginTop = 6; _studyList.style.marginBottom = 6;
+            _studyList.contentContainer.style.flexDirection = FlexDirection.Row;
+            _studyList.contentContainer.style.flexWrap = Wrap.Wrap;
+            _studyList.contentContainer.style.justifyContent = Justify.Center;
+            _box.Insert(cards != null ? _box.IndexOf(cards) + 1 : 1, _studyList);
+            _studyBack = vc_UITheme.MakeButton("Back", () => { SunodGame.Core.vc_Sfx.Play("click", 0.5f); SetStudyMode(false); }, "small");
+            _studyBack.focusable = false;
+            _studyBack.style.marginLeft = 6; _studyBack.style.marginRight = 6;
+            _helperRow.Add(_studyBack);
+        }
+        _studying = on;
+        if (cards != null) cards.style.display = on ? DisplayStyle.None : DisplayStyle.Flex;
+        if (_confirm != null) _confirm.style.display = on ? DisplayStyle.None : DisplayStyle.Flex;
+        _studyList.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_title is Label t) t.text = on ? "Study Notes" : "Pick a skill";
+        if (_subtitle != null) _subtitle.text = on ? $"+{StudyXp} XP to one of your skills." : "Take one with you.";
+        if (on) FillStudyList();
+        RefreshHelpers();
+    }
+
+    private void FillStudyList()
+    {
+        _studyList.Clear();
+        foreach (vc_SkillData sk in vc_PlayerInventory.Instance.GatheredSkills)
+        {
+            if (sk == null) continue;
+            vc_SkillData skill = sk;
+            int level = vc_SkillLevels.Level(sk);
+            bool maxed = level >= vc_SkillLevels.MaxLevel;
+            string letter = string.IsNullOrWhiteSpace(sk.riaSecLetter) ? "?" : sk.riaSecLetter.Trim().ToUpperInvariant();
+            var chip = new Button(() => StudySkill(skill)) { focusable = false };
+            chip.AddToClassList("sn-card");
+            chip.style.width = 190; chip.style.height = 64;
+            chip.style.flexDirection = FlexDirection.Row;
+            chip.style.alignItems = Align.Center;
+            chip.style.marginLeft = 5; chip.style.marginRight = 5; chip.style.marginBottom = 8;
+            chip.style.paddingLeft = 8; chip.style.paddingRight = 8; chip.style.paddingTop = 4; chip.style.paddingBottom = 4;
+            var icon = new VisualElement { pickingMode = PickingMode.Ignore };
+            icon.style.width = 40; icon.style.height = 40; icon.style.flexShrink = 0;
+            icon.style.backgroundImage = vc_RiasecSymbols.Background(letter);
+            icon.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
+            icon.style.marginRight = 8;
+            chip.Add(icon);
+            var name = new Label(skill.DisplayName) { pickingMode = PickingMode.Ignore };
+            name.AddToClassList("sn-caption");
+            name.AddToClassList("sn-semibold");
+            name.style.flexGrow = 1;
+            name.style.unityTextAlign = TextAnchor.MiddleLeft;
+            chip.Add(name);
+            var lv = new Label(maxed ? "Max" : $"Lv{level}") { pickingMode = PickingMode.Ignore };
+            lv.AddToClassList("sn-badge");
+            if (level >= vc_SkillLevels.MaxLevel) lv.AddToClassList("sn-badge--gold");
+            else if (level == 2) lv.AddToClassList("sn-badge--silver");
+            chip.Add(lv);
+            chip.SetEnabled(!maxed);
+            _studyList.Add(chip);
+        }
+        vc_UIAnim.Stagger(_studyList.contentContainer.Children(), vc_UIAnim.Enter.Pop, 0.02f, 0f);
+    }
+
+    private void StudySkill(vc_SkillData skill)
+    {
+        if (!_studying || skill == null) return;
+        SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+        vc_LoopMeta.UseHelper("studynotes", ok =>
+        {
+            if (!ok) { SetStudyMode(false); return; }
+            vc_SkillLevels.AddXp(skill, StudyXp);
+            string scene = vc_TownStage.Current != null ? vc_TownStage.Current.gameObject.scene.name : null;
+            vc_QuestRoom.SaveProgressIds(null, scene);
+            SunodGame.Core.vc_Sfx.Play("step_done", 0.8f);
+            vc_QuestHUD.Instance?.ShowFeedbackTimed($"{skill.DisplayName} +{StudyXp} XP", 2.5f);
+            SetStudyMode(false);
+            if (_offeredSkills != null) { PopulateCards(_offeredSkills); RefreshSelection(); }   // levels on the cards update
         });
     }
 

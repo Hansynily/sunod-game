@@ -469,6 +469,15 @@ namespace SunodGame.Telemetry
                 JsonUtility.ToJson(payload ?? new LoopBeginPayload())));
         }
 
+        /// <summary>Admin debug: set how many stars the stall can spend (saved on the server).</summary>
+        public void DebugSetMyStars(int stars, Action<LoopMetaResponse> onSuccess, Action<string> onError = null)
+        {
+            if (!TryGetToken(out string token, onError)) return;
+            StartCoroutine(PostAuthorizedNoBody("/api/telemetry/users/me/loop/debug/stars", token, onSuccess,
+                onError ?? (e => Debug.LogWarning($"[Telemetry] Debug stars error: {e}")),
+                "{\"stars\":" + Mathf.Max(0, stars) + "}"));
+        }
+
         public void ResetMyLoop(Action<LoopMetaResponse> onSuccess = null, Action<string> onError = null)
         {
             if (!TryGetToken(out string token, onError)) return;

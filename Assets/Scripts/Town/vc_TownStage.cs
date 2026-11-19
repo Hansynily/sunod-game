@@ -180,14 +180,15 @@ public class vc_TownStage : MonoBehaviour
     /// <summary>Called by vc_TownFlow once the player is in this town.</summary>
     public void Enter()
     {
-        // The player grows up a little with each stage (8 px steps on the 32 px/unit sprite:
-        // 9/8 in High School, 10/8 in College, so the pixels stay as even as possible).
+        // The player grows up with each stage: x1.2 in High School, x1.4 in College.
         var kid = FindFirstObjectByType<vc_SpriteFrameAnimator>();
         if (kid != null)
         {
-            float grow = stageId == "college" ? 1.25f : stageId == "highschool" ? 1.125f : 1f;
+            float grow = stageId == "college" ? 1.4f : stageId == "highschool" ? 1.2f : 1f;
             kid.transform.localScale = new Vector3(grow, grow, 1f);
+            Debug.Log($"[vc_TownStage] {stageId}: player grown to x{grow} ({kid.name})");
         }
+        else Debug.LogWarning("[vc_TownStage] No player animator found to grow.");
 
         var abandoned = new List<string>();
         foreach (vc_TownNPC npc in _npcs)

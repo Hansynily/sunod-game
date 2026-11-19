@@ -405,7 +405,7 @@ public static partial class vc_LoopMeta
 
     public static readonly ShopGood[] Cosmetics =
     {
-        new ShopGood { id = "outfit_elem", type = "outfit", name = "Elementary Uniform", blurb = "White polo, green shorts or skirt." },
+        new ShopGood { id = "outfit_elem", type = "outfit", name = "Elementary Uniform", blurb = "Free. White polo, green shorts or skirt." },
         new ShopGood { id = "outfit_hs", type = "outfit", name = "High School Uniform", blurb = "Free once you reach High School." },
         new ShopGood { id = "outfit_college", type = "outfit", name = "College Uniform", blurb = "Free once you reach College." },
         new ShopGood { id = "outfit_fiesta", type = "outfit", name = "Fiesta Best", blurb = "Barong or Filipiniana, for the plaza." },
@@ -444,7 +444,7 @@ public static partial class vc_LoopMeta
     // (a new loop is a new childhood: they lock again until you get there)
 
     public static string UniformStage(string id) =>
-        id == "outfit_hs" ? "highschool" : id == "outfit_college" ? "college" : null;
+        id == "outfit_elem" ? "elementary" : id == "outfit_hs" ? "highschool" : id == "outfit_college" ? "college" : null;
 
     public static bool IsStageUniform(string id) => UniformStage(id) != null;
 
