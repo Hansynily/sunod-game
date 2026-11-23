@@ -253,6 +253,12 @@ public class vc_RunProgressUI : MonoBehaviour
             _stageBadges[s].text = isPast ? "" : StageShort[s];
             _stageChecks[s].style.display = isPast ? DisplayStyle.Flex : DisplayStyle.None;
 
+            if (vc_FairMode.ThisRun)   // College Fair mode: 2 per town
+            {
+                int per = vc_FairMode.PlayedPerTown;
+                _stageCounts[s].text = isPast ? $"All {per} done" : isCurrent ? $"{Mathf.Min(done, per)}/{per} done" : $"{per} quests";
+            }
+            else
             _stageCounts[s].text = isPast ? $"All {count} done"
                 : isCurrent ? $"{done}/{count} done"
                 : $"{count} quests";
@@ -261,7 +267,9 @@ public class vc_RunProgressUI : MonoBehaviour
         _stormCard?.EnableInClassList("rp-storm--near", current >= StageNames.Length - 1);
 
         vc_TownStage stage = vc_TownStage.Current;
-        _bannerDay.text = stage != null ? $"Day {stage.Day}  -  {TotalDone(flow)}/{TotalQuests(flow)} quests" : "";
+        _bannerDay.text = stage == null ? ""
+            : vc_FairMode.ThisRun ? $"Quests done: {Mathf.Min(TotalDone(flow), vc_FairMode.TotalQuests)} of {vc_FairMode.TotalQuests}"
+            : $"Day {stage.Day}  -  {TotalDone(flow)}/{TotalQuests(flow)} quests";
         _bannerDay.EnableInClassList("rp-hidden", stage == null);
         UpdateRing(flow, stage, current);
     }
@@ -788,6 +796,15 @@ public class vc_RunProgressUI : MonoBehaviour
                 if (npc.Attempted || npc.Gone) resolved++;
             }
         }
+        if (vc_FairMode.ThisRun && stage != null)   // College Fair mode: 2 of the town's 3 requests
+        {
+            string[] fairIds = vc_FairMode.RequestsFor(stage.stageId);
+            resolved = 0;
+            foreach (vc_TownNPC npc in stage.GetComponentsInChildren<vc_TownNPC>(true))
+                if (npc.HasQuest && npc.Attempted && System.Array.IndexOf(fairIds, npc.QuestId) >= 0) resolved++;
+            built = vc_FairMode.PlayedPerTown;
+            resolved = Mathf.Min(resolved, built);
+        }
         _ring.Progress = built > 0 ? (float)resolved / built : 0f;
         _ring.StageIndex = Mathf.Max(0, current);
         _ringStage.text = current >= 0 ? StageShort[Mathf.Min(current, StageShort.Length - 1)] : "-";
@@ -813,7 +830,7 @@ public class vc_RunProgressUI : MonoBehaviour
         bool lastStage = current >= StageNames.Length - 1;
         _partialAnswered = answered;
         _partialTotal = total;
-        _partialBtn?.EnableInClassList("rp-hidden", total == 0 || answered * 2 < total || (lastStage && stage != null && stage.StageDone));
+        _partialBtn?.EnableInClassList("rp-hidden", vc_FairMode.ThisRun || total == 0 || answered * 2 < total || (lastStage && stage != null && stage.StageDone));
     }
 
     private int _partialAnswered, _partialTotal;

@@ -14,8 +14,8 @@ namespace SunodGame.UI
     /// </summary>
     public partial class MainMenuUIToolkit
     {
-        private VisualElement _debugRow, _labOverlay, _labList, _labTabs;
-        private Button _btnDebugOff, _btnDebugOn, _btnQuestLab;
+        private VisualElement _debugRow, _labOverlay, _labList, _labTabs, _fairRow, _offlineRow;
+        private Button _btnDebugOff, _btnDebugOn, _btnQuestLab, _btnFairOff, _btnFairOn;
         private readonly Dictionary<string, Button[]> _labOptionButtons = new Dictionary<string, Button[]>();
         private string _labStage = "Elementary";
 
@@ -43,6 +43,39 @@ namespace SunodGame.UI
                 choices.Add(_btnDebugOn);
                 _debugRow.Add(choices);
                 gameplay.parent.Insert(gameplay.parent.IndexOf(gameplay) + 1, _debugRow);
+
+                // College Fair mode (vc_FairMode): same admin gate as Debug tools, but saved on
+                // the device; it applies from the next New Game
+                _fairRow = new VisualElement { name = "settings-fair-row" };
+                _fairRow.AddToClassList("settings-row");
+                var fairLabel = new Label("Fair mode");
+                fairLabel.AddToClassList("settings-label");
+                _fairRow.Add(fairLabel);
+                var fairChoices = new VisualElement();
+                fairChoices.AddToClassList("settings-choice-row");
+                _btnFairOff = ChoiceButton("Off", () => SetFairMode(false));
+                _btnFairOn = ChoiceButton("On", () => SetFairMode(true));
+                fairChoices.Add(_btnFairOff);
+                fairChoices.Add(_btnFairOn);
+                _fairRow.Add(fairChoices);
+                gameplay.parent.Insert(gameplay.parent.IndexOf(_debugRow) + 1, _fairRow);
+
+                // offline admin (vc_OfflineSession): this device can play offline as the cached admin
+                _offlineRow = new VisualElement { name = "settings-offline-row" };
+                _offlineRow.AddToClassList("settings-row");
+                var offLabel = new Label("Offline admin");
+                offLabel.AddToClassList("settings-label");
+                _offlineRow.Add(offLabel);
+                var offChoices = new VisualElement();
+                offChoices.AddToClassList("settings-choice-row");
+                offChoices.Add(ChoiceButton("Forget", () =>
+                {
+                    vc_OfflineSession.Forget();
+                    vc_Sfx.Play("click", 0.6f);
+                    RefreshDebugTools();
+                }));
+                _offlineRow.Add(offChoices);
+                gameplay.parent.Insert(gameplay.parent.IndexOf(_fairRow) + 1, _offlineRow);
 
                 // the rows no longer fit every screen: let them scroll under the header
                 VisualElement box = gameplay.parent;
@@ -98,8 +131,21 @@ namespace SunodGame.UI
             RefreshDebugTools();
         }
 
+        private void SetFairMode(bool on)
+        {
+            if (!vc_AdminDebug.CanUse) return;
+            vc_FairMode.Enabled = on;
+            vc_Sfx.Play("click", 0.6f);
+            RefreshDebugTools();
+        }
+
         private void RefreshDebugTools()
         {
+            _fairRow?.SetDisplay(vc_AdminDebug.CanUse);
+            _offlineRow?.SetDisplay(SessionState.Instance != null && SessionState.Instance.IsAdmin && vc_OfflineSession.HasCachedAdmin);
+            bool fair = vc_FairMode.Enabled;
+            _btnFairOff?.EnableInClassList("settings-choice-btn--on", !fair);
+            _btnFairOn?.EnableInClassList("settings-choice-btn--on", fair);
             _debugRow?.SetDisplay(vc_AdminDebug.CanUse);
             bool on = vc_AdminDebug.Enabled;
             _btnDebugOff?.EnableInClassList("settings-choice-btn--on", !on);

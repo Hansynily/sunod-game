@@ -183,7 +183,7 @@ namespace SunodGame.UI
 
             PopulatePlayerCard();
             RefreshContinueAvailability();
-            bool needsConsent = !HasAcceptedPrivacy();
+            bool needsConsent = !vc_OfflineSession.Active && !HasAcceptedPrivacy();   // offline: nothing is collected
             _privacyCheckRead?.SetValueWithoutNotify(false);
             _privacyCheckAgree?.SetValueWithoutNotify(false);
             RefreshPrivacyAgreeButton();
@@ -390,6 +390,7 @@ namespace SunodGame.UI
                 meta => { vc_LoopMeta.Set(meta); go(); },
                 error =>
                 {
+                    if (vc_OfflineSession.Active) { vc_LoopMeta.Set(vc_OfflineSession.FreshLoop()); go(); return; }
                     Debug.LogWarning($"[MainMenu] New-game loop reset failed server-side: {error}");
                     vc_LoopMeta.Clear();
                     go();
@@ -522,6 +523,18 @@ namespace SunodGame.UI
         private void RefreshContinueAvailability()
         {
             SetContinueEnabled(false); // disabled until the fetch resolves
+
+            // Offline admin session: saves live on the server, so no Continue. After an offline
+            // run, Go Back can still be shown (remember screen, then a fresh start).
+            if (vc_OfflineSession.Active)
+            {
+                bool finished = vc_LoopMeta.Current != null && vc_LoopMeta.Current.current_finished;
+                SetGoBackMode(finished);
+                SetContinueEnabled(finished);
+                if (finished && OpenGoBackOnLoad) StartGoBack();
+                OpenGoBackOnLoad = false;
+                return;
+            }
 
             if (TelemetryManager.Instance == null) return;
 
@@ -656,6 +669,11 @@ namespace SunodGame.UI
             if (TelemetryManager.Instance == null)
             {
                 SetStatsError("Not signed in.");
+                return;
+            }
+            if (vc_OfflineSession.Active)
+            {
+                SetStatsError("Playing offline. Nothing is saved.");
                 return;
             }
 

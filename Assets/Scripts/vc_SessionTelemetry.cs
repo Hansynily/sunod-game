@@ -328,6 +328,8 @@ public class vc_SessionTelemetry : MonoBehaviour
 
     public IEnumerator SubmitAndPredict(Action<int> onResult)
     {
+        // offline admin session: no /api/predict (the result comes from the phone)
+        if (vc_OfflineSession.Block("POST /api/predict")) { onResult?.Invoke(-1); yield break; }
         EnsureSessionStarted();
         SessionSummary summary = GetSessionSummary();
         PredictedCluster = -1;
@@ -426,6 +428,7 @@ public class vc_SessionTelemetry : MonoBehaviour
     /// </summary>
     public IEnumerator PreviewPrediction(Action<PredictionResponsePayload> onDone)
     {
+        if (vc_OfflineSession.Block("POST /api/predict (preview)")) { onDone?.Invoke(null); yield break; }
         EnsureSessionStarted();
         RefreshPlayerIdentity();
         SessionSummary summary = GetSessionSummary();
@@ -458,6 +461,16 @@ public class vc_SessionTelemetry : MonoBehaviour
             yield break;
         }
         onDone?.Invoke(JsonUtility.FromJson<PredictionResponsePayload>(request.downloadHandler.text));
+    }
+
+    /// <summary>Offline admin session: the end screen's numbers (quests, stars, time) without sending anything.</summary>
+    public void SubmitLocalMetricsOnly()
+    {
+        EnsureSessionStarted();
+        RefreshPlayerIdentity();
+        SessionSummary s = GetSessionSummary();
+        GameSessionData.ApplySessionMetrics(s.sessionId, s.sessionStartUtc, s.totalTimeSpentSeconds,
+            s.totalQuestCount, s.completedQuestCount, s.totalStarsEarned);
     }
 
     public IEnumerator SubmitRunSummary(Action<RunSummaryTelemetryOut> onSuccess = null, Action<string> onError = null)
@@ -522,6 +535,7 @@ public class vc_SessionTelemetry : MonoBehaviour
         string careerResult,
         Action<string> onError = null)
     {
+        if (vc_OfflineSession.Block("POST session-cluster")) { onError?.Invoke("Offline."); yield break; }
         RefreshPlayerIdentity();
         SessionSummary summary = GetSessionSummary();
         if (string.IsNullOrWhiteSpace(baseUrl))
@@ -594,7 +608,8 @@ public class vc_SessionTelemetry : MonoBehaviour
             session_id = summary.sessionId,
             scene_version = "three_level_v1",
             total_time_spent_seconds = summary.totalTimeSpentSeconds,
-            rounds = new List<ChallengeRoundTelemetryPayload>()
+            rounds = new List<ChallengeRoundTelemetryPayload>(),
+            fair_mode = vc_FairMode.ThisRun,
         };
 
         // The server rejects the whole run summary if two rounds share a challenge_id.

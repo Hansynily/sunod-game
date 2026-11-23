@@ -115,6 +115,8 @@ public class vc_TownFlow : MonoBehaviour
             if (PendingCompletedQuestIds != null)
                 foreach (string id in PendingCompletedQuestIds) MarkQuestDone(id);
         }
+        // A new run: College Fair mode is decided now, for the whole run (Continue keeps it).
+        else vc_FairMode.LockNewRun();
         PendingStartTown = null;
         PendingCompletedQuestIds = null;
 

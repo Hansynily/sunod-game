@@ -142,13 +142,17 @@ public class vc_CareerFairQuest : vc_FitQuestBase
             if (_player == null) return;
         }
 
-        Vector3 p = student.transform.position;
+        // Walk on an unsnapped position and only snap what's drawn: snapping the walk itself
+        // threw away any step under half a pixel, so at high frame rates the student never moved.
+        Vector3 p = _followPos;
         Vector3 target = _player.position;
+        target.z = p.z;
         float d = Vector2.Distance(p, target);
         if (d > followDistance)
         {
             Vector3 next = Vector3.MoveTowards(p, target, followSpeed * Time.deltaTime);
             Face(next - p);
+            _followPos = next;
             student.transform.position = Snap(next);
             Animate();
         }
@@ -183,10 +187,13 @@ public class vc_CareerFairQuest : vc_FitQuestBase
         Toast("They need someone to guide them.", 2.2f);
     }
 
+    private Vector3 _followPos;
+
     private void StartGuide()
     {
         CancelWork();
         _following = true;
+        _followPos = student.transform.position;
         Fx(new[] { bubbleSmile }, student.transform.position + new Vector3(0f, 1.2f, 0f), 1.4f, 0.15f, 26);
         Fx(heartFrames, student.transform.position + new Vector3(0.3f, 0.9f, 0f), 3f, 0.4f, 26);
         SunodGame.Core.vc_Sfx.Play("step_done", 0.5f);

@@ -59,6 +59,8 @@ namespace SunodGame.UI
             root.Q<Label>("lbl-top-traits").text    = GetTopTraits();
             // out of everyone in the 3 towns (16 each); not a target - nobody can help all 48
             int questsOutOf = Mathf.Max(48, GameSessionData.rounds_attempted);
+            bool fair = vc_FairMode.ThisRun;   // College Fair mode: the short 6-quest run
+            if (fair) questsOutOf = vc_FairMode.TotalQuests;
             Label quests = root.Q<Label>("lbl-quests");
             Label stars  = root.Q<Label>("lbl-stars");
             quests.text = $"{GameSessionData.rounds_cleared} of {questsOutOf}";
@@ -82,11 +84,13 @@ namespace SunodGame.UI
             _btnSurveyLink = root.Q<Button>("btn-survey-link");
 
             _btnPlayAgain? .RegisterCallback<ClickEvent>(OnPlayAgainClicked);
-            _btnMainMenu?  .RegisterCallback<ClickEvent>(OnMainMenuClicked);
+            if (fair) _btnMainMenu?.RegisterCallback<ClickEvent>(OnNextVisitorClicked);
+            else _btnMainMenu?.RegisterCallback<ClickEvent>(OnMainMenuClicked);
             _btnSurveyLink?.RegisterCallback<ClickEvent>(OnSurveyLinkClicked);
 
+            if (fair) ApplyFairLayout(root);
             PlayEntrance(root, quests, stars, questsOutOf);
-            ShowLoopPaths(root);
+            if (!fair) ShowLoopPaths(root);
         }
 
         /// <summary>
@@ -157,9 +161,82 @@ namespace SunodGame.UI
             if (actions != null) vc_UIAnim.Stagger(actions.Children(), vc_UIAnim.Enter.SlideUp, 0.06f, 0.75f);
         }
 
+        // ── College Fair mode (vc_FairMode) ─────────────────────────────────
+
+        /// <summary>
+        /// The fair version of the results: "Your quick path" from 6 quests, the letters the
+        /// visitor chose, and a pitch for the full game with the download QR. Buttons: Go Back
+        /// (the roguelite, for judges) and Next visitor (a clean reset, no logout).
+        /// </summary>
+        private void ApplyFairLayout(VisualElement root)
+        {
+            Label header = root.Q<VisualElement>("result-panel")?.Q<Label>(className: "header-text");
+            if (header != null) header.text = "Your quick path";
+            VisualElement career = root.Q<VisualElement>("career-section");
+            Label sub = career?.Q<Label>(className: "recommended-label");
+            if (sub != null) sub.text = "from 6 quests";
+            Label note = career?.Q<Label>(className: "riasec-note");
+            string chosen = vc_FairMode.ChosenLetters();
+            if (note != null) note.text = string.IsNullOrEmpty(chosen) ? "From your RIASEC profile." : "You chose: " + chosen;
+
+            // the pitch, in the website card's place beside the result
+            VisualElement card = root.Q<VisualElement>("survey-card");
+            if (card != null)
+            {
+                card.Clear();
+                card.AddToClassList("fair-pitch");
+                var head = new Label("You helped 6. There are 42 more who need you.");
+                head.AddToClassList("sn-body");
+                head.AddToClassList("sn-bold");
+                head.style.whiteSpace = WhiteSpace.Normal;
+                head.style.unityTextAlign = TextAnchor.MiddleCenter;
+                head.style.marginBottom = 8;
+                card.Add(head);
+                var body = new Label("This was the short version. The full game has all 48 townsfolk, every loop, and a career path that comes from every choice you make. Free on Android.");
+                body.AddToClassList("sn-caption");
+                body.style.whiteSpace = WhiteSpace.Normal;
+                body.style.unityTextAlign = TextAnchor.MiddleCenter;
+                body.style.marginBottom = 8;
+                body.style.fontSize = 17;
+                card.Add(body);
+                Texture2D qrTex = Resources.Load<Texture2D>("Fair/apk_qr");
+                if (qrTex != null)
+                {
+                    var qr = new VisualElement { name = "fair-qr" };
+                    qr.style.width = 150; qr.style.height = 150;
+                    qr.style.alignSelf = Align.Center;
+                    qr.style.backgroundColor = Color.white;
+                    qr.style.backgroundImage = new StyleBackground(qrTex);
+                    qr.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
+                    card.Add(qr);
+                }
+                var cap = new Label("Scan to keep playing");
+                cap.AddToClassList("sn-caption");
+                cap.style.unityTextAlign = TextAnchor.MiddleCenter;
+                cap.style.marginTop = 6;
+                card.Add(cap);
+            }
+
+            if (_btnPlayAgain != null) _btnPlayAgain.text = "Go Back";
+            if (_btnMainMenu != null) _btnMainMenu.text = "New game";
+        }
+
+        private bool _resetting;
+
+        private void OnNextVisitorClicked(ClickEvent _)
+        {
+            if (_resetting) return;
+            _resetting = true;
+            _btnMainMenu?.SetEnabled(false);
+            _btnPlayAgain?.SetEnabled(false);
+            TelemetryManager.Instance?.TagButtonClick("FairNextVisitor");
+            StartCoroutine(vc_FairMode.ResetForNextVisitor());
+        }
+
         private void OnDisable()
         {
             _btnPlayAgain? .UnregisterCallback<ClickEvent>(OnPlayAgainClicked);
+            _btnMainMenu?  .UnregisterCallback<ClickEvent>(OnNextVisitorClicked);
             _btnMainMenu?  .UnregisterCallback<ClickEvent>(OnMainMenuClicked);
             _btnSurveyLink?.UnregisterCallback<ClickEvent>(OnSurveyLinkClicked);
         }

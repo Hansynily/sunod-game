@@ -146,6 +146,8 @@ namespace SunodGame.UI
         private static void BeginLoop(List<string> kept, List<string> carried, System.Action<string> reply)
         {
             TelemetryManager tm = TelemetryManager.Instance;
+            // offline admin session: Go Back is for show - nothing to start on the server
+            if (vc_OfflineSession.Active) { vc_SaveManager.DeleteSave(); reply(null); return; }
             if (tm == null) { reply("Not signed in."); return; }
 
             vc_SaveManager.DeleteSave();
@@ -167,6 +169,8 @@ namespace SunodGame.UI
 
         private static void StartLoopRun()
         {
+            // offline admin session: loop 2 isn't kept offline - back to a fresh start instead
+            if (vc_OfflineSession.Active) { vc_OfflineSession.Run(vc_FairMode.ResetForNextVisitor()); return; }
             vc_SessionTelemetry.Instance?.StartSession();
             SceneLoader.GoToPlay();
         }

@@ -121,6 +121,7 @@ namespace SunodGame.Models
         public string scene_version = "single_room_v1";
         public float total_time_spent_seconds;
         public List<ChallengeRoundTelemetryPayload> rounds = new();
+        public bool fair_mode;   // College Fair mode run: server scores letters from quests only
     }
 
     [Serializable]
@@ -261,6 +262,7 @@ namespace SunodGame.Models
         public string floor_scene;
         public bool tutorial_completed;
         public bool run_finished;
+        public bool fair_mode;   // College Fair mode run (vc_FairMode)
     }
 
     [Serializable]

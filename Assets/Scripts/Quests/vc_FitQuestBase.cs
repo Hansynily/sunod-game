@@ -377,6 +377,8 @@ public abstract class vc_FitQuestBase : MonoBehaviour, vc_IQuestLogic
         if (UsesSkillSystem && perQuest > 0 && Stage <= 1) _pressesTotal = Mathf.Max(1, _pressesTotal - 1);
         // Papa's Hammer keepsake: +1 press on every quest (+2 at Lv2). Same for every kind.
         if (UsesSkillSystem) _pressesTotal += vc_LoopMeta.Level("hammer");
+        // College Fair mode: fresh players at Lv1 get 2 spare presses (the timer is unchanged)
+        if (UsesSkillSystem && vc_FairMode.ThisRun) _pressesTotal += vc_FairMode.ExtraPresses;
         _pressesLeft = _pressesTotal;
         _prepared = _prepping = false;
         _prepSkill = _workSkill = null;

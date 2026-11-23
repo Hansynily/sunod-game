@@ -429,6 +429,7 @@ public class vc_QuestRoom : MonoBehaviour
                 ? SunodGame.Core.vc_FloorLoader.Instance.CurrentFloorScene
                 : (!string.IsNullOrEmpty(sceneName) ? sceneName : UnityEngine.SceneManagement.SceneManager.GetActiveScene().name),
             tutorial_completed = data.tutorialComplete,
+            fair_mode = vc_FairMode.ThisRun,
         };
 
         var riasec = new Dictionary<string, float>();

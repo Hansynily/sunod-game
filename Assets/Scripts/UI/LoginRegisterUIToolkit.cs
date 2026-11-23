@@ -153,6 +153,7 @@ namespace SunodGame.UI
             ShowLogin();
             SetLoading(false);
             ApplyDevBackendVisibility();
+            BuildOfflineButtons();
 
             // UI V2: squish on every button, gentle float on the logos
             vc_UIAnim.PressAll(root);
@@ -313,7 +314,74 @@ namespace SunodGame.UI
                 username,
                 password,
                 onResolved: (auth) => { SetLoading(false); HandleLoginResolved(auth); },
-                onError:    (err)  => { SetLoading(false); ShowError(_lblErrorLogin, err); });
+                onError:    (err)  => { SetLoading(false); ShowError(_lblErrorLogin, err); CheckServerForOffline(); });
+        }
+
+        // ============================
+        // Play offline (vc_OfflineSession: College Fair booth phone)
+        // ============================
+        // Only on a device where an admin once logged in online. "Play offline as <name>" sits
+        // in the DEV backend panel, and on the login screen itself whenever the server can't
+        // be reached. Devices without that cache see nothing new.
+
+        private Button _btnOfflineDev, _btnOfflineLogin;
+
+        private void BuildOfflineButtons()
+        {
+            // the DEV panel (already hidden behind 5 taps on the logo) always has it
+            if (_panelBackend != null && _btnOfflineDev == null)
+            {
+                string devLabel = "Play as Adventurer";   // the College Fair visitor session (no account)
+                _btnOfflineDev = new Button(PlayOfflineFromDev) { name = "btn-play-offline-dev", text = devLabel };
+                if (_btnBackendSave != null) foreach (string c in _btnBackendSave.GetClasses()) _btnOfflineDev.AddToClassList(c);
+                _btnOfflineDev.style.marginTop = 10;
+                VisualElement host = _btnBackendSave != null && _btnBackendSave.parent != null ? _btnBackendSave.parent.parent ?? _btnBackendSave.parent : _panelBackend;
+                host.Add(_btnOfflineDev);
+            }
+
+            // the login screen itself: only on a device where an admin logged in online
+            if (!vc_OfflineSession.HasCachedAdmin) return;
+            string label = "Play as Adventurer";
+            if (_btnLogin != null && _btnLogin.parent != null && _btnOfflineLogin == null)
+            {
+                _btnOfflineLogin = new Button(PlayOffline) { name = "btn-play-offline", text = label };
+                foreach (string c in _btnLogin.GetClasses()) _btnOfflineLogin.AddToClassList(c);
+                _btnOfflineLogin.style.marginTop = 8;
+                _btnOfflineLogin.style.alignSelf = Align.Stretch;
+                _btnOfflineLogin.style.display = DisplayStyle.None;   // only once the server can't be reached
+                // its own line under the Login button's row (that row is laid out side by side)
+                VisualElement row = _btnLogin.parent;
+                VisualElement host = row.parent ?? row;
+                if (host == row) row.Insert(row.IndexOf(_btnLogin) + 1, _btnOfflineLogin);
+                else host.Insert(host.IndexOf(row) + 1, _btnOfflineLogin);
+            }
+            CheckServerForOffline();
+        }
+
+        private void CheckServerForOffline()
+        {
+            if (_btnOfflineLogin == null || !vc_OfflineSession.HasCachedAdmin || TelemetryManager.Instance == null) return;
+            TelemetryManager.Instance.PingServer(ok =>
+            {
+                if (this == null || _btnOfflineLogin == null) return;
+                bool show = !ok;
+                if (show && _btnOfflineLogin.style.display == DisplayStyle.None) vc_UIAnim.Show(_btnOfflineLogin, vc_UIAnim.Enter.Pop);
+                else if (!show) _btnOfflineLogin.style.display = DisplayStyle.None;
+            });
+        }
+
+        private void PlayOfflineFromDev()
+        {
+            if (!vc_OfflineSession.Start(true)) return;
+            SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+            SceneLoader.GoToMainMenu();
+        }
+
+        private void PlayOffline()
+        {
+            if (!vc_OfflineSession.Start()) return;
+            SunodGame.Core.vc_Sfx.Play("click", 0.6f);
+            SceneLoader.GoToMainMenu();
         }
 
         private void HandleLoginResolved(AuthResponse auth)

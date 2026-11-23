@@ -108,6 +108,25 @@ public class vc_EndRunUI : MonoBehaviour
             yield break;
         }
 
+        // Offline admin session: nothing is sent; the result is worked out on the phone (any run)
+        if (vc_OfflineSession.Active)
+        {
+            vc_SessionTelemetry.Instance?.SubmitLocalMetricsOnly();
+            vc_FairMode.ApplyLocalResult();
+            vc_OfflineSession.FinishLoopLocally();
+            yield return FinalizeRun();
+            GoToEndThroughDisaster();
+            yield break;
+        }
+
+        if (vc_FairMode.ThisRun)
+        {
+            yield return SubmitFairRun(telemetry);
+            yield return FinalizeRun();
+            GoToEndThroughDisaster();
+            yield break;
+        }
+
         Debug.Log("[vc_EndRunUI] Submitting run summary to backend...");
         yield return telemetry.SubmitRunSummary(
             success => Debug.Log("[vc_EndRunUI] Run summary submitted successfully."),
@@ -125,9 +144,39 @@ public class vc_EndRunUI : MonoBehaviour
     /// The end of a loop: this loop's threat strikes (a short cutscene), then the results.
     /// Falls straight through to the results in the corridor version or with no threat.
     /// </summary>
+    /// <summary>
+    /// College Fair mode: the same two server calls, each with a time limit. If either fails
+    /// or runs out of time, the result is worked out on the phone (vc_FairMode.ApplyLocalResult),
+    /// so the visitor never sees an error screen.
+    /// </summary>
+    private IEnumerator SubmitFairRun(vc_SessionTelemetry telemetry)
+    {
+        bool summaryOk = false, summaryDone = false;
+        StartCoroutine(telemetry.SubmitRunSummary(
+            _ => { summaryOk = true; summaryDone = true; },
+            e => { Debug.LogWarning($"[vc_EndRunUI] Fair run summary failed: {e}"); summaryDone = true; }));
+        for (float t = 0f; !summaryDone && t < 12f; t += Time.unscaledDeltaTime) yield return null;
+
+        int cluster = -1;
+        bool predictDone = false;
+        if (summaryOk)
+        {
+            StartCoroutine(telemetry.SubmitAndPredict(c => { cluster = c; predictDone = true; }));
+            for (float t = 0f; !predictDone && t < 15f; t += Time.unscaledDeltaTime) yield return null;
+        }
+
+        if (!summaryOk || !predictDone || cluster < 0)
+        {
+            Debug.LogWarning("[vc_EndRunUI] Fair run: server result missing, using the on-phone result.");
+            vc_FairMode.ApplyLocalResult();
+        }
+    }
+
     private static void GoToEndThroughDisaster()
     {
         string threat = vc_LoopMeta.Threat;
+        // a fair run (and any offline run) always ends with the disaster, even when the loop record never loaded
+        if (vc_FairMode.ThisRun || vc_OfflineSession.Active) threat = vc_FairMode.ThreatOrDefault(threat);
         if (SceneLoader.UseTownFlow && !string.IsNullOrEmpty(threat)
             && SunodGame.Cutscene.vc_CutscenePlayer.Play("Threat_" + threat, SceneLoader.GoToEnd))
             return;
@@ -142,6 +191,9 @@ public class vc_EndRunUI : MonoBehaviour
     private IEnumerator FinalizeRun()
     {
         vc_SaveManager.DeleteSave();
+        // offline admin session: no server flag and no "pending" flag for later - it must never
+        // land on the real account once the connection is back
+        if (vc_OfflineSession.Active) yield break;
 
         var telemetryManager = SunodGame.Telemetry.TelemetryManager.Instance;
         if (telemetryManager == null)

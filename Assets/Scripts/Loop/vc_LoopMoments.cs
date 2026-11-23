@@ -26,7 +26,21 @@ public partial class vc_LoopMoments : MonoBehaviour
     {
         get
         {
-            if (_instance != null) return _instance;
+            if (_instance != null)
+            {
+                // The results screen switches off every carried-over UI document (EndScene
+                // DisableCarryoverUI) and only a new run turns them back on. Go Back from the
+                // results needs this overlay before that: switch it back on and rebuild it.
+                UIDocument own = _instance.GetComponent<UIDocument>();
+                if (own != null && !own.enabled
+                    && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != SunodGame.Core.SceneLoader.SCENE_END)
+                {
+                    own.enabled = true;
+                    _instance.enabled = false;
+                    _instance.enabled = true;   // OnEnable builds the stage again on the new root
+                }
+                return _instance;
+            }
             PanelSettings panel = null;
             foreach (UIDocument d in FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                 if (d.panelSettings != null) { panel = d.panelSettings; break; }

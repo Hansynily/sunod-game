@@ -82,6 +82,17 @@ namespace SunodGame.Core
             Debug.Log($"[Session] Username set -> {Username}  PlayerID -> {PlayerId}");
 
             PersistCredentials();
+            RememberIfOfflineAdmin();
+        }
+
+        /// <summary>
+        /// An admin logged in online (with a real token): this device may later play offline as
+        /// them (vc_OfflineSession). Only the username, name and player id are kept.
+        /// </summary>
+        private void RememberIfOfflineAdmin()
+        {
+            if (IsAdmin && !string.IsNullOrWhiteSpace(AccessToken) && !vc_OfflineSession.Active)
+                vc_OfflineSession.RememberAdmin(Username, Name, AuthPlayerId);
         }
 
         private void PersistCredentials()
@@ -136,6 +147,7 @@ namespace SunodGame.Core
         {
             Role = string.IsNullOrWhiteSpace(role) ? "user" : role.Trim();
             if (!string.IsNullOrWhiteSpace(AccessToken)) { PlayerPrefs.SetString(PrefKeyRole, Role); PlayerPrefs.Save(); }
+            RememberIfOfflineAdmin();
         }
 
         public void SetTutorialCompletionState(bool hasCompletedTutorial)
@@ -145,6 +157,7 @@ namespace SunodGame.Core
 
         public void ClearUser()
         {
+            vc_OfflineSession.End();   // logging out ends an offline session (the device cache stays)
             Username = null;
             AuthPlayerId = null;
             AccessToken = null;

@@ -125,6 +125,15 @@ public class vc_PauseMenu : MonoBehaviour
         _btnExitYes?.RegisterCallback<ClickEvent>(_ => HandleExitConfirmed());
         _btnExitNo?.RegisterCallback<ClickEvent>(_ => ShowMainButtons());
 
+        // College Fair mode: start over for the next visitor (built in code, fair runs only)
+        if (_mainBtns != null && _btnExit != null && _btnRestartFair == null)
+        {
+            _btnRestartFair = new Button(RequestRestartForNextVisitor) { name = "btn-restart-fair", text = "Start over" };
+            foreach (string cls in _btnExit.GetClasses()) _btnRestartFair.AddToClassList(cls);
+            _btnExit.parent.Add(_btnRestartFair);
+            _btnRestartFair.SetDisplay(false);
+        }
+
         // Reset to clean closed state
         _pauseOverlay?.SetDisplay(false);
         _confirmPanel?.SetDisplay(false);
@@ -167,6 +176,7 @@ public class vc_PauseMenu : MonoBehaviour
         }
 
         _pauseOpen = true;
+        _btnRestartFair?.SetDisplay(vc_FairMode.ThisRun);
         _sfxSlider?.SetValueWithoutNotify(vc_PlayerOptions.SfxVolume);
         _musicSlider?.SetValueWithoutNotify(vc_PlayerOptions.MusicVolume);
         RefreshZoomSlider();
@@ -208,6 +218,8 @@ public class vc_PauseMenu : MonoBehaviour
         string text = null;
         if (inQuest)
             text = "Quitting now fails this quest.";
+        else if (stage != null && vc_OfflineSession.Active)
+            text = "Playing offline. Nothing is saved.";
         else if (stage != null)
             text = $"Saved. You'll continue on Day {stage.Day}.";
         _notice.text = text ?? string.Empty;
@@ -281,6 +293,23 @@ public class vc_PauseMenu : MonoBehaviour
             // because DialogPanel.Hide() re-enables it on close.
             onCancel:     () => _player?.MoveAction.Disable()
         );
+    }
+
+    private Button _btnRestartFair;
+
+    /// <summary>Fair run: someone walked away. Wipe the run and loops (like New Game) and go to the menu.</summary>
+    private void RequestRestartForNextVisitor()
+    {
+        vc_DialogPanel dialog = vc_DialogPanel.Instance ?? FindFirstObjectByType<vc_DialogPanel>();
+        System.Action restart = () =>
+        {
+            ClosePauseMenu();
+            _player?.MoveAction.Disable();
+            StartCoroutine(vc_FairMode.ResetForNextVisitor());
+        };
+        if (dialog == null) { restart(); return; }
+        dialog.ShowChoice("Start over?", "This run ends and a new one starts.", null,
+            "Start over", "Stay", restart, () => _player?.MoveAction.Disable());
     }
 
     private void HandleExitConfirmed()

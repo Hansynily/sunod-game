@@ -123,6 +123,8 @@ namespace SunodGame.Core
 
         private IEnumerator GetAuthorized(string path, string accessToken, Action<bool> onResult)
         {
+            if (vc_OfflineSession.Block("GET " + path)) { onResult?.Invoke(false); yield break; }   // offline admin session: never sent
+
             string requestUrl = GetBaseUrl() + path;
 
             using var req = UnityWebRequest.Get(requestUrl);
@@ -182,6 +184,8 @@ namespace SunodGame.Core
                                      Action<AuthResponse> onResolved,
                                      Action<string> onError)
         {
+            if (vc_OfflineSession.Block("POST " + path)) { onError?.Invoke("Offline."); yield break; }   // offline admin session: never sent
+
             string requestUrl = GetBaseUrl() + path;
             Debug.Log($"[Auth] POST {requestUrl}");
 
@@ -227,6 +231,8 @@ namespace SunodGame.Core
                                                Action<TutorialCompletionResponse> onResolved,
                                                Action<string> onError)
         {
+            if (vc_OfflineSession.Block("POST " + path)) { onError?.Invoke("Offline."); yield break; }   // offline admin session: never sent
+
             string requestUrl = GetBaseUrl() + path;
             Debug.Log($"[Auth] POST {requestUrl}");
 

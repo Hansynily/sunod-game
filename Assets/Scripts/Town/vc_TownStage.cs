@@ -103,7 +103,21 @@ public class vc_TownStage : MonoBehaviour
     /// <summary>A town event's cutscene holds the town like the sleep cutscene does (no prompts, no hint arrow).</summary>
     public void SetBusy(bool busy) { _busy = busy; RefreshTownControls(); }
     public int Day => _day;
-    public int Energy => Mathf.Max(0, questsPerDay + BanderitasEnergy - _questsToday);
+    public int Energy => Fair ? Mathf.Max(0, vc_FairMode.PlayedPerTown - FairPlayed)
+        : Mathf.Max(0, questsPerDay + BanderitasEnergy - _questsToday);
+    /// <summary>College Fair mode run (vc_FairMode): 1 day per town, 3 fixed requests, play 2.</summary>
+    private static bool Fair => vc_FairMode.ThisRun;
+    /// <summary>Fair run: how many of this town's fair requests were played (passed or failed).</summary>
+    private int FairPlayed
+    {
+        get
+        {
+            string[] ids = vc_FairMode.RequestsFor(stageId);
+            return _npcs.Count(n => n.HasQuest && n.Attempted && System.Array.IndexOf(ids, n.QuestId) >= 0);
+        }
+    }
+    /// <summary>Energy shown on the chip: the day's full energy.</summary>
+    private int EnergyMax => Fair ? vc_FairMode.PlayedPerTown : questsPerDay;
     /// <summary>Banderitas keepsake (from the fiesta): +1 energy on day 1 of each town.</summary>
     private int BanderitasEnergy => _day == 1 && vc_LoopMeta.HasMemento("banderitas") ? 1 : 0;
     public int BuiltQuestCount => _npcs.Count(n => n.HasQuest);
@@ -115,7 +129,7 @@ public class vc_TownStage : MonoBehaviour
     public IReadOnlyList<vc_TownNPC> TodayRequests => _today;
     /// <summary>Every quest giver in this town.</summary>
     public IReadOnlyList<vc_TownNPC> QuestGivers => _npcs;
-    public bool StageDone => BuiltQuestCount > 0 && OpenCount == 0;
+    public bool StageDone => Fair ? FairPlayed >= vc_FairMode.PlayedPerTown : BuiltQuestCount > 0 && OpenCount == 0;
 
     /// <summary>
     /// Where the player wakes up: in front of their home. Before the first night of a stage,
@@ -273,6 +287,11 @@ public class vc_TownStage : MonoBehaviour
                     ? $"{abandoned[0]}'s quest counts as failed."
                     : $"{abandoned.Count} unfinished quests count as failed.",
                 null);
+        else if (Fair && AttemptedCount == 0 && stageId == "elementary")
+            vc_DialogPanel.Instance?.ShowMessage("How to play",
+                "Move with the stick.\nWalk up to someone with \"!\" and tap Talk.\nUse a skill in the glowing zone.", null);
+        else if (Fair && AttemptedCount == 0)
+            vc_QuestHUD.Instance?.ShowFeedbackTimed($"{stageTitle}: help 2 people", 2.5f);
         else if (!string.IsNullOrEmpty(introLine) && AttemptedCount == 0 && _day == 1)
             vc_DialogPanel.Instance?.ShowMessage($"{stageTitle} - Day {_day}", introLine, null);
         else
@@ -358,6 +377,16 @@ public class vc_TownStage : MonoBehaviour
     private List<vc_TownNPC> RollRequests(int day)
     {
         var list = new List<vc_TownNPC>();
+        if (Fair)
+        {
+            // College Fair mode: this town's 3 fixed requests (one each of 3 letters), every time.
+            foreach (string id in vc_FairMode.RequestsFor(stageId))
+            {
+                vc_TownNPC npc = System.Array.Find(_npcs, n => n.HasQuest && n.QuestId == id);
+                if (npc != null && !(StageDone && npc.IsOpen)) list.Add(npc);
+            }
+            return list;
+        }
         foreach (vc_TownNPC npc in _npcs)
             if (npc.HasQuest && vc_TownFlow.IsQuestDone(RequestMarker(day, npc.QuestId)))
                 list.Add(npc);
@@ -574,7 +603,8 @@ public class vc_TownStage : MonoBehaviour
         if (arrow == null) return;
 
         // Old Compass keepsake: the arrow shows up after a few seconds instead of hintArrowDelay.
-        float delay = vc_LoopMeta.HasMemento("compass") ? Mathf.Min(hintArrowDelay, 6f) : hintArrowDelay;
+        float delay = Fair ? vc_FairMode.HintArrowDelay
+            : vc_LoopMeta.HasMemento("compass") ? Mathf.Min(hintArrowDelay, 6f) : hintArrowDelay;
         bool allowed = !_inQuest && !_busy && Energy > 0 && RequestsLeftToday > 0 && Time.time - _lastTalkTime > delay;
         // Old Compass Lv2: also points toward today's town event (events don't need energy).
         Transform eventHost = vc_LoopMeta.Level("compass") == 2 ? GetComponent<vc_TownEvents>()?.PendingHost : null;
@@ -648,7 +678,7 @@ public class vc_TownStage : MonoBehaviour
                 : vc_LoopMeta.MemoryOpener(npc.QuestId, npc.QuestId.GetHashCode() & 0x7fffffff);
             ask = opener + "\n\n" + ask;
         }
-        ask += RecommendedLine(npc.questCode);
+        if (!Fair) ask += RecommendedLine(npc.questCode);
         ask += NotebookLine(npc);
 
         // Only Help / Later: every quest gets played (pass or fail), nobody is turned down.
@@ -981,7 +1011,14 @@ public class vc_TownStage : MonoBehaviour
         RefreshTownControls();
         vc_TownFlow.RaiseProgressChanged();
 
-        if (StageDone) { CheckStageComplete(); return; }
+        if (StageDone)
+        {
+            if (Fair)
+                foreach (vc_TownNPC n in _today)
+                    if (n.IsOpen) n.SetVisible(false);
+            CheckStageComplete();
+            return;
+        }
         if (Energy <= 0) { StartCoroutine(EndDayAfterMessages()); return; }
         if (RequestsLeftToday == 0)
             vc_QuestHUD.Instance?.ShowFeedbackTimed("No one else needs help today. Tap Sleep to rest.", 3f);
@@ -1032,7 +1069,7 @@ public class vc_TownStage : MonoBehaviour
         RefreshTownControls();
         string kinds = DescribeKinds(_usageToday);
         int failed = _questsToday - _passedToday;
-        int left = OpenCount;
+        int left = Fair ? 0 : OpenCount;
         string body =
             $"People helped today: {_questsToday}" + (failed > 0 ? $"  ({_passedToday} done, {failed} failed)" : "") + "\n" +
             $"Stars earned: {_starsToday}\n" +
@@ -1429,13 +1466,17 @@ public class vc_TownStage : MonoBehaviour
         int waiting = RequestsLeftToday;
         string step;
         if (BuiltQuestCount > 0 && StageDone) step = "Go to the next stage.";
-        else if (waiting > 0 && Energy > 0) step = waiting == 1 ? "1 person needs help." : $"{waiting} people need help.";
+        else if (waiting > 0 && Energy > 0)
+        {
+            if (Fair) waiting = Mathf.Min(waiting, Energy);   // fair run: only as many as you can still help
+            step = waiting == 1 ? "1 person needs help." : $"{waiting} people need help.";
+        }
         else step = "Tap Sleep.";
 
         vc_QuestHUD.Instance.ShowQuestInfo(
-            $"Day {_day}  -  Energy {Energy}/{questsPerDay}",
+            Fair ? $"Energy {Energy}/{EnergyMax}" : $"Day {_day}  -  Energy {Energy}/{questsPerDay}",
             stageTitle,
-            $"Quests: {AttemptedCount}/{BuiltQuestCount}",
+            Fair ? $"{System.Math.Min(FairPlayed, vc_FairMode.PlayedPerTown)} of {vc_FairMode.PlayedPerTown} done" : $"Quests: {AttemptedCount}/{BuiltQuestCount}",
             new[] { step });
     }
 
@@ -1443,8 +1484,9 @@ public class vc_TownStage : MonoBehaviour
     {
         vc_RunProgressUI ui = vc_RunProgressUI.Instance;
         if (ui == null) return;
-        ui.SetEnergy(Energy, questsPerDay);
-        ui.SetSleepVisible(!_inQuest && !_busy && !_stageCompleted && BuiltQuestCount > 0);
+        ui.SetEnergy(Energy, EnergyMax);
+        // fair run: one day per town, so no Sleep (the next-stage button does the night)
+        ui.SetSleepVisible(!Fair && !_inQuest && !_busy && !_stageCompleted && BuiltQuestCount > 0);
         bool canSleep = !_inQuest && !_busy && !_stageCompleted && BuiltQuestCount > 0;
         ui.SetSleepGlow(canSleep && !(BuiltQuestCount > 0 && StageDone) && (Energy <= 0 || RequestsLeftToday == 0));
     }
@@ -1466,7 +1508,7 @@ public class vc_TownStage : MonoBehaviour
     {
         vc_RunProgressUI ui = vc_RunProgressUI.Instance;
         if (ui == null) return;
-        if (_inQuest || (BuiltQuestCount > 0 && OpenCount > 0)) { ui.HideNextStageButton(); return; }
+        if (_inQuest || (Fair ? !StageDone : BuiltQuestCount > 0 && OpenCount > 0)) { ui.HideNextStageButton(); return; }
 
         int idx = vc_TownFlow.Instance != null ? vc_TownFlow.Instance.CurrentStageIndex : -1;
         bool last = idx < 0 || idx + 1 >= vc_TownFlow.TownScenes.Length;
@@ -1504,6 +1546,14 @@ public class vc_TownStage : MonoBehaviour
         // the "Go to ..." button when they're ready.
         _stageDoneAnnounced = true;
         RefreshTownControls();
+        if (Fair)
+        {
+            int fairIdx = vc_TownFlow.Instance != null ? vc_TownFlow.Instance.CurrentStageIndex : -1;
+            bool fairLast = fairIdx < 0 || fairIdx + 1 >= vc_TownFlow.TownScenes.Length;
+            vc_DialogPanel.Instance?.ShowMessage($"{stageTitle} done!",
+                fairLast ? "Tap the button at the top to see your path." : "Nice! Tap the button at the top to grow up.", null);
+            return;
+        }
         string line = string.IsNullOrEmpty(completeLine) ? "You've helped everyone here. Time to grow up!" : completeLine;
         vc_DialogPanel.Instance?.ShowMessage($"{stageTitle} done!", line + "\n\nTap the button at the top when you're ready to move on.", null);
     }

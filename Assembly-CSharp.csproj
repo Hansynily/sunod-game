@@ -108,6 +108,7 @@
     <Compile Include="Assets\Scripts\Quests\vc_ClassSongQuest.cs" />
     <Compile Include="Assets\Scripts\vc_MarkerGlow.cs" />
     <Compile Include="Assets\Scripts\UI\vc_FloatingJoystick.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_OfflineRunner.cs" />
     <Compile Include="Assets\Scripts\Debug\vc_DebugMenu.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_ChoirPracticeQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_UITheme.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="Assets\Scripts\SkillSystem\vc_QuestSkillProfile.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_SupplyKeyQuest.cs" />
     <Compile Include="Assets\Scripts\UI\vc_MainMenuBackground.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_OfflineSession.cs" />
     <Compile Include="Assets\Scripts\Core\vc_AppStartup.cs" />
     <Compile Include="Assets\Scripts\NPC\vc_NPC_Follow.cs" />
     <Compile Include="Assets\Scripts\Demo\ChallengeSessionController.Telemetry.cs" />
@@ -312,6 +314,7 @@
     <Compile Include="Assets\Scripts\Skills\RIASEC\SkillDefinitions.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_MinigameQuest.cs" />
     <Compile Include="Assets\Scripts\Loop\vc_LoopMoments.Pockets.cs" />
+    <Compile Include="Assets\Scripts\Core\vc_FairMode.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_RabbitWatchQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\vc_StoryTimeQuest.cs" />
     <Compile Include="Assets\Scripts\Core\vc_SpawnPoint.cs" />

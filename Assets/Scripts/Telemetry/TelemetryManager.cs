@@ -260,6 +260,7 @@ namespace SunodGame.Telemetry
                                                       Action<TRes>   onSuccess,
                                                       Action<string> onError)
         {
+            if (vc_OfflineSession.Block("GET " + path)) { onError?.Invoke("Offline."); yield break; }   // offline admin session: never sent
             string requestUrl = ActiveBaseUrl + path;
             Debug.Log($"[Telemetry] GET {requestUrl}");
 
@@ -307,6 +308,7 @@ namespace SunodGame.Telemetry
                                                    Action<RunStateResponse, Dictionary<string, float>> onSuccess,
                                                    Action<string> onError)
         {
+            if (vc_OfflineSession.Block("GET run-state")) { onError?.Invoke("Offline."); yield break; }   // offline admin session: never sent
             string requestUrl = ActiveBaseUrl + "/api/telemetry/users/me/run-state";
             using var req = UnityWebRequest.Get(requestUrl);
             req.SetRequestHeader("Authorization", $"Bearer {accessToken}");
@@ -332,6 +334,8 @@ namespace SunodGame.Telemetry
         {
             // Quest Lab (admin debug): a sandbox, nothing is saved or sent
             if (vc_AdminDebug.LabActive) return;
+            // offline admin session: no checkpoint, and nothing queued for later
+            if (vc_OfflineSession.Block("run-state checkpoint")) { onError?.Invoke("Offline."); return; }
 
             if (SessionState.Instance == null || string.IsNullOrWhiteSpace(SessionState.Instance.AccessToken))
             {
@@ -615,6 +619,7 @@ namespace SunodGame.Telemetry
             sb.Append($"\"floor_scene\":\"{EscapeJson(payload.floor_scene)}\",");
             sb.Append($"\"tutorial_completed\":{(payload.tutorial_completed ? "true" : "false")},");
             sb.Append($"\"run_finished\":{(payload.run_finished ? "true" : "false")}");
+            if (payload.fair_mode) sb.Append(",\"fair_mode\":true");   // College Fair mode run only
             sb.Append("}");
             return sb.ToString();
         }
@@ -653,6 +658,7 @@ namespace SunodGame.Telemetry
                                                       Action<TRes>   onSuccess,
                                                       Action<string> onError)
         {
+            if (vc_OfflineSession.Block("PUT " + path)) { onError?.Invoke("Offline."); yield break; }   // offline admin session: never sent
             string requestUrl = ActiveBaseUrl + path;
             Debug.Log($"[Telemetry] PUT {requestUrl}");
 
@@ -682,6 +688,7 @@ namespace SunodGame.Telemetry
                                                          Action<string> onError,
                                                          string         jsonBody = "{}")
         {
+            if (vc_OfflineSession.Block("POST " + path)) { onError?.Invoke("Offline."); yield break; }   // offline admin session: never sent
             string requestUrl = ActiveBaseUrl + path;
             Debug.Log($"[Telemetry] POST {requestUrl}");
 
@@ -704,6 +711,24 @@ namespace SunodGame.Telemetry
                 Debug.LogWarning($"[Telemetry] Request failed: {req.responseCode} | {req.error} | {req.downloadHandler?.text}");
                 onError?.Invoke(BuildErrorMessage(req));
             }
+        }
+
+        /// <summary>
+        /// Can the server be reached right now? (GET runtime-status, short timeout.) Only the login
+        /// screen asks, and only on a device that may play offline (vc_OfflineSession).
+        /// </summary>
+        public void PingServer(Action<bool> onResult, int timeoutSeconds = 5)
+        {
+            if (vc_OfflineSession.Active) { onResult?.Invoke(false); return; }
+            StartCoroutine(PingRoutine(onResult, timeoutSeconds));
+        }
+
+        private IEnumerator PingRoutine(Action<bool> onResult, int timeoutSeconds)
+        {
+            using var req = UnityWebRequest.Get(ActiveBaseUrl + "/api/telemetry/runtime-status");
+            req.timeout = Mathf.Max(1, timeoutSeconds);
+            yield return req.SendWebRequest();
+            onResult?.Invoke(req.result == UnityWebRequest.Result.Success);
         }
 
         private bool IsBypassEnabled()
@@ -730,6 +755,7 @@ namespace SunodGame.Telemetry
                                             Action<TRes>   onSuccess,
                                             Action<string> onError)
         {
+            if (vc_OfflineSession.Block("POST " + path)) { onError?.Invoke("Offline."); yield break; }   // offline admin session: never sent
             string requestUrl = ActiveBaseUrl + path;
             Debug.Log($"[Telemetry] POST {requestUrl}");
 

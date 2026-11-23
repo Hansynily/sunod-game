@@ -27,13 +27,16 @@ public static partial class vc_LoopMeta
 
     private static void SaveCache(LoopMetaResponse meta)
     {
-        if (meta == null) return;
+        // offline admin session: the device cache belongs to the real account, never overwrite it
+        if (meta == null || vc_OfflineSession.Active) return;
         try { PlayerPrefs.SetString(CacheKey(), JsonUtility.ToJson(meta)); PlayerPrefs.Save(); } catch { }
     }
 
     private static void LoadCacheIfEmpty()
     {
         if (Current != null) return;
+        // offline admin session: a blank loop 1, not the real account's cached record
+        if (vc_OfflineSession.Active) { Current = vc_OfflineSession.FreshLoop(); Changed?.Invoke(); return; }
         try
         {
             string json = PlayerPrefs.GetString(CacheKey(), "");
