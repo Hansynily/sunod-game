@@ -247,7 +247,8 @@ public class vc_TownStage : MonoBehaviour
         // Checkpoint "the player is in this town" right away, so Continue (on any device)
         // resumes here even if they quit before playing a quest in it.
         vc_TownFlow.MarkQuestDone("in:" + stageId);
-        vc_QuestRoom.SaveProgressIds(new[] { "in:" + stageId }, gameObject.scene.name);
+        // fair run: its markers (fair:1 + the drawn offers) ride along, so Continue keeps the same run
+        vc_QuestRoom.SaveProgressIds(new[] { "in:" + stageId }.Concat(vc_FairMode.RunMarkers()).ToList(), gameObject.scene.name);
 
         MovePlayer(WakePosition);
         vc_QuestTimer.Instance?.SetStarsVisible(false);
@@ -368,6 +369,124 @@ public class vc_TownStage : MonoBehaviour
         // Planned towns (2026-11-07): everyone asks at their own place (shop door, pond, beach),
         // which the plaza board and the journal point to. No more shuffling.
         foreach (vc_TownNPC n in asking) n.PlaceAt(n.HomePosition);
+
+        // College Fair mode: the town's offers stand around the plaza instead
+        if (Fair) PlaceAtPlaza(asking);
+    }
+
+    // ── fair runs: the offered quest givers stand around the plaza ────────
+    // Plaza ellipses from the town plans (vc_TownBuilder.Plans: Blob("plaza", ...)), with the
+    // plan position of the town's "stage" spot, so the plaza is found from that spot at runtime.
+    // Quest rooms open at questArea (not at the giver), so moving a giver never moves its room.
+
+    private static readonly Dictionary<string, (Vector2 center, Vector2 radius, Vector2 stageSpot)> Plazas =
+        new Dictionary<string, (Vector2, Vector2, Vector2)>
+        {
+            { "elementary", (new Vector2(28f, 23f), new Vector2(4.8f, 4.2f), new Vector2(28f, 23.6f)) },
+            { "highschool", (new Vector2(30f, 22f), new Vector2(5.8f, 4.4f), new Vector2(30f, 21.6f)) },
+            { "college", (new Vector2(31f, 22.6f), new Vector2(5f, 4.2f), new Vector2(31f, 22.4f)) },
+        };
+
+    private const float PlazaKeepClear = 1.8f;   // from the board, stage, stall, hangouts
+    private const float GiverSpacing = 3f;
+
+    private void PlaceAtPlaza(List<vc_TownNPC> asking)
+    {
+        if (asking.Count == 0 || !Plazas.ContainsKey(stageId)) return;
+        if (TryPlaceAtPlaza(asking, out string why)) return;
+        // Right when the town loads, parts of it (the stall, the walk grid) may not be up yet:
+        // try again over the next few frames before giving up.
+        StartCoroutine(PlaceAtPlazaLater(new List<vc_TownNPC>(asking), why));
+    }
+
+    private IEnumerator PlaceAtPlazaLater(List<vc_TownNPC> asking, string why)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            yield return null;
+            if (i == 0) vc_TownGrid.Forget(transform);   // rebuild once, from the finished town
+            if (TryPlaceAtPlaza(asking, out why)) yield break;
+        }
+        Debug.LogWarning($"[TownStage] Fair: no clear spots around the {stageId} plaza ({why}); the givers stay at their own places.");
+    }
+
+    private bool TryPlaceAtPlaza(List<vc_TownNPC> asking, out string why)
+    {
+        why = "";
+        var plaza = Plazas[stageId];
+        Transform spots = transform.Find("Spots");
+        Transform stageSpot = spots != null ? spots.Find("stage") : null;
+        Vector2 offset = stageSpot != null ? (Vector2)stageSpot.position - plaza.stageSpot : Vector2.zero;
+        Vector2 center = plaza.center + offset;
+        vc_TownGrid grid = vc_TownGrid.For(transform);
+        Vector3 from = playerSpawn != null ? playerSpawn.position : WakePosition;
+
+        var keepClear = new List<Vector2>();
+        if (spots != null) foreach (Transform s in spots) keepClear.Add(s.position);
+        vc_KeepsakeStall stall = GetComponentInChildren<vc_KeepsakeStall>();
+        if (stall != null) keepClear.Add(stall.transform.position + new Vector3(0f, 1f, 0f));
+
+        // Every good point on rings around the plaza (any angle, a few sizes): walkable for the
+        // whole body, clear of the board/stage/stall/hangouts, and reachable from the spawn.
+        int blocked = 0, crowded = 0, unreachable = 0;
+        var good = new List<(Vector2 p, float angle)>();
+        foreach (float scale in new[] { 0.8f, 0.7f, 0.9f, 0.6f, 1f })
+            for (int deg = 0; deg < 360; deg += 10)
+            {
+                float a = deg * Mathf.Deg2Rad;
+                Vector2 p = center + new Vector2(Mathf.Cos(a) * plaza.radius.x, Mathf.Sin(a) * plaza.radius.y) * scale;
+                p = new Vector2(Mathf.Round(p.x * 16f) / 16f, Mathf.Round(p.y * 16f) / 16f);
+                if (grid != null && (!grid.IsWalkable(p) || !grid.IsWalkable(p + new Vector2(0f, 0.6f)))) { blocked++; continue; }
+                if (keepClear.Exists(k => Vector2.Distance(p, k) < PlazaKeepClear)) { crowded++; continue; }
+                if (grid != null) { List<Vector3> path = grid.FindPath(from, p); if (path == null || path.Count == 0) { unreachable++; continue; } }
+                good.Add((p, deg));
+            }
+
+        // Pick n of them spread around the plaza: for each starting point, take the next good
+        // points at least GiverSpacing apart, then keep the pick with the widest angular gap
+        // smallest (the most even spread). Inner rings come first in the list, so ties favour them.
+        int n = asking.Count;
+        List<Vector2> best = null;
+        float bestScore = -1f;
+        foreach (var first in good)
+        {
+            var pick = new List<(Vector2 p, float angle)> { first };
+            for (int k = 1; k < n; k++)
+            {
+                float target = first.angle + k * 360f / n;
+                (Vector2 p, float angle)? closest = null;
+                float closestDiff = float.MaxValue;
+                foreach (var g in good)
+                {
+                    if (pick.Exists(q => Vector2.Distance(q.p, g.p) < GiverSpacing)) continue;
+                    float diff = Mathf.Abs(Mathf.DeltaAngle(g.angle, target));
+                    if (diff < closestDiff) { closestDiff = diff; closest = g; }
+                }
+                if (closest == null) break;
+                pick.Add(closest.Value);
+            }
+            if (pick.Count != n) continue;
+            var angles = pick.Select(q => q.angle).OrderBy(x => x).ToList();
+            float minGap = 360f;
+            for (int k = 0; k < n; k++)
+            {
+                float gap = k + 1 < n ? angles[k + 1] - angles[k] : angles[0] + 360f - angles[k];
+                minGap = Mathf.Min(minGap, gap);
+            }
+            if (minGap > bestScore) { bestScore = minGap; best = pick.Select(q => q.p).ToList(); }
+        }
+
+        if (best == null)
+        {
+            why = $"{good.Count} good, {blocked} blocked, {crowded} too close to plaza things, {unreachable} unreachable";
+            return false;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            asking[i].PlaceAt(best[i]);
+            asking[i].FaceTowards(center);
+        }
+        return true;
     }
 
     /// <summary>

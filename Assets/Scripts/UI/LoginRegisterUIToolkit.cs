@@ -145,9 +145,9 @@ namespace SunodGame.UI
                 _brandBanner.parent.pickingMode = PickingMode.Ignore;
                 _brandBanner.RegisterCallback<PointerDownEvent>(OnBrandTapped);
             }
-            // Hidden until unlocked on this device (the scene's checkbox no longer forces it on)
+            // Always hidden when the login screen opens; 5 taps on the logo show it until it closes
             showDeveloperBackendControls = false;
-            try { showDeveloperBackendControls = PlayerPrefs.GetInt(DevBackendPrefKey, 0) == 1; } catch { }
+            try { if (PlayerPrefs.HasKey(DevBackendPrefKey)) { PlayerPrefs.DeleteKey(DevBackendPrefKey); PlayerPrefs.Save(); } } catch { }
 
             // Initial state
             ShowLogin();
@@ -273,7 +273,6 @@ namespace SunodGame.UI
 
             _devTaps = 0;
             showDeveloperBackendControls = !showDeveloperBackendControls;
-            try { PlayerPrefs.SetInt(DevBackendPrefKey, showDeveloperBackendControls ? 1 : 0); PlayerPrefs.Save(); } catch { }
             ApplyDevBackendVisibility();
             SunodGame.Core.vc_Sfx.Play("click", 0.6f);
         }
@@ -299,6 +298,13 @@ namespace SunodGame.UI
         private void OnLoginClicked(ClickEvent _)
         {
             ClearErrors();
+
+            // College Fair demo login: checked here, before anything goes to the server
+            if (vc_OfflineSession.IsDemoLogin(GetFieldValue(_inputUsername), GetFieldValue(_inputPassword)))
+            {
+                StartCoroutine(DemoLogin());
+                return;
+            }
 
             if (AuthManager.Instance == null)
             {
@@ -368,6 +374,21 @@ namespace SunodGame.UI
                 if (show && _btnOfflineLogin.style.display == DisplayStyle.None) vc_UIAnim.Show(_btnOfflineLogin, vc_UIAnim.Enter.Pop);
                 else if (!show) _btnOfflineLogin.style.display = DisplayStyle.None;
             });
+        }
+
+        /// <summary>
+        /// The demo login: looks like a normal login (the same waiting state for 1.2-1.8 s, no
+        /// extra text), then the Adventurer session (as DEV > Play offline) with Fair mode on.
+        /// Nothing is sent to the server.
+        /// </summary>
+        private System.Collections.IEnumerator DemoLogin()
+        {
+            SetLoading(true);
+            yield return new WaitForSecondsRealtime(UnityEngine.Random.Range(1.2f, 1.8f));
+            if (!vc_OfflineSession.Start(true)) { SetLoading(false); yield break; }
+            vc_FairMode.Enabled = true;
+            SetLoading(false);
+            SceneLoader.GoToMainMenu();
         }
 
         private void PlayOfflineFromDev()

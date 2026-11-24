@@ -74,13 +74,15 @@ public class vc_PlayerCosmetics : MonoBehaviour
         if (_catGo != null) Destroy(_catGo);
     }
 
-    /// <summary>The outfit chosen at the stall. A school uniform only shows once that school is
-    /// reached in this loop (a new loop is a new childhood).</summary>
+    /// <summary>The school uniform of the town you're in (elementary, high school, college), worn
+    /// automatically. An outfit bought at the stall (farmer, fiesta, raincoat) wins over it.
+    /// Choosing a uniform at the stall just means "the uniform": it follows the current school.</summary>
     private static string DesiredOutfit()
     {
         string chosen = vc_LoopMeta.Equipped("outfit");
-        if (vc_LoopMeta.IsStageUniform(chosen) && !vc_LoopMeta.UniformUnlocked(chosen)) return "";
-        return chosen;
+        if (!string.IsNullOrEmpty(chosen) && !vc_LoopMeta.IsStageUniform(chosen)) return chosen;
+        string town = vc_TownStage.Current != null ? vc_TownStage.Current.stageId : null;
+        return town == "elementary" ? "outfit_elem" : town == "highschool" ? "outfit_hs" : town == "college" ? "outfit_college" : "";
     }
 
     private void Refresh()

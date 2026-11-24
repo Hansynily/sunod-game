@@ -121,9 +121,11 @@ public class vc_EndRunUI : MonoBehaviour
 
         if (vc_FairMode.ThisRun)
         {
-            yield return SubmitFairRun(telemetry);
-            yield return FinalizeRun();
-            GoToEndThroughDisaster();
+            // The disaster plays right away; the result is worked out meanwhile (on an object
+            // that survives the scene change) and the results screen waits only for what's left.
+            var work = new FairWork();
+            vc_OfflineSession.Run(FairResultInBackground(telemetry, work));
+            GoToEndThroughDisaster(() => vc_OfflineSession.Run(WaitThenResults(work)));
             yield break;
         }
 
@@ -149,38 +151,63 @@ public class vc_EndRunUI : MonoBehaviour
     /// or runs out of time, the result is worked out on the phone (vc_FairMode.ApplyLocalResult),
     /// so the visitor never sees an error screen.
     /// </summary>
-    private IEnumerator SubmitFairRun(vc_SessionTelemetry telemetry)
+    private class FairWork { public bool done; }
+
+    /// <summary>
+    /// Fair run: the result is ALWAYS worked out on the phone (online or offline) and is ready at
+    /// once, so the results never wait. The run records still go to /run-complete (tagged
+    /// fair_mode) so they're logged; /api/predict is never called and the server's answer is
+    /// never shown.
+    /// </summary>
+    private static IEnumerator FairResultInBackground(vc_SessionTelemetry telemetry, FairWork work)
+    {
+        telemetry.SubmitLocalMetricsOnly();   // quests / stars for the results screen
+        vc_FairMode.ApplyLocalResult();
+        work.done = true;
+        yield return SubmitFairRun(telemetry);
+        vc_FairMode.ApplyLocalResult();   // the run summary's reply wrote its own result fields: put the phone result back
+        yield return FinalizeRun();
+    }
+
+    /// <summary>The disaster has ended: go to the results once the result is ready (bounded).</summary>
+    private static IEnumerator WaitThenResults(FairWork work)
+    {
+        for (float t = 0f; !work.done && t < 30f; t += Time.unscaledDeltaTime) yield return null;
+        if (!work.done) vc_FairMode.ApplyLocalResult();
+        SceneLoader.GoToEnd();
+    }
+
+    private static IEnumerator SubmitFairRun(vc_SessionTelemetry telemetry)
     {
         bool summaryOk = false, summaryDone = false;
-        StartCoroutine(telemetry.SubmitRunSummary(
+        // sub-steps run on the telemetry object (it lives across scenes)
+        telemetry.StartCoroutine(telemetry.SubmitRunSummary(
             _ => { summaryOk = true; summaryDone = true; },
             e => { Debug.LogWarning($"[vc_EndRunUI] Fair run summary failed: {e}"); summaryDone = true; }));
         for (float t = 0f; !summaryDone && t < 12f; t += Time.unscaledDeltaTime) yield return null;
-
-        int cluster = -1;
-        bool predictDone = false;
-        if (summaryOk)
-        {
-            StartCoroutine(telemetry.SubmitAndPredict(c => { cluster = c; predictDone = true; }));
-            for (float t = 0f; !predictDone && t < 15f; t += Time.unscaledDeltaTime) yield return null;
-        }
-
-        if (!summaryOk || !predictDone || cluster < 0)
-        {
-            Debug.LogWarning("[vc_EndRunUI] Fair run: server result missing, using the on-phone result.");
-            vc_FairMode.ApplyLocalResult();
-        }
+        if (!summaryOk) Debug.LogWarning("[vc_EndRunUI] Fair run records not logged (server unreachable).");
     }
 
-    private static void GoToEndThroughDisaster()
+    private static void GoToEndThroughDisaster() => GoToEndThroughDisaster(SceneLoader.GoToEnd);
+
+    /// <param name="toResults">What runs when the disaster ends (default: load the results).</param>
+    private static void GoToEndThroughDisaster(System.Action toResults)
     {
+        // College Fair runs end on a happy note for the visitor: graduation day, not the disaster
+        if (vc_FairMode.ThisRun)
+        {
+            if (!(SceneLoader.UseTownFlow && SunodGame.Cutscene.vc_CutscenePlayer.Play("Graduation", toResults)))
+                toResults();
+            return;
+        }
+
         string threat = vc_LoopMeta.Threat;
         // a fair run (and any offline run) always ends with the disaster, even when the loop record never loaded
         if (vc_FairMode.ThisRun || vc_OfflineSession.Active) threat = vc_FairMode.ThreatOrDefault(threat);
         if (SceneLoader.UseTownFlow && !string.IsNullOrEmpty(threat)
-            && SunodGame.Cutscene.vc_CutscenePlayer.Play("Threat_" + threat, SceneLoader.GoToEnd))
+            && SunodGame.Cutscene.vc_CutscenePlayer.Play("Threat_" + threat, toResults))
             return;
-        SceneLoader.GoToEnd();
+        toResults();
     }
 
     /// <summary>
@@ -188,7 +215,7 @@ public class vc_EndRunUI : MonoBehaviour
     /// main menu's Continue is greyed out when we get back there. If the call cannot land,
     /// a local pending flag makes the menu treat the run as finished anyway and retry.
     /// </summary>
-    private IEnumerator FinalizeRun()
+    private static IEnumerator FinalizeRun()
     {
         vc_SaveManager.DeleteSave();
         // offline admin session: no server flag and no "pending" flag for later - it must never

@@ -1,0 +1,196 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c34a5d9d304503e4e9f7091f4332b0d8, type: 3}
+  m_Name: Graduation
+  m_EditorClassIdentifier: Assembly-CSharp::SunodGame.Cutscene.vc_CutsceneData
+  charsPerSecond: 40
+  punctuationPause: 0.12
+  fadeDuration: 0.45
+  textFloatDistance: 18
+  textFloatDuration: 0.4
+  cuts:
+  - name: Graduation
+    stageColor: {r: 0.11764706, g: 0.3882353, b: 0.8392157, a: 1}
+    layers:
+    - image: {fileID: 7388822144124034973, guid: 8e8df46db89a6e54e95bece68a12d65a, type: 3}
+      texture: {fileID: 2800000, guid: a6417afcf8eedf6408d4b4be41664fca, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    - image: {fileID: 7388822144124034973, guid: 5c3eca9785cae5a49a977b8be3cf0473, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 2
+        keys:
+        - t01: 0
+          value: 1
+        - t01: 0.5
+          value: 0.35
+        - t01: 1
+          value: 1
+        duration: 1.6
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 2
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 18921eeaef47228498e564075354945b, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: -120
+        - t01: 1
+          value: 320
+        duration: 60
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 0
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 091eb1469b8abeb468a374b511be187b, type: 3}
+      texture: {fileID: 0}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks:
+      - property: 0
+        keys:
+        - t01: 0
+          value: 0
+        - t01: 0.5
+          value: 1
+        - t01: 1
+          value: 0
+        duration: 1.6
+        delay: 0
+        loop: 1
+        alternate: 0
+        steps: 1
+        easeInOut: 0
+        holdLastKey: 1
+    - image: {fileID: 7388822144124034973, guid: 145999c8001ba634dac6112215ee6d17, type: 3}
+      texture: {fileID: 2800000, guid: 4ad9fd9dc03215743a0ae978fa9559da, type: 3}
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 320
+        height: 180
+      clipCircle: 0
+      clipRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      pivot: {x: 160, y: 90}
+      frameSprite: {fileID: 0}
+      frameRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      showFromPage: 0
+      tracks: []
+    pages:
+    - The years pass. You grow up, one helping hand at a time.
+    - Then one bright morning, it's graduation day.
+    - You remember all of it. Every person you helped. Every skill you found.
+    - And somewhere in all of it, a path that could be yours...

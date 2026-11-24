@@ -79,6 +79,16 @@ public class vc_TownNPC : MonoBehaviour
     private float _phase;
     private Vector3 _markerBase;
     private Sprite[] _overrideFrames;   // walking frames while leaving
+    private Sprite[] _faceFrames;       // idle frames facing a set way (fair runs: toward the plaza)
+
+    /// <summary>Stand facing a point (idle frames for that direction).</summary>
+    public void FaceTowards(Vector3 point)
+    {
+        Vector2 d = point - transform.position;
+        if (d.sqrMagnitude < 0.0001f) return;
+        Sprite[] idle = vc_NpcSprites.Idle(Look, vc_NpcSprites.DirFor(d));
+        if (idle != null && idle.Length > 0) { _faceFrames = idle; _frame = 0; }
+    }
 
     private void Awake()
     {
@@ -92,7 +102,7 @@ public class vc_TownNPC : MonoBehaviour
 
     private void Update()
     {
-        Sprite[] frames = _overrideFrames ?? idleFrames;
+        Sprite[] frames = _overrideFrames ?? _faceFrames ?? idleFrames;
         if (body != null && frames != null && frames.Length > 0)
         {
             _frameTimer += Time.deltaTime;
@@ -160,6 +170,7 @@ public class vc_TownNPC : MonoBehaviour
     public void ReturnHome()
     {
         CaptureHome();
+        _faceFrames = null;
         transform.position = _homePosition;
     }
 

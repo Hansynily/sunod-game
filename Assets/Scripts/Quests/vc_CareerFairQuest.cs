@@ -158,9 +158,9 @@ public class vc_CareerFairQuest : vc_FitQuestBase
         }
         else if (studentWalk != null && studentWalk.Length > 0) student.sprite = studentWalk[0];
 
-        // The booth is solid, so count it once the student or the player is close to it.
-        if (rightBooth != null && (Vector2.Distance(student.transform.position, rightBooth.position) <= arriveRange
-                                   || Vector2.Distance(_player.position, rightBooth.position) <= arriveRange))
+        // The booth is solid, so count it once the student or the player is close to it. Measured to
+        // the booth's edge (not its pivot): standing right at the booth counts at once.
+        if (rightBooth != null && (NearBooth(student.transform.position) || NearBooth(_player.position)))
         {
             _following = false;
             StartCoroutine(Arrive("The student followed you to the right booth!"));
@@ -376,6 +376,25 @@ public class vc_CareerFairQuest : vc_FitQuestBase
             yield return new WaitForSeconds(0.1f);
         }
         Finish(msg);
+    }
+
+    private const float BoothEdgeRange = 1.3f;
+
+    /// <summary>Close to the right booth: within <see cref="BoothEdgeRange"/> of its edge (collider,
+    /// else sprite), or within <see cref="arriveRange"/> of its pivot.</summary>
+    private bool NearBooth(Vector2 p)
+    {
+        if (rightBooth == null) return false;
+        if (Vector2.Distance(p, rightBooth.position) <= arriveRange) return true;
+        foreach (Collider2D c in rightBooth.GetComponentsInChildren<Collider2D>())
+            if (c.enabled && Vector2.Distance(p, c.ClosestPoint(p)) <= BoothEdgeRange) return true;
+        foreach (SpriteRenderer r in rightBooth.GetComponentsInChildren<SpriteRenderer>())
+        {
+            Bounds b = r.bounds;
+            Vector2 q = new Vector2(Mathf.Clamp(p.x, b.min.x, b.max.x), Mathf.Clamp(p.y, b.min.y, b.max.y));
+            if (Vector2.Distance(p, q) <= BoothEdgeRange) return true;
+        }
+        return false;
     }
 
     private void Face(Vector3 delta)

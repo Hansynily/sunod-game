@@ -14,7 +14,9 @@ using Prop = SunodGame.Cutscene.vc_CutsceneData.TrackProperty;
 ///  - Resources/Cutscenes/Threat_{typhoon|flood|earthquake|fire}: the threat strikes at the
 ///    end of a run, then the quiet aftermath (before the results),
 ///  - Resources/Cutscenes/GoBack: the figure sends you back, time rewinds, you wake up a
-///    child again at the start of the next loop.
+///    child again at the start of the next loop,
+///  - Resources/Cutscenes/Graduation: College Fair runs end on graduation day instead of the
+///    disaster (a happy ending for booth visitors).
 /// The figure and the morning house are copied from the intro cutscene (Cutscene_Intro).
 /// SUNOD > Cutscenes > Build Loop Cutscenes. Safe to run again (overwrites these assets).
 /// </summary>
@@ -35,10 +37,39 @@ public static class vc_LoopCutsceneBuilder
         foreach (string threat in new[] { "typhoon", "flood", "earthquake", "fire" })
             Save(BuildThreat(threat), $"{OutDir}/Threat_{threat}.asset");
         Save(BuildGoBack(intro), $"{OutDir}/GoBack.asset");
+        Save(BuildGraduation(intro), $"{OutDir}/Graduation.asset");
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log("[vc_LoopCutsceneBuilder] Built 5 loop cutscenes in " + OutDir);
+        Debug.Log("[vc_LoopCutsceneBuilder] Built 6 loop cutscenes in " + OutDir);
+    }
+
+    [MenuItem("SUNOD/Cutscenes/Build Graduation Cutscene")]
+    public static void BuildGraduationOnly()
+    {
+        Directory.CreateDirectory(OutDir);
+        Save(BuildGraduation(AssetDatabase.LoadAssetAtPath<vc_CutsceneData>(IntroPath)), $"{OutDir}/Graduation.asset");
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("[vc_LoopCutsceneBuilder] Built Graduation in " + OutDir);
+    }
+
+    // ── graduation (College Fair runs) ────────────────────────────────────
+
+    private static vc_CutsceneData BuildGraduation(vc_CutsceneData intro)
+    {
+        var data = NewData();
+        Cut day = CopyCut(intro, "HouseDay") ?? new Cut { name = "Graduation", stageColor = new Color32(30, 99, 214, 255) };
+        day.name = "Graduation";
+        day.pages = new[]
+        {
+            "The years pass. You grow up, one helping hand at a time.",
+            "Then one bright morning, it's graduation day.",
+            "You remember all of it. Every person you helped. Every skill you found.",
+            "And somewhere in all of it, a path that could be yours...",
+        };
+        data.cuts.Add(day);
+        return data;
     }
 
     // ── threats ───────────────────────────────────────────────────────────

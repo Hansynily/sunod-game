@@ -26,6 +26,19 @@ public static class vc_OfflineSession
     private const string NameKey = "sunod.offline_admin.name";
     private const string PlayerKey = "sunod.offline_admin.player_id";
 
+    /// <summary>
+    /// The College Fair demo login: typing these on the normal login form starts the
+    /// Adventurer session with Fair mode on, without contacting the server at all
+    /// (UI/LoginRegisterUIToolkit). Both case-insensitive and trimmed (phone keyboards).
+    /// </summary>
+    private const string DemoUsername = "hollowtide";
+    private const string DemoPassword = "sunod2026";
+
+    public static bool IsDemoLogin(string username, string password) =>
+        username != null && password != null
+        && string.Equals(username.Trim(), DemoUsername, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(password.Trim(), DemoPassword, StringComparison.OrdinalIgnoreCase);   // phone keyboards auto-capitalize / add a space
+
     /// <summary>This app launch is an offline admin session.</summary>
     public static bool Active { get; private set; }
 
